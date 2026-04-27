@@ -1,46 +1,130 @@
 [
   {
-    "id": "b01",
-    "number": "1",
-    "name": "Hauptgebäude",
-    "shortName": "HG",
-    "lat": 49.6589,
-    "lng": 7.1333,
-    "description": "Main administrative building. Houses the Registrar, Examination Office, and lecture halls.",
-    "floors": 3,
-    "services": ["Registrar", "Examination Office", "Lecture Halls"]
+    "id": "9913",
+    "number": "9913",
+    "name": "Faculty and Programme Offices",
+    "shortName": "9913",
+    "aliases": [
+      "13",
+      "faculty offices",
+      "programme office",
+      "study advising"
+    ],
+    "lat": 49.6088072,
+    "lng": 7.1701828,
+    "description": "Academic offices, programme consultations, and staff rooms for several UCB degree programmes.",
+    "services": [
+      "Programme offices",
+      "Study advising",
+      "Professor consultations"
+    ]
   },
   {
-    "id": "b09",
-    "number": "9",
-    "name": "Mensa / Cafeteria",
-    "shortName": "Mensa",
-    "lat": 49.6591,
-    "lng": 7.1330,
-    "description": "Student cafeteria and dining hall.",
-    "floors": 1,
-    "services": ["Cafeteria", "Dining Hall"]
+    "id": "9914",
+    "number": "9914",
+    "name": "Student Life and AStA Building",
+    "shortName": "9914",
+    "aliases": [
+      "14",
+      "asta",
+      "student union",
+      "student life"
+    ],
+    "lat": 49.6080936,
+    "lng": 7.1702097,
+    "description": "Student-facing services including AStA contacts, student initiatives, and campus life support.",
+    "services": [
+      "AStA office",
+      "Student initiatives",
+      "Student support meetings"
+    ]
   },
   {
-    "id": "b13",
-    "number": "13",
-    "name": "Bibliothek",
-    "shortName": "Bib",
-    "lat": 49.6587,
-    "lng": 7.1335,
-    "description": "University library with study spaces and computer workstations.",
-    "floors": 2,
-    "services": ["Library", "Study Spaces", "Computers"]
+    "id": "9917",
+    "number": "9917",
+    "name": "IT Service and Campus Support",
+    "shortName": "9917",
+    "aliases": [
+      "17",
+      "it",
+      "it servicepoint",
+      "computer labs",
+      "service point"
+    ],
+    "lat": 49.6080933,
+    "lng": 7.1692014,
+    "description": "IT ServicePoint, printing support, account setup, and technical help for Stud.IP, email, and campus systems.",
+    "services": [
+      "IT ServicePoint",
+      "Account setup",
+      "Printing support",
+      "Computer labs"
+    ]
   },
   {
-    "id": "b55",
-    "number": "55",
-    "name": "IT-Gebäude",
-    "shortName": "IT",
-    "lat": 49.6585,
-    "lng": 7.1340,
-    "description": "IT ServicePoint and computer labs.",
-    "floors": 2,
-    "services": ["IT ServicePoint", "Computer Labs", "Printing"]
+    "id": "9922",
+    "number": "9922",
+    "name": "Zentraler Neubau and Library",
+    "shortName": "9922",
+    "aliases": [
+      "22",
+      "zentraler neubau",
+      "library",
+      "bibliothek",
+      "audimax"
+    ],
+    "lat": 49.6081806,
+    "lng": 7.1687406,
+    "description": "Central teaching building with library access, study areas, and large lecture spaces.",
+    "services": [
+      "Library",
+      "Study spaces",
+      "Large lecture rooms",
+      "Campus information points"
+    ]
+  },
+  {
+    "id": "9924",
+    "number": "9924",
+    "name": "Student Services and Examination Office",
+    "shortName": "9924",
+    "aliases": [
+      "24",
+      "registrar",
+      "studierendensekretariat",
+      "pruefungsamt",
+      "examination office",
+      "international office",
+      "student services"
+    ],
+    "lat": 49.6080386,
+    "lng": 7.1682969,
+    "description": "Core administration for enrollment certificates, exam support, international student contact points, and study administration.",
+    "services": [
+      "Registrar",
+      "Examination Office",
+      "International Office",
+      "Student administration"
+    ]
+  },
+  {
+    "id": "9928",
+    "number": "9928",
+    "name": "Campus Company and Housing Support",
+    "shortName": "9928",
+    "aliases": [
+      "28",
+      "campus company",
+      "housing",
+      "residence support"
+    ],
+    "lat": 49.6085114,
+    "lng": 7.1669025,
+    "description": "Campus Company services and residence-related support for campus housing and facilities.",
+    "services": [
+      "Housing support",
+      "Campus Company office",
+      "Facilities enquiries"
+    ]
   }
 ]

@@ -1,100 +1,130 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, Linking, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  Linking,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import MapboxGL from '@rnmapbox/maps';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, BG, BORDER } from '../../constants/colors';
-import buildings from '../../data/buildings.json';
-
-const TOKEN = process.env.EXPO_PUBLIC_MAPBOX_TOKEN;
-const UCB_CENTER = [7.1333, 49.6589];
-
-if (TOKEN) MapboxGL.setAccessToken(TOKEN);
+import {
+  buildFallbackBuilding,
+  buildNativeMapsLabel,
+  CAMPUS_CENTER,
+  getBuildingByIdOrAlias,
+  searchBuildings,
+} from '../../services/buildings';
 
 export default function MapScreen() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
-  const [visibleBuildings, setVisibleBuildings] = useState(buildings);
-  const mapRef = useRef(null);
   const pendingBuilding = useStore((s) => s.pendingMapBuilding);
   const clearPending = useStore((s) => s.clearPendingMapBuilding);
 
-  useEffect(() => {
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      setVisibleBuildings(buildings.filter((b) => b.name.toLowerCase().includes(q) || b.number.includes(q)));
-    } else {
-      setVisibleBuildings(buildings);
-    }
-  }, [search]);
+  const visibleBuildings = searchBuildings(search);
 
   useEffect(() => {
     if (pendingBuilding) {
-      const b = buildings.find((x) => x.id === pendingBuilding);
-      if (b) {
-        setSelected(b);
-        mapRef.current?.setCamera({ centerCoordinate: [b.lng, b.lat], zoomLevel: 17, animationDuration: 500 });
-      }
+      const b = getBuildingByIdOrAlias(pendingBuilding) ?? buildFallbackBuilding(pendingBuilding);
+      if (b) setSelected(b);
       clearPending();
     }
-  }, [pendingBuilding]);
-
-  if (!TOKEN) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.emptyContainer}>
-          <Ionicons name="map-outline" size={48} color={INACTIVE} />
-          <Text style={styles.emptyTitle}>Map Not Configured</Text>
-          <Text style={styles.emptyText}>Mapbox token is missing. Check app setup.</Text>
-        </View>
-      </View>
-    );
-  }
+  }, [pendingBuilding, clearPending]);
 
   const handleNavigate = (b) => {
+    const label = buildNativeMapsLabel(b);
     if (Platform.OS === 'ios') {
-      Linking.openURL(`maps://maps.apple.com/?ll=${b.lat},${b.lng}&q=${encodeURIComponent(b.name)}`);
+      Linking.openURL(`maps://maps.apple.com/?ll=${b.lat},${b.lng}&q=${encodeURIComponent(label)}`);
     } else {
-      Linking.openURL(`geo:${b.lat},${b.lng}?q=${encodeURIComponent(b.name)}`);
+      Linking.openURL(`geo:${b.lat},${b.lng}?q=${encodeURIComponent(label)}`);
     }
     setSelected(null);
   };
 
+  const handleOpenCampus = () => {
+    const label = CAMPUS_CENTER.label;
+    if (Platform.OS === 'ios') {
+      Linking.openURL(`maps://maps.apple.com/?ll=${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}&q=${encodeURIComponent(label)}`);
+    } else {
+      Linking.openURL(`geo:${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}?q=${encodeURIComponent(label)}`);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* Search bar */}
-      <View style={styles.searchBar}>
-        <Ionicons name="search-outline" size={18} color={INACTIVE} style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search buildings..."
-          placeholderTextColor={INACTIVE}
-          value={search}
-          onChangeText={setSearch}
-        />
-        {search && (
-          <TouchableOpacity onPress={() => setSearch('')}>
-            <Ionicons name="close-circle" size={18} color={INACTIVE} />
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.heroCard}>
+          <View style={styles.heroIcon}>
+            <Ionicons name="map-outline" size={24} color={PRIMARY} />
+          </View>
+          <Text style={styles.heroTitle}>Campus Guide</Text>
+          <Text style={styles.heroText}>
+            Browse buildings here and open turn-by-turn directions in Apple Maps.
+          </Text>
+          <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85}>
+            <Ionicons name="navigate-outline" size={18} color="#fff" />
+            <Text style={styles.campusButtonText}>Open Campus in Maps</Text>
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={18} color={INACTIVE} style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search buildings..."
+            placeholderTextColor={INACTIVE}
+            value={search}
+            onChangeText={setSearch}
+          />
+          {search ? (
+            <TouchableOpacity onPress={() => setSearch('')}>
+              <Ionicons name="close-circle" size={18} color={INACTIVE} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
+        <Text style={styles.countText}>
+          {visibleBuildings.length} building{visibleBuildings.length === 1 ? '' : 's'}
+        </Text>
+
+        {visibleBuildings.length > 0 ? (
+          visibleBuildings.map((b) => (
+            <TouchableOpacity
+              key={b.id}
+              style={styles.buildingCard}
+              onPress={() => setSelected(b)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.buildingBadge}>
+                <Text style={styles.buildingBadgeText}>{b.number}</Text>
+              </View>
+              <View style={styles.buildingInfo}>
+                <Text style={styles.buildingName}>{b.name}</Text>
+                <Text style={styles.buildingMeta}>{b.shortName}</Text>
+                {!!b.description && (
+                  <Text style={styles.buildingDesc} numberOfLines={2}>
+                    {b.description}
+                  </Text>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="search-outline" size={42} color={INACTIVE} />
+            <Text style={styles.emptyTitle}>No buildings found</Text>
+            <Text style={styles.emptyText}>Try another name, short name, or building number.</Text>
+          </View>
         )}
-      </View>
+      </ScrollView>
 
-      {/* Map */}
-      <MapboxGL.MapView style={styles.map} ref={mapRef} styleURL={MapboxGL.StyleURL.Outdoors}>
-        <MapboxGL.Camera centerCoordinate={UCB_CENTER} zoomLevel={16} />
-        <MapboxGL.UserLocation />
-
-        {/* Building markers */}
-        {visibleBuildings.map((b) => (
-          <MapboxGL.PointAnnotation key={b.id} id={b.id} coordinate={[b.lng, b.lat]} onSelected={() => setSelected(b)}>
-            <View style={[styles.marker, selected?.id === b.id && styles.markerSelected]}>
-              <Text style={styles.markerText}>{b.number}</Text>
-            </View>
-          </MapboxGL.PointAnnotation>
-        ))}
-      </MapboxGL.MapView>
-
-      {/* Building detail sheet */}
       <Modal visible={!!selected} transparent animationType="slide" onRequestClose={() => setSelected(null)}>
         <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setSelected(null)}>
           <View style={styles.sheet}>
@@ -116,6 +146,11 @@ export default function MapScreen() {
                     ))}
                   </>
                 )}
+                {selected.isFallback ? (
+                  <Text style={styles.fallbackNote}>
+                    Exact in-app guide data is still being curated for this building. Directions will open at the campus with your building number in the query.
+                  </Text>
+                ) : null}
                 <TouchableOpacity
                   style={styles.navBtn}
                   onPress={() => handleNavigate(selected)}
@@ -134,14 +169,44 @@ export default function MapScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG },
+  content: { padding: 12, paddingBottom: 32 },
+  heroCard: {
+    backgroundColor: '#F4F7FB',
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#D9E3F0',
+  },
+  heroIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#E2ECF8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
+  heroText: { fontSize: 14, color: '#506070', marginTop: 6, lineHeight: 20 },
+  campusButton: {
+    marginTop: 14,
+    backgroundColor: PRIMARY,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  campusButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A', marginTop: 12 },
   emptyText: { fontSize: 14, color: INACTIVE, marginTop: 6, textAlign: 'center' },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 12,
-    marginVertical: 8,
     paddingHorizontal: 12,
     backgroundColor: BG,
     borderRadius: 10,
@@ -151,19 +216,31 @@ const styles = StyleSheet.create({
   },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, fontSize: 14, color: '#1A1A1A' },
-  map: { flex: 1 },
-  marker: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: PRIMARY,
-    justifyContent: 'center',
+  countText: { marginTop: 12, marginBottom: 8, color: INACTIVE, fontSize: 13, fontWeight: '600' },
+  buildingCard: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 10,
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#fff',
+    gap: 12,
   },
-  markerSelected: { transform: [{ scale: 1.3 }] },
-  markerText: { color: '#fff', fontWeight: '700', fontSize: 12 },
+  buildingBadge: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: PRIMARY,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buildingBadgeText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  buildingInfo: { flex: 1 },
+  buildingName: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
+  buildingMeta: { fontSize: 12, color: INACTIVE, marginTop: 3 },
+  buildingDesc: { fontSize: 13, color: '#4A5560', marginTop: 6, lineHeight: 18 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: BG, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 40 },
   sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: BORDER, alignSelf: 'center', marginBottom: 12 },
@@ -172,6 +249,7 @@ const styles = StyleSheet.create({
   sheetDesc: { fontSize: 14, color: '#555', marginTop: 10, lineHeight: 20 },
   servicesLabel: { fontSize: 12, color: INACTIVE, fontWeight: '700', textTransform: 'uppercase', marginTop: 12, marginBottom: 6 },
   service: { fontSize: 13, color: '#444', marginBottom: 4 },
+  fallbackNote: { fontSize: 13, color: INACTIVE, marginTop: 12, lineHeight: 18 },
   navBtn: {
     flexDirection: 'row',
     alignItems: 'center',

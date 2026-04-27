@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, ERROR, INACTIVE } from '../constants/colors';
 
 const CONFIG = {
-  NO_INTERNET: { icon: 'wifi-outline', color: '#F57C00', title: 'No Internet', sub: 'Check your WiFi or mobile data.' },
+  NO_INTERNET: { icon: 'wifi-outline', color: '#F57C00', title: 'Stud.IP Unreachable', sub: 'The app could not reach Stud.IP. Check your connection or test the login in the browser.' },
   SERVER_DOWN: { icon: 'server-outline', color: ERROR, title: 'Server Unavailable', sub: 'Stud.IP is currently down. Try again later.' },
   AUTH_FAILED: { icon: 'lock-closed-outline', color: ERROR, title: 'Session Expired', sub: 'Please log in again.' },
   UNKNOWN: { icon: 'alert-circle-outline', color: INACTIVE, title: 'Something Went Wrong', sub: 'An unexpected error occurred.' },

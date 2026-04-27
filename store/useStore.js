@@ -6,7 +6,22 @@ const useStore = create((set, get) => ({
   userId: null,
   user: null,
   setUser: (user) => set({ user, userId: user?.id ?? null, isLoggedIn: true }),
-  clearUser: () => set({ user: null, userId: null, isLoggedIn: false }),
+  clearUser: () =>
+    set({
+      isLoggedIn: false,
+      userId: null,
+      user: null,
+      courses: [],
+      events: [],
+      news: [],
+      unreadNewsCount: 0,
+      isOffline: false,
+      pendingMapBuilding: null,
+      isHydrating: false,
+      dataReady: false,
+      bootstrapError: null,
+      lastSyncAt: null,
+    }),
 
   // Courses
   courses: [],
@@ -22,7 +37,8 @@ const useStore = create((set, get) => ({
   setNews: (news) => set({ news }),
   unreadNewsCount: 0,
   setUnreadCount: (n) => set({ unreadNewsCount: n }),
-  markNewsRead: () => set({ unreadNewsCount: 0 }),
+  markNewsRead: (timestamp = Date.now()) =>
+    set({ unreadNewsCount: 0, lastNewsSeenAt: timestamp }),
 
   // Settings (persisted to AsyncStorage 'ucb_settings')
   settings: { notificationsEnabled: false },
@@ -32,6 +48,17 @@ const useStore = create((set, get) => ({
   // Offline
   isOffline: false,
   setOffline: (v) => set({ isOffline: v }),
+
+  // Session hydration
+  isHydrating: false,
+  setHydrating: (v) => set({ isHydrating: v }),
+  dataReady: false,
+  setDataReady: (v) => set({ dataReady: v }),
+  bootstrapError: null,
+  setBootstrapError: (error) => set({ bootstrapError: error }),
+  lastSyncAt: null,
+  setLastSyncAt: (value) => set({ lastSyncAt: value }),
+  lastNewsSeenAt: 0,
 
   // Deep-link: Timetable → Map
   pendingMapBuilding: null,

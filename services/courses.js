@@ -3,6 +3,7 @@ import { setCache, getCache, getStaleCacheData } from './cache';
 import { CACHE_TTL } from '../constants/config';
 import { COURSE_COLORS } from '../constants/colors';
 import useStore from '../store/useStore';
+import { toMillis } from '../utils/datetime';
 
 function mapCourse(raw, index) {
   const attrs = raw.attributes ?? {};
@@ -17,6 +18,29 @@ function mapCourse(raw, index) {
   };
 }
 
+function getIncludedCourses(document) {
+  const included = document?.included ?? [];
+  const map = new Map();
+  included
+    .filter((item) => item.type === 'courses')
+    .forEach((item) => map.set(item.id, item));
+  return map;
+}
+
+async function fetchStudentCourses(client, userId) {
+  const response = await client.get(`/users/${userId}/course-memberships?include=course`);
+  const memberships = response.data.data ?? [];
+  const includedCourses = getIncludedCourses(response.data);
+
+  return memberships
+    .map((membership, index) => {
+      const courseId = membership.relationships?.course?.data?.id;
+      const course = courseId ? includedCourses.get(courseId) : null;
+      return course ? mapCourse(course, index) : null;
+    })
+    .filter(Boolean);
+}
+
 export async function fetchCourses(userId, forceRefresh = false) {
   if (!forceRefresh) {
     const cached = await getCache('courses', CACHE_TTL.COURSES);
@@ -25,10 +49,21 @@ export async function fetchCourses(userId, forceRefresh = false) {
 
   try {
     const client = await getApiClient();
-    const response = await client.get(`/users/${userId}/courses`);
-    const raw = response.data.data ?? [];
-    const data = raw.map((item, i) => mapCourse(item, i));
-    await setCache('courses', data);
+    let data = [];
+
+    try {
+      data = await fetchStudentCourses(client, userId);
+    } catch {
+      data = [];
+    }
+
+    if (data.length === 0) {
+      const response = await client.get(`/users/${userId}/courses`);
+      const raw = response.data.data ?? [];
+      data = raw.map((item, i) => mapCourse(item, i));
+    }
+
+    try { await setCache('courses', data); } catch {}
     useStore.getState().setCourses(data);
     useStore.getState().setOffline(false);
     return { data, isCached: false, lastUpdated: new Date() };
@@ -55,7 +90,7 @@ export async function fetchCourseDetail(courseId) {
     const client = await getApiClient();
     const response = await client.get(`/courses/${courseId}`);
     const data = response.data.data;
-    await setCache(cacheKey, data);
+    try { await setCache(cacheKey, data); } catch {}
     return { data, isCached: false, lastUpdated: new Date() };
   } catch (err) {
     const classified = classifyError(err);
@@ -82,7 +117,7 @@ export async function fetchCourseFiles(courseId) {
       mimeType: f.attributes?.['mime-type'] ?? '',
       downloadUrl: f.links?.['content-url'] ?? f.attributes?.['download-url'] ?? null,
     }));
-    await setCache(cacheKey, data);
+    try { await setCache(cacheKey, data); } catch {}
     return { data, isCached: false, lastUpdated: new Date() };
   } catch (err) {
     const classified = classifyError(err);
@@ -109,8 +144,8 @@ export async function fetchCourseAnnouncements(courseId) {
         body: n.attributes?.body ?? '',
         date: n.attributes?.date ?? n.attributes?.mkdate ?? null,
       }))
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
-    await setCache(cacheKey, data);
+      .sort((a, b) => (toMillis(b.date) ?? -Infinity) - (toMillis(a.date) ?? -Infinity));
+    try { await setCache(cacheKey, data); } catch {}
     return { data, isCached: false, lastUpdated: new Date() };
   } catch (err) {
     const classified = classifyError(err);

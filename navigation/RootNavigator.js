@@ -5,7 +5,8 @@ import LoginScreen from '../screens/LoginScreen';
 import MainTabs from './MainTabs';
 import SettingsScreen from '../screens/profile/SettingsScreen';
 import NewsFeedScreen from '../screens/news/NewsFeedScreen';
-import GuideStack from './GuideStack';
+import CourseDetailScreen from '../screens/courses/CourseDetailScreen';
+import CoursesScreen from '../screens/courses/CoursesScreen';
 import { PRIMARY } from '../constants/colors';
 
 const Stack = createNativeStackNavigator();
@@ -29,8 +30,19 @@ export default function RootNavigator() {
             options={{ headerShown: true, title: 'News', headerTintColor: PRIMARY }}
           />
           <Stack.Screen
-            name="Guide"
-            component={GuideStack}
+            name="CoursesList"
+            component={CoursesScreen}
+            options={{ headerShown: true, title: 'My Courses', headerTintColor: PRIMARY }}
+          />
+          <Stack.Screen
+            name="CourseDetail"
+            component={CourseDetailScreen}
+            options={({ route }) => ({
+              headerShown: true,
+              title: route.params?.title ?? 'Course',
+              headerTintColor: PRIMARY,
+              headerBackTitle: '',
+            })}
           />
         </>
       ) : (

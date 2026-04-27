@@ -1,20 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { PRIMARY, INACTIVE, BG, SURFACE } from '../constants/colors';
-
-function formatRelativeDate(raw) {
-  if (!raw) return '';
-  const ts = typeof raw === 'number' ? raw * 1000 : new Date(raw).getTime();
-  const diff = Date.now() - ts;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(ts).toLocaleDateString('en-DE', { day: 'numeric', month: 'short' });
-}
+import { formatRelativeFromNow } from '../utils/datetime';
 
 export default function NewsCard({ item, onPress, unread }) {
   const badgeColor = item.courseColor ?? PRIMARY;
@@ -24,7 +11,7 @@ export default function NewsCard({ item, onPress, unread }) {
         <View style={[styles.badge, { backgroundColor: badgeColor }]}>
           <Text style={styles.badgeText} numberOfLines={1}>{item.source}</Text>
         </View>
-        <Text style={styles.date}>{formatRelativeDate(item.date)}</Text>
+        <Text style={styles.date}>{formatRelativeFromNow(item.date)}</Text>
         {unread && <View style={styles.dot} />}
       </View>
       <Text style={styles.title} numberOfLines={2}>{item.title}</Text>

@@ -3,31 +3,37 @@ import { setCache, getCache, getStaleCacheData } from './cache';
 import { CACHE_TTL } from '../constants/config';
 import useStore from '../store/useStore';
 
-function mapProfile(raw) {
+export function normalizeProfile(raw) {
   const attrs = raw.attributes ?? {};
-  const nameParts = (attrs['formatted-name'] ?? '').split(' ');
-  return {
+  const firstName = attrs['given-name'] ?? (attrs['formatted-name'] ?? '').split(' ')[0] ?? '';
+  const lastName = attrs['family-name'] ?? (attrs['formatted-name'] ?? '').split(' ').slice(1).join(' ');
+  const profile = {
     id: raw.id,
     fullName: attrs['formatted-name'] ?? '',
-    firstName: nameParts[0] ?? '',
-    lastName: nameParts.slice(1).join(' '),
+    firstName,
+    lastName,
     username: attrs.username ?? '',
-    email: attrs['private-email'] ?? attrs.email ?? '',
+    email: attrs.email ?? attrs['private-email'] ?? '',
     avatarUrl: attrs['avatar-normal'] ?? null,
   };
+  return profile;
 }
 
 export async function fetchProfile(forceRefresh = false) {
   if (!forceRefresh) {
     const cached = await getCache('profile', CACHE_TTL.PROFILE);
-    if (cached) return cached;
+    if (cached) {
+      useStore.getState().setUser(cached.data);
+      return cached;
+    }
   }
 
   try {
     const client = await getApiClient();
     const response = await client.get('/users/me');
-    const data = mapProfile(response.data.data);
-    await setCache('profile', data);
+    const data = normalizeProfile(response.data.data);
+    try { await setCache('profile', data); } catch {}
+    useStore.getState().setUser(data);
     useStore.getState().setOffline(false);
     return { data, isCached: false, lastUpdated: new Date() };
   } catch (err) {
@@ -35,7 +41,10 @@ export async function fetchProfile(forceRefresh = false) {
     if (classified.type === 'NO_INTERNET') {
       useStore.getState().setOffline(true);
       const stale = await getStaleCacheData('profile');
-      if (stale) return stale;
+      if (stale) {
+        useStore.getState().setUser(stale.data);
+        return stale;
+      }
     }
     throw classified;
   }

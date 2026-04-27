@@ -14,8 +14,8 @@
     "week": 1,
     "task": "Activate your university email",
     "priority": "urgent",
-    "details": "Go to the IT ServicePoint in Building 55 with your enrollment letter. They will set up your @stud.uni-trier.de email address. All official communication from the university goes here.",
-    "office": "IT ServicePoint, Building 55",
+    "details": "Go to the IT ServicePoint in Building 9917 with your enrollment letter. They will set up your university email address and help with your first login. All official communication from the university goes there.",
+    "office": "IT ServicePoint, Building 9917",
     "deadline": "First week",
     "link": null
   },
@@ -24,8 +24,8 @@
     "week": 1,
     "task": "Get your student ID card (Studierendenausweis)",
     "priority": "urgent",
-    "details": "Collect your physical student ID card from the Studierendensekretariat (Building 1). You need this for the Mensa, library, and public transport discounts.",
-    "office": "Studierendensekretariat, Building 1",
+    "details": "Collect your physical student ID card from the Studierendensekretariat (Building 9924). You need this for the library, many campus services, and transport-related student discounts.",
+    "office": "Studierendensekretariat, Building 9924",
     "deadline": "First week",
     "link": null
   },
@@ -75,7 +75,7 @@
     "task": "Visit the International Office",
     "priority": "medium",
     "details": "The International Office can help with visa extensions, recognition of foreign certificates, and general support for international students. They often speak English.",
-    "office": "International Office, Building 1",
+    "office": "International Office, Building 9924",
     "deadline": "First month",
     "link": null
   },

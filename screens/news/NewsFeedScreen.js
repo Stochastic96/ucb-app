@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, View, Text, StyleSheet, RefreshControl, Modal, ScrollView, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { bootstrapSessionData } from '../../services/bootstrap';
 import { fetchNews } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, SURFACE, BG } from '../../constants/colors';
+import { markNewsSeen, syncUnreadNewsCount } from '../../services/newsState';
+import { toMillis } from '../../utils/datetime';
+import ErrorState from '../../components/ErrorState';
 
 function formatFullDate(raw) {
-  if (!raw) return '';
-  const ts = typeof raw === 'number' ? raw * 1000 : new Date(raw).getTime();
+  const ts = toMillis(raw);
+  if (ts === null) return '';
   return new Date(ts).toLocaleDateString('en-DE', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
@@ -19,54 +23,47 @@ export default function NewsFeedScreen() {
   const news = useStore((s) => s.news);
   const userId = useStore((s) => s.userId);
   const courses = useStore((s) => s.courses);
-  const markNewsRead = useStore((s) => s.markNewsRead);
-  const setUnreadCount = useStore((s) => s.setUnreadCount);
+  const dataReady = useStore((s) => s.dataReady);
+  const isHydrating = useStore((s) => s.isHydrating);
+  const bootstrapError = useStore((s) => s.bootstrapError);
 
   const [loading, setLoading] = useState(news.length === 0);
   const [refreshing, setRefreshing] = useState(false);
   const [lastReadTs, setLastReadTs] = useState(0);
   const [selected, setSelected] = useState(null);
 
-  const loadLastRead = async () => {
-    const raw = await AsyncStorage.getItem('ucb_news_last_read');
-    return raw ? parseInt(raw, 10) : 0;
-  };
-
   const load = useCallback(async () => {
     if (!userId) return;
-    const ts = await loadLastRead();
-    setLastReadTs(ts);
-    await fetchNews(userId, courses);
-    setLoading(false);
-    setRefreshing(false);
-  }, [userId, courses]);
+    try {
+      const seenAt = await markNewsSeen();
+      setLastReadTs(seenAt);
+
+      if (!dataReady && !isHydrating) {
+        await bootstrapSessionData();
+      } else {
+        const merged = await fetchNews(userId, courses);
+        await syncUnreadNewsCount(merged);
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [courses, dataReady, isHydrating, userId]);
 
   useEffect(() => { load(); }, [load]);
 
-  useEffect(() => {
-    const markRead = async () => {
-      const now = Date.now();
-      await AsyncStorage.setItem('ucb_news_last_read', String(now));
-      markNewsRead();
-    };
-    markRead();
-  }, []);
-
-  useEffect(() => {
-    if (lastReadTs > 0 && news.length > 0) {
-      const count = news.filter((n) => {
-        const ts = typeof n.date === 'number' ? n.date * 1000 : new Date(n.date).getTime();
-        return ts > lastReadTs;
-      }).length;
-      setUnreadCount(count);
-    }
-  }, [news, lastReadTs]);
+  useFocusEffect(
+    useCallback(() => {
+      const seenAt = Date.now();
+      markNewsSeen(seenAt).then(() => setLastReadTs(seenAt));
+    }, [])
+  );
 
   const onRefresh = () => { setRefreshing(true); load(); };
 
   const isUnread = (item) => {
-    const ts = typeof item.date === 'number' ? item.date * 1000 : new Date(item.date).getTime();
-    return ts > lastReadTs;
+    const ts = toMillis(item.date);
+    return ts !== null && ts > lastReadTs;
   };
 
   if (loading) {
@@ -75,6 +72,10 @@ export default function NewsFeedScreen() {
         <View style={{ padding: 20 }}><SkeletonLoader lines={12} /></View>
       </View>
     );
+  }
+
+  if (bootstrapError && news.length === 0) {
+    return <ErrorState type={bootstrapError.type} onRetry={onRefresh} />;
   }
 
   return (

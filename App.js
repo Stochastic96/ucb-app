@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import RootNavigator from './navigation/RootNavigator';
 import useStore from './store/useStore';
 import { PRIMARY, DARK } from './constants/colors';
+import { bootstrapSessionData } from './services/bootstrap';
 
 const ucbTheme = {
   ...MD3LightTheme,
@@ -19,9 +20,13 @@ export default function App() {
   const { updateSettings, setUser } = useStore();
 
   useEffect(() => {
-    loadSettings();
-    checkExistingSession();
+    initializeApp();
   }, []);
+
+  const initializeApp = async () => {
+    await loadSettings();
+    await checkExistingSession();
+  };
 
   const loadSettings = async () => {
     try {
@@ -34,14 +39,15 @@ export default function App() {
 
   const checkExistingSession = async () => {
     try {
-      const { checkExistingSession } = await import('./services/auth');
-      const result = await checkExistingSession();
+      const { checkExistingSession: restoreSession } = await import('./services/auth');
+      const result = await restoreSession();
       if (result.valid && result.user) {
         setUser(result.user);
+        try {
+          await bootstrapSessionData();
+        } catch {}
       }
-    } catch {
-      // credentials not stored yet
-    }
+    } catch {}
   };
 
   return (

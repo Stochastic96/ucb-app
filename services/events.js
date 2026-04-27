@@ -2,15 +2,36 @@ import { getApiClient, classifyError } from './api';
 import { setCache, getCache, getStaleCacheData } from './cache';
 import { CACHE_TTL } from '../constants/config';
 import useStore from '../store/useStore';
+import { toMillis } from '../utils/datetime';
 
 function parseLocation(location) {
   if (!location) return { room: '', building: '', buildingId: null };
-  // Format often: "9917-112" (building-room) or "Building 9917, Room 112"
-  const match = location.match(/^(\d+)-(.+)$/);
-  if (match) {
-    return { building: match[1], room: match[2], buildingId: match[1] };
+
+  const normalized = String(location).replace(/\s+/g, ' ').trim();
+
+  const buildingRoomMatch = normalized.match(/\b(\d{4})\s*[-/]\s*([A-Za-z0-9.-]+)\b/);
+  if (buildingRoomMatch) {
+    return {
+      building: buildingRoomMatch[1],
+      room: buildingRoomMatch[2],
+      buildingId: buildingRoomMatch[1],
+    };
   }
-  return { room: location, building: '', buildingId: null };
+
+  const buildingOnlyMatch = normalized.match(/\b(\d{4})\b/);
+  const roomMatch =
+    normalized.match(/\b(?:room|raum)\s*[:.-]?\s*([A-Za-z0-9.-]+)\b/i) ??
+    normalized.match(/\b([A-Za-z]{0,3}\d{1,3}[A-Za-z]?)\b/);
+
+  if (buildingOnlyMatch) {
+    return {
+      building: buildingOnlyMatch[1],
+      room: roomMatch?.[1] ?? normalized,
+      buildingId: buildingOnlyMatch[1],
+    };
+  }
+
+  return { room: normalized, building: '', buildingId: null };
 }
 
 function mapEvent(raw, course) {
@@ -31,16 +52,17 @@ function mapEvent(raw, course) {
   };
 }
 
-export async function fetchEventsForCourse(course) {
+async function fetchEventsForCourse(course, client, forceRefresh = false) {
   const cacheKey = `events_${course.id}`;
-  const cached = await getCache(cacheKey, CACHE_TTL.EVENTS);
-  if (cached) return cached.data;
+  if (!forceRefresh) {
+    const cached = await getCache(cacheKey, CACHE_TTL.EVENTS);
+    if (cached) return cached.data;
+  }
 
   try {
-    const client = await getApiClient();
     const response = await client.get(`/courses/${course.id}/events`);
     const data = (response.data.data ?? []).map((e) => mapEvent(e, course));
-    await setCache(cacheKey, data);
+    try { await setCache(cacheKey, data); } catch {}
     return data;
   } catch (err) {
     const classified = classifyError(err);
@@ -52,11 +74,12 @@ export async function fetchEventsForCourse(course) {
   }
 }
 
-export async function fetchAllEvents(courses) {
+export async function fetchAllEvents(courses, forceRefresh = false) {
   if (!courses || courses.length === 0) return [];
 
-  const results = await Promise.all(courses.map((c) => fetchEventsForCourse(c)));
-  const flat = results.flat().sort((a, b) => new Date(a.start) - new Date(b.start));
+  const client = await getApiClient();
+  const results = await Promise.all(courses.map((c) => fetchEventsForCourse(c, client, forceRefresh)));
+  const flat = results.flat().sort((a, b) => (toMillis(a.start) ?? Infinity) - (toMillis(b.start) ?? Infinity));
   useStore.getState().setEvents(flat);
   return flat;
 }

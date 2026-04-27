@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,26 +10,19 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchAllEvents } from '../../services/events';
+import { bootstrapSessionData } from '../../services/bootstrap';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, SURFACE, BG, BORDER } from '../../constants/colors';
+import { PRIMARY, INACTIVE, BG, BORDER } from '../../constants/colors';
+import { formatTime24, getWeekMonday, isSameCalendarDay, toDate } from '../../utils/datetime';
+import SkeletonLoader from '../../components/SkeletonLoader';
+import ErrorState from '../../components/ErrorState';
 
 const HOUR_HEIGHT = 60;
 const START_HOUR = 8;
 const END_HOUR = 20;
 const TOTAL_HOURS = END_HOUR - START_HOUR;
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - 48) / 5; // show Mon–Fri by default
-
-function getMondayOf(date) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1 - day);
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
 
 function addDays(date, n) {
   const d = new Date(date);
@@ -38,25 +31,13 @@ function addDays(date, n) {
 }
 
 function isoToMinutes(isoString) {
-  if (!isoString) return null;
-  const d = new Date(parseInt(isoString, 10) * 1000 || isoString);
+  const d = toDate(isoString);
+  if (!d) return null;
   return d.getHours() * 60 + d.getMinutes();
 }
 
 function formatTime(isoString) {
-  if (!isoString) return '';
-  const d = new Date(parseInt(isoString, 10) * 1000 || isoString);
-  return d.toLocaleTimeString('en-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-
-function sameDay(isoString, date) {
-  if (!isoString) return false;
-  const d = new Date(parseInt(isoString, 10) * 1000 || isoString);
-  return (
-    d.getFullYear() === date.getFullYear() &&
-    d.getMonth() === date.getMonth() &&
-    d.getDate() === date.getDate()
-  );
+  return formatTime24(isoString);
 }
 
 function formatDayHeader(date) {
@@ -66,38 +47,68 @@ function formatDayHeader(date) {
 export default function TimetableScreen({ navigation }) {
   const events = useStore((s) => s.events);
   const courses = useStore((s) => s.courses);
-  const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()));
+  const userId = useStore((s) => s.userId);
+  const dataReady = useStore((s) => s.dataReady);
+  const isHydrating = useStore((s) => s.isHydrating);
+  const bootstrapError = useStore((s) => s.bootstrapError);
+  const [weekStart, setWeekStart] = useState(() => getWeekMonday(new Date()));
   const [selected, setSelected] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(events.length === 0);
 
   useEffect(() => {
-    if (events.length === 0 && courses.length > 0) {
-      fetchAllEvents(courses).finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+    if (!userId) return;
+    if (!dataReady && !isHydrating) {
+      bootstrapSessionData().catch(() => {});
     }
-  }, [courses]);
+  }, [dataReady, isHydrating, userId]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchAllEvents(courses);
-    setRefreshing(false);
+    try {
+      await bootstrapSessionData(true);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const weekDays = Array.from({ length: 5 }, (_, i) => addDays(weekStart, i));
 
   const eventsInWeek = events.filter((e) =>
-    weekDays.some((day) => sameDay(e.start, day))
+    weekDays.some((day) => isSameCalendarDay(e.start, day))
   );
 
   const navigateToBuilding = (buildingId) => {
     if (buildingId) {
       useStore.getState().setPendingMapBuilding(buildingId);
-      navigation.getParent()?.navigate('Map');
+      navigation.navigate('Map');
     }
     setSelected(null);
   };
+
+  const openCourseDetail = (event) => {
+    const parent = navigation.getParent();
+    const target = parent ?? navigation;
+    target.navigate('CourseDetail', {
+      courseId: event.courseId,
+      title: event.courseTitle,
+      color: event.courseColor,
+    });
+    setSelected(null);
+  };
+
+  if (isHydrating && events.length === 0 && courses.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={{ padding: 20 }}>
+          <SkeletonLoader lines={8} />
+        </View>
+      </View>
+    );
+  }
+
+  if (bootstrapError && events.length === 0) {
+    return <ErrorState type={bootstrapError.type} onRetry={onRefresh} />;
+  }
 
   return (
     <View style={styles.container}>
@@ -120,7 +131,7 @@ export default function TimetableScreen({ navigation }) {
       <View style={styles.dayHeaders}>
         <View style={styles.timeGutter} />
         {weekDays.map((day, i) => {
-          const isToday = sameDay(day.toISOString(), new Date());
+          const isToday = isSameCalendarDay(day, new Date());
           return (
             <View key={i} style={[styles.dayHeaderCell, { width: COLUMN_WIDTH }]}>
               <Text style={[styles.dayHeaderText, isToday && styles.dayHeaderToday]}>
@@ -147,7 +158,7 @@ export default function TimetableScreen({ navigation }) {
 
           {/* Day columns */}
           {weekDays.map((day, di) => {
-            const dayEvents = eventsInWeek.filter((e) => sameDay(e.start, day));
+            const dayEvents = eventsInWeek.filter((e) => isSameCalendarDay(e.start, day));
             return (
               <View key={di} style={[styles.dayColumn, { width: COLUMN_WIDTH }]}>
                 {/* Hour grid lines */}
@@ -179,6 +190,12 @@ export default function TimetableScreen({ navigation }) {
         </View>
       </ScrollView>
 
+      {!isHydrating && dataReady && events.length === 0 ? (
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyText}>No timetable events are available yet.</Text>
+        </View>
+      ) : null}
+
       {/* Event detail modal */}
       <Modal visible={!!selected} transparent animationType="slide" onRequestClose={() => setSelected(null)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setSelected(null)}>
@@ -208,6 +225,15 @@ export default function TimetableScreen({ navigation }) {
                   >
                     <Ionicons name="navigate-outline" size={16} color="#fff" />
                     <Text style={styles.navigateBtnText}>Navigate to Building</Text>
+                  </TouchableOpacity>
+                )}
+                {!!selected.courseId && (
+                  <TouchableOpacity
+                    style={styles.secondaryBtn}
+                    onPress={() => openCourseDetail(selected)}
+                  >
+                    <Ionicons name="book-outline" size={16} color={PRIMARY} />
+                    <Text style={styles.secondaryBtnText}>View Course</Text>
                   </TouchableOpacity>
                 )}
               </>
@@ -277,4 +303,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   navigateBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  secondaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginTop: 10,
+    gap: 8,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: PRIMARY,
+  },
+  secondaryBtnText: { color: PRIMARY, fontWeight: '700', fontSize: 15 },
+  emptyWrap: {
+    position: 'absolute',
+    inset: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  },
+  emptyText: { fontSize: 15, color: INACTIVE, backgroundColor: 'rgba(255,255,255,0.9)', padding: 12, borderRadius: 10 },
 });

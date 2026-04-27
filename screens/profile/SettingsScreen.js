@@ -30,9 +30,6 @@ export default function SettingsScreen() {
     }
   };
 
-  const mapboxToken = process.env.EXPO_PUBLIC_MAPBOX_TOKEN;
-  const tokenDisplay = mapboxToken ? `${mapboxToken.slice(0, 20)}...` : 'Not configured';
-
   return (
     <ScrollView style={styles.container}>
       {/* Map Section */}
@@ -40,8 +37,8 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Map</Text>
         <View style={styles.settingRow}>
           <View>
-            <Text style={styles.settingLabel}>Mapbox API</Text>
-            <Text style={styles.settingValue}>{tokenDisplay}</Text>
+            <Text style={styles.settingLabel}>Campus navigation</Text>
+            <Text style={styles.settingValue}>Using building list and Apple Maps directions</Text>
           </View>
         </View>
       </View>

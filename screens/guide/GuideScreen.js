@@ -2,21 +2,31 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, INACTIVE, BG } from '../../constants/colors';
-
-const CATEGORIES = [
-  { id: 'buildings', icon: 'home-outline', label: 'Campus Buildings', count: 4 },
-  { id: 'checklist', icon: 'checkbox-outline', label: 'First Week Checklist', count: 9 },
-  { id: 'offices', icon: 'business-outline', label: 'Office Directory', count: 7 },
-  { id: 'glossary', icon: 'book-outline', label: 'German Glossary', count: 22 },
-  { id: 'phrases', icon: 'chatbubble-outline', label: 'German Phrases', count: 22 },
-  { id: 'faq', icon: 'help-circle-outline', label: 'FAQ', count: 15 },
-];
+import buildings from '../../data/buildings.json';
+import checklist from '../../data/guide_checklist.json';
+import offices from '../../data/guide_offices.json';
+import glossary from '../../data/guide_glossary.json';
+import phrases from '../../data/guide_phrases.json';
+import faq from '../../data/guide_faq.json';
+import contacts from '../../data/guide_contacts.json';
+import emergency from '../../data/guide_emergency.json';
 
 export default function GuideScreen({ navigation }) {
+  const categories = [
+    { id: 'emergency', icon: 'alert-circle-outline', label: 'Emergency Info', count: emergency.length },
+    { id: 'buildings', icon: 'home-outline', label: 'Campus Buildings', count: buildings.length },
+    { id: 'checklist', icon: 'checkbox-outline', label: 'First Week Checklist', count: checklist.length },
+    { id: 'offices', icon: 'business-outline', label: 'Office Directory', count: offices.length },
+    { id: 'contacts', icon: 'person-outline', label: 'Contacts', count: contacts.length },
+    { id: 'glossary', icon: 'book-outline', label: 'German Glossary', count: glossary.length },
+    { id: 'phrases', icon: 'chatbubble-outline', label: 'German Phrases', count: phrases.length },
+    { id: 'faq', icon: 'help-circle-outline', label: 'FAQ', count: faq.length },
+  ];
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={CATEGORIES}
+        data={categories}
         keyExtractor={(item) => item.id}
         numColumns={1}
         contentContainerStyle={{ padding: 16 }}

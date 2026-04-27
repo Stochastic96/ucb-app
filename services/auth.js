@@ -1,28 +1,34 @@
 import * as SecureStore from 'expo-secure-store';
-import { getApiClient, classifyError } from './api';
+import { getApiClient, classifyError, setCachedCredentials, clearCachedCredentials } from './api';
 import { clearAllCache } from './cache';
+import { normalizeProfile } from './profile';
 import useStore from '../store/useStore';
 
 export async function checkExistingSession() {
   const username = await SecureStore.getItemAsync('username');
-  if (!username) return { valid: false, user: null, error: null };
+  const password = await SecureStore.getItemAsync('password');
+  if (!username || !password) return { valid: false, user: null, error: null };
+
+  // Prime the in-memory cache before any screens try to call getApiClient()
+  setCachedCredentials(username, password);
 
   try {
     const client = await getApiClient();
     const response = await client.get('/users/me');
-    return { valid: true, user: response.data.data, error: null };
+    return { valid: true, user: normalizeProfile(response.data.data), error: null };
   } catch (err) {
     const classified = classifyError(err);
     if (classified.type === 'AUTH_FAILED') {
-      // Stored credentials are no longer valid — clear them
       await SecureStore.deleteItemAsync('username');
       await SecureStore.deleteItemAsync('password');
+      clearCachedCredentials();
     }
     return { valid: false, user: null, error: classified };
   }
 }
 
 export async function logout() {
+  clearCachedCredentials();
   await SecureStore.deleteItemAsync('username');
   await SecureStore.deleteItemAsync('password');
   await clearAllCache();

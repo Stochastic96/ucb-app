@@ -1,0 +1,38 @@
+[
+  {
+    "id": "e01",
+    "name": "Police (Polizei)",
+    "type": "emergency",
+    "phone": "110",
+    "description": "For any crime, theft, or if you feel unsafe."
+  },
+  {
+    "id": "e02",
+    "name": "Ambulance & Fire (Rettungsdienst/Feuerwehr)",
+    "type": "emergency",
+    "phone": "112",
+    "description": "For medical emergencies, fire, or accidents."
+  },
+  {
+    "id": "e03",
+    "name": "Campus Security",
+    "type": "campus",
+    "phone": "+49 6782 17-1234",
+    "description": "Campus security office for on-campus incidents."
+  },
+  {
+    "id": "e04",
+    "name": "International Office",
+    "type": "support",
+    "phone": "+49 6782 17-0",
+    "email": "international@umwelt-campus.de",
+    "description": "Support for international students (visa, emergencies, etc.)."
+  },
+  {
+    "id": "e05",
+    "name": "Lost Passport Hotline",
+    "type": "support",
+    "phone": "+49 6782 17-0",
+    "description": "Call for help if you lose your passport or important documents."
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "p01",
+    "name": "Prof. Dr. Anna Schmidt",
+    "role": "Professor of Environmental Science",
+    "email": "anna.schmidt@umwelt-campus.de",
+    "phone": "+49 6782 17-1234",
+    "office": "Building 9924, Room 210",
+    "organization": "Faculty"
+  },
+  {
+    "id": "p02",
+    "name": "Prof. Dr. Markus Weber",
+    "role": "Professor of Computer Science",
+    "email": "markus.weber@umwelt-campus.de",
+    "phone": "+49 6782 17-5678",
+    "office": "Building 9917, Room 102",
+    "organization": "Faculty"
+  },
+  {
+    "id": "a01",
+    "name": "AStA (Student Union)",
+    "role": "Student Union (AStA)",
+    "email": "asta@umwelt-campus.de",
+    "phone": "",
+    "office": "Student Union office, Building 9914",
+    "organization": "AStA"
+  }
+]

@@ -11,17 +11,18 @@ import {
   ScrollView,
 } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import axios from 'axios';
 import useStore from '../store/useStore';
-import { classifyError } from '../services/api';
-import { BASE_URL } from '../constants/config';
-import { PRIMARY, DARK, INACTIVE, BG, BORDER } from '../constants/colors';
+import { createApiClient, classifyError, setCachedCredentials } from '../services/api';
+import { normalizeProfile } from '../services/profile';
+import { bootstrapSessionData } from '../services/bootstrap';
+import { PRIMARY, INACTIVE, BG, BORDER } from '../constants/colors';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const setUser = useStore((s) => s.setUser);
+  const setOffline = useStore((s) => s.setOffline);
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
@@ -30,29 +31,46 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
+    let didAuthenticate = false;
     try {
-      const response = await axios.get(`${BASE_URL}/users/me`, {
-        auth: { username: username.trim(), password },
-        timeout: 10000,
-      });
+      const trimmedUsername = username.trim();
+      const client = createApiClient({ username: trimmedUsername, password });
+      const response = await client.get('/users/me');
+      const user = normalizeProfile(response.data.data);
 
-      await SecureStore.setItemAsync('username', username.trim());
+      // Store credentials
+      await SecureStore.setItemAsync('username', trimmedUsername);
       await SecureStore.setItemAsync('password', password);
-      setUser(response.data.data);
+      // Cache in memory so concurrent service calls don't race SecureStore
+      setCachedCredentials(trimmedUsername, password);
+
+      setOffline(false);
+      setUser(user);
+      didAuthenticate = true;
+      await bootstrapSessionData(true);
     } catch (error) {
-      const { type } = classifyError(error);
-      let title = 'Login Failed';
+      if (didAuthenticate) {
+        Alert.alert(
+          'Signed In',
+          'Your login worked, but some campus data could not be loaded yet. Open the app and pull to refresh in a moment.'
+        );
+        return;
+      }
+
+      const type = error?.type ?? classifyError(error).type;
+      const status = error.response?.status;
+
       let message;
       if (type === 'AUTH_FAILED') {
-        message = 'Wrong username or password. Please check your Stud.IP credentials.';
+        message = 'Wrong username or password. Use the same credentials you use to log into Stud.IP on the web.';
       } else if (type === 'NO_INTERNET') {
-        message = 'No internet connection. Check your WiFi or mobile data.';
+        message = 'Cannot reach Stud.IP. Check your internet connection and try again.';
       } else if (type === 'SERVER_DOWN') {
         message = 'Stud.IP server is currently unavailable. Try again later.';
       } else {
-        message = 'Something went wrong. Please try again.';
+        message = `Something went wrong. (${status ? `HTTP ${status}` : error.message})`;
       }
-      Alert.alert(title, message);
+      Alert.alert('Login Failed', message);
     } finally {
       setLoading(false);
     }
@@ -74,7 +92,7 @@ export default function LoginScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="Stud.IP Username"
+          placeholder="Stud.IP username (e.g. prsh4078)"
           placeholderTextColor={INACTIVE}
           value={username}
           onChangeText={setUsername}
@@ -103,7 +121,9 @@ export default function LoginScreen() {
           <Text style={styles.buttonText}>{loading ? 'Logging in…' : 'Login'}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.hint}>Use your Stud.IP login credentials</Text>
+        <Text style={styles.hint}>
+          Use your Hochschule Trier Stud.IP username and password — the same ones you use at studip.hochschule-trier.de
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -157,9 +177,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   hint: {
-    marginTop: 16,
+    marginTop: 20,
     textAlign: 'center',
     color: INACTIVE,
     fontSize: 13,
+    lineHeight: 18,
   },
 });

@@ -1,4 +1,8 @@
-export const BASE_URL = 'https://studip.hochschule-trier.de/jsonapi.php/v1';
+const DIRECT_STUDIP_BASE_URL = 'https://studip.hochschule-trier.de/jsonapi.php/v1';
+
+export const BASE_URL = process.env.EXPO_PUBLIC_STUDIP_BASE_URL || DIRECT_STUDIP_BASE_URL;
+export const STUDIP_WEB_URL = 'https://studip.hochschule-trier.de/index.php';
+export const STUDIP_LOCAL_LOGIN_URL = 'https://studip.hochschule-trier.de/index.php?again=yes';
 
 export const CACHE_TTL = {
   PROFILE: 60 * 60 * 1000,          // 1 hour

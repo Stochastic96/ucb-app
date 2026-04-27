@@ -1,12 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { INACTIVE } from '../constants/colors';
-
-function formatTime(isoOrUnix) {
-  if (!isoOrUnix) return '';
-  const d = new Date(parseInt(isoOrUnix, 10) * 1000 || isoOrUnix);
-  return d.toLocaleTimeString('en-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
-}
+import { formatTime24 } from '../utils/datetime';
 
 export default function EventRow({ event }) {
   return (
@@ -14,7 +9,7 @@ export default function EventRow({ event }) {
       <View style={[styles.colorBar, { backgroundColor: event.courseColor }]} />
       <View style={styles.info}>
         <Text style={styles.time}>
-          {formatTime(event.start)}{event.end ? ` – ${formatTime(event.end)}` : ''}
+          {formatTime24(event.start)}{event.end ? ` – ${formatTime24(event.end)}` : ''}
         </Text>
         <Text style={styles.title} numberOfLines={1}>{event.courseTitle}</Text>
         {!!event.room && <Text style={styles.room} numberOfLines={1}>Room {event.room}</Text>}

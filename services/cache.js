@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PREFIX = 'ucb_';
+const NON_CACHE_KEYS = new Set(['ucb_settings']);
 
 export async function setCache(key, data) {
   const entry = JSON.stringify({ data, timestamp: Date.now() });
@@ -25,7 +26,7 @@ export async function clearCache(key) {
 
 export async function clearAllCache() {
   const keys = await AsyncStorage.getAllKeys();
-  const ucbKeys = keys.filter((k) => k.startsWith(PREFIX));
+  const ucbKeys = keys.filter((k) => k.startsWith(PREFIX) && !NON_CACHE_KEYS.has(k));
   await AsyncStorage.multiRemove(ucbKeys);
 }
 

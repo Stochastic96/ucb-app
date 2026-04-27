@@ -1,5 +1,7 @@
 import { getApiClient, classifyError } from './api';
 import useStore from '../store/useStore';
+import { syncUnreadNewsCount } from './newsState';
+import { toSeconds } from '../utils/datetime';
 
 function mapNewsItem(raw, source, courseColor) {
   const attrs = raw.attributes ?? {};
@@ -44,12 +46,13 @@ export async function fetchNews(userId, courses = []) {
         return true;
       })
       .sort((a, b) => {
-        const da = Number(a.date) || new Date(a.date).getTime() / 1000;
-        const db = Number(b.date) || new Date(b.date).getTime() / 1000;
+        const da = toSeconds(a.date) ?? -Infinity;
+        const db = toSeconds(b.date) ?? -Infinity;
         return db - da;
       });
 
     useStore.getState().setNews(merged);
+    await syncUnreadNewsCount(merged);
     useStore.getState().setOffline(false);
     return merged;
   } catch (err) {
@@ -57,6 +60,8 @@ export async function fetchNews(userId, courses = []) {
     if (classified.type === 'NO_INTERNET') {
       useStore.getState().setOffline(true);
     }
-    return useStore.getState().news; // return whatever's in the store
+    const fallback = useStore.getState().news;
+    await syncUnreadNewsCount(fallback);
+    return fallback;
   }
 }
