@@ -1,0 +1,156 @@
+[
+  {
+    "id": "p01",
+    "category": "polite",
+    "german": "Entschuldigung",
+    "english": "Excuse me / Sorry",
+    "phonetic": "ent-SHOOL-dee-goong"
+  },
+  {
+    "id": "p02",
+    "category": "polite",
+    "german": "Bitte",
+    "english": "Please / You're welcome",
+    "phonetic": "BIT-tuh"
+  },
+  {
+    "id": "p03",
+    "category": "polite",
+    "german": "Danke schön",
+    "english": "Thank you very much",
+    "phonetic": "DAHN-kuh shern"
+  },
+  {
+    "id": "p04",
+    "category": "polite",
+    "german": "Sprechen Sie Englisch?",
+    "english": "Do you speak English?",
+    "phonetic": "SHPREH-khen zee ENG-lish?"
+  },
+  {
+    "id": "p05",
+    "category": "polite",
+    "german": "Ich verstehe das nicht.",
+    "english": "I don't understand that.",
+    "phonetic": "ikh fer-SHTAY-uh dahs nikht"
+  },
+  {
+    "id": "p06",
+    "category": "polite",
+    "german": "Können Sie das bitte wiederholen?",
+    "english": "Could you please repeat that?",
+    "phonetic": "KER-nen zee dahs BIT-tuh VEE-der-hoh-len?"
+  },
+  {
+    "id": "p07",
+    "category": "registrar",
+    "german": "Ich brauche eine Immatrikulationsbescheinigung.",
+    "english": "I need an enrollment certificate.",
+    "phonetic": "ikh BROW-khuh EYE-nuh im-mah-tri-koo-lah-TSYOHNS-buh-SHYE-ni-goong"
+  },
+  {
+    "id": "p08",
+    "category": "registrar",
+    "german": "Wo ist das Studierendensekretariat?",
+    "english": "Where is the Registrar's Office?",
+    "phonetic": "voh ist dahs shtu-DEE-ren-den-ze-kreh-tah-RYAT?"
+  },
+  {
+    "id": "p09",
+    "category": "registrar",
+    "german": "Wann sind die Öffnungszeiten?",
+    "english": "What are the opening hours?",
+    "phonetic": "vahn zint dee EFF-noongs-tsy-ten?"
+  },
+  {
+    "id": "p10",
+    "category": "registrar",
+    "german": "Ich bin internationaler Student.",
+    "english": "I am an international student.",
+    "phonetic": "ikh bin in-ter-nah-tsyo-NAH-ler shtu-DENT"
+  },
+  {
+    "id": "p11",
+    "category": "cafeteria",
+    "german": "Was kostet das Mittagessen?",
+    "english": "How much does the lunch cost?",
+    "phonetic": "vahs KOS-tet dahs MIT-tag-es-sen?"
+  },
+  {
+    "id": "p12",
+    "category": "cafeteria",
+    "german": "Haben Sie vegetarische Gerichte?",
+    "english": "Do you have vegetarian dishes?",
+    "phonetic": "HAH-ben zee veh-geh-TAH-ri-shuh guh-RIKH-tuh?"
+  },
+  {
+    "id": "p13",
+    "category": "cafeteria",
+    "german": "Ich möchte das bitte.",
+    "english": "I would like that one, please.",
+    "phonetic": "ikh MERKH-tuh dahs BIT-tuh"
+  },
+  {
+    "id": "p14",
+    "category": "cafeteria",
+    "german": "Wie kann ich Geld auf die Karte laden?",
+    "english": "How can I load money onto the card?",
+    "phonetic": "vee kan ikh gelt owf dee KAR-tuh LAH-den?"
+  },
+  {
+    "id": "p15",
+    "category": "directions",
+    "german": "Wo ist Gebäude Nummer ...?",
+    "english": "Where is Building Number ...?",
+    "phonetic": "voh ist guh-BOY-duh NUM-mer ...?"
+  },
+  {
+    "id": "p16",
+    "category": "directions",
+    "german": "Wie komme ich zur Bibliothek?",
+    "english": "How do I get to the library?",
+    "phonetic": "vee KOM-uh ikh tsoor bib-lee-oh-TAYK?"
+  },
+  {
+    "id": "p17",
+    "category": "directions",
+    "german": "Links / Rechts / Geradeaus",
+    "english": "Left / Right / Straight ahead",
+    "phonetic": "links / rekhts / guh-RAH-duh-ows"
+  },
+  {
+    "id": "p18",
+    "category": "directions",
+    "german": "Wo ist die nächste Bushaltestelle?",
+    "english": "Where is the nearest bus stop?",
+    "phonetic": "voh ist dee NAYKH-stuh BOOS-hal-tuh-shtel-uh?"
+  },
+  {
+    "id": "p19",
+    "category": "emergency",
+    "german": "Ich brauche Hilfe!",
+    "english": "I need help!",
+    "phonetic": "ikh BROW-khuh HIL-fuh!"
+  },
+  {
+    "id": "p20",
+    "category": "emergency",
+    "german": "Rufen Sie bitte einen Arzt!",
+    "english": "Please call a doctor!",
+    "phonetic": "ROO-fen zee BIT-tuh EYE-nen artst!"
+  },
+  {
+    "id": "p21",
+    "category": "emergency",
+    "german": "Notruf: 112",
+    "english": "Emergency number: 112",
+    "phonetic": "NOH-troof: eins-eins-tsvye"
+  },
+  {
+    "id": "p22",
+    "category": "emergency",
+    "german": "Ich habe meinen Ausweis verloren.",
+    "english": "I have lost my ID card.",
+    "phonetic": "ikh HAH-buh MY-nen OWS-vyes fer-LOH-ren"
+  }
+]

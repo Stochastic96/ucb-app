@@ -1,0 +1,46 @@
+[
+  {
+    "id": "b01",
+    "number": "1",
+    "name": "Hauptgebäude",
+    "shortName": "HG",
+    "lat": 49.6589,
+    "lng": 7.1333,
+    "description": "Main administrative building. Houses the Registrar, Examination Office, and lecture halls.",
+    "floors": 3,
+    "services": ["Registrar", "Examination Office", "Lecture Halls"]
+  },
+  {
+    "id": "b09",
+    "number": "9",
+    "name": "Mensa / Cafeteria",
+    "shortName": "Mensa",
+    "lat": 49.6591,
+    "lng": 7.1330,
+    "description": "Student cafeteria and dining hall.",
+    "floors": 1,
+    "services": ["Cafeteria", "Dining Hall"]
+  },
+  {
+    "id": "b13",
+    "number": "13",
+    "name": "Bibliothek",
+    "shortName": "Bib",
+    "lat": 49.6587,
+    "lng": 7.1335,
+    "description": "University library with study spaces and computer workstations.",
+    "floors": 2,
+    "services": ["Library", "Study Spaces", "Computers"]
+  },
+  {
+    "id": "b55",
+    "number": "55",
+    "name": "IT-Gebäude",
+    "shortName": "IT",
+    "lat": 49.6585,
+    "lng": 7.1340,
+    "description": "IT ServicePoint and computer labs.",
+    "floors": 2,
+    "services": ["IT ServicePoint", "Computer Labs", "Printing"]
+  }
+]

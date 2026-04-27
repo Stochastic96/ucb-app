@@ -1,20 +1,54 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { PaperProvider, MD3LightTheme } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import RootNavigator from './navigation/RootNavigator';
+import useStore from './store/useStore';
+import { PRIMARY, DARK } from './constants/colors';
+
+const ucbTheme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: PRIMARY,
+    secondary: DARK,
+  },
+};
 
 export default function App() {
+  const { updateSettings, setUser } = useStore();
+
+  useEffect(() => {
+    loadSettings();
+    checkExistingSession();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const raw = await AsyncStorage.getItem('ucb_settings');
+      if (raw) updateSettings(JSON.parse(raw));
+    } catch {
+      // first launch — no settings yet
+    }
+  };
+
+  const checkExistingSession = async () => {
+    try {
+      const { checkExistingSession } = await import('./services/auth');
+      const result = await checkExistingSession();
+      if (result.valid && result.user) {
+        setUser(result.user);
+      }
+    } catch {
+      // credentials not stored yet
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PaperProvider theme={ucbTheme}>
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+    </PaperProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

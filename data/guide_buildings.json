@@ -1,0 +1,38 @@
+[
+  {
+    "id": "gb01",
+    "number": "1",
+    "name": "Hauptgebäude (Main Building)",
+    "location": "Central campus, look for the largest building",
+    "services": ["Registrar (Studierendensekretariat)", "Examination Office (Prüfungsamt)", "Lecture Halls"],
+    "hours": "Mon–Thu 8:00–16:00, Fri 8:00–14:00",
+    "tips": "All official paperwork (enrollment certificates, transcripts) is issued here. Bring your student ID."
+  },
+  {
+    "id": "gb09",
+    "number": "9",
+    "name": "Mensa (Cafeteria)",
+    "location": "Follow signs to 'Mensa' from the main entrance",
+    "services": ["Hot meals (€2–5 for students)", "Coffee bar", "Salad bar"],
+    "hours": "Mon–Fri 11:30–14:00",
+    "tips": "Load money onto your student card at the machine near the entrance. Meal plans available."
+  },
+  {
+    "id": "gb13",
+    "number": "13",
+    "name": "Bibliothek (Library)",
+    "location": "Next to the main building",
+    "services": ["Book borrowing", "Study rooms (book in advance)", "Printing/copying", "Computer workstations"],
+    "hours": "Mon–Fri 8:00–20:00, Sat 10:00–16:00",
+    "tips": "Use your student card to borrow books. Quiet zones on the upper floor. You can book study rooms online."
+  },
+  {
+    "id": "gb55",
+    "number": "55",
+    "name": "IT-Gebäude (IT Building)",
+    "location": "Near the sports facilities",
+    "services": ["IT ServicePoint (help desk)", "VPN setup", "Email activation", "Computer labs", "Printing"],
+    "hours": "Mon–Fri 9:00–17:00",
+    "tips": "Go here in your first week to activate your university email and set up VPN for remote library access."
+  }
+]

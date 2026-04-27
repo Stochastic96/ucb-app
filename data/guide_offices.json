@@ -1,0 +1,72 @@
+[
+  {
+    "id": "o01",
+    "name": "Studierendensekretariat (Registrar)",
+    "building": "1",
+    "room": "Room 101",
+    "hours": "Mon–Thu 9:00–12:00, Mon+Wed 14:00–16:00",
+    "phone": "+49 6782 17-0",
+    "email": "studienbuero@umwelt-campus.de",
+    "tasks": ["Enrollment certificates", "De-registration", "Leave of absence", "Student ID pickup", "Address changes"]
+  },
+  {
+    "id": "o02",
+    "name": "Prüfungsamt (Examination Office)",
+    "building": "1",
+    "room": "Room 105",
+    "hours": "Mon–Fri 9:00–12:00",
+    "phone": "+49 6782 17-0",
+    "email": "pruefungsamt@umwelt-campus.de",
+    "tasks": ["Exam registration queries", "Grade transcripts", "Recognition of prior learning", "Degree certificates"]
+  },
+  {
+    "id": "o03",
+    "name": "IT ServicePoint",
+    "building": "55",
+    "room": "Ground floor",
+    "hours": "Mon–Fri 9:00–17:00",
+    "phone": "+49 6782 17-0",
+    "email": "it@umwelt-campus.de",
+    "tasks": ["Email account setup", "VPN configuration", "Password reset", "Hardware support", "Printing issues"]
+  },
+  {
+    "id": "o04",
+    "name": "International Office",
+    "building": "1",
+    "room": "Room 110",
+    "hours": "Mon+Wed+Fri 10:00–12:00",
+    "phone": "+49 6782 17-0",
+    "email": "international@umwelt-campus.de",
+    "tasks": ["Visa support letters", "Recognition of foreign degrees", "Erasmus+ exchange", "General support for international students"]
+  },
+  {
+    "id": "o05",
+    "name": "Studentenwerk (Student Services)",
+    "building": "9",
+    "room": "Near Mensa",
+    "hours": "Mon–Fri 11:00–14:00",
+    "phone": "+49 681 5867-0",
+    "email": "info@studentenwerk-kaiserslautern.de",
+    "tasks": ["BAföG applications", "Housing applications", "Mensa card top-up", "Psychological counseling"]
+  },
+  {
+    "id": "o06",
+    "name": "Bibliothek (Library)",
+    "building": "13",
+    "room": "Main entrance",
+    "hours": "Mon–Fri 8:00–20:00, Sat 10:00–16:00",
+    "phone": "+49 6782 17-0",
+    "email": "bibliothek@umwelt-campus.de",
+    "tasks": ["Book loans", "Study room booking", "Printing/scanning", "Database access", "Interlibrary loans"]
+  },
+  {
+    "id": "o07",
+    "name": "AStA (Student Union)",
+    "building": "1",
+    "room": "Student Union office",
+    "hours": "Variable — check notice board",
+    "phone": "",
+    "email": "asta@umwelt-campus.de",
+    "tasks": ["Semester ticket questions", "Student events", "Legal advice", "Social fund applications", "Campus life"]
+  }
+]

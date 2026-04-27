@@ -1,0 +1,57 @@
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { PRIMARY, INACTIVE, BG, SURFACE } from '../constants/colors';
+
+function formatRelativeDate(raw) {
+  if (!raw) return '';
+  const ts = typeof raw === 'number' ? raw * 1000 : new Date(raw).getTime();
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(ts).toLocaleDateString('en-DE', { day: 'numeric', month: 'short' });
+}
+
+export default function NewsCard({ item, onPress, unread }) {
+  const badgeColor = item.courseColor ?? PRIMARY;
+  return (
+    <TouchableOpacity style={[styles.card, unread && styles.cardUnread]} onPress={onPress} activeOpacity={0.8}>
+      <View style={styles.row}>
+        <View style={[styles.badge, { backgroundColor: badgeColor }]}>
+          <Text style={styles.badgeText} numberOfLines={1}>{item.source}</Text>
+        </View>
+        <Text style={styles.date}>{formatRelativeDate(item.date)}</Text>
+        {unread && <View style={styles.dot} />}
+      </View>
+      <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
+      <Text style={styles.body} numberOfLines={2}>{item.body}</Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: BG,
+    marginHorizontal: 16,
+    marginVertical: 5,
+    borderRadius: 10,
+    padding: 14,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  cardUnread: { borderLeftWidth: 3, borderLeftColor: PRIMARY },
+  row: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
+  badge: { borderRadius: 4, paddingHorizontal: 8, paddingVertical: 2 },
+  badgeText: { fontSize: 11, color: '#fff', fontWeight: '600', maxWidth: 160 },
+  date: { fontSize: 11, color: INACTIVE, marginLeft: 'auto' },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY },
+  title: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', marginBottom: 4 },
+  body: { fontSize: 13, color: '#555', lineHeight: 18 },
+});

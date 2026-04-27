@@ -1,0 +1,92 @@
+[
+  {
+    "id": "c01",
+    "week": 1,
+    "task": "Register your address (Anmeldung)",
+    "priority": "urgent",
+    "details": "German law requires you to register your address at the local Bürgeramt (Citizens' Office) within 2 weeks of arrival. You need your passport, rental contract, and a Wohnungsgeberbestätigung (landlord confirmation form). Go to Birkenfeld Rathaus.",
+    "office": "Rathaus Birkenfeld",
+    "deadline": "Within 14 days of arrival",
+    "link": null
+  },
+  {
+    "id": "c02",
+    "week": 1,
+    "task": "Activate your university email",
+    "priority": "urgent",
+    "details": "Go to the IT ServicePoint in Building 55 with your enrollment letter. They will set up your @stud.uni-trier.de email address. All official communication from the university goes here.",
+    "office": "IT ServicePoint, Building 55",
+    "deadline": "First week",
+    "link": null
+  },
+  {
+    "id": "c03",
+    "week": 1,
+    "task": "Get your student ID card (Studierendenausweis)",
+    "priority": "urgent",
+    "details": "Collect your physical student ID card from the Studierendensekretariat (Building 1). You need this for the Mensa, library, and public transport discounts.",
+    "office": "Studierendensekretariat, Building 1",
+    "deadline": "First week",
+    "link": null
+  },
+  {
+    "id": "c04",
+    "week": 1,
+    "task": "Set up health insurance",
+    "priority": "urgent",
+    "details": "International students must have German health insurance. If you are under 30 and enrolled full-time, you qualify for public insurance (TK, AOK, DAK). Visit a local branch or register online. You need proof of insurance to stay enrolled.",
+    "office": "Insurance office or online",
+    "deadline": "Before semester starts",
+    "link": null
+  },
+  {
+    "id": "c05",
+    "week": 1,
+    "task": "Log in to Stud.IP and QIS",
+    "priority": "high",
+    "details": "Stud.IP is the learning platform (courses, files, announcements). QIS is the exam registration system. Your login credentials are the same for both. Find your courses and join them on Stud.IP.",
+    "office": "Online",
+    "deadline": "First week",
+    "link": null
+  },
+  {
+    "id": "c06",
+    "week": 2,
+    "task": "Open a German bank account",
+    "priority": "high",
+    "details": "You need a German bank account to receive your BAföG, scholarships, or work salary. DKB and N26 offer free accounts with an English interface. Bring your passport, registration certificate (Anmeldebestätigung), and enrollment letter.",
+    "office": "Bank branch or online",
+    "deadline": "Within first month",
+    "link": null
+  },
+  {
+    "id": "c07",
+    "week": 2,
+    "task": "Apply for a semester ticket (if applicable)",
+    "priority": "medium",
+    "details": "Your student fee (Semesterbeitrag) includes a regional transport ticket. Check the AStA website for the coverage area and how to activate it on your student card.",
+    "office": "AStA office",
+    "deadline": "First month",
+    "link": null
+  },
+  {
+    "id": "c08",
+    "week": 2,
+    "task": "Visit the International Office",
+    "priority": "medium",
+    "details": "The International Office can help with visa extensions, recognition of foreign certificates, and general support for international students. They often speak English.",
+    "office": "International Office, Building 1",
+    "deadline": "First month",
+    "link": null
+  },
+  {
+    "id": "c09",
+    "week": 4,
+    "task": "Register for exams on QIS",
+    "priority": "high",
+    "details": "Exam registration is done through the QIS portal. Registration periods are typically 4–6 weeks before exams. Check exact dates in the academic calendar. Missing the registration deadline means you cannot sit the exam.",
+    "office": "QIS portal (online)",
+    "deadline": "Check academic calendar",
+    "link": null
+  }
+]

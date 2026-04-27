@@ -1,0 +1,92 @@
+[
+  {
+    "id": "f01",
+    "category": "enrollment",
+    "question": "How do I get an enrollment certificate (Immatrikulationsbescheinigung)?",
+    "answer": "Go to the Studierendensekretariat (Building 1) during opening hours and request one. You can also often print one yourself from the student portal. You need this for health insurance, banks, and housing."
+  },
+  {
+    "id": "f02",
+    "category": "enrollment",
+    "question": "When do I need to re-enroll (Rückmeldung)?",
+    "answer": "You must pay the Semesterbeitrag (semester fee) by the re-enrollment deadline each semester. Check QIS or the university website for exact dates — it is usually 6–8 weeks before the new semester. Missing this deadline means you lose your student status."
+  },
+  {
+    "id": "f03",
+    "category": "enrollment",
+    "question": "How do I register for exams?",
+    "answer": "Log in to QIS (the exam portal) and navigate to 'Prüfungsanmeldung' (exam registration). Registration windows are usually 4–6 weeks before the exam period. Missing the window means you cannot take the exam — no exceptions."
+  },
+  {
+    "id": "f04",
+    "category": "enrollment",
+    "question": "What happens if I fail an exam?",
+    "answer": "You usually get up to 3 attempts (depending on your study regulations). Check your Prüfungsordnung (examination regulations) on the university website. After failing once, you can re-register in the next exam period."
+  },
+  {
+    "id": "f05",
+    "category": "academic",
+    "question": "How does the German grading system work?",
+    "answer": "German grades run from 1.0 (best) to 5.0 (fail). Passing grades are 1.0 to 4.0. A 1.0–1.5 is excellent (sehr gut), 1.6–2.5 is good (gut), 2.6–3.5 is satisfactory (befriedigend), 3.6–4.0 is sufficient (ausreichend), and 4.1+ is a fail (nicht bestanden)."
+  },
+  {
+    "id": "f06",
+    "category": "academic",
+    "question": "How many ECTS credits do I need to graduate?",
+    "answer": "This depends on your degree program. A Bachelor's degree is typically 180 or 210 ECTS (6 or 7 semesters). Check your Studienplan (study plan) in Stud.IP or the examination regulations (Prüfungsordnung) for your specific program."
+  },
+  {
+    "id": "f07",
+    "category": "academic",
+    "question": "Can I attend any lecture I want?",
+    "answer": "For most lectures you can attend freely — just show up. However, to receive credit (ECTS) you must be enrolled in the course on Stud.IP and pass the assessment. Some courses have limited capacity and require registration."
+  },
+  {
+    "id": "f08",
+    "category": "housing",
+    "question": "Is there student housing on campus?",
+    "answer": "UCB has student dormitories near campus managed by the Studentenwerk. Apply early — spaces are limited. Contact the Studentenwerk (studentenwerk-kaiserslautern.de) for current availability and application process."
+  },
+  {
+    "id": "f09",
+    "category": "housing",
+    "question": "Can I live off campus?",
+    "answer": "Yes. Many students live in Birkenfeld or nearby towns. Average rent for a room is €300–500/month. Check WG-Gesucht.de or StudiVZ for shared flats (Wohngemeinschaft / WG). Remember to register your address (Anmeldung) within 2 weeks of moving in."
+  },
+  {
+    "id": "f10",
+    "category": "financial",
+    "question": "Am I eligible for BAföG?",
+    "answer": "EU citizens and some non-EU students with certain visa types may be eligible for BAföG (government student aid). Apply at the Studentenwerk. The amount depends on your parents' income and your own financial situation. Apply early — processing takes 3–4 months."
+  },
+  {
+    "id": "f11",
+    "category": "financial",
+    "question": "Can I work while studying in Germany?",
+    "answer": "International students from non-EU countries can work up to 120 full days or 240 half days per year. EU students have no restriction. Check your visa conditions. Popular options: working on campus (Hiwi positions), hospitality, or retail."
+  },
+  {
+    "id": "f12",
+    "category": "transport",
+    "question": "How do I get to campus from Birkenfeld?",
+    "answer": "There are regular buses from Birkenfeld town center to campus. Your semester ticket covers regional buses and trains within the valid zone. Check RNN (Rhein-Nahe Nahverkehrsgesellschaft) for schedules."
+  },
+  {
+    "id": "f13",
+    "category": "transport",
+    "question": "How do I get to Trier or Kaiserslautern?",
+    "answer": "Take the bus from campus to Idar-Oberstein or Birkenfeld train station, then take the regional train. Journey to Trier is about 1.5 hours. Your semester ticket may cover part of the route — check the validity zone."
+  },
+  {
+    "id": "f14",
+    "category": "cafeteria",
+    "question": "How does the Mensa (cafeteria) payment work?",
+    "answer": "You pay with your student card (chip card). Load money onto it at the machines near the Mensa entrance using cash or EC card. You cannot pay by cash directly at the till."
+  },
+  {
+    "id": "f15",
+    "category": "cafeteria",
+    "question": "Are there vegetarian or halal options at the Mensa?",
+    "answer": "Yes, the Mensa always offers at least one vegetarian option. Halal options are not guaranteed — check the weekly menu posted on the university website or at the Mensa entrance. Some students use the nearby Aldi or supermarkets for dietary needs."
+  }
+]
