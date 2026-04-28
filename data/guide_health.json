@@ -1,0 +1,63 @@
+{
+  "summary": "Statutory health insurance (GKV — Gesetzliche Krankenversicherung) is mandatory for enrollment at a German university. Students under 30 or in their first 14 semesters qualify for the student rate. You must choose a provider, apply, receive your Mitgliedsbescheinigung (membership confirmation), and submit it to the Studierendenwerk or Prüfungsamt before enrollment is complete. Without it, you cannot enroll.",
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Why GKV and Not Private?",
+      "body": "Private insurance is technically permitted but GKV is strongly recommended. Private plans often exclude mental health services, have deductibles, and can be more expensive. TK (Techniker Krankenkasse) is the most common choice for international students due to their excellent English support."
+    },
+    {
+      "id": "c2",
+      "title": "The Four Steps",
+      "body": "1. Choose a GKV provider (TK, DAK, AOK, or others).\n2. Apply online — it takes about 10 minutes.\n3. Receive your Mitgliedsbescheinigung (membership confirmation letter).\n4. Submit it to the Studierendenwerk or Prüfungsamt at UCB before your enrollment is finalised."
+    },
+    {
+      "id": "c3",
+      "title": "Mitgliedsbescheinigung",
+      "body": "This document proves you have health insurance. Universities need it to complete your enrollment. Request it from your chosen provider immediately after applying — it can take a few days to arrive. Do not wait."
+    },
+    {
+      "id": "c4",
+      "title": "What Happens If You Miss It?",
+      "body": "You cannot complete enrollment without valid health insurance proof. If you miss the deadline, contact the Studierendenwerk immediately — there is usually a short grace period, but it must be resolved before classes begin."
+    }
+  ],
+  "links": [
+    {
+      "id": "l1",
+      "title": "UCB Health Insurance for Incomings",
+      "desc": "Official UCB page — your primary reference",
+      "url": "https://www.umwelt-campus.de/en/international/incomings/health-insurance/"
+    },
+    {
+      "id": "l2",
+      "title": "TK (Techniker Krankenkasse)",
+      "desc": "Most popular insurer for international students, English support",
+      "url": "https://www.tk.de/en/health-insurance-for-internationals/students-0/"
+    },
+    {
+      "id": "l3",
+      "title": "DAK Student Health Insurance",
+      "desc": "Another major provider with student packages",
+      "url": "https://www.dak.de/dak/leistungen/students_en/"
+    },
+    {
+      "id": "l4",
+      "title": "AOK Student Information",
+      "desc": "Major regional health insurance provider",
+      "url": "https://en.aok.de/health-insurance/"
+    },
+    {
+      "id": "l5",
+      "title": "GKV-Spitzenverband",
+      "desc": "Statutory health insurance umbrella body — official overview",
+      "url": "https://www.gkv-spitzenverband.de/english/statutory_health_insurance/"
+    },
+    {
+      "id": "l6",
+      "title": "DAAD Health Insurance Overview",
+      "desc": "Academic exchange service guidance on health coverage",
+      "url": "https://www.daad.de/en/study-and-research-in-germany/plan-your-studies/health-insurance/"
+    }
+  ]
+}

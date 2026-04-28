@@ -1,0 +1,51 @@
+{
+  "summary": "German language ability is the single factor that most affects your social integration, employment options, and ability to navigate daily bureaucracy. UCB offers language courses — use them. Free and affordable options also exist online and locally in Birkenfeld. You do not need to be fluent, but A2 makes daily life workable; B1 opens the job market.",
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Why It Matters More Than You Think",
+      "body": "Most administrative offices, landlords, and local employers in Birkenfeld operate primarily in German. Even basic A2 proficiency dramatically reduces friction in daily life. B1 or higher is the practical threshold for most Werkstudent positions in the Rhineland-Palatinate region."
+    },
+    {
+      "id": "c2",
+      "title": "UCB Language Courses",
+      "body": "UCB offers language courses including German for international students. Check the current semester's offerings via the UCB website — availability varies. These are your most convenient option as they are on campus and often free or subsidised."
+    },
+    {
+      "id": "c3",
+      "title": "Free Online Resources",
+      "body": "Deutsche Welle (German public broadcaster) offers a complete free German course from beginner to advanced at learngerman.dw.com — one of the most respected free resources available. The Goethe-Institut offers free online exercises at all levels."
+    },
+    {
+      "id": "c4",
+      "title": "Volkshochschule (VHS) Birkenfeld",
+      "body": "The local Volkshochschule offers affordable in-person German courses in Birkenfeld. Courses are subsidised by the state and much cheaper than private language schools. Good for structured learning with a teacher and local social contact."
+    }
+  ],
+  "links": [
+    {
+      "id": "l1",
+      "title": "UCB Language Courses",
+      "desc": "On-campus language courses for international students",
+      "url": "https://www.umwelt-campus.de/en/international/outgoings/language-courses/"
+    },
+    {
+      "id": "l2",
+      "title": "Deutsche Welle — Learn German (Free)",
+      "desc": "Complete free German course from beginner to advanced",
+      "url": "https://learngerman.dw.com/en/overview"
+    },
+    {
+      "id": "l3",
+      "title": "Goethe-Institut Free Exercises",
+      "desc": "Official German cultural institute — free online exercises at all levels",
+      "url": "https://www.goethe.de/en/spr/ueb.html"
+    },
+    {
+      "id": "l4",
+      "title": "Volkshochschule Birkenfeld (VHS)",
+      "desc": "Affordable local in-person German courses",
+      "url": "https://www.vhs-birkenfeld.de/"
+    }
+  ]
+}

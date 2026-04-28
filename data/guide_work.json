@@ -1,0 +1,63 @@
+{
+  "summary": "On a German student visa you may work up to 120 full days or 240 half days per year. The two main models are Minijob (up to €538/month, no income tax) and Werkstudent (higher earnings, partial social insurance). UCB has a Career & Study Orientation office — that is your first stop on campus. A2/B1 German significantly widens what is available to you in Rhineland-Palatinate.",
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "120 Full Days / 240 Half Days",
+      "body": "These are your annual work allowances on a German student visa. Exceeding them violates your visa conditions. Track days carefully — your employer reports hours to the tax authority."
+    },
+    {
+      "id": "c2",
+      "title": "Minijob (Geringfügige Beschäftigung)",
+      "body": "Earnings up to €538/month. Employer pays flat-rate social contributions; you pay no income tax. Good for low-commitment work alongside studying. Register through the Minijob-Zentrale."
+    },
+    {
+      "id": "c3",
+      "title": "Werkstudent",
+      "body": "For students earning more than €538/month. Subject to partial social insurance contributions. Requires that studying remains your primary activity — max 20 hours per week during semester."
+    },
+    {
+      "id": "c4",
+      "title": "Language Opens Doors",
+      "body": "Most local employers in Birkenfeld and Rhineland-Palatinate require at least A2 German for practical roles. Sustainability and engineering companies near campus do hire international Werkstudenten with B1 or higher."
+    }
+  ],
+  "links": [
+    {
+      "id": "l1",
+      "title": "UCB Career & Study Orientation",
+      "desc": "Your official starting point for job guidance on campus",
+      "url": "https://www.umwelt-campus.de/en/study/study-programmes-continuing-education/career-and-study-orientation/"
+    },
+    {
+      "id": "l2",
+      "title": "Bundesagentur für Arbeit",
+      "desc": "Federal Employment Agency — English interface available",
+      "url": "https://www.arbeitsagentur.de/en/"
+    },
+    {
+      "id": "l3",
+      "title": "Make it in Germany — Finding a Job",
+      "desc": "Official BMBF/BAMF-funded portal for working in Germany",
+      "url": "https://www.make-it-in-germany.com/en/working-in-germany/finding-a-job/"
+    },
+    {
+      "id": "l4",
+      "title": "DAAD — Working While Studying",
+      "desc": "Academic exchange service guidance on student employment",
+      "url": "https://www.daad.de/en/study-and-research-in-germany/plan-your-studies/working-while-studying/"
+    },
+    {
+      "id": "l5",
+      "title": "Minijob-Zentrale (English)",
+      "desc": "Official registration portal run by Deutsche Rentenversicherung",
+      "url": "https://www.minijob-zentrale.de/EN/"
+    },
+    {
+      "id": "l6",
+      "title": "Integreat Birkenfeld",
+      "desc": "Local integration guide including employment resources",
+      "url": "https://integreat.app/birkenfeld/en/"
+    }
+  ]
+}

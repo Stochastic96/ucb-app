@@ -20,6 +20,12 @@ const CATEGORY_COLORS = {
   glossary: '#E65100',
   phrases: '#AD1457',
   faq: '#4527A0',
+  work: '#1976D2',
+  health: '#00838F',
+  accommodation: '#5D4037',
+  bureaucracy: '#37474F',
+  language: '#7B1FA2',
+  rights: '#EF6C00',
 };
 
 export default function GuideScreen({ navigation }) {
@@ -32,6 +38,12 @@ export default function GuideScreen({ navigation }) {
     { id: 'glossary', icon: 'book-outline', label: 'German Glossary', count: glossary.length, desc: 'University terms explained' },
     { id: 'phrases', icon: 'chatbubble-outline', label: 'German Phrases', count: phrases.length, desc: 'Tap any phrase to copy it' },
     { id: 'faq', icon: 'help-circle-outline', label: 'FAQ', count: faq.length, desc: 'Common questions answered' },
+    { id: 'work', icon: 'briefcase-outline', label: 'Work & Finance', count: 6, desc: 'Working rights, Minijob, Werkstudent' },
+    { id: 'health', icon: 'medical-outline', label: 'Health Insurance', count: 6, desc: 'GKV, enrollment steps, providers' },
+    { id: 'accommodation', icon: 'bed-outline', label: 'Accommodation', count: 5, desc: 'Campus housing, Kaltmiete vs. Warmmiete' },
+    { id: 'bureaucracy', icon: 'document-text-outline', label: 'Bureaucracy & Arrival', count: 7, desc: 'Anmeldung, residence permit, tax ID' },
+    { id: 'language', icon: 'language-outline', label: 'Language Learning', count: 4, desc: 'Free & local German courses' },
+    { id: 'rights', icon: 'shield-checkmark-outline', label: 'Student Rights', count: 4, desc: 'Counselling, exam review, AStA, hardship fund' },
   ];
 
   return (

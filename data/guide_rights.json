@@ -1,0 +1,56 @@
+{
+  "summary": "Many international students do not know what they are entitled to. UCB students have access to free psychological counselling, the right to review exam papers, a student parliament (AStA) that provides free legal advice, and a social hardship fund for emergencies. These resources exist to be used.",
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Psychological Counselling (Free)",
+      "body": "The Studierendenwerk Trier provides free psychological counselling for students. Appointments can often be arranged in English. Stress, adjustment difficulties, and academic pressure are the most common reasons students use this service — it is normal and encouraged."
+    },
+    {
+      "id": "c2",
+      "title": "Exam Review Right (Einsichtnahme)",
+      "body": "You have the legal right to review your graded exam papers. Contact the Prüfungsamt (Examination Office) after results are published to schedule a review. This is your right — use it if you have questions about how an exam was marked."
+    },
+    {
+      "id": "c3",
+      "title": "AStA — Student Parliament",
+      "body": "The AStA (Allgemeiner Studierendenausschuss) is the student representative body. They provide free legal advice for students on issues like tenancy disputes, employment rights, and university disputes. Contact them early — they are on your side."
+    },
+    {
+      "id": "c4",
+      "title": "Social Hardship Fund (Nothilfe)",
+      "body": "If you face a sudden financial emergency, the Studierendenwerk administers a social hardship fund. Applications are confidential. This covers genuine emergencies — unexpected medical costs, delayed scholarship payments, or similar situations."
+    },
+    {
+      "id": "c5",
+      "title": "UCB Student Service Office",
+      "body": "For general administrative questions, appeals, and guidance on rights within the university, the UCB Student Service office is your first stop. They can direct you to the right place for almost any issue."
+    }
+  ],
+  "links": [
+    {
+      "id": "l1",
+      "title": "UCB Student Service",
+      "desc": "General administrative support and guidance",
+      "url": "https://www.umwelt-campus.de/en/study/application-admission/student-service/"
+    },
+    {
+      "id": "l2",
+      "title": "UCB Examination Office (Prüfungsamt)",
+      "desc": "Exam results, review rights, and academic administration",
+      "url": "https://www.umwelt-campus.de/en/study/examination-office/"
+    },
+    {
+      "id": "l3",
+      "title": "Studierendenwerk Trier — Counselling",
+      "desc": "Free psychological counselling and social services",
+      "url": "https://www.studierendenwerk-trier.de/en/counselling/"
+    },
+    {
+      "id": "l4",
+      "title": "AStA Hochschule Trier",
+      "desc": "Student parliament — free legal advice for students",
+      "url": "https://asta.hochschule-trier.de/"
+    }
+  ]
+}

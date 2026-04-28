@@ -12,6 +12,22 @@ import guideEmergency from '../../data/guide_emergency.json';
 import { Linking } from 'react-native';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
 import { getAllBuildings } from '../../services/buildings';
+import InfoSectionView from './InfoSectionView';
+import guideWork from '../../data/guide_work.json';
+import guideHealth from '../../data/guide_health.json';
+import guideAccommodation from '../../data/guide_accommodation.json';
+import guideBureaucracy from '../../data/guide_bureaucracy.json';
+import guideLanguage from '../../data/guide_language.json';
+import guideRights from '../../data/guide_rights.json';
+
+const INFO_SECTIONS = {
+  work: guideWork,
+  health: guideHealth,
+  accommodation: guideAccommodation,
+  bureaucracy: guideBureaucracy,
+  language: guideLanguage,
+  rights: guideRights,
+};
 
 const CATEGORIES = {
   emergency: guideEmergency,
@@ -59,6 +75,10 @@ export default function GuideDetailScreen({ route }) {
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1500);
   };
+
+  if (INFO_SECTIONS[category]) {
+    return <InfoSectionView data={INFO_SECTIONS[category]} />;
+  }
 
   if (category === 'emergency') {
     return (

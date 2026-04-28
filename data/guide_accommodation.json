@@ -1,0 +1,57 @@
+{
+  "summary": "UCB has two official campus housing providers: Campus Company and Schneider Bau. Apply several months before your semester starts — rooms fill quickly. The most important distinction before signing any lease is Kaltmiete vs. Warmmiete: cold rent is just the base rent, warm rent includes utilities (Nebenkosten). Always confirm which figure you are agreeing to.",
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Kaltmiete vs. Warmmiete",
+      "body": "Kaltmiete is the base (cold) rent — it does not include heating, electricity, water, or building maintenance costs. Warmmiete includes all of these (Nebenkosten = additional costs). When comparing flats, always compare Warmmiete figures. Many students are surprised when their first utility bill arrives — this explanation prevents that."
+    },
+    {
+      "id": "c2",
+      "title": "Campus Company & Schneider Bau",
+      "body": "These are the two official housing providers on or near the UCB campus. They offer furnished rooms specifically for students. Apply as early as possible — rooms are limited and demand is high at semester start. Contact them directly via the links below."
+    },
+    {
+      "id": "c3",
+      "title": "Studierendenwerk Trier",
+      "body": "The Studierendenwerk (student services organisation) covers UCB and offers an alternative route for student housing applications. Worth applying to in parallel with campus providers to maximise your chances."
+    },
+    {
+      "id": "c4",
+      "title": "WG-Gesucht (Flatshares)",
+      "body": "WG-Gesucht is Germany's largest shared flat (Wohngemeinschaft / WG) portal. If campus housing is unavailable, this is the standard tool students use. Writing a short introduction letter in German significantly improves response rates from landlords."
+    }
+  ],
+  "links": [
+    {
+      "id": "l1",
+      "title": "Campus Company (Official Campus Housing)",
+      "desc": "Primary campus housing provider for UCB students",
+      "url": "https://www.campuscompany.de/en/"
+    },
+    {
+      "id": "l2",
+      "title": "Studierendenwerk Trier — Housing",
+      "desc": "Student services housing applications, covers UCB",
+      "url": "https://www.studierendenwerk-trier.de/en/housing/"
+    },
+    {
+      "id": "l3",
+      "title": "UCB Official Accommodation Page",
+      "desc": "Official UCB guidance for incoming students",
+      "url": "https://www.umwelt-campus.de/en/international/incomings/accommodation/"
+    },
+    {
+      "id": "l4",
+      "title": "WG-Gesucht (Flatshares)",
+      "desc": "Germany's largest shared flat portal",
+      "url": "https://www.wg-gesucht.de/en/"
+    },
+    {
+      "id": "l5",
+      "title": "Integreat Birkenfeld",
+      "desc": "Local housing context and integration guide",
+      "url": "https://integreat.app/birkenfeld/en/"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "summary": "Bureaucracy in Germany follows a strict sequence — each step unlocks the next. Anmeldung (resident registration) must happen within 14 days of moving in and is legally required. It gives you a tax ID, unlocks your ability to open a bank account, and starts your SCHUFA credit history. Everything else follows from this.",
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Before Arrival — Documents to Prepare",
+      "body": "Valid passport, visa, acceptance letter from UCB, health insurance confirmation (Mitgliedsbescheinigung), and your accommodation contract (Wohnungsgeberbestätigung — your landlord must sign this). You will need all of these for Anmeldung."
+    },
+    {
+      "id": "c2",
+      "title": "First Week: Anmeldung (Resident Registration)",
+      "body": "Go to the Einwohnermeldeamt (residents' registration office) at the Verbandsgemeinde Birkenfeld within 14 days of moving in. Bring your passport, accommodation contract, and the landlord confirmation form. You receive an Anmeldebestätigung (registration certificate) — keep this document. It is required for your bank account and tax ID."
+    },
+    {
+      "id": "c3",
+      "title": "First Week: Bank Account & Tax ID",
+      "body": "With your Anmeldebestätigung you can open a German bank account. Your Steueridentifikationsnummer (tax ID) is automatically mailed to your registered address within a few weeks — you do not apply for it separately. You will need it for any employment."
+    },
+    {
+      "id": "c4",
+      "title": "First Month: Residence Permit (Non-EU Students)",
+      "body": "Non-EU students must apply for a student residence permit (Aufenthaltserlaubnis) at the Ausländerbehörde at Landkreis Birkenfeld. Book an appointment early — waiting times can be 6–8 weeks. Bring: enrollment certificate, health insurance proof, financial proof (blocked account or sponsorship letter), and biometric photos."
+    },
+    {
+      "id": "c5",
+      "title": "Semester Ticket & Library Card",
+      "body": "Register for your semester ticket through the Studierendenwerk — this gives you regional public transport access. Your library card is activated through the UCB library with your student ID."
+    }
+  ],
+  "links": [
+    {
+      "id": "l1",
+      "title": "UCB Arrival Page",
+      "desc": "Official arrival guidance for incoming students",
+      "url": "https://www.umwelt-campus.de/en/international/incomings/arrival/"
+    },
+    {
+      "id": "l2",
+      "title": "Verbandsgemeinde Birkenfeld",
+      "desc": "Local municipality — where you complete your Anmeldung",
+      "url": "https://www.vg-birkenfeld.de/"
+    },
+    {
+      "id": "l3",
+      "title": "Landkreis Birkenfeld — Ausländerbehörde",
+      "desc": "Foreigners' Authority for residence permit applications",
+      "url": "https://www.landkreis-birkenfeld.de/"
+    },
+    {
+      "id": "l4",
+      "title": "BAMF — Student Residence Permits",
+      "desc": "Official federal guide to student visa and permit rules",
+      "url": "https://www.bamf.de/EN/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/Studierende/studierende-node.html"
+    },
+    {
+      "id": "l5",
+      "title": "Make it in Germany — Arrival Checklist",
+      "desc": "Official BMBF/BAMF-funded arrival guide",
+      "url": "https://www.make-it-in-germany.com/en/living-in-germany/working/arrival-checklist/"
+    },
+    {
+      "id": "l6",
+      "title": "DAAD Pre-Arrival Guide",
+      "desc": "Academic exchange service pre-departure and arrival guide",
+      "url": "https://www.daad.de/en/study-and-research-in-germany/plan-your-studies/before-you-go/"
+    },
+    {
+      "id": "l7",
+      "title": "Integreat Birkenfeld",
+      "desc": "Local bureaucracy guide in English for Birkenfeld",
+      "url": "https://integreat.app/birkenfeld/en/"
+    }
+  ]
+}
