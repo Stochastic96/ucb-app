@@ -1,22 +1,38 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { PRIMARY, INACTIVE, BG, SURFACE } from '../constants/colors';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { PRIMARY, INACTIVE, BG } from '../constants/colors';
 import { formatRelativeFromNow } from '../utils/datetime';
 
 export default function NewsCard({ item, onPress, unread }) {
   const badgeColor = item.courseColor ?? PRIMARY;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const onPressIn = () =>
+    Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true, speed: 50, bounciness: 0 }).start();
+
+  const onPressOut = () =>
+    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 4 }).start();
+
   return (
-    <TouchableOpacity style={[styles.card, unread && styles.cardUnread]} onPress={onPress} activeOpacity={0.8}>
-      <View style={styles.row}>
-        <View style={[styles.badge, { backgroundColor: badgeColor }]}>
-          <Text style={styles.badgeText} numberOfLines={1}>{item.source}</Text>
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity
+        style={[styles.card, unread && styles.cardUnread]}
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        activeOpacity={1}
+      >
+        <View style={styles.row}>
+          <View style={[styles.badge, { backgroundColor: badgeColor }]}>
+            <Text style={styles.badgeText} numberOfLines={1}>{item.source}</Text>
+          </View>
+          <Text style={styles.date}>{formatRelativeFromNow(item.date)}</Text>
+          {unread && <View style={styles.dot} />}
         </View>
-        <Text style={styles.date}>{formatRelativeFromNow(item.date)}</Text>
-        {unread && <View style={styles.dot} />}
-      </View>
-      <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
-      <Text style={styles.body} numberOfLines={2}>{item.body}</Text>
-    </TouchableOpacity>
+        <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
+        <Text style={styles.body} numberOfLines={2}>{item.body}</Text>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -40,5 +56,5 @@ const styles = StyleSheet.create({
   date: { fontSize: 11, color: INACTIVE, marginLeft: 'auto' },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY },
   title: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', marginBottom: 4 },
-  body: { fontSize: 13, color: '#555', lineHeight: 18 },
+  body: { fontSize: 13, color: '#555555', lineHeight: 18 },
 });

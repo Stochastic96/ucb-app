@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { SectionList, View, Text, StyleSheet, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { SectionList, View, Text, StyleSheet, RefreshControl, Animated } from 'react-native';
 import { fetchCourses } from '../../services/courses';
 import CourseCard from '../../components/CourseCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -26,6 +26,9 @@ export default function CoursesScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(16)).current;
+
   const loadCourses = useCallback(async (force = false) => {
     if (!userId) return;
     try {
@@ -41,6 +44,15 @@ export default function CoursesScreen({ navigation }) {
   }, [userId]);
 
   useEffect(() => { loadCourses(); }, [loadCourses]);
+
+  useEffect(() => {
+    if (!loading) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 350, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 350, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [loading]);
 
   const onRefresh = () => { setRefreshing(true); loadCourses(true); };
 
@@ -59,6 +71,7 @@ export default function CoursesScreen({ navigation }) {
   }
 
   return (
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
     <SectionList
       style={styles.container}
       sections={sections}
@@ -90,6 +103,7 @@ export default function CoursesScreen({ navigation }) {
         </View>
       }
     />
+    </Animated.View>
   );
 }
 

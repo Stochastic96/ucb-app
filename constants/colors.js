@@ -7,7 +7,8 @@ export const WARNING = '#F57C00';
 export const SURFACE = '#F5F5F5';
 export const BORDER = '#E0E0E0';
 export const TEXT = '#1A1A1A';
-export const TEXT_SECONDARY = '#666';
+export const TEXT_SECONDARY = '#555555';
+export const ACCENT = '#EDF6E5';
 
 // 12 distinct colors for course color-coding (assigned by index % 12)
 export const COURSE_COLORS = [

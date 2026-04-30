@@ -64,6 +64,20 @@ const useStore = create((set, get) => ({
   pendingMapBuilding: null,
   setPendingMapBuilding: (id) => set({ pendingMapBuilding: id }),
   clearPendingMapBuilding: () => set({ pendingMapBuilding: null }),
+
+  // Going / reminders (persisted via AsyncStorage in services/reminders.js)
+  goingEventIds: [],
+  goingSportIds: [],
+  setGoingEventIds: (ids) => set({ goingEventIds: ids }),
+  setGoingSportIds: (ids) => set({ goingSportIds: ids }),
+  addGoingEvent: (id) =>
+    set((s) => ({ goingEventIds: s.goingEventIds.includes(id) ? s.goingEventIds : [...s.goingEventIds, id] })),
+  removeGoingEvent: (id) =>
+    set((s) => ({ goingEventIds: s.goingEventIds.filter((x) => x !== id) })),
+  addGoingSport: (id) =>
+    set((s) => ({ goingSportIds: s.goingSportIds.includes(id) ? s.goingSportIds : [...s.goingSportIds, id] })),
+  removeGoingSport: (id) =>
+    set((s) => ({ goingSportIds: s.goingSportIds.filter((x) => x !== id) })),
 }));
 
 export default useStore;

@@ -1,23 +1,39 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { INACTIVE, BG } from '../constants/colors';
 
 export default function CourseCard({ course, onPress }) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const onPressIn = () =>
+    Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 50, bounciness: 0 }).start();
+
+  const onPressOut = () =>
+    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 4 }).start();
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
-      <View style={[styles.colorBar, { backgroundColor: course.color }]} />
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={2}>{course.title}</Text>
-        {!!course.lecturerName && (
-          <Text style={styles.lecturer} numberOfLines={1}>{course.lecturerName}</Text>
-        )}
-        {!!course.semester && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{course.semester}</Text>
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        activeOpacity={1}
+      >
+        <View style={[styles.colorBar, { backgroundColor: course.color }]} />
+        <View style={styles.content}>
+          <Text style={styles.title} numberOfLines={2}>{course.title}</Text>
+          {!!course.lecturerName && (
+            <Text style={styles.lecturer} numberOfLines={1}>{course.lecturerName}</Text>
+          )}
+          {!!course.semester && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{course.semester}</Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 

@@ -7,6 +7,9 @@ import SettingsScreen from '../screens/profile/SettingsScreen';
 import NewsFeedScreen from '../screens/news/NewsFeedScreen';
 import CourseDetailScreen from '../screens/courses/CourseDetailScreen';
 import CoursesScreen from '../screens/courses/CoursesScreen';
+import EventsStack from './EventsStack';
+import ImpressumScreen from '../screens/legal/ImpressumScreen';
+import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
 import { PRIMARY } from '../constants/colors';
 
 const Stack = createNativeStackNavigator();
@@ -43,6 +46,21 @@ export default function RootNavigator() {
               headerTintColor: PRIMARY,
               headerBackTitle: '',
             })}
+          />
+          <Stack.Screen
+            name="EventsList"
+            component={EventsStack}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Impressum"
+            component={ImpressumScreen}
+            options={{ headerShown: true, title: 'Impressum', headerTintColor: PRIMARY }}
+          />
+          <Stack.Screen
+            name="Datenschutz"
+            component={DatenschutzScreen}
+            options={{ headerShown: true, title: 'Datenschutzerklärung', headerTintColor: PRIMARY }}
           />
         </>
       ) : (

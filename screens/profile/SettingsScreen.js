@@ -6,9 +6,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { clearAllCache } from '../../services/cache';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, BG, BORDER, SURFACE } from '../../constants/colors';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
   const { settings, updateSettings } = useStore();
+  const navigation = useNavigation();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState('');
@@ -65,6 +67,21 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Legal Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Legal</Text>
+        <TouchableOpacity style={styles.linkRow} onPress={() => navigation.navigate('Impressum')}>
+          <Ionicons name="document-text-outline" size={18} color={INACTIVE} />
+          <Text style={styles.settingLabel}>Impressum</Text>
+          <Ionicons name="chevron-forward" size={16} color={INACTIVE} style={{ marginLeft: 'auto' }} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.linkRow, { marginBottom: 0 }]} onPress={() => navigation.navigate('Datenschutz')}>
+          <Ionicons name="shield-checkmark-outline" size={18} color={INACTIVE} />
+          <Text style={styles.settingLabel}>Datenschutzerklärung</Text>
+          <Ionicons name="chevron-forward" size={16} color={INACTIVE} style={{ marginLeft: 'auto' }} />
+        </TouchableOpacity>
+      </View>
+
       {/* About Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About</Text>
@@ -109,4 +126,5 @@ const styles = StyleSheet.create({
   settingValue: { fontSize: 13, color: INACTIVE },
   dangerRow: { backgroundColor: BG, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 12 },
   dangerLabel: { fontSize: 15, fontWeight: '500', color: '#D32F2F' },
+  linkRow: { backgroundColor: BG, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 12 },
 });

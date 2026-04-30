@@ -124,6 +124,10 @@ export default function LoginScreen() {
         <Text style={styles.hint}>
           Use your Hochschule Trier Stud.IP username and password — the same ones you use at studip.hochschule-trier.de
         </Text>
+
+        <Text style={styles.disclaimer}>
+          Unofficial student app · Not affiliated with Hochschule Trier
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -182,5 +186,11 @@ const styles = StyleSheet.create({
     color: INACTIVE,
     fontSize: 13,
     lineHeight: 18,
+  },
+  disclaimer: {
+    marginTop: 32,
+    textAlign: 'center',
+    color: '#aaa',
+    fontSize: 11,
   },
 });

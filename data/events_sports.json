@@ -1,0 +1,16 @@
+[
+  { "id": "s1",  "day": "Monday",    "startTime": "15:00", "endTime": "16:30", "sport": "Table Tennis", "instructor": "Barth",    "location": "Halle" },
+  { "id": "s2",  "day": "Monday",    "startTime": "18:00", "endTime": "19:30", "sport": "Yoga",         "instructor": "Safarzad", "location": "Halle", "note": "Starting March 30" },
+  { "id": "s3",  "day": "Monday",    "startTime": "18:00", "endTime": "19:30", "sport": "Basketball",   "instructor": "Rabb",     "location": "Halle" },
+  { "id": "s4",  "day": "Monday",    "startTime": "19:30", "endTime": "21:00", "sport": "Wrestling",    "instructor": "Merge",    "location": "Halle" },
+  { "id": "s5",  "day": "Monday",    "startTime": "19:30", "endTime": "21:00", "sport": "Football",     "instructor": "Adebre",   "location": "Pitch", "note": "On the pitch" },
+  { "id": "s6",  "day": "Monday",    "startTime": "21:00", "endTime": "22:30", "sport": "Volleyball",   "instructor": "Tehrani",  "location": "Halle" },
+  { "id": "s7",  "day": "Wednesday", "startTime": "18:00", "endTime": "19:30", "sport": "Yoga",         "instructor": "Safarzad", "location": "Halle", "note": "Starting March 30" },
+  { "id": "s8",  "day": "Wednesday", "startTime": "19:30", "endTime": "21:00", "sport": "Basketball",   "instructor": "Rabb",     "location": "Halle" },
+  { "id": "s9",  "day": "Wednesday", "startTime": "21:00", "endTime": "22:30", "sport": "Dodgeball",    "instructor": "Hennig",   "location": "Halle", "note": "German rules" },
+  { "id": "s10", "day": "Thursday",  "startTime": "18:00", "endTime": "19:30", "sport": "Badminton",    "instructor": "Naqvi",    "location": "Halle" },
+  { "id": "s11", "day": "Thursday",  "startTime": "19:30", "endTime": "21:00", "sport": "Volleyball",   "instructor": "Tehrani",  "location": "Halle" },
+  { "id": "s12", "day": "Thursday",  "startTime": "19:30", "endTime": "21:00", "sport": "Badminton",    "instructor": "Naqvi",    "location": "Halle" },
+  { "id": "s13", "day": "Thursday",  "startTime": "19:30", "endTime": "21:00", "sport": "Football",     "instructor": "Adebre",   "location": "Pitch", "note": "On the pitch" },
+  { "id": "s14", "day": "Thursday",  "startTime": "21:00", "endTime": "22:30", "sport": "Cricket",      "instructor": "Ahmed",    "location": "Halle" }
+]
