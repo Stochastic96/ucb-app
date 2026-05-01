@@ -55,6 +55,8 @@ export default function TimetableScreen({ navigation }) {
   const [selected, setSelected] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  const isCurrentWeek = getWeekMonday(new Date()).getTime() === weekStart.getTime();
+
   useEffect(() => {
     if (!userId) return;
     if (!dataReady && !isHydrating) {
@@ -122,6 +124,14 @@ export default function TimetableScreen({ navigation }) {
           {' – '}
           {addDays(weekStart, 4).toLocaleDateString('en-DE', { day: 'numeric', month: 'short', year: 'numeric' })}
         </Text>
+        {!isCurrentWeek && (
+          <TouchableOpacity
+            onPress={() => setWeekStart(getWeekMonday(new Date()))}
+            style={styles.todayBtn}
+          >
+            <Text style={styles.todayBtnText}>Today</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity onPress={() => setWeekStart(addDays(weekStart, 7))} style={styles.navBtn}>
           <Ionicons name="chevron-forward" size={22} color={PRIMARY} />
         </TouchableOpacity>
@@ -257,7 +267,15 @@ const styles = StyleSheet.create({
     borderBottomColor: BORDER,
   },
   navBtn: { padding: 8 },
-  weekLabel: { fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
+  weekLabel: { fontSize: 14, fontWeight: '600', color: '#1A1A1A', flex: 1, textAlign: 'center' },
+  todayBtn: {
+    backgroundColor: PRIMARY,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginRight: 2,
+  },
+  todayBtnText: { fontSize: 12, fontWeight: '700', color: '#fff' },
   dayHeaders: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: BORDER },
   timeGutter: { width: 44 },
   dayHeaderCell: { paddingVertical: 8, alignItems: 'center' },

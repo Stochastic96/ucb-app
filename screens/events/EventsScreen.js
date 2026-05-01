@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
 import campusEvents from '../../data/events_campus.json';
@@ -307,6 +308,10 @@ function SportsTab({ goingSportIds, onToggleSport }) {
 }
 
 export default function EventsScreen() {
+  const navigation = useNavigation();
+  const parentNav = navigation.getParent();
+  const canGoBack = parentNav?.canGoBack() ?? false;
+
   const [activeTab, setActiveTab] = useState('events');
 
   const goingEventIds = useStore((s) => s.goingEventIds);
@@ -386,7 +391,18 @@ export default function EventsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerBar}>
-        <Text style={styles.screenTitle}>Events</Text>
+        <View style={styles.headerLeft}>
+          {canGoBack && (
+            <TouchableOpacity
+              onPress={() => parentNav.goBack()}
+              style={styles.backBtn}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#1A1A1A" />
+            </TouchableOpacity>
+          )}
+          <Text style={styles.screenTitle}>Events</Text>
+        </View>
         {goingCount > 0 && (
           <View style={styles.goingPill}>
             <Ionicons name="notifications" size={13} color="#fff" />
@@ -435,7 +451,7 @@ export default function EventsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG },
   headerBar: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
     backgroundColor: BG,
@@ -445,6 +461,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  backBtn: { padding: 2 },
   screenTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
   goingPill: {
     flexDirection: 'row',

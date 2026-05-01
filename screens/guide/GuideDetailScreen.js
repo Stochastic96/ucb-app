@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import guideChecklist from '../../data/guide_checklist.json';
 import guideOffices from '../../data/guide_offices.json';
@@ -49,6 +50,8 @@ function EmptyState({ message = 'No results found.' }) {
   );
 }
 
+const CHECKLIST_STORAGE_KEY = 'ucb_guide_checklist_checked';
+
 export default function GuideDetailScreen({ route }) {
   const { category } = route.params ?? {};
   const data = CATEGORIES[category] ?? [];
@@ -60,6 +63,24 @@ export default function GuideDetailScreen({ route }) {
   const [selectedFaqCat, setSelectedFaqCat] = useState('all');
   // Phrase copy feedback: stores the id of the last copied phrase briefly
   const [copiedId, setCopiedId] = useState(null);
+
+  // Load persisted checklist state on mount
+  useEffect(() => {
+    if (category !== 'checklist') return;
+    AsyncStorage.getItem(CHECKLIST_STORAGE_KEY).then((raw) => {
+      if (raw) {
+        try { setChecked(JSON.parse(raw)); } catch {}
+      }
+    });
+  }, [category]);
+
+  const toggleChecked = (id) => {
+    setChecked((s) => {
+      const next = { ...s, [id]: !s[id] };
+      AsyncStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
 
   const filtered = useMemo(() => {
     if (!search.trim()) return data;
@@ -182,7 +203,7 @@ export default function GuideDetailScreen({ route }) {
                 <TouchableOpacity
                   key={item.id}
                   style={[styles.checklistItem, { flexDirection: 'row', alignItems: 'flex-start' }]}
-                  onPress={() => setChecked(s => ({ ...s, [item.id]: !s[item.id] }))}
+                  onPress={() => toggleChecked(item.id)}
                   activeOpacity={0.8}
                 >
                   <Ionicons

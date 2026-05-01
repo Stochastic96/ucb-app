@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, View, Text, StyleSheet, RefreshControl, Modal, ScrollView, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
 import { fetchNews } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
@@ -97,9 +98,22 @@ export default function NewsFeedScreen() {
 
       {/* Full news detail modal */}
       <Modal visible={!!selected} transparent animationType="slide" onRequestClose={() => setSelected(null)}>
-        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setSelected(null)}>
+        <View style={styles.overlay}>
+          {/* Tap the dark backdrop to dismiss */}
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setSelected(null)} />
           <View style={styles.sheet}>
-            <ScrollView>
+            {/* Drag handle + close button */}
+            <View style={styles.sheetTopBar}>
+              <View style={styles.sheetHandle} />
+              <TouchableOpacity
+                style={styles.sheetCloseBtn}
+                onPress={() => setSelected(null)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={22} color={INACTIVE} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
               {selected && (
                 <>
                   <Text style={styles.sheetSource}>{selected.source}</Text>
@@ -110,7 +124,7 @@ export default function NewsFeedScreen() {
               )}
             </ScrollView>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
     </View>
   );
@@ -125,10 +139,19 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 24,
-    maxHeight: '80%',
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    maxHeight: '82%',
     paddingBottom: 40,
   },
+  sheetTopBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: INACTIVE + '40' },
+  sheetCloseBtn: { position: 'absolute', right: 0 },
   sheetSource: { fontSize: 12, color: PRIMARY, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
   sheetDate: { fontSize: 12, color: INACTIVE, marginTop: 2, marginBottom: 12 },
   sheetTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginBottom: 14 },
