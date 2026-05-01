@@ -34,7 +34,7 @@ export default function GuideScreen({ navigation }) {
     { id: 'buildings', icon: 'home-outline', label: 'Campus Buildings', count: buildings.length, desc: 'Locations, rooms & services' },
     { id: 'checklist', icon: 'checkbox-outline', label: 'First Week Checklist', count: checklist.length, desc: 'Everything to do when you arrive' },
     { id: 'offices', icon: 'business-outline', label: 'Office Directory', count: offices.length, desc: 'Opening hours & contacts' },
-    { id: 'contacts', icon: 'person-outline', label: 'Contacts', count: contacts.length, desc: 'Key people & departments' },
+    { id: 'contacts', icon: 'person-outline', label: 'Contacts', count: contacts.length, desc: 'Professors & key departments' },
     { id: 'glossary', icon: 'book-outline', label: 'German Glossary', count: glossary.length, desc: 'University terms explained' },
     { id: 'phrases', icon: 'chatbubble-outline', label: 'German Phrases', count: phrases.length, desc: 'Tap any phrase to copy it' },
     { id: 'faq', icon: 'help-circle-outline', label: 'FAQ', count: faq.length, desc: 'Common questions answered' },

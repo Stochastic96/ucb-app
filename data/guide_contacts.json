@@ -1,21 +1,93 @@
 [
   {
     "id": "p01",
-    "name": "Prof. Dr. Anna Schmidt",
-    "role": "Professor of Environmental Science",
-    "email": "anna.schmidt@umwelt-campus.de",
-    "phone": "+49 6782 17-1234",
-    "office": "Building 9924, Room 210",
-    "organization": "Faculty"
+    "name": "Prof. Dr. Tim Schönborn",
+    "role": "Professor of Computer Science",
+    "email": "t.schoenborn@umwelt-campus.de",
+    "phone": "+49 6782 17-1142",
+    "office": "Building 9914, Room 128",
+    "organization": "Faculty of Environmental Planning/Engineering — Computer Science"
   },
   {
     "id": "p02",
-    "name": "Prof. Dr. Markus Weber",
+    "name": "Prof. Dr. Rita Spatz",
     "role": "Professor of Computer Science",
-    "email": "markus.weber@umwelt-campus.de",
-    "phone": "+49 6782 17-5678",
-    "office": "Building 9917, Room 102",
-    "organization": "Faculty"
+    "email": "r.spatz@umwelt-campus.de",
+    "phone": "+49 6782 17-1916",
+    "office": "Building 9925, Room 33",
+    "organization": "Faculty of Environmental Planning/Engineering — Computer Science"
+  },
+  {
+    "id": "p03",
+    "name": "Prof. Dr. Florian Krämer",
+    "role": "Professor of Mechanical Engineering",
+    "email": "f.kraemer@umwelt-campus.de",
+    "phone": "+49 6782 17-1516",
+    "office": "Building 9916, Room 118",
+    "organization": "Faculty of Environmental Planning/Engineering — Mechanical Engineering"
+  },
+  {
+    "id": "p04",
+    "name": "Prof. Dr. Tilman Cosack",
+    "role": "Professor of Environmental Law",
+    "email": "t.cosack@umwelt-campus.de",
+    "phone": "+49 6782 17-1594",
+    "office": "Building 9912, Room 122",
+    "organization": "Faculty of Environmental Economics/Law — Environmental Law"
+  },
+  {
+    "id": "p05",
+    "name": "Prof. Dr. Christian Kammlott",
+    "role": "Professor of Environmental Economics",
+    "email": "c.kammlott@umwelt-campus.de",
+    "phone": "+49 6782 17-1117",
+    "office": "Building 9912, Room 12",
+    "organization": "Faculty of Environmental Economics/Law — Environmental Economics"
+  },
+  {
+    "id": "p06",
+    "name": "Prof. Dr. Susanne Hartard",
+    "role": "Professor of Environmental Economics",
+    "email": "s.hartard@umwelt-campus.de",
+    "phone": "+49 6782 17-1322",
+    "office": "Building 9912, Room 8",
+    "organization": "Faculty of Environmental Economics/Law — Environmental Economics"
+  },
+  {
+    "id": "p07",
+    "name": "Prof. Dr. Kathrin Nitschmann",
+    "role": "Professor of Environmental Law",
+    "email": "k.nitschmann@umwelt-campus.de",
+    "phone": "+49 6782 17-1823",
+    "office": "Building 9912, Room 117",
+    "organization": "Faculty of Environmental Economics/Law — Environmental Law"
+  },
+  {
+    "id": "p08",
+    "name": "Prof. Dr. Gisela Sparmann",
+    "role": "Professor of Computer Science",
+    "email": "g.sparmann@umwelt-campus.de",
+    "phone": "+49 6782 17-1673",
+    "office": "Building 9917, Room 146",
+    "organization": "Faculty of Environmental Planning/Engineering — Computer Science"
+  },
+  {
+    "id": "p09",
+    "name": "Prof. Dr. Ulrich Bröckel",
+    "role": "Professor of Process Engineering",
+    "email": "u.broeckel@umwelt-campus.de",
+    "phone": "+49 6782 17-1503",
+    "office": "Building 9916, Room 18",
+    "organization": "Faculty of Environmental Planning/Engineering — Process Engineering"
+  },
+  {
+    "id": "p10",
+    "name": "Prof. Dr. Kerstin Giering",
+    "role": "Professor of Environmental Planning",
+    "email": "k.giering@umwelt-campus.de",
+    "phone": "+49 6782 17-1107",
+    "office": "Building 9917, Room 12",
+    "organization": "Faculty of Environmental Planning/Engineering — Environmental Planning"
   },
   {
     "id": "a01",
@@ -23,7 +95,16 @@
     "role": "Student Union (AStA)",
     "email": "asta@umwelt-campus.de",
     "phone": "",
-    "office": "Student Union office, Building 9914",
+    "office": "Building 9914, Student Union Office",
     "organization": "AStA"
+  },
+  {
+    "id": "a02",
+    "name": "International Office",
+    "role": "International Student Support",
+    "email": "international@umwelt-campus.de",
+    "phone": "+49 6782 17-0",
+    "office": "Building 9924, Room 110",
+    "organization": "UCB Administration"
   }
 ]
