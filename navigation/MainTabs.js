@@ -35,6 +35,12 @@ export default function MainTabs() {
     <View style={{ flex: 1 }}>
       <OfflineBanner />
       <Tab.Navigator
+        // Pre-render all tabs so nested stacks are initialised before any
+        // programmatic navigation reaches them. Without this, navigating to
+        // a nested screen (e.g. Tools → Timetable) on a tab that hasn't been
+        // visited yet drops the initial screen (ToolsHome) from the back stack,
+        // leaving the user with no back button.
+        lazy={false}
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size, focused }) => {
             const [active, inactive] = ICONS[route.name] ?? ['ellipse', 'ellipse-outline'];
@@ -42,7 +48,6 @@ export default function MainTabs() {
           },
           tabBarActiveTintColor: PRIMARY,
           tabBarInactiveTintColor: INACTIVE,
-          // Home manages its own header visually — hide nav header for it
           headerShown: route.name !== 'Home',
           headerRight: () => <MenuButton />,
           headerTintColor: PRIMARY,
@@ -61,8 +66,26 @@ export default function MainTabs() {
           name="Tools"
           component={ToolsStack}
           options={{ headerShown: false }}
+          listeners={({ navigation }) => ({
+            // Always reset to ToolsHome when the tab button is tapped, so the
+            // user is never stranded deep in the stack with no way back.
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate('Tools', { screen: 'ToolsHome' });
+            },
+          })}
         />
-        <Tab.Screen name="Guide" component={GuideStack} options={{ headerShown: false }} />
+        <Tab.Screen
+          name="Guide"
+          component={GuideStack}
+          options={{ headerShown: false }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate('Guide', { screen: 'GuideHome' });
+            },
+          })}
+        />
         <Tab.Screen name="Map" component={MapScreen} options={{ title: 'Campus Map' }} />
       </Tab.Navigator>
     </View>
