@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT } from '../../constants/colors';
 
+// Active tools — fully functional
 const TOOLS = [
   {
     id: 'timetable',
@@ -30,21 +31,12 @@ const TOOLS = [
   },
   {
     id: 'calendar',
-    label: 'Semester Calendar',
-    description: 'Key dates, deadlines & exam periods',
+    label: 'Semester Planner',
+    description: 'Key dates, courses & exam planning',
     icon: 'calendar-number-outline',
     iconColor: '#6FAE3E',
     iconBg: '#EDF6E5',
     screen: 'SemesterCalendar',
-  },
-  {
-    id: 'planner',
-    label: 'Deadline Planner',
-    description: 'Track submissions, portfolios & presentations',
-    icon: 'checkmark-circle-outline',
-    iconColor: '#9C27B0',
-    iconBg: '#F3E5F5',
-    screen: 'PlannerList',
   },
   {
     id: 'exams',
@@ -54,15 +46,6 @@ const TOOLS = [
     iconColor: '#E65100',
     iconBg: '#FBE9E7',
     screen: 'ExamTracker',
-  },
-  {
-    id: 'resources',
-    label: 'Campus Resources',
-    description: 'Bikes, sports, Green Office & more',
-    icon: 'bicycle-outline',
-    iconColor: '#00796B',
-    iconBg: '#E0F2F1',
-    screen: 'CampusResources',
   },
   {
     id: 'events',
@@ -96,6 +79,26 @@ const TOOLS = [
   },
 ];
 
+// Coming soon — code exists, just hidden until activated
+const COMING_SOON = [
+  {
+    id: 'planner',
+    label: 'Deadline Planner',
+    description: 'Track portfolios, submissions & presentations with reminders',
+    icon: 'checkmark-circle-outline',
+    iconColor: '#9C27B0',
+    iconBg: '#F3E5F5',
+  },
+  {
+    id: 'resources',
+    label: 'Campus Resources',
+    description: 'Bike rental, Green Office events, sports & more',
+    icon: 'bicycle-outline',
+    iconColor: '#00796B',
+    iconBg: '#E0F2F1',
+  },
+];
+
 export default function ToolsScreen({ navigation }) {
   const navigateTo = (tool) => {
     if (tool.rootScreen) {
@@ -112,6 +115,8 @@ export default function ToolsScreen({ navigation }) {
         <Text style={styles.heroSub}>Everything you need — all in one place</Text>
       </View>
 
+      {/* Active tools */}
+      <Text style={styles.sectionLabel}>Available</Text>
       {TOOLS.map((tool) => (
         <TouchableOpacity
           key={tool.id}
@@ -129,6 +134,27 @@ export default function ToolsScreen({ navigation }) {
           <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
         </TouchableOpacity>
       ))}
+
+      {/* Coming soon */}
+      <Text style={[styles.sectionLabel, { marginTop: 24 }]}>Coming Soon</Text>
+      {COMING_SOON.map((item) => (
+        <View key={item.id} style={styles.comingSoonCard}>
+          <View style={[styles.toolIcon, { backgroundColor: item.iconBg, opacity: 0.6 }]}>
+            <Ionicons name={item.icon} size={24} color={item.iconColor} />
+          </View>
+          <View style={styles.toolText}>
+            <View style={styles.comingSoonTitleRow}>
+              <Text style={styles.comingSoonLabel}>{item.label}</Text>
+              <View style={styles.soonBadge}>
+                <Text style={styles.soonBadgeText}>Soon</Text>
+              </View>
+            </View>
+            <Text style={styles.comingSoonDesc}>{item.description}</Text>
+          </View>
+        </View>
+      ))}
+
+      <View style={{ height: 20 }} />
     </ScrollView>
   );
 }
@@ -143,10 +169,19 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#ECECEC',
-    marginBottom: 10,
+    marginBottom: 14,
   },
   heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
   heroSub: { fontSize: 13, color: INACTIVE, marginTop: 3 },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: INACTIVE,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -172,4 +207,28 @@ const styles = StyleSheet.create({
   toolText: { flex: 1 },
   toolLabel: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
   toolDesc: { fontSize: 13, color: INACTIVE, marginTop: 2 },
+  comingSoonCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BG,
+    marginHorizontal: 12,
+    marginBottom: 8,
+    padding: 14,
+    borderRadius: 14,
+    gap: 14,
+    borderWidth: 1,
+    borderColor: '#ECECEC',
+    borderStyle: 'dashed',
+    opacity: 0.75,
+  },
+  comingSoonTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  comingSoonLabel: { fontSize: 16, fontWeight: '700', color: INACTIVE },
+  comingSoonDesc: { fontSize: 13, color: '#BBB', marginTop: 1 },
+  soonBadge: {
+    backgroundColor: ACCENT,
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  soonBadgeText: { fontSize: 11, fontWeight: '700', color: DARK },
 });
