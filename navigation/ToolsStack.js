@@ -2,8 +2,8 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import GuideScreen from '../screens/guide/GuideScreen';
-import GuideDetailScreen from '../screens/guide/GuideDetailScreen';
+import ToolsScreen from '../screens/tools/ToolsScreen';
+import TimetableScreen from '../screens/timetable/TimetableScreen';
 import useStore from '../store/useStore';
 import { PRIMARY } from '../constants/colors';
 
@@ -18,7 +18,7 @@ function MenuButton() {
   );
 }
 
-export default function GuideStack() {
+export default function ToolsStack() {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -27,17 +27,14 @@ export default function GuideStack() {
       }}
     >
       <Stack.Screen
-        name="GuideHome"
-        component={GuideScreen}
-        options={{ title: 'Survival Guide', headerRight: () => <MenuButton /> }}
+        name="ToolsHome"
+        component={ToolsScreen}
+        options={{ title: 'Tools', headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
-        name="GuideDetail"
-        component={GuideDetailScreen}
-        options={({ route }) => ({
-          title: route.params?.title ?? 'Guide',
-          headerRight: () => <MenuButton />,
-        })}
+        name="Timetable"
+        component={TimetableScreen}
+        options={{ title: 'Timetable', headerRight: () => <MenuButton /> }}
       />
     </Stack.Navigator>
   );

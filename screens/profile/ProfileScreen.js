@@ -6,8 +6,8 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
-import { Dialog, Portal, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
 import { logout } from '../../services/auth';
@@ -26,6 +26,23 @@ function formatLastUpdated(date) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+const PORTAL_LINKS = [
+  {
+    id: 'qis',
+    label: 'QIS — Grades & Exams',
+    description: 'View grades, register for exams',
+    icon: 'school-outline',
+    url: 'https://qis.hochschule-trier.de/',
+  },
+  {
+    id: 'portal',
+    label: 'Student Portal',
+    description: 'Enrollment letter, student services',
+    icon: 'globe-outline',
+    url: 'https://idp.fh-trier.de/idp/profile/SAML2/Redirect/SSO?execution=e5s1&lang=en',
+  },
+];
+
 export default function ProfileScreen({ navigation }) {
   const profile = useStore((s) => s.user);
   const courseCount = useStore((s) => s.courses.length);
@@ -36,7 +53,6 @@ export default function ProfileScreen({ navigation }) {
   const lastSyncAt = useStore((s) => s.lastSyncAt);
   const [loading, setLoading] = useState(!profile);
   const [refreshing, setRefreshing] = useState(false);
-  const [logoutVisible, setLogoutVisible] = useState(false);
 
   const loadProfile = useCallback(async (force = false) => {
     if (!userId) {
@@ -44,7 +60,6 @@ export default function ProfileScreen({ navigation }) {
       setRefreshing(false);
       return;
     }
-
     try {
       await bootstrapSessionData(force);
     } catch {
@@ -66,42 +81,9 @@ export default function ProfileScreen({ navigation }) {
 
   const onRefresh = () => { setRefreshing(true); loadProfile(true); };
 
-  const handleLogout = async () => {
-    setLogoutVisible(false);
-    await logout();
-  };
-
-  const openRootScreen = (screenName) => {
-    const parent = navigation.getParent();
-    if (parent) { parent.navigate(screenName); return; }
-    navigation.navigate(screenName);
-  };
-
   const initials = profile
     ? `${profile.firstName?.[0] ?? ''}${profile.lastName?.[0] ?? ''}`.toUpperCase()
     : '?';
-
-  // Logout button and dialog — always rendered
-  const logoutSection = (
-    <>
-      <TouchableOpacity style={styles.logoutButton} onPress={() => setLogoutVisible(true)}>
-        <Ionicons name="log-out-outline" size={20} color={ERROR} />
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
-      <Portal>
-        <Dialog visible={logoutVisible} onDismiss={() => setLogoutVisible(false)}>
-          <Dialog.Title>Log out?</Dialog.Title>
-          <Dialog.Content>
-            <Text>You will need to log in again to access your data.</Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setLogoutVisible(false)}>Cancel</Button>
-            <Button textColor={ERROR} onPress={handleLogout}>Logout</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    </>
-  );
 
   if (loading) {
     return (
@@ -109,7 +91,6 @@ export default function ProfileScreen({ navigation }) {
         <View style={{ padding: 24, flex: 1 }}>
           <SkeletonLoader lines={4} avatar />
         </View>
-        {logoutSection}
       </View>
     );
   }
@@ -119,12 +100,8 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.screen}>
         <ErrorState
           type={bootstrapError.type}
-          onRetry={() => {
-            setLoading(true);
-            loadProfile(true);
-          }}
+          onRetry={() => { setLoading(true); loadProfile(true); }}
         />
-        {logoutSection}
       </View>
     );
   }
@@ -149,24 +126,45 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.card}>
           <InfoRow icon="mail-outline" label="Email" value={profile?.email || '—'} />
           <InfoRow icon="person-outline" label="Username" value={profile?.username || '—'} />
-          <InfoRow icon="book-outline" label="Enrolled Courses" value={String(courseCount)} />
+          <InfoRow icon="book-outline" label="Enrolled Courses" value={String(courseCount)} last />
         </View>
 
         <View style={styles.card}>
-          <LinkRow icon="albums-outline" label="My Courses" onPress={() => openRootScreen('CoursesList')} />
-          <LinkRow icon="settings-outline" label="Settings" onPress={() => openRootScreen('Settings')} />
-          <LinkRow icon="compass-outline" label="Survival Guide" onPress={() => navigation.navigate('Guide')} last />
+          <LinkRow icon="albums-outline" label="My Courses" onPress={() => navigation.navigate('CoursesList')} />
+          <LinkRow icon="settings-outline" label="Settings" onPress={() => navigation.navigate('Settings')} last />
         </View>
-      </ScrollView>
 
-      {logoutSection}
+        {/* University portals */}
+        <Text style={styles.sectionLabel}>University Portals</Text>
+        <View style={styles.card}>
+          {PORTAL_LINKS.map((link, i) => (
+            <TouchableOpacity
+              key={link.id}
+              style={[styles.portalRow, i < PORTAL_LINKS.length - 1 && styles.portalRowBorder]}
+              onPress={() => Linking.openURL(link.url).catch(() => {})}
+              activeOpacity={0.7}
+            >
+              <View style={styles.portalIconWrap}>
+                <Ionicons name={link.icon} size={20} color={PRIMARY} />
+              </View>
+              <View style={styles.portalText}>
+                <Text style={styles.portalLabel}>{link.label}</Text>
+                <Text style={styles.portalDesc}>{link.description}</Text>
+              </View>
+              <Ionicons name="open-outline" size={16} color={INACTIVE} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={{ height: 32 }} />
+      </ScrollView>
     </View>
   );
 }
 
-function InfoRow({ icon, label, value }) {
+function InfoRow({ icon, label, value, last }) {
   return (
-    <View style={styles.infoRow}>
+    <View style={[styles.infoRow, !last && styles.infoRowBorder]}>
       <Ionicons name={icon} size={20} color={PRIMARY} style={styles.rowIcon} />
       <View>
         <Text style={styles.rowLabel}>{label}</Text>
@@ -194,14 +192,41 @@ const styles = StyleSheet.create({
   name: { fontSize: 22, fontWeight: '700', color: '#1A1A1A' },
   username: { fontSize: 14, color: INACTIVE, marginTop: 2 },
   cacheNote: { fontSize: 11, color: INACTIVE, marginTop: 6 },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: INACTIVE,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 8,
+  },
   card: { backgroundColor: BG, marginHorizontal: 16, marginTop: 16, borderRadius: 12, overflow: 'hidden' },
-  infoRow: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  infoRow: { flexDirection: 'row', alignItems: 'center', padding: 16 },
+  infoRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   rowIcon: { marginRight: 14 },
   rowLabel: { fontSize: 11, color: INACTIVE, textTransform: 'uppercase', letterSpacing: 0.5 },
   rowValue: { fontSize: 15, color: '#1A1A1A', marginTop: 2 },
   linkRow: { flexDirection: 'row', alignItems: 'center', padding: 16 },
   linkRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   linkLabel: { fontSize: 15, color: '#1A1A1A' },
-  logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 16, padding: 16, backgroundColor: BG, borderRadius: 12, borderWidth: 1, borderColor: ERROR, gap: 8 },
-  logoutText: { fontSize: 15, fontWeight: '600', color: ERROR },
+  portalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    gap: 12,
+  },
+  portalRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  portalIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: '#EDF6E5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  portalText: { flex: 1 },
+  portalLabel: { fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
+  portalDesc: { fontSize: 12, color: INACTIVE, marginTop: 2 },
 });

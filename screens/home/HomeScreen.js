@@ -20,6 +20,7 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
 import { PRIMARY, DARK, INACTIVE, SURFACE, BG, BORDER, ACCENT } from '../../constants/colors';
+import { navigationRef } from '../../navigation/navigationRef';
 import { isSameCalendarDay, toMillis } from '../../utils/datetime';
 
 function getGreeting() {
@@ -88,7 +89,7 @@ function formatShortDate(dateStr) {
 
 const QUICK_LINKS = [
   { label: 'Courses', icon: 'albums-outline', screen: 'CoursesList' },
-  { label: 'Timetable', icon: 'calendar-outline', tab: 'Timetable' },
+  { label: 'Timetable', icon: 'calendar-outline', tab: 'Tools', nestedScreen: 'Timetable' },
   { label: 'Map', icon: 'map-outline', tab: 'Map' },
   { label: 'Guide', icon: 'book-outline', tab: 'Guide' },
 ];
@@ -128,6 +129,7 @@ export default function HomeScreen({ navigation }) {
   const isHydrating = useStore((s) => s.isHydrating);
   const dataReady = useStore((s) => s.dataReady);
   const bootstrapError = useStore((s) => s.bootstrapError);
+  const openSidebar = useStore((s) => s.openSidebar);
   const goingEventIds = useStore((s) => s.goingEventIds);
   const setGoingEventIds = useStore((s) => s.setGoingEventIds);
   const setGoingSportIds = useStore((s) => s.setGoingSportIds);
@@ -228,18 +230,27 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.greeting}>{getGreeting()},</Text>
           <Text style={styles.name}>{user?.firstName ?? 'Student'}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.newsBell}
-          onPress={() => openRootScreen('NewsFeed')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="notifications-outline" size={22} color="#fff" />
-          {unreadNewsCount > 0 ? (
-            <View style={styles.newsBadge}>
-              <Text style={styles.newsBadgeText}>{unreadNewsCount > 9 ? '9+' : unreadNewsCount}</Text>
-            </View>
-          ) : null}
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.newsBell}
+            onPress={() => openRootScreen('NewsFeed')}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="notifications-outline" size={22} color="#fff" />
+            {unreadNewsCount > 0 ? (
+              <View style={styles.newsBadge}>
+                <Text style={styles.newsBadgeText}>{unreadNewsCount > 9 ? '9+' : unreadNewsCount}</Text>
+              </View>
+            ) : null}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.newsBell}
+            onPress={openSidebar}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="menu" size={22} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </LinearGradient>
 
       {bootstrapError && (
@@ -255,7 +266,7 @@ export default function HomeScreen({ navigation }) {
       {nextEvent && (
         <TouchableOpacity
           style={styles.card}
-          onPress={() => openTab('Timetable')}
+          onPress={() => navigation.navigate('Tools', { screen: 'Timetable' })}
           activeOpacity={0.85}
         >
           <View style={styles.cardHeader}>
@@ -352,7 +363,8 @@ export default function HomeScreen({ navigation }) {
               key={link.label}
               link={link}
               onPress={() => {
-                if (link.tab) openTab(link.tab);
+                if (link.nestedScreen) navigation.navigate(link.tab, { screen: link.nestedScreen });
+                else if (link.tab) openTab(link.tab);
                 else if (link.screen) openRootScreen(link.screen);
               }}
             />
@@ -378,6 +390,11 @@ const styles = StyleSheet.create({
   },
   greeting: { fontSize: 15, color: 'rgba(255,255,255,0.85)', fontWeight: '500' },
   name: { fontSize: 26, fontWeight: '800', color: '#fff', marginTop: 2 },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   newsBell: {
     width: 42,
     height: 42,

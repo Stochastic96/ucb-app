@@ -60,6 +60,11 @@ const useStore = create((set, get) => ({
   setLastSyncAt: (value) => set({ lastSyncAt: value }),
   lastNewsSeenAt: 0,
 
+  // Sidebar
+  sidebarOpen: false,
+  openSidebar: () => set({ sidebarOpen: true }),
+  closeSidebar: () => set({ sidebarOpen: false }),
+
   // Deep-link: Timetable → Map
   pendingMapBuilding: null,
   setPendingMapBuilding: (id) => set({ pendingMapBuilding: id }),
