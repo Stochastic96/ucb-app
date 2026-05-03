@@ -82,15 +82,16 @@ export default function TimetableScreen({ navigation }) {
   const navigateToBuilding = (buildingId) => {
     if (buildingId) {
       useStore.getState().setPendingMapBuilding(buildingId);
-      navigation.navigate('Map');
+      // Timetable lives inside ToolsStack → Tab.Navigator → Root Stack
+      // getParent() = Tab.Navigator; navigate Map tab from there
+      navigation.getParent()?.navigate('Map');
     }
     setSelected(null);
   };
 
   const openCourseDetail = (event) => {
-    const parent = navigation.getParent();
-    const target = parent ?? navigation;
-    target.navigate('CourseDetail', {
+    // CourseDetail is a root stack screen — go up two levels
+    navigation.getParent()?.getParent()?.navigate('CourseDetail', {
       courseId: event.courseId,
       title: event.courseTitle,
       color: event.courseColor,

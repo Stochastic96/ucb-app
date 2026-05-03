@@ -1,0 +1,233 @@
+{
+  "week": "2026-W19",
+  "updatedAt": "2026-05-03",
+  "note": "Menu rotates weekly. Vegan Monday is a UCB tradition — the full day menu is 100% plant-based.",
+  "contact": {
+    "name": "Culinaria Campus Restaurant",
+    "phone": "+49 6782 17-2539",
+    "email": "service@campus-company.eu",
+    "instagram": "@mensa.culinaria.at.ucb"
+  },
+  "days": {
+    "Mon": {
+      "date": "2026-05-04",
+      "theme": "Vegan Monday",
+      "themeEmoji": "🌱",
+      "themeColor": "#4CAF50",
+      "dishes": [
+        {
+          "id": "mon1",
+          "name": "Gemüse-Curry mit Basmati-Reis",
+          "nameEn": "Vegetable Curry with Basmati Rice",
+          "category": "main",
+          "tags": ["vegan", "glutenfree"],
+          "prices": { "student": "3.20", "employee": "4.60", "guest": "5.90" }
+        },
+        {
+          "id": "mon2",
+          "name": "Spaghetti Aglio e Olio mit Kirschtomaten",
+          "nameEn": "Spaghetti Aglio e Olio with Cherry Tomatoes",
+          "category": "main",
+          "tags": ["vegan"],
+          "prices": { "student": "2.90", "employee": "4.20", "guest": "5.50" }
+        },
+        {
+          "id": "mon3",
+          "name": "Rote Linsensuppe",
+          "nameEn": "Red Lentil Soup",
+          "category": "soup",
+          "tags": ["vegan", "glutenfree"],
+          "prices": { "student": "1.50", "employee": "2.00", "guest": "2.80" }
+        },
+        {
+          "id": "mon4",
+          "name": "Bunter Salatteller",
+          "nameEn": "Mixed Green Salad",
+          "category": "side",
+          "tags": ["vegan", "glutenfree"],
+          "prices": { "student": "2.00", "employee": "2.60", "guest": "3.20" }
+        },
+        {
+          "id": "mon5",
+          "name": "Sojajoghurt mit Granola und Beeren",
+          "nameEn": "Soy Yogurt with Granola and Berries",
+          "category": "dessert",
+          "tags": ["vegan"],
+          "prices": { "student": "1.20", "employee": "1.60", "guest": "2.00" }
+        }
+      ]
+    },
+    "Tue": {
+      "date": "2026-05-05",
+      "dishes": [
+        {
+          "id": "tue1",
+          "name": "Jäger-Schnitzel vom Schwein mit Pommes",
+          "nameEn": "Pork Schnitzel Hunter Style with Fries",
+          "category": "main",
+          "tags": ["meat"],
+          "prices": { "student": "4.10", "employee": "5.60", "guest": "6.90" }
+        },
+        {
+          "id": "tue2",
+          "name": "Käse-Lauch-Quiche mit Salat",
+          "nameEn": "Cheese & Leek Quiche with Salad",
+          "category": "main",
+          "tags": ["vegetarian"],
+          "prices": { "student": "3.30", "employee": "4.70", "guest": "6.00" }
+        },
+        {
+          "id": "tue3",
+          "name": "Kartoffelcremesuppe",
+          "nameEn": "Creamy Potato Soup",
+          "category": "soup",
+          "tags": ["vegan"],
+          "prices": { "student": "1.50", "employee": "2.00", "guest": "2.80" }
+        },
+        {
+          "id": "tue4",
+          "name": "Nudelsalat mit Pestodressing",
+          "nameEn": "Pasta Salad with Pesto Dressing",
+          "category": "side",
+          "tags": ["vegetarian"],
+          "prices": { "student": "1.80", "employee": "2.40", "guest": "3.00" }
+        },
+        {
+          "id": "tue5",
+          "name": "Vanillepudding mit Kirschkompott",
+          "nameEn": "Vanilla Pudding with Cherry Compote",
+          "category": "dessert",
+          "tags": ["vegetarian"],
+          "prices": { "student": "1.10", "employee": "1.50", "guest": "1.90" }
+        }
+      ]
+    },
+    "Wed": {
+      "date": "2026-05-06",
+      "dishes": [
+        {
+          "id": "wed1",
+          "name": "Rindergulasch mit Kartoffelpüree",
+          "nameEn": "Beef Goulash with Mashed Potatoes",
+          "category": "main",
+          "tags": ["meat"],
+          "prices": { "student": "4.40", "employee": "6.00", "guest": "7.50" }
+        },
+        {
+          "id": "wed2",
+          "name": "Gemüse-Lasagne",
+          "nameEn": "Vegetable Lasagna",
+          "category": "main",
+          "tags": ["vegetarian"],
+          "prices": { "student": "3.50", "employee": "4.90", "guest": "6.20" }
+        },
+        {
+          "id": "wed3",
+          "name": "Linsensuppe mit Einlage",
+          "nameEn": "Lentil Soup",
+          "category": "soup",
+          "tags": ["vegan"],
+          "prices": { "student": "1.50", "employee": "2.00", "guest": "2.80" }
+        },
+        {
+          "id": "wed4",
+          "name": "Couscous-Salat mit Minze",
+          "nameEn": "Couscous Salad with Mint",
+          "category": "side",
+          "tags": ["vegan"],
+          "prices": { "student": "1.80", "employee": "2.40", "guest": "3.00" }
+        },
+        {
+          "id": "wed5",
+          "name": "Obstkorb",
+          "nameEn": "Seasonal Fruit",
+          "category": "dessert",
+          "tags": ["vegan", "glutenfree"],
+          "prices": { "student": "0.80", "employee": "1.10", "guest": "1.50" }
+        }
+      ]
+    },
+    "Thu": {
+      "date": "2026-05-07",
+      "dishes": [
+        {
+          "id": "thu1",
+          "name": "Hähnchen-Gyros mit Tzatziki und Pommes",
+          "nameEn": "Chicken Gyros with Tzatziki and Fries",
+          "category": "main",
+          "tags": ["meat"],
+          "prices": { "student": "4.20", "employee": "5.80", "guest": "7.20" }
+        },
+        {
+          "id": "thu2",
+          "name": "Spinat-Feta-Wraps",
+          "nameEn": "Spinach & Feta Wraps",
+          "category": "main",
+          "tags": ["vegetarian"],
+          "prices": { "student": "3.10", "employee": "4.40", "guest": "5.80" }
+        },
+        {
+          "id": "thu3",
+          "name": "Gemüsesuppe",
+          "nameEn": "Vegetable Soup",
+          "category": "soup",
+          "tags": ["vegan"],
+          "prices": { "student": "1.50", "employee": "2.00", "guest": "2.80" }
+        },
+        {
+          "id": "thu4",
+          "name": "Rote-Bete-Salat mit Walnüssen",
+          "nameEn": "Beetroot Salad with Walnuts",
+          "category": "side",
+          "tags": ["vegan", "glutenfree"],
+          "prices": { "student": "1.80", "employee": "2.40", "guest": "3.00" }
+        },
+        {
+          "id": "thu5",
+          "name": "Schokoladenmousse",
+          "nameEn": "Chocolate Mousse",
+          "category": "dessert",
+          "tags": ["vegetarian"],
+          "prices": { "student": "1.30", "employee": "1.80", "guest": "2.20" }
+        }
+      ]
+    },
+    "Fri": {
+      "date": "2026-05-08",
+      "dishes": [
+        {
+          "id": "fri1",
+          "name": "Backfisch mit Remoulade und Kartoffelsalat",
+          "nameEn": "Baked Fish with Remoulade and Potato Salad",
+          "category": "main",
+          "tags": ["fish"],
+          "prices": { "student": "3.80", "employee": "5.20", "guest": "6.80" }
+        },
+        {
+          "id": "fri2",
+          "name": "Käsespätzle mit Röstzwiebeln",
+          "nameEn": "Cheese Spaetzle with Fried Onions",
+          "category": "main",
+          "tags": ["vegetarian"],
+          "prices": { "student": "3.20", "employee": "4.50", "guest": "5.80" }
+        },
+        {
+          "id": "fri3",
+          "name": "Möhren-Ingwer-Suppe",
+          "nameEn": "Carrot Ginger Soup",
+          "category": "soup",
+          "tags": ["vegan", "glutenfree"],
+          "prices": { "student": "1.50", "employee": "2.00", "guest": "2.80" }
+        },
+        {
+          "id": "fri4",
+          "name": "Gemischter Salat",
+          "nameEn": "Mixed Salad",
+          "category": "side",
+          "tags": ["vegan", "glutenfree"],
+          "prices": { "student": "1.60", "employee": "2.20", "guest": "2.80" }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,235 @@
+import React, { useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import useStore from '../../store/useStore';
+import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
+import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
+
+function daysUntil(dateStr) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.ceil((new Date(dateStr) - today) / 86400000);
+}
+
+function formatDueDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-DE', { weekday: 'short', day: 'numeric', month: 'short' }) +
+    ' · ' + d.toLocaleTimeString('en-DE', { hour: '2-digit', minute: '2-digit' });
+}
+
+function UrgencyBadge({ days, done }) {
+  if (done) return (
+    <View style={[styles.badge, { backgroundColor: '#F5F5F5' }]}>
+      <Text style={[styles.badgeText, { color: INACTIVE }]}>Done</Text>
+    </View>
+  );
+  if (days < 0) return (
+    <View style={[styles.badge, { backgroundColor: '#FFEBEE' }]}>
+      <Text style={[styles.badgeText, { color: ERROR }]}>Overdue</Text>
+    </View>
+  );
+  if (days === 0) return (
+    <View style={[styles.badge, { backgroundColor: '#FFF3E0' }]}>
+      <Text style={[styles.badgeText, { color: '#E65100', fontWeight: '800' }]}>Today</Text>
+    </View>
+  );
+  if (days <= 2) return (
+    <View style={[styles.badge, { backgroundColor: '#FBE9E7' }]}>
+      <Text style={[styles.badgeText, { color: '#BF360C', fontWeight: '700' }]}>{days}d</Text>
+    </View>
+  );
+  if (days <= 7) return (
+    <View style={[styles.badge, { backgroundColor: '#FFF8E1' }]}>
+      <Text style={[styles.badgeText, { color: '#F57F17' }]}>{days}d</Text>
+    </View>
+  );
+  return (
+    <View style={[styles.badge, { backgroundColor: ACCENT }]}>
+      <Text style={[styles.badgeText, { color: DARK }]}>{days}d</Text>
+    </View>
+  );
+}
+
+export default function PlannerScreen({ navigation }) {
+  const deadlines = useStore((s) => s.deadlines);
+  const setDeadlines = useStore((s) => s.setDeadlines);
+  const updateDeadline = useStore((s) => s.updateDeadline);
+  const removeDeadline = useStore((s) => s.removeDeadline);
+
+  useEffect(() => {
+    loadDeadlines().then(setDeadlines);
+  }, []);
+
+  const toggleDone = useCallback(async (id, current) => {
+    updateDeadline(id, { completed: !current });
+    const next = deadlines.map((d) => d.id === id ? { ...d, completed: !current } : d);
+    await saveDeadlines(next);
+    if (!current) await cancelDeadlineReminders(id);
+  }, [deadlines]);
+
+  const confirmDelete = (id, title) => {
+    Alert.alert('Delete deadline?', `"${title}" will be removed.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await cancelDeadlineReminders(id);
+          removeDeadline(id);
+          const next = deadlines.filter((d) => d.id !== id);
+          await saveDeadlines(next);
+        },
+      },
+    ]);
+  };
+
+  const sorted = [...deadlines].sort((a, b) => {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    return new Date(a.dueDate) - new Date(b.dueDate);
+  });
+
+  if (sorted.length === 0) {
+    return (
+      <View style={styles.empty}>
+        <Ionicons name="checkmark-circle-outline" size={56} color={BORDER} />
+        <Text style={styles.emptyTitle}>No deadlines yet</Text>
+        <Text style={styles.emptySub}>Track your portfolio, presentations, and assignments</Text>
+        <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddDeadline')}>
+          <Ionicons name="add" size={20} color="#fff" />
+          <Text style={styles.addBtnText}>Add Deadline</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={sorted}
+        keyExtractor={(d) => d.id}
+        contentContainerStyle={styles.list}
+        renderItem={({ item: d }) => (
+          <View style={[styles.card, d.completed && styles.cardDone]}>
+            <TouchableOpacity
+              style={styles.checkBtn}
+              onPress={() => toggleDone(d.id, d.completed)}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={d.completed ? 'checkmark-circle' : 'ellipse-outline'}
+                size={26}
+                color={d.completed ? PRIMARY : BORDER}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cardBody}
+              onPress={() => navigation.navigate('AddDeadline', { deadline: d })}
+              activeOpacity={0.7}
+            >
+              <View style={styles.cardTop}>
+                <Text style={[styles.cardTitle, d.completed && styles.strikethrough]} numberOfLines={2}>
+                  {d.title}
+                </Text>
+                <UrgencyBadge days={daysUntil(d.dueDate)} done={d.completed} />
+              </View>
+              {d.subject ? (
+                <Text style={styles.subject}>{d.subject}</Text>
+              ) : null}
+              <Text style={styles.dueDate}>{formatDueDate(d.dueDate)}</Text>
+              {d.note ? <Text style={styles.note} numberOfLines={2}>{d.note}</Text> : null}
+              <View style={styles.reminders}>
+                {d.remind24h && <ReminderPill label="24h before" />}
+                {d.remind2h && <ReminderPill label="2h before" />}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteBtn}
+              onPress={() => confirmDelete(d.id, d.title)}
+              hitSlop={8}
+            >
+              <Ionicons name="trash-outline" size={18} color={INACTIVE} />
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('AddDeadline')}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function ReminderPill({ label }) {
+  return (
+    <View style={styles.reminderPill}>
+      <Ionicons name="notifications-outline" size={10} color={PRIMARY} />
+      <Text style={styles.reminderPillText}>{label}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: SURFACE },
+  list: { padding: 12, paddingBottom: 100 },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: SURFACE, padding: 32, gap: 12 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A' },
+  emptySub: { fontSize: 14, color: INACTIVE, textAlign: 'center', lineHeight: 20 },
+  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: PRIMARY, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24, marginTop: 8 },
+  addBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: BG,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 10,
+    gap: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  cardDone: { opacity: 0.55 },
+  checkBtn: { paddingTop: 2 },
+  cardBody: { flex: 1 },
+  cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 4 },
+  cardTitle: { flex: 1, fontSize: 16, fontWeight: '700', color: '#1A1A1A', lineHeight: 22 },
+  strikethrough: { textDecorationLine: 'line-through', color: INACTIVE },
+  subject: { fontSize: 13, color: PRIMARY, fontWeight: '600', marginBottom: 3 },
+  dueDate: { fontSize: 12, color: INACTIVE, marginBottom: 4 },
+  note: { fontSize: 13, color: '#555', lineHeight: 18, marginBottom: 6 },
+  reminders: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  reminderPill: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: ACCENT, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6 },
+  reminderPillText: { fontSize: 11, color: DARK, fontWeight: '500' },
+  deleteBtn: { paddingTop: 4 },
+  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, minWidth: 44, alignItems: 'center' },
+  badgeText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: PRIMARY,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
+  },
+});

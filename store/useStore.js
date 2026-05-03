@@ -65,6 +65,26 @@ const useStore = create((set, get) => ({
   openSidebar: () => set({ sidebarOpen: true }),
   closeSidebar: () => set({ sidebarOpen: false }),
 
+  // Deadline planner (persisted to AsyncStorage 'ucb_deadlines')
+  deadlines: [],
+  setDeadlines: (deadlines) => set({ deadlines }),
+  addDeadline: (d) => set((s) => ({ deadlines: [d, ...s.deadlines] })),
+  updateDeadline: (id, patch) =>
+    set((s) => ({ deadlines: s.deadlines.map((d) => (d.id === id ? { ...d, ...patch } : d)) })),
+  removeDeadline: (id) => set((s) => ({ deadlines: s.deadlines.filter((d) => d.id !== id) })),
+
+  // Exam registration tracking (persisted to AsyncStorage 'ucb_exam_reg')
+  examRegistrations: {},
+  setExamRegistrations: (r) => set({ examRegistrations: r }),
+  setExamRegistration: (courseId, data) =>
+    set((s) => ({ examRegistrations: { ...s.examRegistrations, [courseId]: data } })),
+
+  // Exam plans (persisted to AsyncStorage 'ucb_exam_plans')
+  examPlans: {},
+  setExamPlans: (p) => set({ examPlans: p }),
+  setExamPlan: (courseId, data) =>
+    set((s) => ({ examPlans: { ...s.examPlans, [courseId]: data } })),
+
   // Deep-link: Timetable → Map
   pendingMapBuilding: null,
   setPendingMapBuilding: (id) => set({ pendingMapBuilding: id }),

@@ -1,0 +1,132 @@
+{
+  "current": "ss2026",
+  "semesters": [
+    {
+      "id": "ss2026",
+      "name": "Summer Semester 2026",
+      "shortName": "SS 2026",
+      "color": "#6FAE3E",
+      "lectureStart": "2026-04-07",
+      "lectureEnd": "2026-07-19",
+      "examStart": "2026-07-20",
+      "examEnd": "2026-08-08",
+      "events": [
+        {
+          "id": "ss26-lecture-start",
+          "title": "Lectures Begin",
+          "titleDe": "Vorlesungsbeginn",
+          "date": "2026-04-07",
+          "category": "academic",
+          "description": "First day of lectures for SS 2026. Check Stud.IP for your room assignments.",
+          "icon": "school-outline"
+        },
+        {
+          "id": "ss26-course-selection",
+          "title": "Course Selection Deadline",
+          "titleDe": "Belegfrist Ende",
+          "date": "2026-04-21",
+          "category": "admin",
+          "description": "Last day to register or deregister from courses via Stud.IP for SS 2026.",
+          "icon": "create-outline"
+        },
+        {
+          "id": "ss26-exam-reg-start",
+          "title": "Exam Registration Opens",
+          "titleDe": "Prüfungsanmeldung beginnt",
+          "date": "2026-05-19",
+          "category": "exams",
+          "description": "Exam registration opens in QIS/PRIMUSS. Don't forget to register for each exam you want to take!",
+          "icon": "alert-circle-outline",
+          "important": true
+        },
+        {
+          "id": "ss26-exam-reg-end",
+          "title": "Exam Registration Deadline",
+          "titleDe": "Anmeldefrist Prüfungen",
+          "date": "2026-06-05",
+          "category": "exams",
+          "description": "Last day to register for exams in QIS/PRIMUSS. Missing this deadline means missing the exam.",
+          "icon": "alert-circle",
+          "important": true
+        },
+        {
+          "id": "ss26-pfingsten",
+          "title": "Whitsun Holiday (Pfingsten)",
+          "titleDe": "Pfingstferien",
+          "date": "2026-05-25",
+          "endDate": "2026-05-29",
+          "category": "holiday",
+          "description": "No lectures during Pfingsten holiday week.",
+          "icon": "sunny-outline"
+        },
+        {
+          "id": "ss26-withdrawal",
+          "title": "Exam Withdrawal Deadline",
+          "titleDe": "Abmeldefrist Prüfungen",
+          "date": "2026-06-26",
+          "category": "exams",
+          "description": "Last day to withdraw from an exam without penalty. After this date, a no-show counts as a failed attempt.",
+          "icon": "close-circle-outline"
+        },
+        {
+          "id": "ss26-lecture-end",
+          "title": "Last Day of Lectures",
+          "titleDe": "Vorlesungsende",
+          "date": "2026-07-19",
+          "category": "academic",
+          "description": "Last lecture day of SS 2026.",
+          "icon": "checkmark-circle-outline"
+        },
+        {
+          "id": "ss26-exam-period",
+          "title": "Exam Period Begins",
+          "titleDe": "Prüfungszeitraum",
+          "date": "2026-07-20",
+          "endDate": "2026-08-08",
+          "category": "exams",
+          "description": "Main exam period for SS 2026. Check QIS for your individual exam schedule.",
+          "icon": "document-text-outline",
+          "important": true
+        },
+        {
+          "id": "ss26-reenrollment",
+          "title": "Re-enrollment Deadline (WS 2026/27)",
+          "titleDe": "Rückmeldung WS 2026/27",
+          "date": "2026-08-15",
+          "category": "admin",
+          "description": "Pay semester fee and re-enroll for WS 2026/27 via the student portal. Missing this means exmatriculation.",
+          "icon": "card-outline",
+          "important": true
+        },
+        {
+          "id": "ss26-resit",
+          "title": "Resit / Second Attempt Exams",
+          "titleDe": "Wiederholungsprüfungen",
+          "date": "2026-09-07",
+          "endDate": "2026-09-25",
+          "category": "exams",
+          "description": "Second attempt exams for students who did not pass in the main period.",
+          "icon": "refresh-circle-outline"
+        },
+        {
+          "id": "ss26-grades",
+          "title": "Grade Publication Deadline",
+          "titleDe": "Notenbekanntgabe",
+          "date": "2026-09-30",
+          "category": "academic",
+          "description": "Grades for SS 2026 should be visible in QIS by this date.",
+          "icon": "star-outline"
+        },
+        {
+          "id": "ws2627-start",
+          "title": "WS 2026/27 Lectures Begin",
+          "titleDe": "Vorlesungsbeginn WS 2026/27",
+          "date": "2026-10-05",
+          "category": "academic",
+          "description": "First day of lectures for Winter Semester 2026/27.",
+          "icon": "snow-outline"
+        }
+      ]
+    }
+  ]
+}

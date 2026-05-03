@@ -1,0 +1,198 @@
+[
+  {
+    "id": "pedelec",
+    "category": "mobility",
+    "title": "E-Bike (Pedelec) Rental",
+    "description": "Borrow an e-bike from AStA for getting around campus and the surrounding area. Great for trips into Birkenfeld or Idar-Oberstein.",
+    "location": "AStA Office, Building 9908",
+    "contact": "asta@umwelt-campus.de",
+    "schedule": "During AStA office hours",
+    "icon": "bicycle-outline",
+    "tags": ["mobility", "asta"],
+    "tip": "ID required as deposit. First-come first-served."
+  },
+  {
+    "id": "semesterticket",
+    "category": "mobility",
+    "title": "Deutschlandsemesterticket",
+    "description": "Your semester fee includes the Deutschlandsemesterticket — free travel on all regional trains and buses across Germany. Activate it via the student portal.",
+    "location": "Germany-wide (DB regional trains, buses)",
+    "contact": "studienbuero@hochschule-trier.de",
+    "schedule": "Valid entire semester",
+    "icon": "train-outline",
+    "tags": ["mobility", "free"],
+    "tip": "Show your digital student ID in the DB Navigator app."
+  },
+  {
+    "id": "kadu",
+    "category": "food",
+    "title": "KADU Campus Pub",
+    "description": "Student-run campus bar operated by AStA since 2023. Affordable drinks, relaxed atmosphere, occasional events like bingo, karaoke and quiz nights.",
+    "location": "Student building, UCB campus",
+    "schedule": "Every Tuesday from 20:00",
+    "recurringDay": "Tuesday",
+    "recurringTime": "20:00",
+    "icon": "beer-outline",
+    "tags": ["food", "social", "recurring"],
+    "tip": "Spontaneous events happen — follow AStA on Instagram for announcements."
+  },
+  {
+    "id": "tearoom",
+    "category": "food",
+    "title": "Tea Room",
+    "description": "A cosy student lounge in the communications building. A quiet spot to relax between lectures, have tea, and meet people.",
+    "location": "Communications Building (Haus der Kommunikation)",
+    "schedule": "Open during campus hours",
+    "icon": "cafe-outline",
+    "tags": ["food", "social", "relax"]
+  },
+  {
+    "id": "mensa",
+    "category": "food",
+    "title": "Culinaria Campus Restaurant",
+    "description": "Main campus cafeteria serving hot meals Monday to Friday. Monday is always Vegan Day — 100% plant-based menu. Uses regional and seasonal ingredients where possible.",
+    "location": "Main campus building",
+    "contact": "service@campus-company.eu",
+    "phone": "+49 6782 17-2539",
+    "schedule": "Mon–Fri during lunch (approx. 11:30–14:00)",
+    "recurringDay": "Monday",
+    "icon": "restaurant-outline",
+    "tags": ["food", "vegan", "daily"],
+    "tip": "Vegan Monday — the full menu is plant-based every Monday. Check the Mensa tab for this week's menu."
+  },
+  {
+    "id": "sports-hall",
+    "category": "sports",
+    "title": "Sports Hall & Facilities",
+    "description": "Full sports hall, athletics field, tennis court, basketball court, and beach volleyball court — all on campus. Free for enrolled students.",
+    "location": "Sports area, UCB campus",
+    "schedule": "See Events & Sports for scheduled activities",
+    "icon": "barbell-outline",
+    "tags": ["sports", "free"]
+  },
+  {
+    "id": "fitness-room",
+    "category": "sports",
+    "title": "Fitness Room",
+    "description": "Free weights and cardio equipment available for students. Managed by AStA.",
+    "location": "AStA building, UCB campus",
+    "schedule": "During designated hours — check AStA notice board",
+    "icon": "fitness-outline",
+    "tags": ["sports", "asta", "free"]
+  },
+  {
+    "id": "art-room",
+    "category": "study",
+    "title": "Art Room",
+    "description": "Creative studio space managed by AStA. Available for student art projects, painting, and creative work.",
+    "location": "AStA building, UCB campus",
+    "schedule": "Check AStA for availability",
+    "icon": "color-palette-outline",
+    "tags": ["creative", "asta"]
+  },
+  {
+    "id": "band-room",
+    "category": "study",
+    "title": "Band / Music Room",
+    "description": "Practice room with instruments for student bands and musicians. Book via AStA.",
+    "location": "AStA building, UCB campus",
+    "contact": "asta@umwelt-campus.de",
+    "schedule": "By appointment via AStA",
+    "icon": "musical-notes-outline",
+    "tags": ["music", "asta"]
+  },
+  {
+    "id": "billiard",
+    "category": "study",
+    "title": "Billiard Room",
+    "description": "Relax with a game of billiards between lectures. Managed by AStA, free for students.",
+    "location": "AStA building, UCB campus",
+    "schedule": "During campus hours",
+    "icon": "ellipse-outline",
+    "tags": ["leisure", "asta", "free"]
+  },
+  {
+    "id": "library",
+    "category": "study",
+    "title": "Campus Library",
+    "description": "Full academic library with study spaces, printing, and digital resources. Access journal databases, borrow textbooks, and use quiet study rooms.",
+    "location": "Library Building, UCB campus",
+    "schedule": "Mon–Fri 08:00–20:00 (term time), shorter hours during breaks",
+    "icon": "library-outline",
+    "tags": ["study", "printing", "free"]
+  },
+  {
+    "id": "writing-workshop",
+    "category": "study",
+    "title": "Writing Workshop (Schreibwerkstatt)",
+    "description": "Free academic writing support — from structuring your thesis to improving scientific German. Individual coaching and group sessions available.",
+    "location": "Library building, UCB campus",
+    "schedule": "Regular sessions — check events calendar",
+    "icon": "pencil-outline",
+    "tags": ["study", "free", "academic"]
+  },
+  {
+    "id": "green-office",
+    "category": "sustainability",
+    "title": "Green Office",
+    "description": "Student-run sustainability bureau founded in 2017. Organises vegan breakfasts, clothing swaps, film nights, electronics drives, and community cleanups. Open to all — earn POA points for regular involvement.",
+    "location": "Building 9914, Room 015",
+    "contact": "green-office@umwelt-campus.de",
+    "instagram": "@greenoffice_ucb",
+    "schedule": "Monthly open meetings — all welcome",
+    "icon": "leaf-outline",
+    "tags": ["sustainability", "community", "events"],
+    "tip": "You can earn POA (extracurricular) points by participating in Green Office projects."
+  },
+  {
+    "id": "green-office-events",
+    "category": "sustainability",
+    "title": "Green Office Events",
+    "description": "Regular events: 🌱 Vegan Breakfasts — free plant-based breakfast on campus. 👕 Clothing Swap Parties — bring clothes, take clothes. 🎬 Eco Film Nights. 🔌 Electronics Collection (with NABU). 🧹 Community Cleanup Days.",
+    "location": "Various campus locations",
+    "contact": "green-office@umwelt-campus.de",
+    "icon": "calendar-outline",
+    "tags": ["sustainability", "events", "free"],
+    "tip": "Follow @greenoffice_ucb on Instagram for event announcements."
+  },
+  {
+    "id": "iso",
+    "category": "community",
+    "title": "International Students Network (ISO)",
+    "description": "Community network for UCB's ~1,800 international students from 80+ countries. Social events, buddy system, and mutual support for navigating life in Germany.",
+    "location": "UCB campus",
+    "icon": "people-outline",
+    "tags": ["international", "community", "social"]
+  },
+  {
+    "id": "international-office",
+    "category": "community",
+    "title": "International Office",
+    "description": "Official support for international students — visa questions, enrollment documents, recognition of foreign qualifications, and general guidance on studying in Germany.",
+    "location": "Main administration building, UCB",
+    "schedule": "Office hours — see ucb website for current times",
+    "icon": "globe-outline",
+    "tags": ["international", "admin", "official"]
+  },
+  {
+    "id": "counseling",
+    "category": "community",
+    "title": "Psychosocial Counseling",
+    "description": "Free and confidential counseling for students dealing with stress, anxiety, loneliness, or academic pressure. No judgment, no appointment needed for a first conversation.",
+    "location": "Student services, UCB campus",
+    "schedule": "Consultation hours — check with student services",
+    "icon": "heart-outline",
+    "tags": ["wellbeing", "free", "confidential"]
+  },
+  {
+    "id": "asta",
+    "category": "community",
+    "title": "AStA — Student Union",
+    "description": "Your elected student representative body. Manages KADU, fitness room, bike rental, art room and more. Advocates for student interests. Visit them for any campus-related question.",
+    "location": "AStA Office, Building 9908",
+    "contact": "asta@umwelt-campus.de",
+    "schedule": "Regular office hours — see AStA notice board",
+    "icon": "people-circle-outline",
+    "tags": ["admin", "community", "official"]
+  }
+]
