@@ -5,13 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { clearAllCache } from '../../services/cache';
 import useStore from '../../store/useStore';
-import useAdminStore from '../../store/useAdminStore';
 import { PRIMARY, INACTIVE, BG, BORDER, SURFACE } from '../../constants/colors';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
   const { settings, updateSettings } = useStore();
-  const isAdmin = useAdminStore((s) => s.isAdmin);
   const navigation = useNavigation();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -83,18 +81,6 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-forward" size={16} color={INACTIVE} style={{ marginLeft: 'auto' }} />
         </TouchableOpacity>
       </View>
-
-      {/* Admin Section — only visible to admin user */}
-      {isAdmin && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Verwaltung</Text>
-          <TouchableOpacity style={styles.linkRow} onPress={() => navigation.navigate('AdminArea')}>
-            <Ionicons name="shield-checkmark-outline" size={18} color={PRIMARY} />
-            <Text style={[styles.settingLabel, { color: PRIMARY }]}>Admin-Dashboard</Text>
-            <Ionicons name="chevron-forward" size={16} color={PRIMARY} style={{ marginLeft: 'auto' }} />
-          </TouchableOpacity>
-        </View>
-      )}
 
       {/* About Section */}
       <View style={styles.section}>

@@ -13,7 +13,6 @@ import CoursesScreen from '../screens/courses/CoursesScreen';
 import EventsStack from './EventsStack';
 import ImpressumScreen from '../screens/legal/ImpressumScreen';
 import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
-import AdminStack from './AdminStack';
 import { PRIMARY } from '../constants/colors';
 
 const Stack = createNativeStackNavigator();
@@ -100,11 +99,6 @@ export default function RootNavigator() {
             name="Datenschutz"
             component={DatenschutzScreen}
             options={{ headerShown: true, title: 'Datenschutzerklärung', headerTintColor: PRIMARY }}
-          />
-          <Stack.Screen
-            name="AdminArea"
-            component={AdminStack}
-            options={{ headerShown: false }}
           />
         </>
       ) : (

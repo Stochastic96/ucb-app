@@ -1,5 +1,4 @@
 import useStore from '../store/useStore';
-import useAdminStore from '../store/useAdminStore';
 import { fetchProfile } from './profile';
 import { fetchCourses } from './courses';
 import { fetchAllEvents } from './events';
@@ -17,10 +16,6 @@ export async function bootstrapSessionData(force = false) {
     if (!userId) {
       throw { type: 'NO_CREDENTIALS', message: 'No logged-in user was found.' };
     }
-
-    // Check admin status (non-blocking — fails silently if Supabase is unreachable)
-    const username = profileResult?.data?.username ?? '';
-    useAdminStore.getState().checkAdminStatus(username).catch(() => {});
 
     const coursesResult = await fetchCourses(userId, force);
     const courses = coursesResult?.data ?? [];
