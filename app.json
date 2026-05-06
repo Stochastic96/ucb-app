@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "UCB",
-    "slug": "ucb",
+    "slug": "ucb-navigator",
     "version": "1.0.0",
     "scheme": "ucb",
     "orientation": "portrait",
@@ -29,8 +29,12 @@
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
-      ]
+      ],
+      "package": "com.anonymous.ucb"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,8 +46,14 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "3cfaf7dd-134e-44dd-8645-3066206e53db"
+        "projectId": "49caca80-7d01-490e-8a6b-d850b9a6b91f"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/49caca80-7d01-490e-8a6b-d850b9a6b91f"
     }
   }
 }
