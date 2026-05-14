@@ -15,14 +15,18 @@ import {
   scheduleDeadlineReminders,
   cancelDeadlineReminders,
   saveDeadlines,
-  loadDeadlines,
 } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, BORDER, ACCENT } from '../../constants/colors';
+
+const CATEGORIES = [
+  { key: 'academic', label: 'Academic', color: PRIMARY, icon: 'school-outline' },
+  { key: 'bureaucratic', label: 'Bureaucratic', color: '#E65100', icon: 'document-text-outline' },
+  { key: 'personal', label: 'Personal', color: '#7B1FA2', icon: 'person-outline' },
+];
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
-
 
 export default function AddDeadlineScreen({ navigation, route }) {
   const existing = route.params?.deadline;
@@ -30,11 +34,11 @@ export default function AddDeadlineScreen({ navigation, route }) {
   const addDeadline = useStore((s) => s.addDeadline);
   const updateDeadline = useStore((s) => s.updateDeadline);
   const deadlines = useStore((s) => s.deadlines);
-  const setDeadlines = useStore((s) => s.setDeadlines);
 
   const [title, setTitle] = useState(existing?.title ?? '');
   const [subject, setSubject] = useState(existing?.subject ?? '');
   const [note, setNote] = useState(existing?.note ?? '');
+  const [category, setCategory] = useState(existing?.category ?? 'academic');
   const [dueDate, setDueDate] = useState(existing ? new Date(existing.dueDate) : (() => {
     const d = new Date();
     d.setDate(d.getDate() + 7);
@@ -63,6 +67,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         title: title.trim(),
         subject: subject.trim(),
         note: note.trim(),
+        category,
         dueDate: dueDate.toISOString(),
         remind24h,
         remind2h,
@@ -70,29 +75,25 @@ export default function AddDeadlineScreen({ navigation, route }) {
         createdAt: existing?.createdAt ?? new Date().toISOString(),
       };
 
-      // Cancel old reminders if editing
       if (existing) {
         await cancelDeadlineReminders(existing.id);
       }
 
-      // Schedule new reminders
       if (!deadline.completed) {
         await scheduleDeadlineReminders(deadline);
       }
 
       if (existing) {
         updateDeadline(existing.id, deadline);
-        const all = await loadDeadlines();
-        const next = all.map((d) => d.id === existing.id ? deadline : d);
+        const next = deadlines.map((d) => d.id === existing.id ? deadline : d);
         await saveDeadlines(next);
       } else {
         addDeadline(deadline);
-        const all = await loadDeadlines();
-        await saveDeadlines([deadline, ...all]);
+        await saveDeadlines([deadline, ...deadlines]);
       }
 
       navigation.goBack();
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Could not save deadline. Please try again.');
     } finally {
       setSaving(false);
@@ -140,6 +141,26 @@ export default function AddDeadlineScreen({ navigation, route }) {
             ))}
           </View>
         )}
+      </FormSection>
+
+      {/* Category */}
+      <FormSection label="Category">
+        <View style={styles.categoryRow}>
+          {CATEGORIES.map((cat) => {
+            const active = category === cat.key;
+            return (
+              <TouchableOpacity
+                key={cat.key}
+                style={[styles.categoryChip, active && { backgroundColor: cat.color, borderColor: cat.color }]}
+                onPress={() => setCategory(cat.key)}
+                activeOpacity={0.75}
+              >
+                <Ionicons name={cat.icon} size={14} color={active ? '#fff' : INACTIVE} />
+                <Text style={[styles.categoryChipText, active && { color: '#fff' }]}>{cat.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </FormSection>
 
       {/* Due date & time */}
@@ -255,10 +276,7 @@ const styles = StyleSheet.create({
   },
   noteInput: { minHeight: 80, textAlignVertical: 'top' },
   charCount: { fontSize: 11, color: INACTIVE, textAlign: 'right', paddingRight: 14, paddingBottom: 8 },
-  suggestions: {
-    borderTopWidth: 1,
-    borderTopColor: '#ECECEC',
-  },
+  suggestions: { borderTopWidth: 1, borderTopColor: '#ECECEC' },
   suggestionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -269,6 +287,24 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F5F5F5',
   },
   suggestionText: { fontSize: 14, color: '#1A1A1A', flex: 1 },
+  categoryRow: {
+    flexDirection: 'row',
+    padding: 12,
+    gap: 8,
+  },
+  categoryChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 9,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#ECECEC',
+    backgroundColor: BG,
+  },
+  categoryChipText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
   dateRow: { flexDirection: 'row' },
   toggleRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
   toggleRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F2F2F2' },

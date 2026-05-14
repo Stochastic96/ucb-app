@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,26 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
 import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
+
+const CATEGORY_META = {
+  academic:     { label: 'Academic',     color: PRIMARY,    icon: 'school-outline' },
+  bureaucratic: { label: 'Bureaucratic', color: '#E65100',  icon: 'document-text-outline' },
+  personal:     { label: 'Personal',     color: '#7B1FA2',  icon: 'person-outline' },
+};
+
+const FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'academic', label: 'Academic' },
+  { key: 'bureaucratic', label: 'Bureaucratic' },
+  { key: 'personal', label: 'Personal' },
+];
 
 function daysUntil(dateStr) {
   const today = new Date();
@@ -62,10 +77,11 @@ export default function PlannerScreen({ navigation }) {
   const setDeadlines = useStore((s) => s.setDeadlines);
   const updateDeadline = useStore((s) => s.updateDeadline);
   const removeDeadline = useStore((s) => s.removeDeadline);
+  const [filter, setFilter] = useState('all');
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     loadDeadlines().then(setDeadlines);
-  }, []);
+  }, []));
 
   const toggleDone = useCallback(async (id, current) => {
     updateDeadline(id, { completed: !current });
@@ -95,7 +111,9 @@ export default function PlannerScreen({ navigation }) {
     return new Date(a.dueDate) - new Date(b.dueDate);
   });
 
-  if (sorted.length === 0) {
+  const visible = filter === 'all' ? sorted : sorted.filter((d) => d.category === filter);
+
+  if (deadlines.length === 0) {
     return (
       <View style={styles.empty}>
         <Ionicons name="checkmark-circle-outline" size={56} color={BORDER} />
@@ -111,53 +129,96 @@ export default function PlannerScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Filter chips */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterBar}
+        contentContainerStyle={styles.filterBarContent}
+      >
+        {FILTERS.map((f) => {
+          const active = filter === f.key;
+          const meta = CATEGORY_META[f.key];
+          const activeColor = meta ? meta.color : PRIMARY;
+          return (
+            <TouchableOpacity
+              key={f.key}
+              style={[styles.filterChip, active && { backgroundColor: activeColor, borderColor: activeColor }]}
+              onPress={() => setFilter(f.key)}
+              activeOpacity={0.75}
+            >
+              {meta && (
+                <View style={[styles.filterDot, { backgroundColor: active ? '#fff' : meta.color }]} />
+              )}
+              <Text style={[styles.filterChipText, active && { color: '#fff' }]}>{f.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
       <FlatList
-        data={sorted}
+        data={visible}
         keyExtractor={(d) => d.id}
-        contentContainerStyle={styles.list}
-        renderItem={({ item: d }) => (
-          <View style={[styles.card, d.completed && styles.cardDone]}>
-            <TouchableOpacity
-              style={styles.checkBtn}
-              onPress={() => toggleDone(d.id, d.completed)}
-              hitSlop={8}
-            >
-              <Ionicons
-                name={d.completed ? 'checkmark-circle' : 'ellipse-outline'}
-                size={26}
-                color={d.completed ? PRIMARY : BORDER}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cardBody}
-              onPress={() => navigation.navigate('AddDeadline', { deadline: d })}
-              activeOpacity={0.7}
-            >
-              <View style={styles.cardTop}>
-                <Text style={[styles.cardTitle, d.completed && styles.strikethrough]} numberOfLines={2}>
-                  {d.title}
-                </Text>
-                <UrgencyBadge days={daysUntil(d.dueDate)} done={d.completed} />
-              </View>
-              {d.subject ? (
-                <Text style={styles.subject}>{d.subject}</Text>
-              ) : null}
-              <Text style={styles.dueDate}>{formatDueDate(d.dueDate)}</Text>
-              {d.note ? <Text style={styles.note} numberOfLines={2}>{d.note}</Text> : null}
-              <View style={styles.reminders}>
-                {d.remind24h && <ReminderPill label="24h before" />}
-                {d.remind2h && <ReminderPill label="2h before" />}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteBtn}
-              onPress={() => confirmDelete(d.id, d.title)}
-              hitSlop={8}
-            >
-              <Ionicons name="trash-outline" size={18} color={INACTIVE} />
-            </TouchableOpacity>
+        contentContainerStyle={[styles.list, visible.length === 0 && { flex: 1 }]}
+        ListEmptyComponent={
+          <View style={styles.emptyFilter}>
+            <Text style={styles.emptyFilterText}>No {filter} deadlines</Text>
           </View>
-        )}
+        }
+        renderItem={({ item: d }) => {
+          const catMeta = d.category ? CATEGORY_META[d.category] : null;
+          return (
+            <View style={[styles.card, d.completed && styles.cardDone]}>
+              <TouchableOpacity
+                style={styles.checkBtn}
+                onPress={() => toggleDone(d.id, d.completed)}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name={d.completed ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={26}
+                  color={d.completed ? PRIMARY : BORDER}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cardBody}
+                onPress={() => navigation.navigate('AddDeadline', { deadline: d })}
+                activeOpacity={0.7}
+              >
+                <View style={styles.cardTop}>
+                  <Text style={[styles.cardTitle, d.completed && styles.strikethrough]} numberOfLines={2}>
+                    {d.title}
+                  </Text>
+                  <UrgencyBadge days={daysUntil(d.dueDate)} done={d.completed} />
+                </View>
+                <View style={styles.metaRow}>
+                  {catMeta && (
+                    <View style={[styles.categoryPill, { backgroundColor: catMeta.color + '18', borderColor: catMeta.color + '40' }]}>
+                      <View style={[styles.categoryDot, { backgroundColor: catMeta.color }]} />
+                      <Text style={[styles.categoryPillText, { color: catMeta.color }]}>{catMeta.label}</Text>
+                    </View>
+                  )}
+                  {d.subject ? (
+                    <Text style={styles.subject} numberOfLines={1}>{d.subject}</Text>
+                  ) : null}
+                </View>
+                <Text style={styles.dueDate}>{formatDueDate(d.dueDate)}</Text>
+                {d.note ? <Text style={styles.note} numberOfLines={2}>{d.note}</Text> : null}
+                <View style={styles.reminders}>
+                  {d.remind24h && <ReminderPill label="24h before" />}
+                  {d.remind2h && <ReminderPill label="2h before" />}
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteBtn}
+                onPress={() => confirmDelete(d.id, d.title)}
+                hitSlop={8}
+              >
+                <Ionicons name="trash-outline" size={18} color={INACTIVE} />
+              </TouchableOpacity>
+            </View>
+          );
+        }}
       />
       <TouchableOpacity
         style={styles.fab}
@@ -181,12 +242,29 @@ function ReminderPill({ label }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACE },
+  filterBar: { flexGrow: 0, backgroundColor: BG, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  filterBarContent: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#E0E0E0',
+    backgroundColor: BG,
+  },
+  filterDot: { width: 7, height: 7, borderRadius: 4 },
+  filterChipText: { fontSize: 13, fontWeight: '600', color: INACTIVE },
   list: { padding: 12, paddingBottom: 100 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: SURFACE, padding: 32, gap: 12 },
   emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A' },
   emptySub: { fontSize: 14, color: INACTIVE, textAlign: 'center', lineHeight: 20 },
   addBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: PRIMARY, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24, marginTop: 8 },
   addBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  emptyFilter: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60 },
+  emptyFilterText: { fontSize: 15, color: INACTIVE },
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -207,7 +285,19 @@ const styles = StyleSheet.create({
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 4 },
   cardTitle: { flex: 1, fontSize: 16, fontWeight: '700', color: '#1A1A1A', lineHeight: 22 },
   strikethrough: { textDecorationLine: 'line-through', color: INACTIVE },
-  subject: { fontSize: 13, color: PRIMARY, fontWeight: '600', marginBottom: 3 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' },
+  categoryPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  categoryDot: { width: 6, height: 6, borderRadius: 3 },
+  categoryPillText: { fontSize: 11, fontWeight: '700' },
+  subject: { fontSize: 13, color: PRIMARY, fontWeight: '600', flexShrink: 1 },
   dueDate: { fontSize: 12, color: INACTIVE, marginBottom: 4 },
   note: { fontSize: 13, color: '#555', lineHeight: 18, marginBottom: 6 },
   reminders: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
