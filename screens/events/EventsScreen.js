@@ -8,13 +8,13 @@ import {
   ScrollView,
   SafeAreaView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
-import campusEvents from '../../data/events_campus.json';
-import sportsData from '../../data/events_sports.json';
 import useStore from '../../store/useStore';
+import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
 import {
   loadGoingState,
   saveGoingState,
@@ -22,6 +22,17 @@ import {
   scheduleSportReminder,
   cancelReminder,
 } from '../../services/reminders';
+import {
+  DAY_ORDER,
+  buildCampusEventSections,
+  getCurrentDayName,
+  groupSportsByDay,
+  isCampusEventActiveOnDate,
+  isCampusEventPast,
+  isCampusEventRecurring,
+  normalizeDayName,
+  sortSportsEntries,
+} from '../../utils/campusContent';
 
 const CATEGORY_COLORS = {
   party: '#E91E63',
@@ -47,18 +58,6 @@ const SPORT_EMOJI = {
   Cricket: '🏏',
 };
 
-const MONTH_LABELS = {
-  '03': 'März', '04': 'April', '05': 'Mai',
-  '06': 'Juni', '07': 'Juli',
-};
-
-const DAYS = ['All', 'Monday', 'Wednesday', 'Thursday'];
-const JS_DAY_MAP = { 1: 'Monday', 3: 'Wednesday', 4: 'Thursday' };
-
-function todayDayFilter() {
-  return JS_DAY_MAP[new Date().getDay()] ?? null;
-}
-
 function formatDate(dateStr, endDateStr) {
   if (!dateStr) return '';
   const [, m, dd] = dateStr.split('-');
@@ -69,50 +68,16 @@ function formatDate(dateStr, endDateStr) {
   return `${dd}.${m}`;
 }
 
-function isPast(dateStr) {
-  if (!dateStr) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return new Date(dateStr) < today;
-}
-
-function isToday(dateStr) {
-  if (!dateStr) return false;
-  const today = new Date();
-  const d = new Date(dateStr);
-  return (
-    d.getFullYear() === today.getFullYear() &&
-    d.getMonth() === today.getMonth() &&
-    d.getDate() === today.getDate()
-  );
-}
-
 function daysUntil(dateStr) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return Math.round((new Date(dateStr) - today) / 86400000);
 }
 
-function buildSections() {
-  const oneTime = campusEvents.filter((e) => !e.recurringDay);
-  const byMonth = {};
-  for (const ev of oneTime) {
-    const month = ev.date.split('-')[1];
-    if (!byMonth[month]) byMonth[month] = [];
-    byMonth[month].push(ev);
-  }
-  return Object.keys(byMonth)
-    .sort()
-    .map((m) => ({
-      title: MONTH_LABELS[m] ?? m,
-      data: byMonth[m].sort((a, b) => a.date.localeCompare(b.date)),
-    }));
-}
-
 function EventCard({ ev, isGoing, onToggle }) {
   const color = CATEGORY_COLORS[ev.category] ?? PRIMARY;
-  const past = isPast(ev.date);
-  const today = isToday(ev.date);
+  const past = isCampusEventPast(ev);
+  const today = isCampusEventActiveOnDate(ev);
   const days = ev.date ? daysUntil(ev.date) : null;
 
   return (
@@ -160,8 +125,8 @@ function EventCard({ ev, isGoing, onToggle }) {
   );
 }
 
-function RecurringBanner() {
-  const rec = campusEvents.find((e) => e.recurringDay);
+function RecurringBanner({ campusEvents }) {
+  const rec = campusEvents.find((event) => isCampusEventRecurring(event));
   if (!rec) return null;
   return (
     <View style={styles.recurringBanner}>
@@ -174,14 +139,15 @@ function RecurringBanner() {
   );
 }
 
-function CampusEventsTab({ goingEventIds, onToggleEvent }) {
-  const sections = useMemo(() => buildSections(), []);
+function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent }) {
+  const sections = useMemo(() => buildCampusEventSections(campusEvents), [campusEvents]);
+
   return (
     <SectionList
       sections={sections}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
-      ListHeaderComponent={<RecurringBanner />}
+      ListHeaderComponent={<RecurringBanner campusEvents={campusEvents} />}
       renderSectionHeader={({ section }) => (
         <Text style={styles.monthHeader}>{section.title}</Text>
       )}
@@ -193,6 +159,7 @@ function CampusEventsTab({ goingEventIds, onToggleEvent }) {
         />
       )}
       stickySectionHeadersEnabled={false}
+      ListEmptyComponent={<Text style={styles.emptyText}>No campus events are available right now.</Text>}
       ListFooterComponent={
         <Text style={styles.footerNote}>
           Changes possible — follow KADU on Instagram for updates.
@@ -237,24 +204,43 @@ function SportCard({ item, isGoing, onToggle }) {
   );
 }
 
-function SportsTab({ goingSportIds, onToggleSport }) {
-  const defaultDay = todayDayFilter();
-  const [selectedDay, setSelectedDay] = useState(defaultDay ?? 'All');
+function SportsTab({ sportsData, goingSportIds, onToggleSport }) {
+  const [selectedDay, setSelectedDay] = useState(null);
+  const availableDays = useMemo(
+    () => DAY_ORDER.filter((day) => sportsData.some((entry) => normalizeDayName(entry.day) === day)),
+    [sportsData]
+  );
+  const dayOptions = useMemo(() => ['All', ...availableDays], [availableDays]);
+
+  useEffect(() => {
+    const today = getCurrentDayName();
+    const fallbackDay = availableDays.includes(today) ? today : 'All';
+
+    if (selectedDay === null) {
+      setSelectedDay(fallbackDay);
+      return;
+    }
+
+    if (selectedDay !== 'All' && !availableDays.includes(selectedDay)) {
+      setSelectedDay(fallbackDay);
+    }
+  }, [availableDays, selectedDay]);
+
+  const activeDay = selectedDay ?? 'All';
 
   const filtered = useMemo(
-    () => (selectedDay === 'All' ? sportsData : sportsData.filter((s) => s.day === selectedDay)),
-    [selectedDay]
+    () => (
+      activeDay === 'All'
+        ? sortSportsEntries(sportsData)
+        : sortSportsEntries(sportsData.filter((item) => normalizeDayName(item.day) === activeDay))
+    ),
+    [activeDay, sportsData]
   );
 
   const grouped = useMemo(() => {
-    if (selectedDay !== 'All') return null;
-    const byDay = {};
-    for (const s of sportsData) {
-      if (!byDay[s.day]) byDay[s.day] = [];
-      byDay[s.day].push(s);
-    }
-    return byDay;
-  }, [selectedDay]);
+    if (activeDay !== 'All') return null;
+    return groupSportsByDay(sportsData);
+  }, [activeDay, sportsData]);
 
   return (
     <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}>
@@ -266,19 +252,19 @@ function SportsTab({ goingSportIds, onToggleSport }) {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-        {DAYS.map((d) => (
+        {dayOptions.map((d) => (
           <TouchableOpacity
             key={d}
-            style={[styles.chip, selectedDay === d && styles.chipActive]}
+            style={[styles.chip, activeDay === d && styles.chipActive]}
             onPress={() => setSelectedDay(d)}
           >
-            <Text style={[styles.chipText, selectedDay === d && styles.chipTextActive]}>{d}</Text>
+            <Text style={[styles.chipText, activeDay === d && styles.chipTextActive]}>{d}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       {grouped
-        ? Object.entries(grouped).map(([day, items]) => (
+        ? grouped.map(([day, items]) => (
             <View key={day}>
               <Text style={styles.dayHeader}>{day}</Text>
               {items.map((item) => (
@@ -300,6 +286,10 @@ function SportsTab({ goingSportIds, onToggleSport }) {
             />
           ))}
 
+      {filtered.length === 0 && (
+        <Text style={styles.emptyText}>No sports sessions are available for this day.</Text>
+      )}
+
       <Text style={styles.footerNote}>
         Sports schedule valid from 23.03.2026. Hall: Umwelt-Campus Birkenfeld.
       </Text>
@@ -313,6 +303,9 @@ export default function EventsScreen() {
   const canGoBack = parentNav?.canGoBack() ?? false;
 
   const [activeTab, setActiveTab] = useState('events');
+  const [campusEvents, setCampusEvents] = useState([]);
+  const [sportsData, setSportsData] = useState([]);
+  const [loadingContent, setLoadingContent] = useState(true);
 
   const goingEventIds = useStore((s) => s.goingEventIds);
   const goingSportIds = useStore((s) => s.goingSportIds);
@@ -331,6 +324,28 @@ export default function EventsScreen() {
     });
   }, []);
 
+  const loadContent = useCallback(async () => {
+    setLoadingContent(true);
+
+    try {
+      const [campusResult, sportsResult] = await Promise.all([
+        getCampusEvents(),
+        getSportsSchedule(),
+      ]);
+
+      setCampusEvents(campusResult.data ?? []);
+      setSportsData(sportsResult.data ?? []);
+    } finally {
+      setLoadingContent(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadContent();
+    }, [loadContent])
+  );
+
   const handleToggleEvent = useCallback(async (ev) => {
     const going = goingEventIds.includes(ev.id);
     if (going) {
@@ -340,7 +355,7 @@ export default function EventsScreen() {
       await saveGoingState(next, goingSportIds);
     } else {
       const ok = await scheduleEventReminder(ev);
-      if (ok === false && !isPast(ev.date)) {
+      if (ok === false && !isCampusEventPast(ev)) {
         // permission denied
         Alert.alert(
           'Notifications disabled',
@@ -438,10 +453,23 @@ export default function EventsScreen() {
       </View>
 
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
-        {activeTab === 'events' ? (
-          <CampusEventsTab goingEventIds={goingEventIds} onToggleEvent={handleToggleEvent} />
+        {loadingContent ? (
+          <View style={styles.loadingState}>
+            <ActivityIndicator color={PRIMARY} />
+            <Text style={styles.loadingText}>Loading campus content...</Text>
+          </View>
+        ) : activeTab === 'events' ? (
+          <CampusEventsTab
+            campusEvents={campusEvents}
+            goingEventIds={goingEventIds}
+            onToggleEvent={handleToggleEvent}
+          />
         ) : (
-          <SportsTab goingSportIds={goingSportIds} onToggleSport={handleToggleSport} />
+          <SportsTab
+            sportsData={sportsData}
+            goingSportIds={goingSportIds}
+            onToggleSport={handleToggleSport}
+          />
         )}
       </View>
     </SafeAreaView>
@@ -516,6 +544,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 8,
   },
+  loadingState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  loadingText: { fontSize: 14, color: INACTIVE, fontWeight: '500' },
+  emptyText: { color: INACTIVE, fontSize: 14, marginTop: 24, marginBottom: 8 },
   eventCard: {
     flexDirection: 'row',
     alignItems: 'center',

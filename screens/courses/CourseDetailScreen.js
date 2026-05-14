@@ -14,6 +14,22 @@ import { PRIMARY, INACTIVE, SURFACE, BG, BORDER } from '../../constants/colors';
 
 const TABS = ['Info', 'Files', 'Announcements'];
 
+function stripHtml(html) {
+  if (!html) return '';
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function formatDate(iso) {
   if (!iso) return '';
   return new Date(parseInt(iso, 10) * 1000 || iso).toLocaleDateString('en-DE', {
@@ -126,7 +142,7 @@ function AnnouncementsTab({ items }) {
         <View style={styles.announceCard}>
           <Text style={styles.announceDate}>{formatDate(item.date)}</Text>
           <Text style={styles.announceTitle}>{item.title}</Text>
-          <Text style={styles.announceBody} numberOfLines={4}>{item.body}</Text>
+          <Text style={styles.announceBody}>{stripHtml(item.body)}</Text>
         </View>
       )}
     />

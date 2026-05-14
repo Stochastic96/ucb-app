@@ -3,25 +3,30 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   RefreshControl,
   Animated,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import campusEvents from '../../data/events_campus.json';
-import sportsData from '../../data/events_sports.json';
 import { loadGoingState } from '../../services/reminders';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
+import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
+import { getNewsIdentity } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
 import EventRow from '../../components/EventRow';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, DARK, INACTIVE, SURFACE, BG, BORDER, ACCENT } from '../../constants/colors';
-import { navigationRef } from '../../navigation/navigationRef';
+import { PRIMARY, DARK, INACTIVE, SURFACE, BG, ACCENT } from '../../constants/colors';
 import { isSameCalendarDay, toMillis } from '../../utils/datetime';
+import {
+  getSportsForDate,
+  getTodayCampusEvents,
+  getUpcomingCampusEvents,
+  isCampusEventActiveOnDate,
+} from '../../utils/campusContent';
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -65,26 +70,19 @@ const EVENT_CATEGORY_COLORS = {
   recurring: PRIMARY,
 };
 
-const JS_DAY_TO_NAME = { 1: 'Monday', 3: 'Wednesday', 4: 'Thursday' };
-
-function getUpcomingCampusEvents(count = 3) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return campusEvents
-    .filter((e) => e.date && new Date(e.date) >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, count);
-}
-
-function getTodaySports() {
-  const dayName = JS_DAY_TO_NAME[new Date().getDay()];
-  if (!dayName) return [];
-  return sportsData.filter((s) => s.day === dayName);
-}
-
 function formatShortDate(dateStr) {
   const [, m, dd] = dateStr.split('-');
   return `${dd}.${m}`;
+}
+
+function getCampusEventRowLabel(event) {
+  if (isCampusEventActiveOnDate(event)) {
+    return event.time ? event.time : 'Today';
+  }
+  if (event.date) {
+    return formatShortDate(event.date);
+  }
+  return event.time ?? 'Today';
 }
 
 const QUICK_LINKS = [
@@ -131,15 +129,31 @@ export default function HomeScreen({ navigation }) {
   const bootstrapError = useStore((s) => s.bootstrapError);
   const openSidebar = useStore((s) => s.openSidebar);
   const goingEventIds = useStore((s) => s.goingEventIds);
+  const goingSportIds = useStore((s) => s.goingSportIds);
   const setGoingEventIds = useStore((s) => s.setGoingEventIds);
   const setGoingSportIds = useStore((s) => s.setGoingSportIds);
   const [loading, setLoading] = useState(
     !dataReady && !user && courses.length === 0 && events.length === 0 && news.length === 0
   );
   const [refreshing, setRefreshing] = useState(false);
+  const [campusEvents, setCampusEvents] = useState([]);
+  const [sportsSchedule, setSportsSchedule] = useState([]);
+  const [contentReady, setContentReady] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
+
+  const loadDashboardContent = useCallback(async () => {
+    const [campusResult, sportsResult] = await Promise.all([
+      getCampusEvents(),
+      getSportsSchedule(),
+    ]);
+
+    return {
+      campusEvents: campusResult.data ?? [],
+      sportsSchedule: sportsResult.data ?? [],
+    };
+  }, []);
 
   const load = useCallback(async (force = false) => {
     if (!userId) {
@@ -147,15 +161,29 @@ export default function HomeScreen({ navigation }) {
       setRefreshing(false);
       return;
     }
+
     try {
-      await bootstrapSessionData(force);
+      const [bootstrapResult, dashboardResult] = await Promise.allSettled([
+        bootstrapSessionData(force),
+        loadDashboardContent(),
+      ]);
+
+      if (dashboardResult.status === 'fulfilled') {
+        setCampusEvents(dashboardResult.value.campusEvents);
+        setSportsSchedule(dashboardResult.value.sportsSchedule);
+      }
+
+      if (bootstrapResult.status === 'rejected') {
+        // handled in global store
+      }
     } catch {
       // handled in global store
     } finally {
+      setContentReady(true);
       setLoading(false);
       setRefreshing(false);
     }
-  }, [userId]);
+  }, [loadDashboardContent, userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -165,6 +193,31 @@ export default function HomeScreen({ navigation }) {
       setLoading(false);
     }
   }, [dataReady, isHydrating, load, userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+
+      const refreshDashboardContent = async () => {
+        try {
+          const nextContent = await loadDashboardContent();
+          if (!active) return;
+          setCampusEvents(nextContent.campusEvents);
+          setSportsSchedule(nextContent.sportsSchedule);
+        } catch {
+          // offline/local fallback is already handled in the content service
+        } finally {
+          if (active) setContentReady(true);
+        }
+      };
+
+      refreshDashboardContent();
+
+      return () => {
+        active = false;
+      };
+    }, [loadDashboardContent])
+  );
 
   useEffect(() => {
     loadGoingState().then(({ goingEventIds: eIds, goingSportIds: sIds }) => {
@@ -189,17 +242,21 @@ export default function HomeScreen({ navigation }) {
 
   const openTab = (tabName) => navigation.navigate(tabName);
 
-  const openRootScreen = (screenName) => {
+  const openRootScreen = (screenName, params) => {
     const parent = navigation.getParent();
-    if (parent) { parent.navigate(screenName); return; }
-    navigation.navigate(screenName);
+    if (parent) { parent.navigate(screenName, params); return; }
+    navigation.navigate(screenName, params);
   };
 
   const nextEvent = getNextEvent(events);
   const todayEvents = getTodayEvents(events);
   const topNews = news.slice(0, 3);
-  const upcomingCampusEvents = useMemo(() => getUpcomingCampusEvents(3), []);
-  const todaySports = useMemo(() => getTodaySports(), []);
+  const todayCampusEvents = useMemo(() => getTodayCampusEvents(campusEvents), [campusEvents]);
+  const upcomingCampusEvents = useMemo(() => getUpcomingCampusEvents(campusEvents, 3), [campusEvents]);
+  const todaySports = useMemo(() => getSportsForDate(sportsSchedule), [sportsSchedule]);
+  const campusPreview = todayCampusEvents.length > 0 ? todayCampusEvents.slice(0, 3) : upcomingCampusEvents;
+  const hasTodayHighlights = todayCampusEvents.length > 0 || todaySports.length > 0;
+  const showCampusSection = contentReady && (campusPreview.length > 0 || todaySports.length > 0);
 
   if (loading || (isHydrating && !dataReady && courses.length === 0 && news.length === 0)) {
     return (
@@ -305,25 +362,30 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
           {topNews.map((item) => (
-            <NewsCard key={item.id} item={item} unread={false} onPress={() => openRootScreen('NewsFeed')} />
+            <NewsCard
+              key={getNewsIdentity(item)}
+              item={item}
+              unread={false}
+              onPress={() => openRootScreen('NewsFeed', { preselectedNewsKey: getNewsIdentity(item) })}
+            />
           ))}
         </View>
       )}
 
       {/* Upcoming Events */}
-      {upcomingCampusEvents.length > 0 && (
+      {showCampusSection && (
         <View style={styles.section}>
           <View style={styles.sectionRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Ionicons name="calendar-outline" size={18} color={DARK} />
-              <Text style={styles.sectionTitle}>Campus Events</Text>
+              <Text style={styles.sectionTitle}>{hasTodayHighlights ? "What's On Today" : 'Campus Events'}</Text>
             </View>
             <TouchableOpacity onPress={() => openRootScreen('EventsList')}>
               <Text style={styles.seeAll}>See all →</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.eventsCard}>
-            {upcomingCampusEvents.map((ev) => {
+            {campusPreview.map((ev) => {
               const color = EVENT_CATEGORY_COLORS[ev.category] ?? PRIMARY;
               const isGoing = goingEventIds.includes(ev.id);
               return (
@@ -334,7 +396,7 @@ export default function HomeScreen({ navigation }) {
                   activeOpacity={0.7}
                 >
                   <View style={[styles.eventStripe, { backgroundColor: color }]} />
-                  <Text style={styles.eventRowDate}>{formatShortDate(ev.date)}</Text>
+                  <Text style={styles.eventRowDate}>{getCampusEventRowLabel(ev)}</Text>
                   <Text style={styles.eventRowTitle} numberOfLines={1}>{ev.title}</Text>
                   {isGoing && (
                     <Ionicons name="notifications" size={14} color={PRIMARY} style={{ marginRight: 4 }} />
@@ -343,11 +405,32 @@ export default function HomeScreen({ navigation }) {
               );
             })}
             {todaySports.length > 0 && (
-              <View style={styles.sportsTonight}>
-                <Text style={styles.sportsTonightText}>
-                  🏃 Sports today:{' '}
-                  {[...new Set(todaySports.map((s) => s.sport))].join(', ')}
-                </Text>
+              <View style={styles.sportsTodayBlock}>
+                {campusPreview.length > 0 && <View style={styles.sectionDivider} />}
+                <Text style={styles.sportsTodayTitle}>Sports Today</Text>
+                {todaySports.slice(0, 4).map((sport) => {
+                  const isGoing = goingSportIds.includes(sport.id);
+                  return (
+                    <TouchableOpacity
+                      key={sport.id}
+                      style={styles.eventRow}
+                      onPress={() => openRootScreen('EventsList')}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.eventStripe, { backgroundColor: '#388E3C' }]} />
+                      <Text style={styles.eventRowDate}>{sport.startTime}</Text>
+                      <View style={styles.eventRowCopy}>
+                        <Text style={styles.eventRowTitle} numberOfLines={1}>{sport.sport}</Text>
+                        {!!sport.location && (
+                          <Text style={styles.eventRowMeta} numberOfLines={1}>{sport.location}</Text>
+                        )}
+                      </View>
+                      {isGoing && (
+                        <Ionicons name="notifications" size={14} color={PRIMARY} style={{ marginRight: 4 }} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             )}
           </View>
@@ -483,11 +566,16 @@ const styles = StyleSheet.create({
   },
   eventStripe: { width: 4, height: 18, borderRadius: 2 },
   eventRowDate: { fontSize: 12, fontWeight: '700', color: INACTIVE, minWidth: 38 },
+  eventRowCopy: { flex: 1 },
   eventRowTitle: { flex: 1, fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
-  sportsTonight: {
-    backgroundColor: ACCENT,
-    paddingVertical: 10,
+  eventRowMeta: { fontSize: 12, color: INACTIVE, marginTop: 2 },
+  sportsTodayBlock: { backgroundColor: ACCENT },
+  sportsTodayTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: DARK,
     paddingHorizontal: 14,
+    paddingTop: 12,
   },
-  sportsTonightText: { fontSize: 13, color: DARK, fontWeight: '500' },
+  sectionDivider: { height: 1, backgroundColor: '#F0F0F0' },
 });

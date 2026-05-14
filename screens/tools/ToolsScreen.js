@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT } from '../../constants/colors';
@@ -77,6 +78,15 @@ const TOOLS = [
     screen: 'NewsFeed',
     rootScreen: true,
   },
+  {
+    id: 'library-booking',
+    label: 'Library Room Booking',
+    description: 'Reserve a study room via UCBib',
+    icon: 'library-outline',
+    iconColor: '#5C6BC0',
+    iconBg: '#E8EAF6',
+    externalUrl: 'https://www.supersaas.co.uk/schedule/UCBib/UCBib-Arbeitsraum?lang=uk',
+  },
 ];
 
 // Coming soon — code exists, just hidden until activated
@@ -101,6 +111,10 @@ const COMING_SOON = [
 
 export default function ToolsScreen({ navigation }) {
   const navigateTo = (tool) => {
+    if (tool.externalUrl) {
+      Linking.openURL(tool.externalUrl);
+      return;
+    }
     if (tool.rootScreen) {
       navigation.getParent()?.getParent()?.navigate(tool.screen);
     } else {

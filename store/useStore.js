@@ -21,7 +21,12 @@ const useStore = create((set, get) => ({
       dataReady: false,
       bootstrapError: null,
       lastSyncAt: null,
+      currentSemester: null,
     }),
+
+  // Current semester (set from Stud.IP /semesters at bootstrap)
+  currentSemester: null,
+  setCurrentSemester: (s) => set({ currentSemester: s }),
 
   // Courses
   courses: [],

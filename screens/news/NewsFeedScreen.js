@@ -9,6 +9,7 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, SURFACE, BG } from '../../constants/colors';
 import { markNewsSeen, syncUnreadNewsCount } from '../../services/newsState';
+import { getNewsIdentity } from '../../services/news';
 import { toMillis } from '../../utils/datetime';
 import ErrorState from '../../components/ErrorState';
 
@@ -20,7 +21,7 @@ function formatFullDate(raw) {
   });
 }
 
-export default function NewsFeedScreen() {
+export default function NewsFeedScreen({ navigation, route }) {
   const news = useStore((s) => s.news);
   const userId = useStore((s) => s.userId);
   const courses = useStore((s) => s.courses);
@@ -53,6 +54,22 @@ export default function NewsFeedScreen() {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    const preselectedNewsKey = route.params?.preselectedNewsKey;
+    if (!preselectedNewsKey || news.length === 0) return;
+
+    const match = news.find((item) => getNewsIdentity(item) === preselectedNewsKey);
+    if (match) {
+      setSelected(match);
+      navigation.setParams({ preselectedNewsKey: undefined });
+      return;
+    }
+
+    if (!loading) {
+      navigation.setParams({ preselectedNewsKey: undefined });
+    }
+  }, [loading, navigation, news, route.params?.preselectedNewsKey]);
+
   useFocusEffect(
     useCallback(() => {
       const seenAt = Date.now();
@@ -83,7 +100,7 @@ export default function NewsFeedScreen() {
     <View style={styles.container}>
       <FlatList
         data={news}
-        keyExtractor={(i) => i.id}
+        keyExtractor={(i) => getNewsIdentity(i)}
         renderItem={({ item }) => (
           <NewsCard item={item} unread={isUnread(item)} onPress={() => setSelected(item)} />
         )}

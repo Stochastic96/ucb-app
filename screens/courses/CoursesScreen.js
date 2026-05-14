@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SectionList, View, Text, StyleSheet, RefreshControl, Animated } from 'react-native';
-import { fetchCourses } from '../../services/courses';
+import { bootstrapSessionData } from '../../services/bootstrap';
 import CourseCard from '../../components/CourseCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, SURFACE, BG } from '../../constants/colors';
+import { PRIMARY, INACTIVE, SURFACE } from '../../constants/colors';
 
 function groupBySemester(courses) {
   const map = {};
   courses.forEach((c) => {
-    const key = c.semester || 'Other';
+    const key = c.semester || 'Current Semester';
     if (!map[key]) map[key] = [];
     map[key].push(c);
   });
@@ -20,30 +20,22 @@ function groupBySemester(courses) {
 }
 
 export default function CoursesScreen({ navigation }) {
-  const userId = useStore((s) => s.userId);
-  const [sections, setSections] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const courses = useStore((s) => s.courses);
+  const dataReady = useStore((s) => s.dataReady);
+  const isHydrating = useStore((s) => s.isHydrating);
+  const bootstrapError = useStore((s) => s.bootstrapError);
+
+  const [sections, setSections] = useState(() => groupBySemester(courses));
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
 
-  const loadCourses = useCallback(async (force = false) => {
-    if (!userId) return;
-    try {
-      setError(null);
-      const result = await fetchCourses(userId, force);
-      setSections(groupBySemester(result.data));
-    } catch (e) {
-      setError(e.type ?? 'UNKNOWN');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [userId]);
+  const loading = isHydrating || (!dataReady && !bootstrapError);
 
-  useEffect(() => { loadCourses(); }, [loadCourses]);
+  useEffect(() => {
+    setSections(groupBySemester(courses));
+  }, [courses]);
 
   useEffect(() => {
     if (!loading) {
@@ -54,7 +46,13 @@ export default function CoursesScreen({ navigation }) {
     }
   }, [loading]);
 
-  const onRefresh = () => { setRefreshing(true); loadCourses(true); };
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await bootstrapSessionData(true);
+    } catch {}
+    setRefreshing(false);
+  }, []);
 
   if (loading) {
     return (
@@ -66,43 +64,43 @@ export default function CoursesScreen({ navigation }) {
     );
   }
 
-  if (error && sections.length === 0) {
-    return <ErrorState type={error} onRetry={() => { setLoading(true); loadCourses(); }} />;
+  if (bootstrapError && sections.length === 0) {
+    return <ErrorState type={bootstrapError.type} onRetry={onRefresh} />;
   }
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-    <SectionList
-      style={styles.container}
-      sections={sections}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <CourseCard
-          course={item}
-          onPress={() =>
-            navigation.push('CourseDetail', {
-              courseId: item.id,
-              title: item.title,
-              color: item.color,
-            })
-          }
-        />
-      )}
-      renderSectionHeader={({ section }) => (
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
-        </View>
-      )}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />
-      }
-      contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
-      ListEmptyComponent={
-        <View style={styles.empty}>
-          <Text style={styles.emptyText}>No courses found.</Text>
-        </View>
-      }
-    />
+      <SectionList
+        style={styles.container}
+        sections={sections}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <CourseCard
+            course={item}
+            onPress={() =>
+              navigation.push('CourseDetail', {
+                courseId: item.id,
+                title: item.title,
+                color: item.color,
+              })
+            }
+          />
+        )}
+        renderSectionHeader={({ section }) => (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+          </View>
+        )}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />
+        }
+        contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>No courses found.</Text>
+          </View>
+        }
+      />
     </Animated.View>
   );
 }

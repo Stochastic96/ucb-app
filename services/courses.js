@@ -1,5 +1,5 @@
 import { getApiClient, classifyError } from './api';
-import { setCache, getCache, getStaleCacheData } from './cache';
+import { setCache, getCache, getStaleCacheData, clearCache } from './cache';
 import { CACHE_TTL } from '../constants/config';
 import { COURSE_COLORS } from '../constants/colors';
 import useStore from '../store/useStore';
@@ -41,10 +41,66 @@ async function fetchStudentCourses(client, userId) {
     .filter(Boolean);
 }
 
+export async function fetchCurrentSemester() {
+  const cached = await getCache('current_semester', CACHE_TTL.PROFILE);
+  if (cached) {
+    useStore.getState().setCurrentSemester(cached.data);
+    return cached.data;
+  }
+
+  try {
+    const client = await getApiClient();
+    const response = await client.get('/semesters');
+    const semesters = response.data.data ?? [];
+    const nowSec = Math.floor(Date.now() / 1000);
+
+    const current = semesters.find((s) => {
+      const begin = s.attributes?.begin ?? 0;
+      const end = s.attributes?.end ?? 0;
+      return begin <= nowSec && nowSec <= end;
+    });
+
+    if (!current) return null;
+
+    const result = { id: current.id, title: current.attributes?.title ?? '' };
+
+    // Invalidate courses cache on first detection or when semester changes
+    const prev = useStore.getState().currentSemester;
+    if (!prev || prev.id !== result.id) {
+      try { await clearCache('courses'); } catch {}
+    }
+
+    try { await setCache('current_semester', result); } catch {}
+    useStore.getState().setCurrentSemester(result);
+    return result;
+  } catch {
+    const stale = await getStaleCacheData('current_semester');
+    if (stale?.data) {
+      useStore.getState().setCurrentSemester(stale.data);
+      return stale.data;
+    }
+    return null;
+  }
+}
+
+function semesterFilter(courses, currentSemester) {
+  if (!currentSemester) return courses;
+  return courses.filter(
+    (c) => c.semester === currentSemester.title || c.semester === currentSemester.id
+  );
+}
+
 export async function fetchCourses(userId, forceRefresh = false) {
+  const currentSemester = useStore.getState().currentSemester;
+
   if (!forceRefresh) {
     const cached = await getCache('courses', CACHE_TTL.COURSES);
-    if (cached) return cached;
+    if (cached) {
+      // Cache stores all courses (unfiltered) — apply semester filter on read
+      const filtered = semesterFilter(cached.data, currentSemester);
+      useStore.getState().setCourses(filtered);
+      return { ...cached, data: filtered };
+    }
   }
 
   try {
@@ -63,18 +119,22 @@ export async function fetchCourses(userId, forceRefresh = false) {
       data = raw.map((item, i) => mapCourse(item, i));
     }
 
+    // Cache ALL courses unfiltered so re-filtering works after semester changes
     try { await setCache('courses', data); } catch {}
-    useStore.getState().setCourses(data);
+
+    const filtered = semesterFilter(data, currentSemester);
+    useStore.getState().setCourses(filtered);
     useStore.getState().setOffline(false);
-    return { data, isCached: false, lastUpdated: new Date() };
+    return { data: filtered, isCached: false, lastUpdated: new Date() };
   } catch (err) {
     const classified = classifyError(err);
     if (classified.type === 'NO_INTERNET') {
       useStore.getState().setOffline(true);
       const stale = await getStaleCacheData('courses');
       if (stale) {
-        useStore.getState().setCourses(stale.data);
-        return stale;
+        const filtered = semesterFilter(stale.data, currentSemester);
+        useStore.getState().setCourses(filtered);
+        return { ...stale, data: filtered };
       }
     }
     throw classified;
