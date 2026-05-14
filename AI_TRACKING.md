@@ -7,6 +7,20 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 
 [Add more entries below as you use AI for different features.]
 
+## 2026-05-14 (session 2)
+- components/BiometricLockScreen.js: Claude Sonnet 4.6 — New component: full-screen biometric lock with 3-fail auto-logout
+- App.js: Claude Sonnet 4.6 — AppState listener to lock app after 30s in background when biometric lock enabled
+- store/useStore.js: Claude Sonnet 4.6 — Added biometricLockEnabled to persisted settings
+- screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — Added biometric lock toggle (hidden on devices without enrolled biometrics)
+- screens/LoginScreen.js: Claude Sonnet 4.6 — Accessibility labels on username, password, login button
+- screens/home/HomeScreen.js: Claude Sonnet 4.6 — Accessibility labels on quick links, news bell, menu button, cards, see-all links
+- screens/planner/PlannerScreen.js: Claude Sonnet 4.6 — Accessibility labels on filter chips, checkbox, card body, delete button, FAB
+- screens/planner/AddDeadlineScreen.js: Claude Sonnet 4.6 — Accessibility labels on inputs, course suggestions, category chips, save button
+- screens/mensa/MensaScreen.js: Claude Sonnet 4.6 — Accessibility labels on day selector, filter chips, contact button
+- screens/tools/ToolsScreen.js: Claude Sonnet 4.6 — Accessibility labels on all tool cards
+- components/Sidebar.js: Claude Sonnet 4.6 — Accessibility labels on close button, nav items, logout button
+- navigation/MainTabs.js: Claude Sonnet 4.6 — tabBarAccessibilityLabel on all four tabs; menu button labelled
+
 ## 2026-05-14
 - CLAUDE.md: Claude Sonnet 4.6 — Expanded codebase guide: screen data-fetch pattern, notifications section, complete data/ inventory, Supabase table list, key dependencies, app config highlights, all three EAS build profiles
 - components/SimpleDatePicker.js: Claude Sonnet 4.6 — Replaced custom chevron-spinner with @react-native-community/datetimepicker (native OS picker on iOS and Android)
