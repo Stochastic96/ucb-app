@@ -19,10 +19,13 @@ npm run ios           # expo run:ios
 # CORS proxy for Stud.IP in local dev (if needed)
 npm run proxy         # node scripts/studip-proxy.js  (port 3001)
 
-# EAS cloud builds
+# EAS cloud builds  (three profiles: development, preview, production)
+eas build --platform android --profile development
 eas build --platform android --profile preview
 eas build --platform android --profile production
 ```
+
+`production` profile uses `autoIncrement: true`. All three profiles share the same three `EXPO_PUBLIC_*` env vars defined in `eas.json`.
 
 There is no test suite or linter configured.
 
@@ -98,10 +101,53 @@ RootNavigator (NativeStack)
 - Used for admin-managed content: Mensa menu, campus events, sports schedule, campus resources, semester calendar, guide content.
 - `contentService.js` pattern: try Supabase → cache result to AsyncStorage (`ucb_remote_*`) → fall back to cached → fall back to bundled JSON in `data/`.
 - All Supabase tables have corresponding bundled JSON fallbacks in `data/`.
+- Tables (managed in Supabase dashboard — no local migrations): `mensa_menu`, `mensa_meta`, `campus_events`, `sports_schedule`, `guide_content`, `admin_users`.
 
 ### Content & Guide Data
 
-Guide content lives in `data/guide_*.json` files and is also fetched from the Supabase `guide_content` table (keyed by `category`). The `utils/campusContent.js` file provides helpers for campus-specific content. Buildings data (`data/buildings.json`) drives both the Guide buildings section and the Map screen.
+Guide content lives in `data/guide_*.json` files (14 categories: accommodation, bureaucracy, buildings, checklist, contacts, emergency, faq, glossary, health, language, offices, phrases, rights, work) and is also fetched from the Supabase `guide_content` table (keyed by `category`). The `utils/campusContent.js` file provides helpers for campus-specific content. Buildings data (`data/buildings.json`) drives both the Guide buildings section and the Map screen.
+
+Other bundled JSON fallbacks in `data/`: `campus_resources.json`, `events_campus.json`, `events_sports.json`, `mensa_week.json`, `semester_calendar.json` — all follow the same contentService offline-first pattern.
+
+### Screen Patterns
+
+All data-fetching screens follow this standard shape:
+- `useStore()` for global state + `useState()` for local UI state (loading, refreshing, filters)
+- `useEffect()` on mount: check store, call `bootstrapSessionData()` or the relevant service if data is absent
+- `useFocusEffect()` on tab focus: refresh to prevent stale data when returning from another tab
+- Loading: `<SkeletonLoader />` shown while fetching; content fades in via `Animated.timing()`
+- Errors: `<ErrorState />` component with a retry callback
+- Pull-to-refresh: `RefreshControl` calls the load function with a `force=true` flag to bypass cache
+
+Example: `screens/home/HomeScreen.js` uses `Promise.allSettled([bootstrapSessionData(force), loadDashboardContent()])` to refresh both store and dashboard content in parallel.
+
+### Notifications
+
+`services/reminders.js` — three scheduled notification types, all gated by `requestNotificationPermission()`:
+- **Event**: one-time, fires at 9 AM on the event date
+- **Sports**: weekly recurring, 30 min before the scheduled time
+- **Deadline**: two-tier — 24 h and 2 h before the deadline
+
+Notification handler is set at module load via `Notifications.setNotificationHandler()`. The on/off toggle lives in `screens/profile/SettingsScreen.js`.
+
+**Known gap**: `App.js` has no `Notifications.getLastNotificationResponseAsync()` call, so tapping a notification from the background does not navigate anywhere yet.
+
+### App Config Highlights
+
+From `app.json`:
+- URL scheme: `"ucb"` — deep-link infrastructure is ready in the store (`pendingMapBuilding`), but no `linking` prop is wired to `NavigationContainer` yet
+- `newArchEnabled: true` — New React Native architecture enabled
+- Android: `edgeToEdgeEnabled: true`; requires `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION` (Map screen)
+- OTA updates via Expo's update server using `sdkVersion` runtime version policy
+
+### Key Dependencies
+
+- `react-native-paper` — Material Design components; theme configured in `App.js`
+- `@expo/vector-icons` (Ionicons) — all icon usage throughout the app
+- `expo-linear-gradient` — gradient backgrounds (HomeScreen header)
+- `expo-notifications` — scheduled local notifications (`services/reminders.js`)
+- `expo-location` — GPS/location for the campus Map screen
+- `react-native-calendars` — calendar UI in planner/deadline screens
 
 ### Constants
 
