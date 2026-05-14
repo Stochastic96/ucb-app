@@ -22,7 +22,7 @@ const ICONS = {
 function MenuButton() {
   const openSidebar = useStore((s) => s.openSidebar);
   return (
-    <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 8 }}>
+    <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 8 }} accessibilityLabel="Open menu" accessibilityRole="button">
       <Ionicons name="menu" size={24} color={PRIMARY} />
     </TouchableOpacity>
   );
@@ -60,12 +60,13 @@ export default function MainTabs() {
           component={HomeScreen}
           options={{
             tabBarBadge: unreadNewsCount > 0 ? unreadNewsCount : undefined,
+            tabBarAccessibilityLabel: 'Home tab',
           }}
         />
         <Tab.Screen
           name="Tools"
           component={ToolsStack}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, tabBarAccessibilityLabel: 'Tools tab' }}
           listeners={({ navigation }) => ({
             // Always reset to ToolsHome when the tab button is tapped, so the
             // user is never stranded deep in the stack with no way back.
@@ -78,7 +79,7 @@ export default function MainTabs() {
         <Tab.Screen
           name="Guide"
           component={GuideStack}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, tabBarAccessibilityLabel: 'Guide tab' }}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
               e.preventDefault();
@@ -86,7 +87,7 @@ export default function MainTabs() {
             },
           })}
         />
-        <Tab.Screen name="Map" component={MapScreen} options={{ title: 'Campus Map' }} />
+        <Tab.Screen name="Map" component={MapScreen} options={{ title: 'Campus Map', tabBarAccessibilityLabel: 'Map tab' }} />
       </Tab.Navigator>
     </View>
   );

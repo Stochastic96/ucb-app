@@ -99,6 +99,7 @@ export default function LoginScreen() {
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="next"
+          accessibilityLabel="Stud.IP username"
         />
 
         <TextInput
@@ -110,6 +111,7 @@ export default function LoginScreen() {
           secureTextEntry
           returnKeyType="done"
           onSubmitEditing={handleLogin}
+          accessibilityLabel="Password"
         />
 
         <TouchableOpacity
@@ -117,6 +119,8 @@ export default function LoginScreen() {
           onPress={handleLogin}
           disabled={loading}
           activeOpacity={0.85}
+          accessibilityLabel="Log in"
+          accessibilityRole="button"
         >
           <Text style={styles.buttonText}>{loading ? 'Logging in…' : 'Login'}</Text>
         </TouchableOpacity>

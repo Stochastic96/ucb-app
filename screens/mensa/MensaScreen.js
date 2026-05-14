@@ -76,6 +76,9 @@ export default function MensaScreen() {
               style={[styles.dayBtn, active && styles.dayBtnActive]}
               onPress={() => setSelectedDay(day)}
               activeOpacity={0.75}
+              accessibilityLabel={DAY_LABELS[day]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
             >
               <Text style={[styles.dayLabel, active && styles.dayLabelActive]}>
                 {DAY_LABELS[day]}
@@ -105,6 +108,9 @@ export default function MensaScreen() {
             key={f}
             style={[styles.filterChip, filter === f && styles.filterChipActive]}
             onPress={() => setFilter(f)}
+            accessibilityLabel={`Filter: ${f === 'all' ? 'All dishes' : f === 'vegan' ? 'Vegan only' : 'Vegetarian only'}`}
+            accessibilityRole="button"
+            accessibilityState={{ selected: filter === f }}
           >
             <Text style={[styles.filterChipText, filter === f && styles.filterChipTextActive]}>
               {f === 'all' ? 'All' : f === 'vegan' ? '🌱 Vegan' : '🥗 Vegetarian'}
@@ -137,6 +143,8 @@ export default function MensaScreen() {
       <TouchableOpacity
         style={styles.contactCard}
         onPress={() => Linking.openURL('mailto:service@campus-company.eu').catch(() => {})}
+        accessibilityLabel="Email Mensa: service@campus-company.eu"
+        accessibilityRole="button"
       >
         <Ionicons name="mail-outline" size={18} color={PRIMARY} />
         <View style={{ flex: 1 }}>

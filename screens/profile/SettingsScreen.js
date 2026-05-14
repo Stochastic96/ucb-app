@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { Dialog, Button, Snackbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { clearAllCache } from '../../services/cache';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, BG, BORDER, SURFACE } from '../../constants/colors';
@@ -14,10 +15,24 @@ export default function SettingsScreen() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [hasBiometrics, setHasBiometrics] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      setHasBiometrics(hasHardware && isEnrolled);
+    })();
+  }, []);
 
   const handleToggleNotifications = async (val) => {
     updateSettings({ notificationsEnabled: val });
     await AsyncStorage.setItem('ucb_settings', JSON.stringify({ ...settings, notificationsEnabled: val }));
+  };
+
+  const handleToggleBiometric = async (val) => {
+    updateSettings({ biometricLockEnabled: val });
+    await AsyncStorage.setItem('ucb_settings', JSON.stringify({ ...settings, biometricLockEnabled: val }));
   };
 
   const handleClearCache = async () => {
@@ -47,15 +62,32 @@ export default function SettingsScreen() {
 
       {/* Notifications Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Notifications</Text>
+        <Text style={styles.sectionTitle}>Notifications & Security</Text>
         <View style={styles.settingRow}>
           <Text style={styles.settingLabel}>Enable notifications</Text>
           <Switch
             value={settings.notificationsEnabled ?? false}
             onValueChange={handleToggleNotifications}
-            color={PRIMARY}
+            trackColor={{ true: PRIMARY }}
+            accessibilityLabel="Enable notifications"
+            accessibilityRole="switch"
           />
         </View>
+        {hasBiometrics && (
+          <View style={[styles.settingRow, { borderBottomWidth: 0 }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.settingLabel}>Biometric lock</Text>
+              <Text style={styles.settingValue}>Lock app after 30 s in background</Text>
+            </View>
+            <Switch
+              value={settings.biometricLockEnabled ?? false}
+              onValueChange={handleToggleBiometric}
+              trackColor={{ true: PRIMARY }}
+              accessibilityLabel="Biometric lock"
+              accessibilityRole="switch"
+            />
+          </View>
+        )}
       </View>
 
       {/* Data Section */}

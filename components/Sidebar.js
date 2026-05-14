@@ -157,7 +157,7 @@ export default function Sidebar() {
               {user?.username ? `@${user.username}` : 'UCB'}
             </Text>
           </View>
-          <TouchableOpacity onPress={closeSidebar} style={styles.closeBtn} hitSlop={12}>
+          <TouchableOpacity onPress={closeSidebar} style={styles.closeBtn} hitSlop={12} accessibilityLabel="Close menu" accessibilityRole="button">
             <Ionicons name="close" size={22} color={INACTIVE} />
           </TouchableOpacity>
         </View>
@@ -202,7 +202,7 @@ export default function Sidebar() {
         </ScrollView>
 
         {/* Logout */}
-        <TouchableOpacity style={styles.logoutRow} onPress={handleLogout} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.logoutRow} onPress={handleLogout} activeOpacity={0.7} accessibilityLabel="Log out" accessibilityRole="button">
           <Ionicons name="log-out-outline" size={20} color={ERROR} />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
@@ -222,7 +222,7 @@ function SidebarSection({ label, children }) {
 
 function SidebarRow({ icon, label, onPress, external }) {
   return (
-    <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7} accessibilityLabel={label} accessibilityRole="menuitem">
       <View style={styles.rowIconWrap}>
         <Ionicons name={icon} size={19} color={DARK} />
       </View>

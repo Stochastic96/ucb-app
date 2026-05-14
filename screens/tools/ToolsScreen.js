@@ -137,6 +137,8 @@ export default function ToolsScreen({ navigation }) {
           style={styles.toolCard}
           onPress={() => navigateTo(tool)}
           activeOpacity={0.75}
+          accessibilityLabel={`${tool.label}: ${tool.description}`}
+          accessibilityRole="button"
         >
           <View style={[styles.toolIcon, { backgroundColor: tool.iconBg }]}>
             <Ionicons name={tool.icon} size={24} color={tool.iconColor} />

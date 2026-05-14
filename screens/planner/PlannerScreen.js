@@ -119,7 +119,7 @@ export default function PlannerScreen({ navigation }) {
         <Ionicons name="checkmark-circle-outline" size={56} color={BORDER} />
         <Text style={styles.emptyTitle}>No deadlines yet</Text>
         <Text style={styles.emptySub}>Track your portfolio, presentations, and assignments</Text>
-        <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddDeadline')}>
+        <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddDeadline')} accessibilityLabel="Add deadline" accessibilityRole="button">
           <Ionicons name="add" size={20} color="#fff" />
           <Text style={styles.addBtnText}>Add Deadline</Text>
         </TouchableOpacity>
@@ -146,6 +146,9 @@ export default function PlannerScreen({ navigation }) {
               style={[styles.filterChip, active && { backgroundColor: activeColor, borderColor: activeColor }]}
               onPress={() => setFilter(f.key)}
               activeOpacity={0.75}
+              accessibilityLabel={`Filter by ${f.label}`}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
             >
               {meta && (
                 <View style={[styles.filterDot, { backgroundColor: active ? '#fff' : meta.color }]} />
@@ -173,6 +176,9 @@ export default function PlannerScreen({ navigation }) {
                 style={styles.checkBtn}
                 onPress={() => toggleDone(d.id, d.completed)}
                 hitSlop={8}
+                accessibilityLabel={d.completed ? 'Mark as not done' : 'Mark as done'}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: d.completed }}
               >
                 <Ionicons
                   name={d.completed ? 'checkmark-circle' : 'ellipse-outline'}
@@ -184,6 +190,8 @@ export default function PlannerScreen({ navigation }) {
                 style={styles.cardBody}
                 onPress={() => navigation.navigate('AddDeadline', { deadline: d })}
                 activeOpacity={0.7}
+                accessibilityLabel={`Edit deadline: ${d.title}`}
+                accessibilityRole="button"
               >
                 <View style={styles.cardTop}>
                   <Text style={[styles.cardTitle, d.completed && styles.strikethrough]} numberOfLines={2}>
@@ -213,6 +221,8 @@ export default function PlannerScreen({ navigation }) {
                 style={styles.deleteBtn}
                 onPress={() => confirmDelete(d.id, d.title)}
                 hitSlop={8}
+                accessibilityLabel={`Delete deadline: ${d.title}`}
+                accessibilityRole="button"
               >
                 <Ionicons name="trash-outline" size={18} color={INACTIVE} />
               </TouchableOpacity>
@@ -224,6 +234,8 @@ export default function PlannerScreen({ navigation }) {
         style={styles.fab}
         onPress={() => navigation.navigate('AddDeadline')}
         activeOpacity={0.85}
+        accessibilityLabel="Add deadline"
+        accessibilityRole="button"
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>

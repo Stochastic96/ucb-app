@@ -112,6 +112,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
           onChangeText={setTitle}
           maxLength={80}
           autoFocus={!existing}
+          accessibilityLabel="Deadline title"
         />
       </FormSection>
 
@@ -126,6 +127,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
           onFocus={() => setShowCourseSuggestions(subject.length > 0)}
           onBlur={() => setTimeout(() => setShowCourseSuggestions(false), 150)}
           maxLength={80}
+          accessibilityLabel="Subject or module"
         />
         {showCourseSuggestions && filtered.length > 0 && (
           <View style={styles.suggestions}>
@@ -134,6 +136,8 @@ export default function AddDeadlineScreen({ navigation, route }) {
                 key={name}
                 style={styles.suggestionRow}
                 onPress={() => { setSubject(name); setShowCourseSuggestions(false); }}
+                accessibilityLabel={`Select course: ${name}`}
+                accessibilityRole="button"
               >
                 <Ionicons name="book-outline" size={14} color={PRIMARY} />
                 <Text style={styles.suggestionText} numberOfLines={1}>{name}</Text>
@@ -154,6 +158,9 @@ export default function AddDeadlineScreen({ navigation, route }) {
                 style={[styles.categoryChip, active && { backgroundColor: cat.color, borderColor: cat.color }]}
                 onPress={() => setCategory(cat.key)}
                 activeOpacity={0.75}
+                accessibilityLabel={`${cat.label} category`}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
               >
                 <Ionicons name={cat.icon} size={14} color={active ? '#fff' : INACTIVE} />
                 <Text style={[styles.categoryChipText, active && { color: '#fff' }]}>{cat.label}</Text>
@@ -221,6 +228,8 @@ export default function AddDeadlineScreen({ navigation, route }) {
         onPress={handleSave}
         disabled={saving}
         activeOpacity={0.85}
+        accessibilityLabel={existing ? 'Save changes' : 'Add deadline'}
+        accessibilityRole="button"
       >
         <Ionicons name={existing ? 'checkmark-circle' : 'add-circle'} size={20} color="#fff" />
         <Text style={styles.saveBtnText}>{existing ? 'Save Changes' : 'Add Deadline'}</Text>
