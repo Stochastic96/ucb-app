@@ -7,6 +7,9 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 
 [Add more entries below as you use AI for different features.]
 
+## 2026-05-14
+- CLAUDE.md: Claude Sonnet 4.6 — Expanded codebase guide: screen data-fetch pattern, notifications section, complete data/ inventory, Supabase table list, key dependencies, app config highlights, all three EAS build profiles
+
 ## 2026-04-28
 - GuideScreen.js, GuideDetailScreen.js: GitHub Copilot — Added Contacts section with clickable email links
 
