@@ -79,6 +79,24 @@ const TOOLS = [
     rootScreen: true,
   },
   {
+    id: 'planner',
+    label: 'Deadline Planner',
+    description: 'Track portfolios, submissions & presentations with reminders',
+    icon: 'checkmark-circle-outline',
+    iconColor: '#9C27B0',
+    iconBg: '#F3E5F5',
+    screen: 'PlannerList',
+  },
+  {
+    id: 'resources',
+    label: 'Campus Resources',
+    description: 'Bike rental, Green Office events, sports & more',
+    icon: 'bicycle-outline',
+    iconColor: '#00796B',
+    iconBg: '#E0F2F1',
+    screen: 'CampusResources',
+  },
+  {
     id: 'library-booking',
     label: 'Library Room Booking',
     description: 'Reserve a study room via UCBib',
@@ -89,25 +107,7 @@ const TOOLS = [
   },
 ];
 
-// Coming soon — code exists, just hidden until activated
-const COMING_SOON = [
-  {
-    id: 'planner',
-    label: 'Deadline Planner',
-    description: 'Track portfolios, submissions & presentations with reminders',
-    icon: 'checkmark-circle-outline',
-    iconColor: '#9C27B0',
-    iconBg: '#F3E5F5',
-  },
-  {
-    id: 'resources',
-    label: 'Campus Resources',
-    description: 'Bike rental, Green Office events, sports & more',
-    icon: 'bicycle-outline',
-    iconColor: '#00796B',
-    iconBg: '#E0F2F1',
-  },
-];
+const COMING_SOON = [];
 
 export default function ToolsScreen({ navigation }) {
   const navigateTo = (tool) => {
@@ -149,24 +149,6 @@ export default function ToolsScreen({ navigation }) {
         </TouchableOpacity>
       ))}
 
-      {/* Coming soon */}
-      <Text style={[styles.sectionLabel, { marginTop: 24 }]}>Coming Soon</Text>
-      {COMING_SOON.map((item) => (
-        <View key={item.id} style={styles.comingSoonCard}>
-          <View style={[styles.toolIcon, { backgroundColor: item.iconBg, opacity: 0.6 }]}>
-            <Ionicons name={item.icon} size={24} color={item.iconColor} />
-          </View>
-          <View style={styles.toolText}>
-            <View style={styles.comingSoonTitleRow}>
-              <Text style={styles.comingSoonLabel}>{item.label}</Text>
-              <View style={styles.soonBadge}>
-                <Text style={styles.soonBadgeText}>Soon</Text>
-              </View>
-            </View>
-            <Text style={styles.comingSoonDesc}>{item.description}</Text>
-          </View>
-        </View>
-      ))}
 
       <View style={{ height: 20 }} />
     </ScrollView>
