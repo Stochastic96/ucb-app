@@ -21,6 +21,12 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 - components/Sidebar.js: Claude Sonnet 4.6 — Accessibility labels on close button, nav items, logout button
 - navigation/MainTabs.js: Claude Sonnet 4.6 — tabBarAccessibilityLabel on all four tabs; menu button labelled
 
+## 2026-05-17
+- screens/collaboration/CampusPlatformsScreen.js: Claude Sonnet 4.6 — New screen: in-app launcher for Mattermost, BigBlueButton and Microsoft Teams via expo-web-browser (SFSafariViewController); collapsible course name copier and setup tips
+- navigation/ToolsStack.js: Claude Sonnet 4.6 — Added CampusPlatforms route
+- screens/tools/ToolsScreen.js: Claude Sonnet 4.6 — Added Campus Platforms card
+- CLAUDE.md: Claude Sonnet 4.6 — Added admin panel, biometric lock, navigationRef, datetime utils, missing Supabase tables, withFallback pattern name
+
 ## 2026-05-14
 - CLAUDE.md: Claude Sonnet 4.6 — Expanded codebase guide: screen data-fetch pattern, notifications section, complete data/ inventory, Supabase table list, key dependencies, app config highlights, all three EAS build profiles
 - components/SimpleDatePicker.js: Claude Sonnet 4.6 — Replaced custom chevron-spinner with @react-native-community/datetimepicker (native OS picker on iOS and Android)

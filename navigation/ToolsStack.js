@@ -11,6 +11,7 @@ import PlannerScreen from '../screens/planner/PlannerScreen';
 import AddDeadlineScreen from '../screens/planner/AddDeadlineScreen';
 import ExamTrackerScreen from '../screens/exams/ExamTrackerScreen';
 import ExamPlannerScreen from '../screens/exams/ExamPlannerScreen';
+import CampusPlatformsScreen from '../screens/collaboration/CampusPlatformsScreen';
 import useStore from '../store/useStore';
 import { PRIMARY } from '../constants/colors';
 
@@ -83,6 +84,11 @@ export default function ToolsStack() {
           title: route.params?.courseTitle ?? 'Exam Plan',
           headerRight: () => <MenuButton />,
         })}
+      />
+      <Stack.Screen
+        name="CampusPlatforms"
+        component={CampusPlatformsScreen}
+        options={{ title: 'Campus Platforms', headerRight: () => <MenuButton /> }}
       />
     </Stack.Navigator>
   );

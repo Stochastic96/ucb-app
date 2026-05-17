@@ -97,6 +97,15 @@ const TOOLS = [
     screen: 'CampusResources',
   },
   {
+    id: 'platforms',
+    label: 'Campus Platforms',
+    description: 'Mattermost, BigBlueButton & Teams — in-app',
+    icon: 'grid-outline',
+    iconColor: '#0369A1',
+    iconBg: '#E0F2FE',
+    screen: 'CampusPlatforms',
+  },
+  {
     id: 'library-booking',
     label: 'Library Room Booking',
     description: 'Reserve a study room via UCBib',
