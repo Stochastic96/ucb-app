@@ -63,7 +63,9 @@ Single Zustand store in `store/useStore.js`. Key slices:
 - **Deep-link**: `pendingMapBuilding` (Timetable → Map navigation)
 - **Sidebar**: `sidebarOpen` (global overlay `<Sidebar />` rendered in `App.js`)
 
-`store/useAdminStore.js` is a separate store that checks Supabase `admin_users` table after login.
+`store/useAdminStore.js` is a separate store that checks Supabase `admin_users` table after login. Call `checkAdminStatus(studipUsername)` post-login; `isAdmin` gates the Admin entry in the Sidebar and the entire `AdminStack`.
+
+- **Settings**: `settings: { notificationsEnabled, biometricLockEnabled }` — persisted to AsyncStorage `ucb_settings` on change in `SettingsScreen.js`; loaded back in `App.js` on mount.
 
 ### Navigation Structure
 
@@ -83,7 +85,11 @@ RootNavigator (NativeStack)
       CoursesList, CourseDetail, EventsList, Impressum, Datenschutz
 ```
 
+Admin panel lives in `navigation/AdminStack.js` and is pushed onto the stack from `Sidebar`. It owns: `AdminDashboard`, `MensaAdmin`, `EventsAdmin`, `SportsAdmin`, `GuideAdmin`, `GuideCategoryAdmin`, `ResourcesAdmin`, `CalendarAdmin` — all backed by the write operations in `contentService.js`.
+
 **Important**: `lazy={false}` on `MainTabs` pre-renders all tabs so nested stacks are initialised before programmatic navigation. Tab press listeners always reset to the root screen of each stack (`ToolsHome`, `GuideHome`) so users can never get stranded.
+
+`navigation/navigationRef.js` exports a `navigationRef` that is passed to `NavigationContainer` in `App.js`, enabling programmatic navigation outside React components. Currently used by the `pendingMapBuilding` deep-link flow (Timetable → Map).
 
 ### Data Layer
 
@@ -99,9 +105,9 @@ RootNavigator (NativeStack)
 
 **Supabase** — `services/supabase.js` + `services/contentService.js`
 - Used for admin-managed content: Mensa menu, campus events, sports schedule, campus resources, semester calendar, guide content.
-- `contentService.js` pattern: try Supabase → cache result to AsyncStorage (`ucb_remote_*`) → fall back to cached → fall back to bundled JSON in `data/`.
+- `contentService.js` uses `withFallback(cacheKey, fetcher, localFallback)`: try Supabase → cache result to AsyncStorage (`ucb_remote_${cacheKey}`) → fall back to cached → fall back to bundled JSON in `data/`. Both read and write (upsert/delete) operations live in `contentService.js`.
 - All Supabase tables have corresponding bundled JSON fallbacks in `data/`.
-- Tables (managed in Supabase dashboard — no local migrations): `mensa_menu`, `mensa_meta`, `campus_events`, `sports_schedule`, `guide_content`, `admin_users`.
+- Tables (managed in Supabase dashboard — no local migrations): `mensa_menu`, `mensa_meta`, `campus_events`, `sports_schedule`, `campus_resources`, `guide_content`, `semester_calendar`, `calendar_events`, `admin_users`.
 
 ### Content & Guide Data
 
@@ -132,6 +138,10 @@ Notification handler is set at module load via `Notifications.setNotificationHan
 
 **Known gap**: `App.js` has no `Notifications.getLastNotificationResponseAsync()` call, so tapping a notification from the background does not navigate anywhere yet.
 
+### Biometric Lock
+
+`components/BiometricLockScreen.js` uses `expo-local-authentication`. Rendered as a full-screen overlay in `App.js` above the `NavigationContainer` when `isLocked && isLoggedIn`. Lock triggers when the app returns to the foreground after being backgrounded for more than 30 s (`LOCK_GRACE_MS`) and `settings.biometricLockEnabled` is true. `onUnlock` callback clears `isLocked`.
+
 ### App Config Highlights
 
 From `app.json`:
@@ -148,6 +158,13 @@ From `app.json`:
 - `expo-notifications` — scheduled local notifications (`services/reminders.js`)
 - `expo-location` — GPS/location for the campus Map screen
 - `react-native-calendars` — calendar UI in planner/deadline screens
+- `expo-local-authentication` — biometric prompt in `BiometricLockScreen`
+
+### Utilities
+
+`utils/datetime.js` — central date/time helpers used throughout the app:
+- `toMillis(value)` normalises any timestamp input (unix seconds, unix ms, ISO string, `Date`) to milliseconds; returns `null` for invalid values.
+- `formatTime24(value)`, `isSameCalendarDay(left, right)`, `formatRelativeFromNow(value)`, `getWeekMonday(date)`.
 
 ### Constants
 
