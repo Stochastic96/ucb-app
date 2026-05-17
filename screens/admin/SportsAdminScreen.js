@@ -6,8 +6,9 @@ import { getSportsSchedule, upsertSportsEntry, deleteSportsEntry } from '../../s
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, ERROR } from '../../constants/colors';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const DAYS_DE = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+const DAYS_DE = ['Mon / Mo', 'Tue / Di', 'Wed / Mi', 'Thu / Do', 'Fri / Fr', 'Sat / Sa', 'Sun / So'];
 const LOCATIONS = ['Halle', 'Pitch', 'Außen', 'Online', 'Sonstige'];
+const LOCATION_LABELS = { Halle: 'Gym / Halle', Pitch: 'Pitch', Außen: 'Outdoors / Außen', Online: 'Online', Sonstige: 'Other / Sonstige' };
 
 const emptyEntry = () => ({
   id: '', day: 'Monday', startTime: '', endTime: '',
@@ -41,16 +42,16 @@ export default function SportsAdminScreen() {
     if (!editing.id) editing.id = `sport_${Date.now()}`;
     const { error } = await upsertSportsEntry(editing);
     setSaving(false);
-    if (error) { setSnack(`Fehler: ${error.message}`); return; }
+    if (error) { setSnack(`Error: ${error.message}`); return; }
     setDialogVisible(false);
-    setSnack('Gespeichert ✓');
+    setSnack('Saved ✓');
     load();
   };
 
   const handleDelete = (entry) => {
-    Alert.alert('Eintrag löschen?', `"${entry.sport}" am ${entry.day} wird gelöscht.`, [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Löschen', style: 'destructive', onPress: async () => { await deleteSportsEntry(entry.id); setSnack('Gelöscht'); load(); } },
+    Alert.alert('Delete entry?', `"${entry.sport}" on ${entry.day} will be deleted.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteSportsEntry(entry.id); setSnack('Deleted'); load(); } },
     ]);
   };
 
@@ -59,8 +60,8 @@ export default function SportsAdminScreen() {
       <View style={styles.cardInfo}>
         <Text style={styles.cardSport}>{item.sport}</Text>
         <Text style={styles.cardMeta}>{item.day} · {item.startTime}–{item.endTime}</Text>
-        {item.instructor ? <Text style={styles.cardMeta}>Übungsleiter: {item.instructor}</Text> : null}
-        {item.location ? <Text style={styles.cardMeta}>Ort: {item.location}</Text> : null}
+        {item.instructor ? <Text style={styles.cardMeta}>Instructor: {item.instructor}</Text> : null}
+        {item.location ? <Text style={styles.cardMeta}>Location: {LOCATION_LABELS[item.location] ?? item.location}</Text> : null}
       </View>
       <View style={styles.cardActions}>
         <TouchableOpacity onPress={() => { setEditing({ ...item }); setDialogVisible(true); }}>
@@ -78,7 +79,7 @@ export default function SportsAdminScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dayFilter} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
         {allDays.map((d) => (
           <TouchableOpacity key={d} style={[styles.dayChip, filterDay === d && styles.dayChipActive]} onPress={() => setFilterDay(d)}>
-            <Text style={[styles.dayChipText, filterDay === d && styles.dayChipTextActive]}>{d === 'Alle' ? 'Alle' : DAYS_DE[DAYS.indexOf(d)]}</Text>
+            <Text style={[styles.dayChipText, filterDay === d && styles.dayChipTextActive]}>{d === 'Alle' ? 'All / Alle' : DAYS_DE[DAYS.indexOf(d)]}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -91,7 +92,7 @@ export default function SportsAdminScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-          ListEmptyComponent={<Text style={styles.empty}>Keine Einträge gefunden.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>No entries found.</Text>}
         />
       )}
 
@@ -101,33 +102,33 @@ export default function SportsAdminScreen() {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)} style={styles.dialog}>
-          <Dialog.Title>{editing?.id ? 'Eintrag bearbeiten' : 'Eintrag hinzufügen'}</Dialog.Title>
+          <Dialog.Title>{editing?.id ? 'Edit Entry / Bearbeiten' : 'Add Entry / Hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
-              <Text style={styles.fieldLabel}>Wochentag</Text>
+              <Text style={styles.fieldLabel}>Day of Week / Wochentag</Text>
               <View style={styles.chipRow}>
                 {DAYS.map((d, i) => (
                   <Chip key={d} selected={editing?.day === d} onPress={() => setEditing({ ...editing, day: d })} style={styles.chip} selectedColor={PRIMARY}>{DAYS_DE[i]}</Chip>
                 ))}
               </View>
-              <TextInput label="Sportart *" value={editing?.sport ?? ''} onChangeText={(v) => setEditing({ ...editing, sport: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Übungsleiter" value={editing?.instructor ?? ''} onChangeText={(v) => setEditing({ ...editing, instructor: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Sport *" value={editing?.sport ?? ''} onChangeText={(v) => setEditing({ ...editing, sport: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Instructor / Übungsleiter" value={editing?.instructor ?? ''} onChangeText={(v) => setEditing({ ...editing, instructor: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               <View style={styles.timeRow}>
-                <TextInput label="Startzeit *" value={editing?.startTime ?? ''} onChangeText={(v) => setEditing({ ...editing, startTime: v })} mode="outlined" style={[styles.input, { flex: 1 }]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="15:00" />
-                <TextInput label="Endzeit *" value={editing?.endTime ?? ''} onChangeText={(v) => setEditing({ ...editing, endTime: v })} mode="outlined" style={[styles.input, { flex: 1 }]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="16:30" />
+                <TextInput label="Start Time *" value={editing?.startTime ?? ''} onChangeText={(v) => setEditing({ ...editing, startTime: v })} mode="outlined" style={[styles.input, { flex: 1 }]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="15:00" />
+                <TextInput label="End Time *" value={editing?.endTime ?? ''} onChangeText={(v) => setEditing({ ...editing, endTime: v })} mode="outlined" style={[styles.input, { flex: 1 }]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="16:30" />
               </View>
-              <Text style={styles.fieldLabel}>Ort</Text>
+              <Text style={styles.fieldLabel}>Location / Ort</Text>
               <View style={styles.chipRow}>
                 {LOCATIONS.map((l) => (
-                  <Chip key={l} selected={editing?.location === l} onPress={() => setEditing({ ...editing, location: l })} style={styles.chip} selectedColor={PRIMARY}>{l}</Chip>
+                  <Chip key={l} selected={editing?.location === l} onPress={() => setEditing({ ...editing, location: l })} style={styles.chip} selectedColor={PRIMARY}>{LOCATION_LABELS[l] ?? l}</Chip>
                 ))}
               </View>
-              <TextInput label="Hinweis (optional)" value={editing?.note ?? ''} onChangeText={(v) => setEditing({ ...editing, note: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={2} />
+              <TextInput label="Note (optional)" value={editing?.note ?? ''} onChangeText={(v) => setEditing({ ...editing, note: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={2} />
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Abbrechen</Button>
-            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Speichern</Button>
+            <Button onPress={() => setDialogVisible(false)}>Cancel</Button>
+            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

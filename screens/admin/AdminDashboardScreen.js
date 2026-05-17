@@ -4,12 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, INACTIVE, BG, SURFACE, ACCENT, BORDER } from '../../constants/colors';
 
 const CARDS = [
-  { key: 'MensaAdmin',     icon: 'restaurant-outline',      label: 'Speiseplan',       desc: 'Gerichte & Wochenplan' },
-  { key: 'EventsAdmin',    icon: 'calendar-outline',        label: 'Veranstaltungen',  desc: 'Campus-Events bearbeiten' },
-  { key: 'SportsAdmin',    icon: 'basketball-outline',      label: 'Sportplan',        desc: 'Zeiten & Übungsleiter' },
-  { key: 'GuideAdmin',     icon: 'book-outline',            label: 'Guide-Inhalte',    desc: '14 Inhaltsbereiche' },
-  { key: 'ResourcesAdmin', icon: 'grid-outline',            label: 'Campus-Angebote',  desc: 'Ressourcen & Dienste' },
-  { key: 'CalendarAdmin',  icon: 'calendar-number-outline', label: 'Semesterkalender', desc: 'Termine & Semesterinfo' },
+  { key: 'MensaAdmin',     icon: 'restaurant-outline',      label: 'Meal Plan',         desc: 'Dishes & Weekly Menu' },
+  { key: 'EventsAdmin',    icon: 'calendar-outline',        label: 'Events',            desc: 'Edit Campus Events' },
+  { key: 'SportsAdmin',    icon: 'basketball-outline',      label: 'Sports Schedule',   desc: 'Times & Instructors' },
+  { key: 'GuideAdmin',     icon: 'book-outline',            label: 'Guide Content',     desc: '14 Content Areas' },
+  { key: 'ResourcesAdmin', icon: 'grid-outline',            label: 'Campus Offers',     desc: 'Resources & Services' },
+  { key: 'CalendarAdmin',  icon: 'calendar-number-outline', label: 'Semester Calendar', desc: 'Dates & Semester Info' },
 ];
 
 export default function AdminDashboardScreen({ navigation }) {
@@ -20,10 +20,10 @@ export default function AdminDashboardScreen({ navigation }) {
         <View style={styles.headerLeft}>
           <View style={styles.adminBadge}>
             <Ionicons name="shield-checkmark" size={14} color="#fff" />
-            <Text style={styles.adminBadgeText}>Admin-Modus</Text>
+            <Text style={styles.adminBadgeText}>Admin Mode</Text>
           </View>
-          <Text style={styles.headerTitle}>Inhalte verwalten</Text>
-          <Text style={styles.headerSub}>Änderungen sind sofort für alle Nutzer sichtbar.</Text>
+          <Text style={styles.headerTitle}>Manage Content / Inhalte verwalten</Text>
+          <Text style={styles.headerSub}>Changes are immediately visible to all users.</Text>
         </View>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={18} color={PRIMARY} />
@@ -53,8 +53,8 @@ export default function AdminDashboardScreen({ navigation }) {
       </View>
 
       <Text style={styles.hint}>
-        Tippe auf einen Bereich, um Inhalte zu bearbeiten.{'\n'}
-        Mit ← zurück wechselst du zur normalen App-Ansicht.
+        Tap a section to edit its content.{'\n'}
+        Use ← Back to return to the app.
       </Text>
     </ScrollView>
   );

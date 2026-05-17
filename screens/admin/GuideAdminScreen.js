@@ -9,20 +9,20 @@ import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, ACCENT, ERROR } from '../../con
 
 // ── Category definitions ────────────────────────────────────────
 const CATEGORIES = [
-  { key: 'emergency',     icon: 'alert-circle-outline',   label: 'Notfall-Kontakte',   type: 'emergency' },
-  { key: 'faq',           icon: 'help-circle-outline',    label: 'FAQ',                type: 'faq' },
-  { key: 'checklist',     icon: 'checkbox-outline',       label: 'Ankunft-Checkliste', type: 'checklist' },
-  { key: 'offices',       icon: 'business-outline',       label: 'Ämter & Büros',      type: 'offices' },
-  { key: 'contacts',      icon: 'people-outline',         label: 'Kontakte',           type: 'contacts' },
-  { key: 'glossary',      icon: 'book-outline',           label: 'Glossar',            type: 'glossary' },
-  { key: 'phrases',       icon: 'chatbubble-outline',     label: 'Sprachführer',       type: 'phrases' },
-  { key: 'accommodation', icon: 'home-outline',           label: 'Unterkunft',         type: 'info' },
-  { key: 'work',          icon: 'briefcase-outline',      label: 'Arbeit & Jobs',      type: 'info' },
-  { key: 'health',        icon: 'medkit-outline',         label: 'Gesundheit',         type: 'info' },
-  { key: 'bureaucracy',   icon: 'document-text-outline',  label: 'Behörden',           type: 'info' },
-  { key: 'language',      icon: 'language-outline',       label: 'Sprachkurse',        type: 'info' },
-  { key: 'rights',        icon: 'shield-outline',         label: 'Rechte & Pflichten', type: 'info' },
-  { key: 'buildings',     icon: 'map-outline',            label: 'Gebäude',            type: 'buildings' },
+  { key: 'emergency',     icon: 'alert-circle-outline',   label: 'Emergency Contacts / Notfall-Kontakte',  type: 'emergency' },
+  { key: 'faq',           icon: 'help-circle-outline',    label: 'FAQ',                                    type: 'faq' },
+  { key: 'checklist',     icon: 'checkbox-outline',       label: 'Arrival Checklist / Ankunft-Checkliste', type: 'checklist' },
+  { key: 'offices',       icon: 'business-outline',       label: 'Offices / Ämter & Büros',                type: 'offices' },
+  { key: 'contacts',      icon: 'people-outline',         label: 'Contacts / Kontakte',                    type: 'contacts' },
+  { key: 'glossary',      icon: 'book-outline',           label: 'Glossary / Glossar',                     type: 'glossary' },
+  { key: 'phrases',       icon: 'chatbubble-outline',     label: 'Phrasebook / Sprachführer',              type: 'phrases' },
+  { key: 'accommodation', icon: 'home-outline',           label: 'Accommodation / Unterkunft',             type: 'info' },
+  { key: 'work',          icon: 'briefcase-outline',      label: 'Work & Jobs / Arbeit & Jobs',            type: 'info' },
+  { key: 'health',        icon: 'medkit-outline',         label: 'Health / Gesundheit',                    type: 'info' },
+  { key: 'bureaucracy',   icon: 'document-text-outline',  label: 'Authorities / Behörden',                 type: 'info' },
+  { key: 'language',      icon: 'language-outline',       label: 'Language Courses / Sprachkurse',         type: 'info' },
+  { key: 'rights',        icon: 'shield-outline',         label: 'Rights & Duties / Rechte & Pflichten',   type: 'info' },
+  { key: 'buildings',     icon: 'map-outline',            label: 'Buildings / Gebäude',                    type: 'buildings' },
 ];
 
 // Fields per type

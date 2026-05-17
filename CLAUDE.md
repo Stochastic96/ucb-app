@@ -47,7 +47,7 @@ The Stud.IP base URL can also be swapped to `http://localhost:3001` when running
 
 1. `App.js` → on mount, loads persisted settings from AsyncStorage (`ucb_settings`) and calls `services/auth.checkExistingSession()`.
 2. `checkExistingSession` reads credentials from `expo-secure-store`, calls Stud.IP `/users/me`, and returns the user profile.
-3. On success, `bootstrapSessionData()` (`services/bootstrap.js`) fetches profile, courses, events, and news in sequence and populates the Zustand store.
+3. On success, `bootstrapSessionData()` (`services/bootstrap.js`) runs a filtering pipeline: fetch profile → fetch all courses → fetch all events for those courses → derive `activeCourseIds` (events within 30 days past / 180 days future) → filter both courses and events to active only → fetch news. Stores results in the Zustand store and sets `isOffline: false`.
 4. `RootNavigator` gates on `useStore.isLoggedIn` — renders `LoginScreen` or `MainTabs`.
 
 Credentials (username / password) are stored in `expo-secure-store` and also cached in-memory (`services/api.js` `_cachedUsername/_cachedPassword`) to avoid concurrent SecureStore races.
@@ -62,6 +62,7 @@ Single Zustand store in `store/useStore.js`. Key slices:
 - **Events RSVP**: `goingEventIds`, `goingSportIds`
 - **Deep-link**: `pendingMapBuilding` (Timetable → Map navigation)
 - **Sidebar**: `sidebarOpen` (global overlay `<Sidebar />` rendered in `App.js`)
+- **Offline**: `isOffline` — set to `false` on successful bootstrap, read by `<OfflineBanner />` (shown globally when `true`)
 
 `store/useAdminStore.js` is a separate store that checks Supabase `admin_users` table after login. Call `checkAdminStatus(studipUsername)` post-login; `isAdmin` gates the Admin entry in the Sidebar and the entire `AdminStack`.
 
@@ -77,15 +78,18 @@ RootNavigator (NativeStack)
     ├── Tools → ToolsStack (NativeStack)
     │   ├── ToolsHome, Timetable, Mensa, SemesterCalendar
     │   ├── CampusResources, PlannerList, AddDeadline
-    │   └── ExamTracker, ExamPlanner
+    │   ├── ExamTracker, ExamPlanner
+    │   └── CampusPlatforms  (screens/collaboration/CampusPlatformsScreen.js)
     ├── Guide → GuideStack (NativeStack)
     │   ├── GuideHome, GuideDetail
     └── Map
     + RootNavigator also owns: Profile, Settings, NewsFeed,
-      CoursesList, CourseDetail, EventsList, Impressum, Datenschutz
+      CoursesList, CourseDetail (registered directly — navigation/CoursesStack.js exists but is unused),
+      EventsList → EventsStack (navigation/EventsStack.js),
+      Impressum, Datenschutz
 ```
 
-Admin panel lives in `navigation/AdminStack.js` and is pushed onto the stack from `Sidebar`. It owns: `AdminDashboard`, `MensaAdmin`, `EventsAdmin`, `SportsAdmin`, `GuideAdmin`, `GuideCategoryAdmin`, `ResourcesAdmin`, `CalendarAdmin` — all backed by the write operations in `contentService.js`.
+Admin panel lives in `navigation/AdminStack.js` and is pushed onto the stack from `Sidebar`. It owns: `AdminDashboard`, `MensaAdmin`, `EventsAdmin`, `SportsAdmin`, `GuideAdmin`, `GuideCategoryAdmin`, `ResourcesAdmin`, `CalendarAdmin` — all backed by the write operations in `contentService.js`. Note: `GuideAdminScreen` and `GuideCategoryAdminScreen` are both exported from the single file `screens/admin/GuideAdminScreen.js`.
 
 **Important**: `lazy={false}` on `MainTabs` pre-renders all tabs so nested stacks are initialised before programmatic navigation. Tab press listeners always reset to the root screen of each stack (`ToolsHome`, `GuideHome`) so users can never get stranded.
 
@@ -159,8 +163,20 @@ From `app.json`:
 - `expo-location` — GPS/location for the campus Map screen
 - `react-native-calendars` — calendar UI in planner/deadline screens
 - `expo-local-authentication` — biometric prompt in `BiometricLockScreen`
+- `expo-web-browser` — in-app browser used by `CampusPlatformsScreen` to open external university platforms
+- `expo-clipboard` — copy-to-clipboard for platform URLs in `CampusPlatformsScreen`
 
 ### Utilities
+
+`services/buildings.js` — building lookup helpers over `data/buildings.json`:
+- `getAllBuildings()`, `getBuildingByIdOrAlias(value)`, `searchBuildings(query)` — all use alias-normalised token matching.
+- `buildFallbackBuilding(buildingId)` — synthesises a placeholder when a Stud.IP timetable room code has no entry in the JSON.
+- `CAMPUS_CENTER` — coordinates for Umwelt-Campus Birkenfeld (lat/lng), used as the map default.
+
+`services/newsState.js` — unread news badge logic:
+- Persists the last-seen timestamp to AsyncStorage key `ucb_news_last_seen_at`.
+- `syncUnreadNewsCount(newsItems)` recomputes and writes `unreadNewsCount` into the Zustand store.
+- `markNewsSeen(timestamp)` updates both AsyncStorage and the store; called when the user opens the NewsFeed.
 
 `utils/datetime.js` — central date/time helpers used throughout the app:
 - `toMillis(value)` normalises any timestamp input (unix seconds, unix ms, ISO string, `Date`) to milliseconds; returns `null` for invalid values.

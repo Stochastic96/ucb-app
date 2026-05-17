@@ -6,10 +6,10 @@ import { getSemesterCalendar, upsertSemester, upsertCalendarEvent, deleteCalenda
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, ERROR } from '../../constants/colors';
 
 const EVENT_CATS = [
-  { value: 'academic', label: 'Akademisch' },
-  { value: 'exams',    label: 'Prüfungen' },
-  { value: 'admin',    label: 'Verwaltung' },
-  { value: 'holiday',  label: 'Feiertag' },
+  { value: 'academic', label: 'Academic / Akademisch' },
+  { value: 'exams',    label: 'Exams / Prüfungen' },
+  { value: 'admin',    label: 'Admin / Verwaltung' },
+  { value: 'holiday',  label: 'Holiday / Feiertag' },
 ];
 
 const emptyCalEvent = (semId) => ({
@@ -54,7 +54,7 @@ export default function CalendarAdminScreen() {
     setSaving(true);
     const { error } = await upsertSemester(semForm);
     setSaving(false);
-    setSnack(error ? `Fehler: ${error.message}` : 'Semester gespeichert ✓');
+    setSnack(error ? `Error: ${error.message}` : 'Semester saved ✓');
     if (!error) load();
   };
 

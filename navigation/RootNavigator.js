@@ -11,6 +11,7 @@ import NewsFeedScreen from '../screens/news/NewsFeedScreen';
 import CourseDetailScreen from '../screens/courses/CourseDetailScreen';
 import CoursesScreen from '../screens/courses/CoursesScreen';
 import EventsStack from './EventsStack';
+import AdminStack from './AdminStack';
 import ImpressumScreen from '../screens/legal/ImpressumScreen';
 import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
 import { PRIMARY } from '../constants/colors';
@@ -88,6 +89,11 @@ export default function RootNavigator() {
           <Stack.Screen
             name="EventsList"
             component={EventsStack}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Admin"
+            component={AdminStack}
             options={{ headerShown: false }}
           />
           <Stack.Screen

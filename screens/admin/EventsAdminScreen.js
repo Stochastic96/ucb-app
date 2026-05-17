@@ -8,9 +8,11 @@ import { getCampusEvents, upsertCampusEvent, deleteCampusEvent } from '../../ser
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, ACCENT, ERROR } from '../../constants/colors';
 
 const CATEGORIES = ['party', 'gaming', 'social', 'academic', 'sports', 'outdoor', 'cultural', 'recurring'];
-const CAT_LABELS = { party: 'Party', gaming: 'Gaming', social: 'Sozial', academic: 'Akademisch', sports: 'Sport', outdoor: 'Outdoor', cultural: 'Kultur', recurring: 'Wiederkehrend' };
+const CAT_LABELS = { party: 'Party', gaming: 'Gaming', social: 'Social / Sozial', academic: 'Academic / Akademisch', sports: 'Sport', outdoor: 'Outdoor', cultural: 'Cultural / Kultur', recurring: 'Recurring / Wiederkehrend' };
 const ORGANIZERS = ['KADU', 'AStA', 'Hochschule', 'Sonstige'];
+const ORGANIZER_LABELS = { KADU: 'KADU', AStA: 'AStA', Hochschule: 'Hochschule', Sonstige: 'Other / Sonstige' };
 const DAYS_DE = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+const DAYS_LABEL = ['Mon / Montag', 'Tue / Dienstag', 'Wed / Mittwoch', 'Thu / Donnerstag', 'Fri / Freitag', 'Sat / Samstag', 'Sun / Sonntag'];
 
 const emptyEvent = () => ({
   id: '', title: '', date: '', endDate: '', category: 'social',
@@ -46,16 +48,16 @@ export default function EventsAdminScreen() {
     if (!editing.id) editing.id = `ev_${Date.now()}`;
     const { error } = await upsertCampusEvent(editing);
     setSaving(false);
-    if (error) { setSnack(`Fehler: ${error.message}`); return; }
+    if (error) { setSnack(`Error: ${error.message}`); return; }
     setDialogVisible(false);
-    setSnack('Gespeichert ✓');
+    setSnack('Saved ✓');
     load();
   };
 
   const handleDelete = (ev) => {
-    Alert.alert('Event löschen?', `"${ev.title}" wird gelöscht.`, [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Löschen', style: 'destructive', onPress: async () => { await deleteCampusEvent(ev.id); setSnack('Gelöscht'); load(); } },
+    Alert.alert('Delete event?', `"${ev.title}" will be deleted.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteCampusEvent(ev.id); setSnack('Deleted'); load(); } },
     ]);
   };
 
@@ -90,7 +92,7 @@ export default function EventsAdminScreen() {
         {['once', 'recurring'].map((t) => (
           <TouchableOpacity key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
             <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {t === 'once' ? 'Einmalig' : 'Wiederkehrend'}
+              {t === 'once' ? 'One-time / Einmalig' : 'Recurring / Wiederkehrend'}
             </Text>
           </TouchableOpacity>
         ))}
@@ -104,7 +106,7 @@ export default function EventsAdminScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-          ListEmptyComponent={<Text style={styles.empty}>Keine Einträge. Tippe + um eins hinzuzufügen.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>No entries. Tap + to add one.</Text>}
         />
       )}
 
@@ -114,44 +116,44 @@ export default function EventsAdminScreen() {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)} style={styles.dialog}>
-          <Dialog.Title>{editing?.id ? 'Event bearbeiten' : 'Event hinzufügen'}</Dialog.Title>
+          <Dialog.Title>{editing?.id ? 'Edit Event / Bearbeiten' : 'Add Event / Hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
               <TextInput label="Titel *" value={editing?.title ?? ''} onChangeText={(v) => setEditing({ ...editing, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               {editing?.isRecurring ? (
                 <>
-                  <Text style={styles.fieldLabel}>Wochentag</Text>
+                  <Text style={styles.fieldLabel}>Day of Week / Wochentag</Text>
                   <View style={styles.chipRow}>
-                    {DAYS_DE.map((d) => (
-                      <Chip key={d} selected={editing.recurringDay === d} onPress={() => setEditing({ ...editing, recurringDay: d })} style={styles.chip} selectedColor={PRIMARY}>{d}</Chip>
+                    {DAYS_DE.map((d, i) => (
+                      <Chip key={d} selected={editing.recurringDay === d} onPress={() => setEditing({ ...editing, recurringDay: d })} style={styles.chip} selectedColor={PRIMARY}>{DAYS_LABEL[i]}</Chip>
                     ))}
                   </View>
                 </>
               ) : (
                 <>
-                  <TextInput label="Datum (JJJJ-MM-TT)" value={editing?.date ?? ''} onChangeText={(v) => setEditing({ ...editing, date: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="2026-06-15" />
-                  <TextInput label="Enddatum (optional)" value={editing?.endDate ?? ''} onChangeText={(v) => setEditing({ ...editing, endDate: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+                  <TextInput label="Date (YYYY-MM-DD)" value={editing?.date ?? ''} onChangeText={(v) => setEditing({ ...editing, date: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="2026-06-15" />
+                  <TextInput label="End Date (optional)" value={editing?.endDate ?? ''} onChangeText={(v) => setEditing({ ...editing, endDate: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
                 </>
               )}
-              <Text style={styles.fieldLabel}>Kategorie</Text>
+              <Text style={styles.fieldLabel}>Category / Kategorie</Text>
               <View style={styles.chipRow}>
                 {CATEGORIES.map((c) => (
                   <Chip key={c} selected={editing?.category === c} onPress={() => setEditing({ ...editing, category: c })} style={styles.chip} selectedColor={PRIMARY}>{CAT_LABELS[c]}</Chip>
                 ))}
               </View>
-              <Text style={styles.fieldLabel}>Organisator</Text>
+              <Text style={styles.fieldLabel}>Organizer / Organisator</Text>
               <View style={styles.chipRow}>
                 {ORGANIZERS.map((o) => (
-                  <Chip key={o} selected={editing?.organizer === o} onPress={() => setEditing({ ...editing, organizer: o })} style={styles.chip} selectedColor={PRIMARY}>{o}</Chip>
+                  <Chip key={o} selected={editing?.organizer === o} onPress={() => setEditing({ ...editing, organizer: o })} style={styles.chip} selectedColor={PRIMARY}>{ORGANIZER_LABELS[o] ?? o}</Chip>
                 ))}
               </View>
-              <TextInput label="Uhrzeit (optional, z.B. 20:00)" value={editing?.time ?? ''} onChangeText={(v) => setEditing({ ...editing, time: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Hinweis (optional)" value={editing?.note ?? ''} onChangeText={(v) => setEditing({ ...editing, note: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={2} />
+              <TextInput label="Time (optional, e.g. 20:00)" value={editing?.time ?? ''} onChangeText={(v) => setEditing({ ...editing, time: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Note (optional)" value={editing?.note ?? ''} onChangeText={(v) => setEditing({ ...editing, note: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={2} />
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Abbrechen</Button>
-            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Speichern</Button>
+            <Button onPress={() => setDialogVisible(false)}>Cancel</Button>
+            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

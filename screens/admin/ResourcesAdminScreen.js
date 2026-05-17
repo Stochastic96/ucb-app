@@ -6,7 +6,7 @@ import { getCampusResources, upsertResource, deleteResource } from '../../servic
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, ACCENT, ERROR } from '../../constants/colors';
 
 const CATEGORIES = ['mobility', 'food', 'sports', 'study', 'sustainability', 'community', 'other'];
-const CAT_LABELS = { mobility: 'Mobilität', food: 'Essen', sports: 'Sport', study: 'Lernen', sustainability: 'Nachhaltigkeit', community: 'Community', other: 'Sonstige' };
+const CAT_LABELS = { mobility: 'Mobility / Mobilität', food: 'Food / Essen', sports: 'Sports / Sport', study: 'Study / Lernen', sustainability: 'Sustainability / Nachhaltigkeit', community: 'Community', other: 'Other / Sonstige' };
 
 const emptyResource = () => ({
   id: '', category: 'other', title: '', description: '', location: '',
@@ -41,16 +41,16 @@ export default function ResourcesAdminScreen() {
     if (!editing.id) editing.id = editing.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '_' + Date.now();
     const { error } = await upsertResource(editing);
     setSaving(false);
-    if (error) { setSnack(`Fehler: ${error.message}`); return; }
+    if (error) { setSnack(`Error: ${error.message}`); return; }
     setDialogVisible(false);
-    setSnack('Gespeichert ✓');
+    setSnack('Saved ✓');
     load();
   };
 
   const handleDelete = (r) => {
-    Alert.alert('Ressource löschen?', `"${r.title}" wird gelöscht.`, [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Löschen', style: 'destructive', onPress: async () => { await deleteResource(r.id); setSnack('Gelöscht'); load(); } },
+    Alert.alert('Delete resource?', `"${r.title}" will be deleted.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteResource(r.id); setSnack('Deleted'); load(); } },
     ]);
   };
 
@@ -79,7 +79,7 @@ export default function ResourcesAdminScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catFilter} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
         {allCats.map((c) => (
           <TouchableOpacity key={c} style={[styles.catChip, filterCat === c && styles.catChipActive]} onPress={() => setFilterCat(c)}>
-            <Text style={[styles.catChipText, filterCat === c && styles.catChipTextActive]}>{c === 'Alle' ? 'Alle' : CAT_LABELS[c]}</Text>
+            <Text style={[styles.catChipText, filterCat === c && styles.catChipTextActive]}>{c === 'Alle' ? 'All / Alle' : CAT_LABELS[c]}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -90,7 +90,7 @@ export default function ResourcesAdminScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-          ListEmptyComponent={<Text style={styles.empty}>Keine Angebote in dieser Kategorie.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>No offers in this category.</Text>}
         />
       )}
 
@@ -100,17 +100,17 @@ export default function ResourcesAdminScreen() {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)} style={styles.dialog}>
-          <Dialog.Title>{editing?.id ? 'Angebot bearbeiten' : 'Angebot hinzufügen'}</Dialog.Title>
+          <Dialog.Title>{editing?.id ? 'Edit Offer / Bearbeiten' : 'Add Offer / Hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
               <TextInput label="Titel *" value={editing?.title ?? ''} onChangeText={(v) => setEditing({ ...editing, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <Text style={styles.fieldLabel}>Kategorie</Text>
+              <Text style={styles.fieldLabel}>Category / Kategorie</Text>
               <View style={styles.chipRow}>
                 {CATEGORIES.map((c) => (
                   <Chip key={c} selected={editing?.category === c} onPress={() => setEditing({ ...editing, category: c })} style={styles.chip} selectedColor={PRIMARY}>{CAT_LABELS[c]}</Chip>
                 ))}
               </View>
-              <TextInput label="Beschreibung" value={editing?.description ?? ''} onChangeText={(v) => setEditing({ ...editing, description: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={3} />
+              <TextInput label="Description / Beschreibung" value={editing?.description ?? ''} onChangeText={(v) => setEditing({ ...editing, description: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={3} />
               <TextInput label="Standort" value={editing?.location ?? ''} onChangeText={(v) => setEditing({ ...editing, location: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               <TextInput label="Kontakt (E-Mail)" value={editing?.contact ?? ''} onChangeText={(v) => setEditing({ ...editing, contact: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} keyboardType="email-address" autoCapitalize="none" />
               <TextInput label="Telefon" value={editing?.phone ?? ''} onChangeText={(v) => setEditing({ ...editing, phone: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} keyboardType="phone-pad" />

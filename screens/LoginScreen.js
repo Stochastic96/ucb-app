@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import useStore from '../store/useStore';
+import useAdminStore from '../store/useAdminStore';
 import { createApiClient, classifyError, setCachedCredentials } from '../services/api';
 import { normalizeProfile } from '../services/profile';
 import { bootstrapSessionData } from '../services/bootstrap';
@@ -23,6 +24,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const setUser = useStore((s) => s.setUser);
   const setOffline = useStore((s) => s.setOffline);
+  const checkAdminStatus = useAdminStore((s) => s.checkAdminStatus);
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
@@ -46,6 +48,7 @@ export default function LoginScreen() {
 
       setOffline(false);
       setUser(user);
+      checkAdminStatus(user.username);
       didAuthenticate = true;
       await bootstrapSessionData(true);
     } catch (error) {

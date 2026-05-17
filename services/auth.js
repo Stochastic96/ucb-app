@@ -3,6 +3,7 @@ import { getApiClient, classifyError, setCachedCredentials, clearCachedCredentia
 import { clearAllCache } from './cache';
 import { normalizeProfile } from './profile';
 import useStore from '../store/useStore';
+import useAdminStore from '../store/useAdminStore';
 
 export async function checkExistingSession() {
   const username = await SecureStore.getItemAsync('username');
@@ -33,4 +34,5 @@ export async function logout() {
   await SecureStore.deleteItemAsync('password');
   await clearAllCache();
   useStore.getState().clearUser();
+  useAdminStore.getState().clearAdminStatus();
 }

@@ -12,19 +12,19 @@ import {
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, ACCENT, ERROR } from '../../constants/colors';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-const DAY_LABELS = { Mon: 'Mo', Tue: 'Di', Wed: 'Mi', Thu: 'Do', Fri: 'Fr' };
+const DAY_LABELS = { Mon: 'Mon / Mo', Tue: 'Tue / Di', Wed: 'Wed / Mi', Thu: 'Thu / Do', Fri: 'Fri / Fr' };
 const CATEGORIES = [
-  { value: 'main', label: 'Hauptgericht' },
-  { value: 'soup', label: 'Suppe' },
-  { value: 'side', label: 'Beilage' },
+  { value: 'main', label: 'Main Course / Hauptgericht' },
+  { value: 'soup', label: 'Soup / Suppe' },
+  { value: 'side', label: 'Side Dish / Beilage' },
   { value: 'dessert', label: 'Dessert' },
 ];
 const TAGS = [
   { value: 'vegan', label: 'Vegan' },
-  { value: 'vegetarian', label: 'Vegetarisch' },
-  { value: 'meat', label: 'Fleisch' },
-  { value: 'fish', label: 'Fisch' },
-  { value: 'glutenfree', label: 'Glutenfrei' },
+  { value: 'vegetarian', label: 'Vegetarian / Vegetarisch' },
+  { value: 'meat', label: 'Meat / Fleisch' },
+  { value: 'fish', label: 'Fish / Fisch' },
+  { value: 'glutenfree', label: 'Gluten-free / Glutenfrei' },
 ];
 
 const emptyDish = () => ({
@@ -69,20 +69,20 @@ export default function MensaAdminScreen() {
     }
     const { error } = await upsertMensaDish(editingDish);
     setSaving(false);
-    if (error) { setSnack(`Fehler: ${error.message}`); return; }
+    if (error) { setSnack(`Error: ${error.message}`); return; }
     setDialogVisible(false);
-    setSnack('Gericht gespeichert ✓');
+    setSnack('Dish saved ✓');
     loadWeek(week);
   };
 
   const handleDelete = (dish) => {
-    Alert.alert('Gericht löschen?', `"${dish.name}" wird gelöscht.`, [
-      { text: 'Abbrechen', style: 'cancel' },
+    Alert.alert('Delete dish?', `"${dish.name}" will be deleted.`, [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Löschen', style: 'destructive',
+        text: 'Delete', style: 'destructive',
         onPress: async () => {
           await deleteMensaDish(dish.id);
-          setSnack('Gericht gelöscht');
+          setSnack('Dish deleted');
           loadWeek(week);
         },
       },
@@ -94,7 +94,7 @@ export default function MensaAdminScreen() {
       week, note: metaNote,
       contact: menuData?.contact ?? {},
     });
-    setSnack(error ? `Fehler: ${error.message}` : 'Hinweis gespeichert ✓');
+    setSnack(error ? `Error: ${error.message}` : 'Note saved ✓');
   };
 
   const toggleTag = (tag) => {
@@ -113,7 +113,7 @@ export default function MensaAdminScreen() {
           <TextInput
             value={weekInput}
             onChangeText={setWeekInput}
-            label="Woche (z.B. 2026-W20)"
+            label="Week (e.g. 2026-W20) / Woche"
             mode="outlined"
             style={styles.weekInput}
             outlineColor={PRIMARY}
@@ -126,19 +126,19 @@ export default function MensaAdminScreen() {
             onPress={() => { setWeek(weekInput); }}
             style={styles.weekBtn}
           >
-            Laden
+            Load
           </Button>
         </View>
 
         {/* Meta note */}
         <TouchableOpacity style={styles.metaToggle} onPress={() => setMetaExpanded((v) => !v)}>
-          <Text style={styles.metaToggleText}>Wochenhinweis bearbeiten</Text>
+          <Text style={styles.metaToggleText}>Edit Week Note / Wochenhinweis</Text>
           <Ionicons name={metaExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={INACTIVE} />
         </TouchableOpacity>
         {metaExpanded && (
           <View style={styles.metaBox}>
             <TextInput
-              label="Hinweis zur Woche"
+              label="Week Note / Hinweis zur Woche"
               value={metaNote}
               onChangeText={setMetaNote}
               mode="outlined"
@@ -149,7 +149,7 @@ export default function MensaAdminScreen() {
               activeOutlineColor={PRIMARY}
             />
             <Button mode="contained" buttonColor={PRIMARY} onPress={handleSaveMeta} style={styles.saveBtn}>
-              Speichern
+              Save
             </Button>
           </View>
         )}
@@ -174,7 +174,7 @@ export default function MensaAdminScreen() {
         ) : (
           <>
             {dishes.length === 0 ? (
-              <Text style={styles.empty}>Keine Gerichte für diesen Tag. Tippe + um eins hinzuzufügen.</Text>
+              <Text style={styles.empty}>No dishes for this day. Tap + to add one.</Text>
             ) : (
               dishes.map((dish) => (
                 <View key={dish.id} style={styles.dishCard}>
@@ -215,12 +215,12 @@ export default function MensaAdminScreen() {
       {/* Edit Dialog */}
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)} style={styles.dialog}>
-          <Dialog.Title>{editingDish?.id ? 'Gericht bearbeiten' : 'Gericht hinzufügen'}</Dialog.Title>
+          <Dialog.Title>{editingDish?.id ? 'Edit Dish / Gericht bearbeiten' : 'Add Dish / Gericht hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
               <TextInput label="Bezeichnung (Deutsch) *" value={editingDish?.name ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, name: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               <TextInput label="Bezeichnung (Englisch)" value={editingDish?.nameEn ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, nameEn: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <Text style={styles.fieldLabel}>Kategorie</Text>
+              <Text style={styles.fieldLabel}>Category / Kategorie</Text>
               <View style={styles.chipRow}>
                 {CATEGORIES.map((c) => (
                   <Chip key={c.value} selected={editingDish?.category === c.value} onPress={() => setEditingDish({ ...editingDish, category: c.value })} style={styles.chip} selectedColor={PRIMARY}>
@@ -228,7 +228,7 @@ export default function MensaAdminScreen() {
                   </Chip>
                 ))}
               </View>
-              <Text style={styles.fieldLabel}>Merkmale</Text>
+              <Text style={styles.fieldLabel}>Tags / Merkmale</Text>
               <View style={styles.chipRow}>
                 {TAGS.map((t) => (
                   <Chip key={t.value} selected={(editingDish?.tags ?? []).includes(t.value)} onPress={() => toggleTag(t.value)} style={styles.chip} selectedColor={PRIMARY}>
@@ -236,15 +236,15 @@ export default function MensaAdminScreen() {
                   </Chip>
                 ))}
               </View>
-              <Text style={styles.fieldLabel}>Preise (€)</Text>
+              <Text style={styles.fieldLabel}>Prices (€) / Preise</Text>
               <TextInput label="Student" value={editingDish?.prices?.student ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, prices: { ...editingDish.prices, student: v } })} keyboardType="decimal-pad" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} dense />
-              <TextInput label="Mitarbeiter" value={editingDish?.prices?.employee ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, prices: { ...editingDish.prices, employee: v } })} keyboardType="decimal-pad" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} dense />
-              <TextInput label="Gast" value={editingDish?.prices?.guest ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, prices: { ...editingDish.prices, guest: v } })} keyboardType="decimal-pad" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} dense />
+              <TextInput label="Staff / Mitarbeiter" value={editingDish?.prices?.employee ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, prices: { ...editingDish.prices, employee: v } })} keyboardType="decimal-pad" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} dense />
+              <TextInput label="Guest / Gast" value={editingDish?.prices?.guest ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, prices: { ...editingDish.prices, guest: v } })} keyboardType="decimal-pad" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} dense />
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Abbrechen</Button>
-            <Button onPress={handleSaveDish} loading={saving} textColor={PRIMARY}>Speichern</Button>
+            <Button onPress={() => setDialogVisible(false)}>Cancel</Button>
+            <Button onPress={handleSaveDish} loading={saving} textColor={PRIMARY}>Save</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
