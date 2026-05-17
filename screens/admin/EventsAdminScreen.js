@@ -119,7 +119,7 @@ export default function EventsAdminScreen() {
           <Dialog.Title>{editing?.id ? 'Edit Event / Bearbeiten' : 'Add Event / Hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
-              <TextInput label="Titel *" value={editing?.title ?? ''} onChangeText={(v) => setEditing({ ...editing, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Title * / Titel" value={editing?.title ?? ''} onChangeText={(v) => setEditing({ ...editing, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               {editing?.isRecurring ? (
                 <>
                   <Text style={styles.fieldLabel}>Day of Week / Wochentag</Text>
@@ -152,8 +152,8 @@ export default function EventsAdminScreen() {
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Cancel</Button>
-            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save</Button>
+            <Button onPress={() => setDialogVisible(false)}>Cancel / Abbrechen</Button>
+            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save / Speichern</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

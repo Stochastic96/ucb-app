@@ -103,7 +103,7 @@ export default function ResourcesAdminScreen() {
           <Dialog.Title>{editing?.id ? 'Edit Offer / Bearbeiten' : 'Add Offer / Hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
-              <TextInput label="Titel *" value={editing?.title ?? ''} onChangeText={(v) => setEditing({ ...editing, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Title * / Titel" value={editing?.title ?? ''} onChangeText={(v) => setEditing({ ...editing, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               <Text style={styles.fieldLabel}>Category / Kategorie</Text>
               <View style={styles.chipRow}>
                 {CATEGORIES.map((c) => (
@@ -111,19 +111,19 @@ export default function ResourcesAdminScreen() {
                 ))}
               </View>
               <TextInput label="Description / Beschreibung" value={editing?.description ?? ''} onChangeText={(v) => setEditing({ ...editing, description: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={3} />
-              <TextInput label="Standort" value={editing?.location ?? ''} onChangeText={(v) => setEditing({ ...editing, location: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Kontakt (E-Mail)" value={editing?.contact ?? ''} onChangeText={(v) => setEditing({ ...editing, contact: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} keyboardType="email-address" autoCapitalize="none" />
-              <TextInput label="Telefon" value={editing?.phone ?? ''} onChangeText={(v) => setEditing({ ...editing, phone: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} keyboardType="phone-pad" />
+              <TextInput label="Location / Standort" value={editing?.location ?? ''} onChangeText={(v) => setEditing({ ...editing, location: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Contact (E-Mail) / Kontakt" value={editing?.contact ?? ''} onChangeText={(v) => setEditing({ ...editing, contact: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} keyboardType="email-address" autoCapitalize="none" />
+              <TextInput label="Phone / Telefon" value={editing?.phone ?? ''} onChangeText={(v) => setEditing({ ...editing, phone: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} keyboardType="phone-pad" />
               <TextInput label="Öffnungszeiten / Zeitplan" value={editing?.schedule ?? ''} onChangeText={(v) => setEditing({ ...editing, schedule: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Wiederkehrender Tag (optional)" value={editing?.recurringDay ?? ''} onChangeText={(v) => setEditing({ ...editing, recurringDay: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Uhrzeit (optional)" value={editing?.recurringTime ?? ''} onChangeText={(v) => setEditing({ ...editing, recurringTime: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="14:00" />
+              <TextInput label="Recurring Day (optional) / Wiederkehrender Tag" value={editing?.recurringDay ?? ''} onChangeText={(v) => setEditing({ ...editing, recurringDay: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Time (optional) / Uhrzeit" value={editing?.recurringTime ?? ''} onChangeText={(v) => setEditing({ ...editing, recurringTime: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="14:00" />
               <TextInput label="Icon-Name (Ionicons)" value={editing?.icon ?? ''} onChangeText={(v) => setEditing({ ...editing, icon: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} placeholder="bicycle-outline" />
-              <TextInput label="Tipp (optional)" value={editing?.tip ?? ''} onChangeText={(v) => setEditing({ ...editing, tip: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={2} />
+              <TextInput label="Tip (optional) / Tipp" value={editing?.tip ?? ''} onChangeText={(v) => setEditing({ ...editing, tip: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={2} />
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Abbrechen</Button>
-            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Speichern</Button>
+            <Button onPress={() => setDialogVisible(false)}>Cancel / Abbrechen</Button>
+            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save / Speichern</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

@@ -218,8 +218,8 @@ export default function MensaAdminScreen() {
           <Dialog.Title>{editingDish?.id ? 'Edit Dish / Gericht bearbeiten' : 'Add Dish / Gericht hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
-              <TextInput label="Bezeichnung (Deutsch) *" value={editingDish?.name ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, name: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Bezeichnung (Englisch)" value={editingDish?.nameEn ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, nameEn: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Name (German) * / Bezeichnung (Deutsch)" value={editingDish?.name ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, name: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Name (English) / Bezeichnung (Englisch)" value={editingDish?.nameEn ?? ''} onChangeText={(v) => setEditingDish({ ...editingDish, nameEn: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               <Text style={styles.fieldLabel}>Category / Kategorie</Text>
               <View style={styles.chipRow}>
                 {CATEGORIES.map((c) => (

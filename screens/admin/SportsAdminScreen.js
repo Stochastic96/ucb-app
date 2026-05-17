@@ -127,8 +127,8 @@ export default function SportsAdminScreen() {
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Cancel</Button>
-            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save</Button>
+            <Button onPress={() => setDialogVisible(false)}>Cancel / Abbrechen</Button>
+            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save / Speichern</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

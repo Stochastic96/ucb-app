@@ -29,55 +29,55 @@ const CATEGORIES = [
 const FIELDS = {
   emergency: [
     { key: 'name', label: 'Name', required: true },
-    { key: 'type', label: 'Typ', chips: ['emergency', 'campus', 'support'] },
-    { key: 'phone', label: 'Telefon' },
+    { key: 'type', label: 'Type / Typ', chips: ['emergency', 'campus', 'support'] },
+    { key: 'phone', label: 'Phone / Telefon' },
     { key: 'email', label: 'E-Mail', kb: 'email-address' },
-    { key: 'description', label: 'Beschreibung', multiline: true },
+    { key: 'description', label: 'Description / Beschreibung', multiline: true },
   ],
   faq: [
-    { key: 'category', label: 'Kategorie', chips: ['enrollment', 'academic', 'housing', 'financial', 'other'] },
-    { key: 'question', label: 'Frage', required: true, multiline: true },
-    { key: 'answer', label: 'Antwort', required: true, multiline: true },
+    { key: 'category', label: 'Category / Kategorie', chips: ['enrollment', 'academic', 'housing', 'financial', 'other'] },
+    { key: 'question', label: 'Question / Frage', required: true, multiline: true },
+    { key: 'answer', label: 'Answer / Antwort', required: true, multiline: true },
   ],
   checklist: [
-    { key: 'task', label: 'Aufgabe', required: true },
-    { key: 'priority', label: 'Priorität', chips: ['urgent', 'high', 'normal'] },
+    { key: 'task', label: 'Task / Aufgabe', required: true },
+    { key: 'priority', label: 'Priority / Priorität', chips: ['urgent', 'high', 'normal'] },
     { key: 'details', label: 'Details', multiline: true },
-    { key: 'office', label: 'Amt / Büro' },
-    { key: 'deadline', label: 'Frist' },
+    { key: 'office', label: 'Office / Amt & Büro' },
+    { key: 'deadline', label: 'Deadline / Frist' },
   ],
   offices: [
     { key: 'name', label: 'Name', required: true },
-    { key: 'building', label: 'Gebäude' },
-    { key: 'room', label: 'Raum' },
-    { key: 'hours', label: 'Öffnungszeiten' },
-    { key: 'phone', label: 'Telefon' },
+    { key: 'building', label: 'Building / Gebäude' },
+    { key: 'room', label: 'Room / Raum' },
+    { key: 'hours', label: 'Opening Hours / Öffnungszeiten' },
+    { key: 'phone', label: 'Phone / Telefon' },
     { key: 'email', label: 'E-Mail', kb: 'email-address' },
   ],
   contacts: [
     { key: 'name', label: 'Name', required: true },
-    { key: 'role', label: 'Rolle' },
+    { key: 'role', label: 'Role / Rolle' },
     { key: 'organization', label: 'Organisation' },
-    { key: 'phone', label: 'Telefon' },
+    { key: 'phone', label: 'Phone / Telefon' },
     { key: 'email', label: 'E-Mail', kb: 'email-address' },
   ],
   glossary: [
-    { key: 'term', label: 'Begriff', required: true },
-    { key: 'translation', label: 'Übersetzung' },
+    { key: 'term', label: 'Term / Begriff', required: true },
+    { key: 'translation', label: 'Translation / Übersetzung' },
     { key: 'definition', label: 'Definition', multiline: true },
   ],
   phrases: [
-    { key: 'category', label: 'Kategorie' },
-    { key: 'german', label: 'Deutsch', required: true },
-    { key: 'english', label: 'Englisch', required: true },
-    { key: 'phonetic', label: 'Aussprache' },
+    { key: 'category', label: 'Category / Kategorie' },
+    { key: 'german', label: 'German / Deutsch', required: true },
+    { key: 'english', label: 'English / Englisch', required: true },
+    { key: 'phonetic', label: 'Pronunciation / Aussprache' },
   ],
   buildings: [
     { key: 'name', label: 'Name', required: true },
-    { key: 'number', label: 'Nummer' },
-    { key: 'shortName', label: 'Kürzel' },
-    { key: 'description', label: 'Beschreibung', multiline: true },
-    { key: 'services', label: 'Angebote (kommagetrennt)' },
+    { key: 'number', label: 'Number / Nummer' },
+    { key: 'shortName', label: 'Short Name / Kürzel' },
+    { key: 'description', label: 'Description / Beschreibung', multiline: true },
+    { key: 'services', label: 'Services (comma-sep.) / Angebote' },
   ],
 };
 
@@ -155,20 +155,20 @@ function CategoryEditor({ route }) {
       sort_order: 0,
     });
     setSaving(false);
-    if (error) { setSnack(`Fehler: ${error.message}`); return; }
+    if (error) { setSnack(`Error / Fehler: ${error.message}`); return; }
     setDialogVisible(false);
-    setSnack('Gespeichert ✓');
+    setSnack('Saved ✓ / Gespeichert');
     load();
   };
 
   const handleDelete = (item) => {
-    Alert.alert('Eintrag löschen?', `"${getPrimaryText(item, type)}" wird gelöscht.`, [
-      { text: 'Abbrechen', style: 'cancel' },
+    Alert.alert('Delete entry? / Eintrag löschen?', `"${getPrimaryText(item, type)}" will be deleted. / Wird gelöscht.`, [
+      { text: 'Cancel / Abbrechen', style: 'cancel' },
       {
-        text: 'Löschen', style: 'destructive',
+        text: 'Delete / Löschen', style: 'destructive',
         onPress: async () => {
           await deleteGuideItem(item.id ?? `${category}_${getPrimaryText(item, type)}`);
-          setSnack('Gelöscht');
+          setSnack('Deleted / Gelöscht');
           load();
         },
       },
@@ -185,8 +185,8 @@ function CategoryEditor({ route }) {
         <View style={styles.infoNote}>
           <Ionicons name="information-circle-outline" size={20} color={PRIMARY} />
           <Text style={styles.infoNoteText}>
-            Dieser Bereich hat komplexe Inhalte (Konzepte, Links, Zusammenfassungen).{'\n'}
-            Bearbeite die Einträge direkt im <Text style={{ fontWeight: '700', color: PRIMARY }}>Supabase Table Editor</Text> unter guide_content → Kategorie: {category}.
+            This section has complex content (concepts, links, summaries). / Dieser Bereich hat komplexe Inhalte.{'\n'}
+            Edit entries directly in the <Text style={{ fontWeight: '700', color: PRIMARY }}>Supabase Table Editor</Text> under guide_content → category: {category}.
           </Text>
         </View>
         {items.map((item, i) => (
@@ -205,7 +205,7 @@ function CategoryEditor({ route }) {
         data={items}
         keyExtractor={(item, i) => item.id ?? String(i)}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-        ListEmptyComponent={<Text style={styles.empty}>Keine Einträge. Tippe + um eins hinzuzufügen.</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>No entries. / Keine Einträge. Tap + to add one.</Text>}
         renderItem={({ item }) => (
           <View style={styles.itemCard}>
             <Text style={styles.itemTitle}>{getPrimaryText(item, type)}</Text>
@@ -232,7 +232,7 @@ function CategoryEditor({ route }) {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)} style={styles.dialog}>
-          <Dialog.Title>{editing?.id ? 'Eintrag bearbeiten' : 'Eintrag hinzufügen'}</Dialog.Title>
+          <Dialog.Title>{editing?.id ? 'Edit Entry / Eintrag bearbeiten' : 'Add Entry / Eintrag hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
               {fields.map((f) =>
@@ -265,8 +265,8 @@ function CategoryEditor({ route }) {
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Abbrechen</Button>
-            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Speichern</Button>
+            <Button onPress={() => setDialogVisible(false)}>Cancel / Abbrechen</Button>
+            <Button onPress={handleSave} loading={saving} textColor={PRIMARY}>Save / Speichern</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

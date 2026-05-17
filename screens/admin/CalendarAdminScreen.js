@@ -64,16 +64,16 @@ export default function CalendarAdminScreen() {
     const ev = { ...editingEvent, id: editingEvent.id || `calev_${Date.now()}` };
     const { error } = await upsertCalendarEvent(ev);
     setSaving(false);
-    if (error) { setSnack(`Fehler: ${error.message}`); return; }
+    if (error) { setSnack(`Error / Fehler: ${error.message}`); return; }
     setEventDialog(false);
-    setSnack('Termin gespeichert ✓');
+    setSnack('Saved ✓ / Gespeichert');
     load();
   };
 
   const handleDeleteEvent = (ev) => {
-    Alert.alert('Termin löschen?', `"${ev.title}" wird gelöscht.`, [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Löschen', style: 'destructive', onPress: async () => { await deleteCalendarEvent(ev.id); setSnack('Gelöscht'); load(); } },
+    Alert.alert('Delete event? / Termin löschen?', `"${ev.title}" will be deleted. / Wird gelöscht.`, [
+      { text: 'Cancel / Abbrechen', style: 'cancel' },
+      { text: 'Delete / Löschen', style: 'destructive', onPress: async () => { await deleteCalendarEvent(ev.id); setSnack('Deleted / Gelöscht'); load(); } },
     ]);
   };
 
@@ -84,33 +84,33 @@ export default function CalendarAdminScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Semester block */}
         <View style={styles.block}>
-          <Text style={styles.blockTitle}>Semester-Details</Text>
-          <TextInput label="Semestername" value={semForm.name ?? ''} onChangeText={(v) => setSemForm({ ...semForm, name: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-          <TextInput label="Kurzbezeichnung (z.B. SS 2026)" value={semForm.shortName ?? ''} onChangeText={(v) => setSemForm({ ...semForm, shortName: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+          <Text style={styles.blockTitle}>Semester Details / Semester-Details</Text>
+          <TextInput label="Semester Name / Semestername" value={semForm.name ?? ''} onChangeText={(v) => setSemForm({ ...semForm, name: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+          <TextInput label="Short Name (e.g. SS 2026) / Kurzbezeichnung" value={semForm.shortName ?? ''} onChangeText={(v) => setSemForm({ ...semForm, shortName: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
           <View style={styles.row}>
-            <TextInput label="Vorlesungsbeginn" value={semForm.lectureStart ?? ''} onChangeText={(v) => setSemForm({ ...semForm, lectureStart: v })} placeholder="2026-03-16" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-            <TextInput label="Vorlesungsende" value={semForm.lectureEnd ?? ''} onChangeText={(v) => setSemForm({ ...semForm, lectureEnd: v })} placeholder="2026-07-11" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+            <TextInput label="Lecture Start / Vorlesungsbeginn" value={semForm.lectureStart ?? ''} onChangeText={(v) => setSemForm({ ...semForm, lectureStart: v })} placeholder="2026-03-16" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+            <TextInput label="Lecture End / Vorlesungsende" value={semForm.lectureEnd ?? ''} onChangeText={(v) => setSemForm({ ...semForm, lectureEnd: v })} placeholder="2026-07-11" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
           </View>
           <View style={styles.row}>
-            <TextInput label="Prüfungsbeginn" value={semForm.examStart ?? ''} onChangeText={(v) => setSemForm({ ...semForm, examStart: v })} placeholder="2026-07-13" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-            <TextInput label="Prüfungsende" value={semForm.examEnd ?? ''} onChangeText={(v) => setSemForm({ ...semForm, examEnd: v })} placeholder="2026-08-01" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+            <TextInput label="Exam Start / Prüfungsbeginn" value={semForm.examStart ?? ''} onChangeText={(v) => setSemForm({ ...semForm, examStart: v })} placeholder="2026-07-13" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+            <TextInput label="Exam End / Prüfungsende" value={semForm.examEnd ?? ''} onChangeText={(v) => setSemForm({ ...semForm, examEnd: v })} placeholder="2026-08-01" mode="outlined" style={[styles.input, styles.half]} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
           </View>
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Aktuelles Semester</Text>
+            <Text style={styles.switchLabel}>Current Semester / Aktuelles Semester</Text>
             <Switch value={semForm.isCurrent ?? false} onValueChange={(v) => setSemForm({ ...semForm, isCurrent: v })} />
           </View>
           <Button mode="contained" buttonColor={PRIMARY} onPress={handleSaveSemester} loading={saving} style={styles.saveBtn}>
-            Semester speichern
+            Save Semester / Speichern
           </Button>
         </View>
 
         {/* Events block */}
         <View style={styles.block}>
           <View style={styles.blockHeader}>
-            <Text style={styles.blockTitle}>Termine ({semEvents.length})</Text>
+            <Text style={styles.blockTitle}>Events / Termine ({semEvents.length})</Text>
             <TouchableOpacity style={styles.addInline} onPress={() => { setEditingEvent(emptyCalEvent(semester?.id ?? '')); setEventDialog(true); }}>
               <Ionicons name="add" size={16} color={PRIMARY} />
-              <Text style={styles.addInlineText}>Hinzufügen</Text>
+              <Text style={styles.addInlineText}>Add / Hinzufügen</Text>
             </TouchableOpacity>
           </View>
           {semEvents.map((ev) => (
@@ -137,30 +137,30 @@ export default function CalendarAdminScreen() {
 
       <Portal>
         <Dialog visible={eventDialog} onDismiss={() => setEventDialog(false)} style={styles.dialog}>
-          <Dialog.Title>{editingEvent?.id ? 'Termin bearbeiten' : 'Termin hinzufügen'}</Dialog.Title>
+          <Dialog.Title>{editingEvent?.id ? 'Edit Event / Termin bearbeiten' : 'Add Event / Termin hinzufügen'}</Dialog.Title>
           <Dialog.ScrollArea>
             <ScrollView>
-              <TextInput label="Titel *" value={editingEvent?.title ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Titel (Deutsch)" value={editingEvent?.titleDe ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, titleDe: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Datum * (JJJJ-MM-TT)" value={editingEvent?.date ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, date: v })} placeholder="2026-05-01" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <TextInput label="Enddatum (optional)" value={editingEvent?.endDate ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, endDate: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
-              <Text style={styles.fieldLabel}>Kategorie</Text>
+              <TextInput label="Title * / Titel" value={editingEvent?.title ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, title: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Title (German) / Titel (Deutsch)" value={editingEvent?.titleDe ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, titleDe: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="Date * (YYYY-MM-DD) / Datum (JJJJ-MM-TT)" value={editingEvent?.date ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, date: v })} placeholder="2026-05-01" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <TextInput label="End Date (optional) / Enddatum" value={editingEvent?.endDate ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, endDate: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
+              <Text style={styles.fieldLabel}>Category / Kategorie</Text>
               <View style={styles.chipRow}>
                 {EVENT_CATS.map((c) => (
                   <Chip key={c.value} selected={editingEvent?.category === c.value} onPress={() => setEditingEvent({ ...editingEvent, category: c.value })} style={styles.chip} selectedColor={PRIMARY}>{c.label}</Chip>
                 ))}
               </View>
-              <TextInput label="Beschreibung" value={editingEvent?.description ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, description: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={3} />
+              <TextInput label="Description / Beschreibung" value={editingEvent?.description ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, description: v })} mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} multiline numberOfLines={3} />
               <TextInput label="Icon (Ionicons-Name)" value={editingEvent?.icon ?? ''} onChangeText={(v) => setEditingEvent({ ...editingEvent, icon: v })} placeholder="school-outline" mode="outlined" style={styles.input} outlineColor={PRIMARY} activeOutlineColor={PRIMARY} />
               <View style={styles.switchRow}>
-                <Text style={styles.switchLabel}>Wichtiger Termin (fett hervorgehoben)</Text>
+                <Text style={styles.switchLabel}>Important Event (bold) / Wichtiger Termin</Text>
                 <Switch value={editingEvent?.important ?? false} onValueChange={(v) => setEditingEvent({ ...editingEvent, important: v })} />
               </View>
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <Button onPress={() => setEventDialog(false)}>Abbrechen</Button>
-            <Button onPress={handleSaveEvent} loading={saving} textColor={PRIMARY}>Speichern</Button>
+            <Button onPress={() => setEventDialog(false)}>Cancel / Abbrechen</Button>
+            <Button onPress={handleSaveEvent} loading={saving} textColor={PRIMARY}>Save / Speichern</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
