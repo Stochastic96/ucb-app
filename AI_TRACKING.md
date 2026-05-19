@@ -2,6 +2,16 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-19
+- screens/exams/ExamTrackerScreen.js: Claude Sonnet 4.6 — Fix lecturer field name (course.lecturer → course.lecturerName)
+- screens/exams/ExamPlannerScreen.js: Claude Sonnet 4.6 — Fix exam date stored as full ISO string (breaks reminder construction); parse stored YYYY-MM-DD as local midnight to avoid UTC timezone shift
+- services/reminders.js: Claude Sonnet 4.6 — Fix thirtyMinBefore() returning negative hour for sports before 00:30; wrap all cancelScheduledNotificationAsync calls in try-catch
+- services/cache.js: Claude Sonnet 4.6 — Protect user-owned personal data (deadlines, exam plans, exam registrations, RSVP state, news last-seen) from clearAllCache; DSGVO Art. 5(1)(f) compliance
+- services/contentService.js: Claude Sonnet 4.6 — Explicitly pass null for mensa_meta on metaRes.error rather than silently falling through
+- components/BiometricLockScreen.js: Claude Sonnet 4.6 — Fix stale closure on mount auto-trigger using useCallback + useRef for failCount
+- screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — Fix partial settings write (each toggle now composes full next object); update cache-clear dialog text to clarify personal data is not affected (DSGVO transparency)
+- App.js: Claude Sonnet 4.6 — Wire up notification tap → navigate handler (addNotificationResponseReceivedListener + getLastNotificationResponseAsync for cold-start); navigates by identifier only, no personal data handled
+
 ## 2026-05-17
 - screens/admin/*: Claude — Make all admin panel UI consistently bilingual (English / Deutsch) — labels, dialog titles, alerts, snackbars, and action buttons
 - LoginScreen.js, App.js, services/auth.js, components/Sidebar.js, navigation/RootNavigator.js: Claude — Wire up admin feature: call checkAdminStatus after login and session restore, clear on logout, register AdminStack in navigator, add gated Admin Panel entry in Sidebar

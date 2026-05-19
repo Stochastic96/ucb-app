@@ -75,7 +75,8 @@ export async function getMensaWeek(week = null) {
         supabase.from('mensa_meta').select('*').eq('week', targetWeek).maybeSingle(),
       ]);
       if (dishRes.error) throw dishRes.error;
-      return shapeMensaRows(dishRes.data, metaRes.data);
+      // metaRes.error is non-fatal — shapeMensaRows guards with optional chaining
+      return shapeMensaRows(dishRes.data, metaRes.error ? null : metaRes.data);
     },
     () => require('../data/mensa_week.json')
   );

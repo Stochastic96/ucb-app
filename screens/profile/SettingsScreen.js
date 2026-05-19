@@ -25,15 +25,14 @@ export default function SettingsScreen() {
     })();
   }, []);
 
-  const handleToggleNotifications = async (val) => {
-    updateSettings({ notificationsEnabled: val });
-    await AsyncStorage.setItem('ucb_settings', JSON.stringify({ ...settings, notificationsEnabled: val }));
+  const persistSettings = async (patch) => {
+    const next = { ...settings, ...patch };
+    updateSettings(patch);
+    await AsyncStorage.setItem('ucb_settings', JSON.stringify(next));
   };
 
-  const handleToggleBiometric = async (val) => {
-    updateSettings({ biometricLockEnabled: val });
-    await AsyncStorage.setItem('ucb_settings', JSON.stringify({ ...settings, biometricLockEnabled: val }));
-  };
+  const handleToggleNotifications = (val) => persistSettings({ notificationsEnabled: val });
+  const handleToggleBiometric = (val) => persistSettings({ biometricLockEnabled: val });
 
   const handleClearCache = async () => {
     setShowClearConfirm(false);
@@ -131,7 +130,7 @@ export default function SettingsScreen() {
       <Dialog visible={showClearConfirm} onDismiss={() => setShowClearConfirm(false)}>
         <Dialog.Title>Clear cached data?</Dialog.Title>
         <Dialog.Content>
-          <Text>All cached courses, events, and news will be removed.</Text>
+          <Text>Cached Stud.IP data (courses, events, news) will be removed. Your deadlines, exam plans, and personal settings are not affected.</Text>
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={() => setShowClearConfirm(false)}>Cancel</Button>

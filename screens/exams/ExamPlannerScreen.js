@@ -29,7 +29,8 @@ export default function ExamPlannerScreen({ navigation, route }) {
 
   const existing = examPlans[courseId];
 
-  const [examDate, setExamDate] = useState(existing?.examDate ? new Date(existing.examDate) : null);
+  // Parse stored YYYY-MM-DD as local midnight to avoid UTC-offset date shift
+  const [examDate, setExamDate] = useState(existing?.examDate ? new Date(existing.examDate + 'T00:00:00') : null);
   const [examTime, setExamTime] = useState(existing?.examTime ? (() => {
     const d = new Date(); const [h, m] = existing.examTime.split(':'); d.setHours(+h, +m, 0, 0); return d;
   })() : null);
@@ -75,7 +76,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
       const plan = {
         courseId,
         courseTitle,
-        examDate: examDate.toISOString(),
+        examDate: examDate.toISOString().split('T')[0], // store as YYYY-MM-DD only
         examTime: timeStr,
         room: room.trim(),
         building: building.trim(),

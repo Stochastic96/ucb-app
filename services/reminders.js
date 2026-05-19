@@ -19,10 +19,11 @@ export async function requestNotificationPermission() {
   return status === 'granted';
 }
 
-// Subtract 30 min from HH:MM string, return { hour, minute }
+// Subtract 30 min from HH:MM string, return { hour, minute } or null if result is before midnight
 function thirtyMinBefore(timeStr) {
   const [h, m] = timeStr.split(':').map(Number);
   const total = h * 60 + m - 30;
+  if (total < 0) return null; // sport starts before 00:30 — no valid pre-event time
   return { hour: Math.floor(total / 60), minute: total % 60 };
 }
 
@@ -52,7 +53,9 @@ export async function scheduleSportReminder(sport) {
   const weekday = DAY_WEEKDAY[sport.day];
   if (!weekday) return false;
 
-  const { hour, minute } = thirtyMinBefore(sport.startTime);
+  const timing = thirtyMinBefore(sport.startTime);
+  if (!timing) return false; // sport starts before 00:30, skip reminder
+  const { hour, minute } = timing;
 
   await Notifications.scheduleNotificationAsync({
     identifier: `sport_${sport.id}`,
@@ -72,7 +75,9 @@ export async function scheduleSportReminder(sport) {
 }
 
 export async function cancelReminder(identifier) {
-  await Notifications.cancelScheduledNotificationAsync(identifier);
+  try {
+    await Notifications.cancelScheduledNotificationAsync(identifier);
+  } catch {}
 }
 
 // --- Deadline reminders ---
@@ -120,8 +125,8 @@ export async function scheduleDeadlineReminders(deadline) {
 }
 
 export async function cancelDeadlineReminders(deadlineId) {
-  await Notifications.cancelScheduledNotificationAsync(`deadline_24h_${deadlineId}`);
-  await Notifications.cancelScheduledNotificationAsync(`deadline_2h_${deadlineId}`);
+  try { await Notifications.cancelScheduledNotificationAsync(`deadline_24h_${deadlineId}`); } catch {}
+  try { await Notifications.cancelScheduledNotificationAsync(`deadline_2h_${deadlineId}`); } catch {}
 }
 
 // --- Exam reminders ---
@@ -168,8 +173,8 @@ export async function scheduleExamReminders(exam) {
 }
 
 export async function cancelExamReminders(courseId) {
-  await Notifications.cancelScheduledNotificationAsync(`exam_day_${courseId}`);
-  await Notifications.cancelScheduledNotificationAsync(`exam_2h_${courseId}`);
+  try { await Notifications.cancelScheduledNotificationAsync(`exam_day_${courseId}`); } catch {}
+  try { await Notifications.cancelScheduledNotificationAsync(`exam_2h_${courseId}`); } catch {}
 }
 
 // --- AsyncStorage helpers for new features ---

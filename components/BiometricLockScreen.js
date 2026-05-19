@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,14 +13,11 @@ export default function BiometricLockScreen({ onUnlock }) {
   const [error, setError] = useState('');
   const [loggingOut, setLoggingOut] = useState(false);
   const clearUser = useStore((s) => s.clearUser);
+  // Ref tracks failCount so handleAuthenticate never captures a stale value
+  const failCountRef = useRef(0);
 
-  useEffect(() => {
-    // Auto-prompt on mount
-    handleAuthenticate();
-  }, []);
-
-  const handleAuthenticate = async () => {
-    if (failCount >= MAX_FAILS) return;
+  const handleAuthenticate = useCallback(async () => {
+    if (failCountRef.current >= MAX_FAILS) return;
     setError('');
     try {
       const result = await LocalAuthentication.authenticateAsync({
@@ -31,7 +28,8 @@ export default function BiometricLockScreen({ onUnlock }) {
       if (result.success) {
         onUnlock();
       } else {
-        const next = failCount + 1;
+        const next = failCountRef.current + 1;
+        failCountRef.current = next;
         setFailCount(next);
         if (next >= MAX_FAILS) {
           setError('Too many failed attempts.');
@@ -42,7 +40,11 @@ export default function BiometricLockScreen({ onUnlock }) {
     } catch {
       setError('Biometric authentication unavailable.');
     }
-  };
+  }, [onUnlock]);
+
+  useEffect(() => {
+    handleAuthenticate();
+  }, [handleAuthenticate]);
 
   const handleLogout = async () => {
     setLoggingOut(true);

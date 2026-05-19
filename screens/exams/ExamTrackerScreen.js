@@ -123,8 +123,8 @@ export default function ExamTrackerScreen({ navigation }) {
                 <View style={[styles.courseStripe, { backgroundColor: course.color ?? PRIMARY }]} />
                 <View style={styles.courseBody}>
                   <Text style={styles.courseTitle} numberOfLines={2}>{course.title}</Text>
-                  {course.lecturer ? (
-                    <Text style={styles.courseMeta}>{course.lecturer}</Text>
+                  {course.lecturerName ? (
+                    <Text style={styles.courseMeta}>{course.lecturerName}</Text>
                   ) : null}
                   <View style={styles.courseActions}>
                     <TouchableOpacity
