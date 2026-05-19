@@ -77,6 +77,7 @@ export default function PlannerScreen({ navigation }) {
   const setDeadlines = useStore((s) => s.setDeadlines);
   const updateDeadline = useStore((s) => s.updateDeadline);
   const removeDeadline = useStore((s) => s.removeDeadline);
+  const courses = useStore((s) => s.courses);
   const [filter, setFilter] = useState('all');
 
   useFocusEffect(useCallback(() => {
@@ -170,6 +171,7 @@ export default function PlannerScreen({ navigation }) {
         }
         renderItem={({ item: d }) => {
           const catMeta = d.category ? CATEGORY_META[d.category] : null;
+          const linkedCourse = d.courseId ? courses.find((c) => c.id === d.courseId) : null;
           return (
             <View style={[styles.card, d.completed && styles.cardDone]}>
               <TouchableOpacity
@@ -207,7 +209,12 @@ export default function PlannerScreen({ navigation }) {
                     </View>
                   )}
                   {d.subject ? (
-                    <Text style={styles.subject} numberOfLines={1}>{d.subject}</Text>
+                    <View style={styles.subjectRow}>
+                      {linkedCourse && (
+                        <View style={[styles.subjectDot, { backgroundColor: linkedCourse.color ?? PRIMARY }]} />
+                      )}
+                      <Text style={styles.subject} numberOfLines={1}>{d.subject}</Text>
+                    </View>
                   ) : null}
                 </View>
                 <Text style={styles.dueDate}>{formatDueDate(d.dueDate)}</Text>
@@ -309,6 +316,8 @@ const styles = StyleSheet.create({
   },
   categoryDot: { width: 6, height: 6, borderRadius: 3 },
   categoryPillText: { fontSize: 11, fontWeight: '700' },
+  subjectRow: { flexDirection: 'row', alignItems: 'center', gap: 5, flexShrink: 1 },
+  subjectDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
   subject: { fontSize: 13, color: PRIMARY, fontWeight: '600', flexShrink: 1 },
   dueDate: { fontSize: 12, color: INACTIVE, marginBottom: 4 },
   note: { fontSize: 13, color: '#555', lineHeight: 18, marginBottom: 6 },

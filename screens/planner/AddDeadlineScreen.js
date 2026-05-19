@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,13 +19,22 @@ import {
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, BORDER, ACCENT } from '../../constants/colors';
 
 const CATEGORIES = [
-  { key: 'academic', label: 'Academic', color: PRIMARY, icon: 'school-outline' },
+  { key: 'academic',     label: 'Academic',     color: PRIMARY,   icon: 'school-outline' },
   { key: 'bureaucratic', label: 'Bureaucratic', color: '#E65100', icon: 'document-text-outline' },
-  { key: 'personal', label: 'Personal', color: '#7B1FA2', icon: 'person-outline' },
+  { key: 'personal',     label: 'Personal',     color: '#7B1FA2', icon: 'person-outline' },
 ];
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// Returns courses from the most-represented semester (current) in the store
+function getCurrentSemesterCourses(courses) {
+  if (!courses.length) return [];
+  const counts = {};
+  courses.forEach((c) => { if (c.semester) counts[c.semester] = (counts[c.semester] || 0) + 1; });
+  const current = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
+  return current ? courses.filter((c) => c.semester === current) : courses.slice(0, 15);
 }
 
 export default function AddDeadlineScreen({ navigation, route }) {
@@ -37,6 +46,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
 
   const [title, setTitle] = useState(existing?.title ?? '');
   const [subject, setSubject] = useState(existing?.subject ?? '');
+  const [linkedCourseId, setLinkedCourseId] = useState(existing?.courseId ?? null);
   const [note, setNote] = useState(existing?.note ?? '');
   const [category, setCategory] = useState(existing?.category ?? 'academic');
   const [dueDate, setDueDate] = useState(existing ? new Date(existing.dueDate) : (() => {
@@ -47,13 +57,52 @@ export default function AddDeadlineScreen({ navigation, route }) {
   })());
   const [remind24h, setRemind24h] = useState(existing?.remind24h ?? true);
   const [remind2h, setRemind2h] = useState(existing?.remind2h ?? false);
-  const [showCourseSuggestions, setShowCourseSuggestions] = useState(false);
+  const [subjectFocused, setSubjectFocused] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const courseNames = courses.map((c) => c.title).filter(Boolean);
-  const filtered = subject.length > 0
-    ? courseNames.filter((n) => n.toLowerCase().includes(subject.toLowerCase())).slice(0, 4)
-    : [];
+  // Current semester courses used by the Academic picker
+  const semesterCourses = useMemo(() => getCurrentSemesterCourses(courses), [courses]);
+
+  // Academic picker: show all semester courses on focus, filter as user types
+  const academicMatches = useMemo(() => {
+    if (!subjectFocused || category !== 'academic') return [];
+    const q = subject.trim().toLowerCase();
+    return q.length === 0
+      ? semesterCourses
+      : semesterCourses.filter((c) => c.title.toLowerCase().includes(q));
+  }, [subjectFocused, category, subject, semesterCourses]);
+
+  // Non-academic: suggestion-while-typing from all courses (existing behaviour)
+  const textSuggestions = useMemo(() => {
+    if (category === 'academic' || !subjectFocused || subject.length === 0) return [];
+    return courses
+      .map((c) => c.title)
+      .filter(Boolean)
+      .filter((n) => n.toLowerCase().includes(subject.toLowerCase()))
+      .slice(0, 4);
+  }, [category, subjectFocused, subject, courses]);
+
+  const linkedCourse = linkedCourseId ? courses.find((c) => c.id === linkedCourseId) : null;
+
+  const selectCourse = (course) => {
+    setSubject(course.title);
+    setLinkedCourseId(course.id);
+    setSubjectFocused(false);
+  };
+
+  const handleSubjectChange = (text) => {
+    setSubject(text);
+    // If the user edits the text away from the linked course title, unlink it
+    if (linkedCourseId && text !== linkedCourse?.title) {
+      setLinkedCourseId(null);
+    }
+  };
+
+  const handleCategoryChange = (key) => {
+    setCategory(key);
+    // Clear course link when switching away from Academic
+    if (key !== 'academic') setLinkedCourseId(null);
+  };
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -66,6 +115,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         id: existing?.id ?? uid(),
         title: title.trim(),
         subject: subject.trim(),
+        courseId: linkedCourseId ?? null,
         note: note.trim(),
         category,
         dueDate: dueDate.toISOString(),
@@ -100,6 +150,11 @@ export default function AddDeadlineScreen({ navigation, route }) {
     }
   };
 
+  const subjectLabel = category === 'academic' ? 'Course / Module' : 'Subject / Module';
+  const subjectPlaceholder = category === 'academic'
+    ? (semesterCourses.length > 0 ? 'Tap to pick a course, or type to search…' : 'e.g. Media Design')
+    : 'e.g. Residence registration or internship';
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       {/* Title */}
@@ -116,38 +171,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         />
       </FormSection>
 
-      {/* Subject */}
-      <FormSection label="Subject / Module">
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Media Design or pick from your courses"
-          placeholderTextColor={INACTIVE}
-          value={subject}
-          onChangeText={(t) => { setSubject(t); setShowCourseSuggestions(t.length > 0); }}
-          onFocus={() => setShowCourseSuggestions(subject.length > 0)}
-          onBlur={() => setTimeout(() => setShowCourseSuggestions(false), 150)}
-          maxLength={80}
-          accessibilityLabel="Subject or module"
-        />
-        {showCourseSuggestions && filtered.length > 0 && (
-          <View style={styles.suggestions}>
-            {filtered.map((name) => (
-              <TouchableOpacity
-                key={name}
-                style={styles.suggestionRow}
-                onPress={() => { setSubject(name); setShowCourseSuggestions(false); }}
-                accessibilityLabel={`Select course: ${name}`}
-                accessibilityRole="button"
-              >
-                <Ionicons name="book-outline" size={14} color={PRIMARY} />
-                <Text style={styles.suggestionText} numberOfLines={1}>{name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </FormSection>
-
-      {/* Category */}
+      {/* Category — placed before subject so the subject label adapts */}
       <FormSection label="Category">
         <View style={styles.categoryRow}>
           {CATEGORIES.map((cat) => {
@@ -156,7 +180,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
               <TouchableOpacity
                 key={cat.key}
                 style={[styles.categoryChip, active && { backgroundColor: cat.color, borderColor: cat.color }]}
-                onPress={() => setCategory(cat.key)}
+                onPress={() => handleCategoryChange(cat.key)}
                 activeOpacity={0.75}
                 accessibilityLabel={`${cat.label} category`}
                 accessibilityRole="button"
@@ -168,6 +192,87 @@ export default function AddDeadlineScreen({ navigation, route }) {
             );
           })}
         </View>
+      </FormSection>
+
+      {/* Subject / Course picker */}
+      <FormSection label={subjectLabel}>
+        {/* Linked course badge — shown when a course is selected */}
+        {linkedCourse && (
+          <View style={[styles.linkedBadge, { borderLeftColor: linkedCourse.color ?? PRIMARY }]}>
+            <View style={[styles.linkedDot, { backgroundColor: linkedCourse.color ?? PRIMARY }]} />
+            <Text style={styles.linkedText} numberOfLines={1}>{linkedCourse.title}</Text>
+            <TouchableOpacity
+              onPress={() => { setLinkedCourseId(null); setSubject(''); }}
+              hitSlop={8}
+              accessibilityLabel="Remove linked course"
+            >
+              <Ionicons name="close-circle" size={16} color={INACTIVE} />
+            </TouchableOpacity>
+          </View>
+        )}
+        <TextInput
+          style={styles.input}
+          placeholder={subjectPlaceholder}
+          placeholderTextColor={INACTIVE}
+          value={subject}
+          onChangeText={handleSubjectChange}
+          onFocus={() => setSubjectFocused(true)}
+          onBlur={() => setTimeout(() => setSubjectFocused(false), 180)}
+          maxLength={80}
+          accessibilityLabel={subjectLabel}
+        />
+
+        {/* Academic course picker — full list on focus, filtered as you type */}
+        {academicMatches.length > 0 && (
+          <View style={styles.suggestions}>
+            <View style={styles.pickerHeader}>
+              <Ionicons name="school-outline" size={12} color={PRIMARY} />
+              <Text style={styles.pickerHeaderText}>Current semester courses</Text>
+            </View>
+            {academicMatches.map((course) => {
+              const selected = linkedCourseId === course.id;
+              return (
+                <TouchableOpacity
+                  key={course.id}
+                  style={[styles.courseRow, selected && styles.courseRowSelected]}
+                  onPress={() => selectCourse(course)}
+                  accessibilityLabel={`Select course: ${course.title}`}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                >
+                  <View style={[styles.courseDot, { backgroundColor: course.color ?? PRIMARY }]} />
+                  <Text style={[styles.courseRowText, selected && { color: PRIMARY, fontWeight: '700' }]} numberOfLines={2}>
+                    {course.title}
+                  </Text>
+                  {selected && <Ionicons name="checkmark-circle" size={16} color={PRIMARY} />}
+                </TouchableOpacity>
+              );
+            })}
+            {academicMatches.length === 0 && subject.length > 0 && (
+              <View style={styles.noMatch}>
+                <Text style={styles.noMatchText}>No course matches — your text will be saved as-is.</Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Non-academic text autocomplete */}
+        {textSuggestions.length > 0 && (
+          <View style={styles.suggestions}>
+            {textSuggestions.map((name) => (
+              <TouchableOpacity
+                key={name}
+                style={styles.suggestionRow}
+                onPress={() => { setSubject(name); setSubjectFocused(false); }}
+                accessibilityLabel={`Select course: ${name}`}
+                accessibilityRole="button"
+              >
+                <Ionicons name="book-outline" size={14} color={PRIMARY} />
+                <Text style={styles.suggestionText} numberOfLines={1}>{name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </FormSection>
 
       {/* Due date & time */}
@@ -277,15 +382,52 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   sectionCard: { backgroundColor: BG, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: '#ECECEC' },
-  input: {
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-    fontSize: 15,
-    color: '#1A1A1A',
-  },
+  input: { paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: '#1A1A1A' },
   noteInput: { minHeight: 80, textAlignVertical: 'top' },
   charCount: { fontSize: 11, color: INACTIVE, textAlign: 'right', paddingRight: 14, paddingBottom: 8 },
+
+  // Linked course badge
+  linkedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ECECEC',
+    borderLeftWidth: 4,
+    backgroundColor: ACCENT,
+  },
+  linkedDot: { width: 10, height: 10, borderRadius: 5 },
+  linkedText: { flex: 1, fontSize: 13, fontWeight: '600', color: DARK },
+
+  // Academic course picker dropdown
   suggestions: { borderTopWidth: 1, borderTopColor: '#ECECEC' },
+  pickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: ACCENT,
+  },
+  pickerHeaderText: { fontSize: 11, fontWeight: '700', color: PRIMARY, textTransform: 'uppercase', letterSpacing: 0.5 },
+  courseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
+  },
+  courseRowSelected: { backgroundColor: ACCENT },
+  courseDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
+  courseRowText: { flex: 1, fontSize: 14, color: '#1A1A1A' },
+  noMatch: { padding: 14 },
+  noMatchText: { fontSize: 13, color: INACTIVE },
+
+  // Non-academic suggestion rows (existing style)
   suggestionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -296,11 +438,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F5F5F5',
   },
   suggestionText: { fontSize: 14, color: '#1A1A1A', flex: 1 },
-  categoryRow: {
-    flexDirection: 'row',
-    padding: 12,
-    gap: 8,
-  },
+
+  // Category chips
+  categoryRow: { flexDirection: 'row', padding: 12, gap: 8 },
   categoryChip: {
     flex: 1,
     flexDirection: 'row',
@@ -314,6 +454,7 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   categoryChipText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
+
   dateRow: { flexDirection: 'row' },
   toggleRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
   toggleRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F2F2F2' },
