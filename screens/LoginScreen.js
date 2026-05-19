@@ -71,7 +71,7 @@ export default function LoginScreen() {
       } else if (type === 'SERVER_DOWN') {
         message = 'Stud.IP server is currently unavailable. Try again later.';
       } else {
-        message = `Something went wrong. (${status ? `HTTP ${status}` : error.message})`;
+        message = 'Something went wrong. Please try again or check your internet connection.';
       }
       Alert.alert('Login Failed', message);
     } finally {

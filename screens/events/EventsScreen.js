@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Alert,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -140,7 +141,7 @@ function RecurringBanner({ campusEvents }) {
   );
 }
 
-function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent }) {
+function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh, refreshing }) {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -184,6 +185,7 @@ function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent }) {
         />
       )}
       stickySectionHeadersEnabled={false}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
       ListEmptyComponent={<Text style={styles.emptyText}>No campus events are available right now.</Text>}
       ListFooterComponent={
         <Text style={styles.footerNote}>
@@ -229,7 +231,7 @@ function SportCard({ item, isGoing, onToggle }) {
   );
 }
 
-function SportsTab({ sportsData, goingSportIds, onToggleSport }) {
+function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refreshing }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const availableDays = useMemo(
     () => DAY_ORDER.filter((day) => sportsData.some((entry) => normalizeDayName(entry.day) === day)),
@@ -268,7 +270,10 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport }) {
   }, [activeDay, sportsData]);
 
   return (
-    <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}>
+    <ScrollView
+      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
+    >
       <View style={styles.infoBanner}>
         <Ionicons name="information-circle-outline" size={16} color="#1565C0" />
         <Text style={styles.infoText}>
@@ -331,6 +336,8 @@ export default function EventsScreen() {
   const [campusEvents, setCampusEvents] = useState([]);
   const [sportsData, setSportsData] = useState([]);
   const [loadingContent, setLoadingContent] = useState(true);
+  const [contentError, setContentError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const goingEventIds = useStore((s) => s.goingEventIds);
   const goingSportIds = useStore((s) => s.goingSportIds);
@@ -349,19 +356,23 @@ export default function EventsScreen() {
     });
   }, []);
 
-  const loadContent = useCallback(async () => {
-    setLoadingContent(true);
+  const loadContent = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoadingContent(true);
+    setContentError(false);
 
     try {
       const [campusResult, sportsResult] = await Promise.all([
         getCampusEvents(),
         getSportsSchedule(),
       ]);
-
       setCampusEvents(campusResult.data ?? []);
       setSportsData(sportsResult.data ?? []);
+    } catch {
+      setContentError(true);
     } finally {
       setLoadingContent(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -483,17 +494,36 @@ export default function EventsScreen() {
             <ActivityIndicator color={PRIMARY} />
             <Text style={styles.loadingText}>Loading campus content...</Text>
           </View>
+        ) : contentError ? (
+          <ScrollView
+            contentContainerStyle={styles.errorState}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={() => loadContent(true)} tintColor={PRIMARY} />
+            }
+          >
+            <Ionicons name="cloud-offline-outline" size={48} color="#CCC" />
+            <Text style={styles.errorTitle}>Couldn't load events</Text>
+            <Text style={styles.errorSub}>Pull down to retry, or check your connection.</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={() => loadContent()}>
+              <Ionicons name="refresh" size={16} color="#fff" />
+              <Text style={styles.retryBtnText}>Retry</Text>
+            </TouchableOpacity>
+          </ScrollView>
         ) : activeTab === 'events' ? (
           <CampusEventsTab
             campusEvents={campusEvents}
             goingEventIds={goingEventIds}
             onToggleEvent={handleToggleEvent}
+            onRefresh={() => loadContent(true)}
+            refreshing={refreshing}
           />
         ) : (
           <SportsTab
             sportsData={sportsData}
             goingSportIds={goingSportIds}
             onToggleSport={handleToggleSport}
+            onRefresh={() => loadContent(true)}
+            refreshing={refreshing}
           />
         )}
       </View>
@@ -577,6 +607,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   loadingText: { fontSize: 14, color: INACTIVE, fontWeight: '500' },
+  errorState: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', gap: 10, paddingHorizontal: 32, paddingTop: 80 },
+  errorTitle: { fontSize: 17, fontWeight: '700', color: '#1A1A1A' },
+  errorSub: { fontSize: 14, color: INACTIVE, textAlign: 'center', lineHeight: 20 },
+  retryBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: PRIMARY, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, marginTop: 8 },
+  retryBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
   emptyText: { color: INACTIVE, fontSize: 14, marginTop: 24, marginBottom: 8 },
   eventCard: {
     flexDirection: 'row',
