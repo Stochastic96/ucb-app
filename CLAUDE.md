@@ -79,7 +79,7 @@ RootNavigator (NativeStack)
 └── Main → MainTabs (BottomTabs, lazy=false)
     ├── Home
     ├── Tools → ToolsStack (NativeStack)
-    │   ├── ToolsHome, Timetable, Mensa, SemesterCalendar
+    │   ├── ToolsHome, Timetable (`screens/timetable/`), Mensa (`screens/mensa/`), SemesterCalendar (`screens/calendar/`)
     │   ├── CampusResources, PlannerList, AddDeadline
     │   ├── ExamTracker, ExamPlanner
     │   └── CampusPlatforms  (screens/collaboration/CampusPlatformsScreen.js)
@@ -152,7 +152,11 @@ Example: `screens/home/HomeScreen.js` uses `Promise.allSettled([bootstrapSession
 
 Notification handler is set at module load via `Notifications.setNotificationHandler()`. The on/off toggle lives in `screens/profile/SettingsScreen.js`.
 
-**Known gap**: `App.js` has no `Notifications.getLastNotificationResponseAsync()` call, so tapping a notification from the background does not navigate anywhere yet.
+Notification-tap navigation is handled in `App.js` in two places:
+- `addNotificationResponseReceivedListener` — handles taps while the app is running or backgrounded.
+- `getLastNotificationResponseAsync()` inside `initializeApp()` — handles cold-start taps (app launched by tapping a notification).
+
+Both route via `navigateFromNotification(identifier)`, which uses the notification identifier prefix (`deadline_`, `exam_`, `event_`, `sport_`) to navigate without touching notification content.
 
 ### Biometric Lock
 

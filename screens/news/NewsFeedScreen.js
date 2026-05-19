@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { FlatList, View, Text, StyleSheet, RefreshControl, Modal, ScrollView, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import { markNewsSeen, syncUnreadNewsCount } from '../../services/newsState';
 import { getNewsIdentity } from '../../services/news';
 import { toMillis } from '../../utils/datetime';
 import ErrorState from '../../components/ErrorState';
+import SearchBar from '../../components/SearchBar';
 
 function formatFullDate(raw) {
   const ts = toMillis(raw);
@@ -33,6 +34,36 @@ export default function NewsFeedScreen({ navigation, route }) {
   const [refreshing, setRefreshing] = useState(false);
   const [lastReadTs, setLastReadTs] = useState(0);
   const [selected, setSelected] = useState(null);
+  const [query, setQuery] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('All');
+
+  const sources = useMemo(() => {
+    const seen = new Set();
+    const list = ['All'];
+    news.forEach((item) => {
+      if (item.source && !seen.has(item.source)) {
+        seen.add(item.source);
+        list.push(item.source);
+      }
+    });
+    return list;
+  }, [news]);
+
+  const filteredNews = useMemo(() => {
+    let result = news;
+    if (sourceFilter !== 'All') {
+      result = result.filter((item) => item.source === sourceFilter);
+    }
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.title?.toLowerCase().includes(q) ||
+          item.body?.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [news, query, sourceFilter]);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -98,8 +129,43 @@ export default function NewsFeedScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
+      {/* Search bar */}
+      <View style={styles.searchWrapper}>
+        <SearchBar
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search news…"
+        />
+      </View>
+
+      {/* Course / source filter chips */}
+      {sources.length > 2 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipsScroll}
+          contentContainerStyle={styles.chipsContent}
+        >
+          {sources.map((src) => {
+            const active = src === sourceFilter;
+            return (
+              <TouchableOpacity
+                key={src}
+                style={[styles.chip, active && styles.chipActive]}
+                onPress={() => setSourceFilter(src)}
+                accessibilityLabel={`Filter by ${src}`}
+              >
+                <Text style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
+                  {src}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      )}
+
       <FlatList
-        data={news}
+        data={filteredNews}
         keyExtractor={(i) => getNewsIdentity(i)}
         renderItem={({ item }) => (
           <NewsCard item={item} unread={isUnread(item)} onPress={() => setSelected(item)} />
@@ -108,7 +174,11 @@ export default function NewsFeedScreen({ navigation, route }) {
         contentContainerStyle={{ paddingVertical: 8, paddingBottom: 24 }}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>No news at the moment.</Text>
+            <Text style={styles.emptyText}>
+              {query || sourceFilter !== 'All'
+                ? 'No news matches your search.'
+                : 'No news at the moment.'}
+            </Text>
           </View>
         }
       />
@@ -149,6 +219,33 @@ export default function NewsFeedScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACE },
+  searchWrapper: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: BG,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  chipsScroll: { backgroundColor: BG, flexGrow: 0 },
+  chipsContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: SURFACE,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    maxWidth: 180,
+  },
+  chipActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
+  chipText: { fontSize: 13, color: INACTIVE, fontWeight: '500' },
+  chipTextActive: { color: '#fff' },
   empty: { alignItems: 'center', paddingTop: 60 },
   emptyText: { color: INACTIVE, fontSize: 15 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },

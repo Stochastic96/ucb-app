@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { PRIMARY, INACTIVE, BG } from '../../constants/colors';
+import SearchBar from '../../components/SearchBar';
+import { PRIMARY, INACTIVE, BG, BORDER, SURFACE } from '../../constants/colors';
 import buildings from '../../data/buildings.json';
 import checklist from '../../data/guide_checklist.json';
 import offices from '../../data/guide_offices.json';
@@ -29,6 +30,8 @@ const CATEGORY_COLORS = {
 };
 
 export default function GuideScreen({ navigation }) {
+  const [query, setQuery] = useState('');
+
   const categories = [
     { id: 'emergency', icon: 'alert-circle-outline', label: 'Emergency Info', count: emergency.length, desc: 'Ambulance, police, fire & campus security' },
     { id: 'buildings', icon: 'home-outline', label: 'Campus Buildings', count: buildings.length, desc: 'Locations, rooms & services' },
@@ -46,13 +49,37 @@ export default function GuideScreen({ navigation }) {
     { id: 'rights', icon: 'shield-checkmark-outline', label: 'Student Rights', count: 4, desc: 'Counselling, exam review, AStA, hardship fund' },
   ];
 
+  const visibleCategories = useMemo(() => {
+    if (!query.trim()) return categories;
+    const q = query.toLowerCase();
+    return categories.filter(
+      (c) => c.label.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)
+    );
+  }, [query]);
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={categories}
+        data={visibleCategories}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-        ListHeaderComponent={<DisclaimerBanner />}
+        ListHeaderComponent={
+          <>
+            <View style={styles.searchWrapper}>
+              <SearchBar
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search topics…"
+              />
+            </View>
+            {!query.trim() && <DisclaimerBanner />}
+          </>
+        }
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>No topics match "{query}"</Text>
+          </View>
+        }
         renderItem={({ item }) => {
           const color = CATEGORY_COLORS[item.id] ?? PRIMARY;
           return (
@@ -101,6 +128,9 @@ function DisclaimerBanner() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
+  searchWrapper: { marginBottom: 14 },
+  empty: { alignItems: 'center', paddingTop: 40 },
+  emptyText: { color: INACTIVE, fontSize: 14 },
   disclaimer: {
     flexDirection: 'row',
     backgroundColor: '#FFF8E1',

@@ -8,6 +8,7 @@ import {
   Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import SearchBar from '../../components/SearchBar';
 import resources from '../../data/campus_resources.json';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, BORDER } from '../../constants/colors';
 
@@ -24,11 +25,21 @@ const CATEGORIES = [
 export default function CampusResourcesScreen() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [expanded, setExpanded] = useState(null);
+  const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
-    if (activeCategory === 'all') return resources;
-    return resources.filter((r) => r.category === activeCategory);
-  }, [activeCategory]);
+    let result = activeCategory === 'all' ? resources : resources.filter((r) => r.category === activeCategory);
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      result = result.filter(
+        (r) =>
+          r.name?.toLowerCase().includes(q) ||
+          r.description?.toLowerCase().includes(q) ||
+          r.tip?.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [activeCategory, query]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -36,6 +47,15 @@ export default function CampusResourcesScreen() {
       <View style={styles.hero}>
         <Text style={styles.heroTitle}>Campus Resources</Text>
         <Text style={styles.heroSub}>Everything UCB offers — most of it free</Text>
+      </View>
+
+      {/* Search */}
+      <View style={styles.searchWrapper}>
+        <SearchBar
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search resources…"
+        />
       </View>
 
       {/* Category filter */}
@@ -54,14 +74,21 @@ export default function CampusResourcesScreen() {
       </ScrollView>
 
       {/* Resource cards */}
-      {filtered.map((resource) => (
-        <ResourceCard
-          key={resource.id}
-          resource={resource}
-          expanded={expanded === resource.id}
-          onToggle={() => setExpanded(expanded === resource.id ? null : resource.id)}
-        />
-      ))}
+      {filtered.length === 0 ? (
+        <View style={styles.empty}>
+          <Ionicons name="search-outline" size={36} color={BORDER} />
+          <Text style={styles.emptyText}>No resources match your search</Text>
+        </View>
+      ) : (
+        filtered.map((resource) => (
+          <ResourceCard
+            key={resource.id}
+            resource={resource}
+            expanded={expanded === resource.id}
+            onToggle={() => setExpanded(expanded === resource.id ? null : resource.id)}
+          />
+        ))
+      )}
     </ScrollView>
   );
 }
@@ -159,6 +186,9 @@ const styles = StyleSheet.create({
   },
   heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
   heroSub: { fontSize: 13, color: INACTIVE, marginTop: 3 },
+  searchWrapper: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 },
+  empty: { alignItems: 'center', paddingVertical: 48, gap: 10 },
+  emptyText: { fontSize: 14, color: INACTIVE },
   filterRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
   filterChip: {
     paddingHorizontal: 14,

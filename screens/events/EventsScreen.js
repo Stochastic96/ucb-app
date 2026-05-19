@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import SearchBar from '../../components/SearchBar';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
 import useStore from '../../store/useStore';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
@@ -140,14 +141,38 @@ function RecurringBanner({ campusEvents }) {
 }
 
 function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent }) {
-  const sections = useMemo(() => buildCampusEventSections(campusEvents), [campusEvents]);
+  const [query, setQuery] = useState('');
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return campusEvents;
+    const q = query.toLowerCase();
+    return campusEvents.filter(
+      (ev) =>
+        ev.title?.toLowerCase().includes(q) ||
+        ev.organizer?.toLowerCase().includes(q) ||
+        ev.category?.toLowerCase().includes(q)
+    );
+  }, [campusEvents, query]);
+
+  const sections = useMemo(() => buildCampusEventSections(filtered), [filtered]);
 
   return (
     <SectionList
       sections={sections}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
-      ListHeaderComponent={<RecurringBanner campusEvents={campusEvents} />}
+      ListHeaderComponent={
+        <>
+          <View style={styles.eventsSearchWrapper}>
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search events, organizer…"
+            />
+          </View>
+          {!query.trim() && <RecurringBanner campusEvents={campusEvents} />}
+        </>
+      }
       renderSectionHeader={({ section }) => (
         <Text style={styles.monthHeader}>{section.title}</Text>
       )}
@@ -478,6 +503,7 @@ export default function EventsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG },
+  eventsSearchWrapper: { paddingVertical: 10 },
   headerBar: {
     paddingHorizontal: 16,
     paddingTop: 12,

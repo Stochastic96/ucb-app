@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { SectionList, View, Text, StyleSheet, RefreshControl, Animated } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { SectionList, FlatList, View, Text, StyleSheet, RefreshControl, Animated } from 'react-native';
 import { bootstrapSessionData } from '../../services/bootstrap';
 import CourseCard from '../../components/CourseCard';
+import SearchBar from '../../components/SearchBar';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, SURFACE } from '../../constants/colors';
+import { PRIMARY, INACTIVE, SURFACE, BG, BORDER } from '../../constants/colors';
 
 function groupBySemester(courses) {
   const map = {};
@@ -26,12 +27,24 @@ export default function CoursesScreen({ navigation }) {
   const bootstrapError = useStore((s) => s.bootstrapError);
 
   const [sections, setSections] = useState(() => groupBySemester(courses));
+  const [query, setQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
 
   const loading = isHydrating || (!dataReady && !bootstrapError);
+
+  const searchResults = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase();
+    return courses.filter(
+      (c) =>
+        c.title?.toLowerCase().includes(q) ||
+        c.lecturer?.toLowerCase().includes(q) ||
+        c.semester?.toLowerCase().includes(q)
+    );
+  }, [query, courses]);
 
   useEffect(() => {
     setSections(groupBySemester(courses));
@@ -68,45 +81,79 @@ export default function CoursesScreen({ navigation }) {
     return <ErrorState type={bootstrapError.type} onRetry={onRefresh} />;
   }
 
+  const isSearching = query.trim().length > 0;
+
+  const renderCourseItem = ({ item }) => (
+    <CourseCard
+      course={item}
+      onPress={() =>
+        navigation.push('CourseDetail', {
+          courseId: item.id,
+          title: item.title,
+          color: item.color,
+        })
+      }
+    />
+  );
+
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-      <SectionList
-        style={styles.container}
-        sections={sections}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <CourseCard
-            course={item}
-            onPress={() =>
-              navigation.push('CourseDetail', {
-                courseId: item.id,
-                title: item.title,
-                color: item.color,
-              })
-            }
-          />
-        )}
-        renderSectionHeader={({ section }) => (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-          </View>
-        )}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />
-        }
-        contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>No courses found.</Text>
-          </View>
-        }
-      />
+      <View style={styles.searchWrapper}>
+        <SearchBar
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search by name, lecturer…"
+        />
+      </View>
+
+      {isSearching ? (
+        <FlatList
+          style={styles.container}
+          data={searchResults}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCourseItem}
+          contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>No courses match "{query}"</Text>
+            </View>
+          }
+        />
+      ) : (
+        <SectionList
+          style={styles.container}
+          sections={sections}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCourseItem}
+          renderSectionHeader={({ section }) => (
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+            </View>
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />
+          }
+          contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>No courses found.</Text>
+            </View>
+          }
+        />
+      )}
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACE },
+  searchWrapper: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: SURFACE,
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER,
+  },
   sectionHeader: {
     backgroundColor: SURFACE,
     paddingHorizontal: 16,

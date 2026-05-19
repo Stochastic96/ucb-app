@@ -3,6 +3,13 @@
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
 ## 2026-05-19
+- screens/mensa/MensaScreen.js: Claude — Replaced static JSON menu with embedded WebView loading mensa.campus-company.eu; added progress bar, loading overlay, error/retry state, and refresh button in header
+- components/SearchBar.js: Claude — New shared search input component with clear button, used across list screens
+- screens/courses/CoursesScreen.js: Claude — Added search bar filtering by course title, lecturer, semester; switches between SectionList (grouped) and FlatList (search results)
+- screens/news/NewsFeedScreen.js: Claude — Added search bar + horizontal course/source filter chips
+- screens/guide/GuideScreen.js: Claude — Added search bar filtering 14 guide categories by label and description
+- screens/resources/CampusResourcesScreen.js: Claude — Added search bar alongside existing category filter chips; empty state when no results
+- screens/events/EventsScreen.js: Claude — Added search bar to Campus Events tab filtering by title, organizer, category
 - screens/exams/ExamTrackerScreen.js: Claude Sonnet 4.6 — Fix lecturer field name (course.lecturer → course.lecturerName)
 - screens/exams/ExamPlannerScreen.js: Claude Sonnet 4.6 — Fix exam date stored as full ISO string (breaks reminder construction); parse stored YYYY-MM-DD as local midnight to avoid UTC timezone shift
 - services/reminders.js: Claude Sonnet 4.6 — Fix thirtyMinBefore() returning negative hour for sports before 00:30; wrap all cancelScheduledNotificationAsync calls in try-catch
