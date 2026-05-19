@@ -12,6 +12,9 @@ UCB Navigator is an Expo 54 / React Native app for international students at Hoc
 # Development (Expo Go — no native build needed)
 npm start             # expo start --go
 
+# Web (browser, limited native features)
+npm run web           # expo start --web
+
 # Native builds (requires Dev Client APK installed on device)
 npm run android       # expo run:android
 npm run ios           # expo run:ios
@@ -115,7 +118,16 @@ Admin panel lives in `navigation/AdminStack.js` and is pushed onto the stack fro
 
 ### Content & Guide Data
 
-Guide content lives in `data/guide_*.json` files (14 categories: accommodation, bureaucracy, buildings, checklist, contacts, emergency, faq, glossary, health, language, offices, phrases, rights, work) and is also fetched from the Supabase `guide_content` table (keyed by `category`). The `utils/campusContent.js` file provides helpers for campus-specific content. Buildings data (`data/buildings.json`) drives both the Guide buildings section and the Map screen.
+Guide content lives in `data/guide_*.json` files (14 categories: accommodation, bureaucracy, buildings, checklist, contacts, emergency, faq, glossary, health, language, offices, phrases, rights, work) and is also fetched from the Supabase `guide_content` table (keyed by `category`). Buildings data (`data/buildings.json`) drives both the Guide buildings section and the Map screen.
+
+`utils/campusContent.js` — campus event and sports schedule helpers:
+- `normalizeDayName(value)` — maps German day names (montag, dienstag …) to English equivalents and vice versa.
+- `isCampusEventRecurring(event)` — true when `isRecurring` or `recurringDay` is set (weekly events vs. one-time dates).
+- `isCampusEventActiveOnDate(event, date)`, `isCampusEventPast(event, date)` — date-range checks respecting the recurring/one-time distinction.
+- `getTodayCampusEvents(events, date)`, `getUpcomingCampusEvents(events, count, date)` — filtered + sorted lists for the Home screen.
+- `getSportsForDate(entries, date)`, `groupSportsByDay(entries)` — filter and group sports schedule entries by day name.
+- `buildCampusEventSections(events)` — returns `[{ title, data }]` sections grouped by calendar month (for SectionList).
+- `DAY_ORDER` — Mon–Sun array used for consistent day ordering throughout the app.
 
 Other bundled JSON fallbacks in `data/`: `campus_resources.json`, `events_campus.json`, `events_sports.json`, `mensa_week.json`, `semester_calendar.json` — all follow the same contentService offline-first pattern.
 
@@ -177,6 +189,8 @@ From `app.json`:
 - Persists the last-seen timestamp to AsyncStorage key `ucb_news_last_seen_at`.
 - `syncUnreadNewsCount(newsItems)` recomputes and writes `unreadNewsCount` into the Zustand store.
 - `markNewsSeen(timestamp)` updates both AsyncStorage and the store; called when the user opens the NewsFeed.
+
+`components/SimpleDatePicker.js` — native OS date/time picker wrapper around `@react-native-community/datetimepicker`. Exports `SimpleDatePicker` (date only) and `SimpleTimePicker` (time only). Used by `AddDeadlineScreen` and `ExamPlannerScreen`.
 
 `utils/datetime.js` — central date/time helpers used throughout the app:
 - `toMillis(value)` normalises any timestamp input (unix seconds, unix ms, ISO string, `Date`) to milliseconds; returns `null` for invalid values.
