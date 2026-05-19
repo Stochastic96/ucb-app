@@ -11,6 +11,8 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 - components/BiometricLockScreen.js: Claude Sonnet 4.6 — Fix stale closure on mount auto-trigger using useCallback + useRef for failCount
 - screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — Fix partial settings write (each toggle now composes full next object); update cache-clear dialog text to clarify personal data is not affected (DSGVO transparency)
 - App.js: Claude Sonnet 4.6 — Wire up notification tap → navigate handler (addNotificationResponseReceivedListener + getLastNotificationResponseAsync for cold-start); navigates by identifier only, no personal data handled
+- screens/planner/AddDeadlineScreen.js: Claude Sonnet 4.6 — Course picker for Academic category: full current-semester course list shown on field focus, filters as you type, stores courseId link alongside deadline, colour-coded linked-course badge with clear button, auto-unlinks on manual text edit
+- screens/planner/PlannerScreen.js: Claude Sonnet 4.6 — Show linked course colour dot next to subject name on deadline cards
 
 ## 2026-05-17
 - screens/admin/*: Claude — Make all admin panel UI consistently bilingual (English / Deutsch) — labels, dialog titles, alerts, snackbars, and action buttons
