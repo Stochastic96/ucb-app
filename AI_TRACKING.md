@@ -25,6 +25,10 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 - screens/admin/*: Claude — Make all admin panel UI consistently bilingual (English / Deutsch) — labels, dialog titles, alerts, snackbars, and action buttons
 - LoginScreen.js, App.js, services/auth.js, components/Sidebar.js, navigation/RootNavigator.js: Claude — Wire up admin feature: call checkAdminStatus after login and session restore, clear on logout, register AdminStack in navigator, add gated Admin Panel entry in Sidebar
 
+## 2026-05-20
+- services/news.js: Claude Sonnet 4.6 — Fix ReferenceError: results is not defined (renamed variable after concurrentSettled refactor; correct to sources.some())
+- services/contentService.js: Claude Sonnet 4.6 — Fix withFallback caching empty Supabase arrays and bypassing local JSON; now falls back to stale cache or bundled data when Supabase table is unpopulated
+
 ## 2026-04-28
 - README.md: GitHub Copilot — Created initial project README and AI tracking instructions
 

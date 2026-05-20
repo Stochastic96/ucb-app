@@ -105,7 +105,7 @@ export async function fetchNews(userId, courses = []) {
       ? (cachedNews ?? []).filter((item) => failedSourceKeys.has(getSourceKey(item)))
       : [];
 
-    const hadSuccess = results.some((result) => result.status === 'fulfilled');
+    const hadSuccess = sources.some(({ result }) => result.status === 'fulfilled');
     const merged = normalizeNewsItems([...freshItems, ...cachedFallbackItems]);
     const finalNews = hadSuccess
       ? merged

@@ -15,13 +15,23 @@ export function getISOWeekString(date = new Date()) {
 async function withFallback(cacheKey, fetcher, localFallback) {
   try {
     const data = await fetcher();
-    await AsyncStorage.setItem(`ucb_remote_${cacheKey}`, JSON.stringify(data));
-    return { data, isOffline: false };
-  } catch {
-    const cached = await AsyncStorage.getItem(`ucb_remote_${cacheKey}`);
-    if (cached) return { data: JSON.parse(cached), isOffline: true };
-    return { data: localFallback(), isOffline: true };
+    // Don't cache empty arrays — Supabase table may simply be unpopulated yet
+    if (!Array.isArray(data) || data.length > 0) {
+      await AsyncStorage.setItem(`ucb_remote_${cacheKey}`, JSON.stringify(data));
+      return { data, isOffline: false };
+    }
+  } catch {}
+
+  const cached = await AsyncStorage.getItem(`ucb_remote_${cacheKey}`);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (!Array.isArray(parsed) || parsed.length > 0) {
+        return { data: parsed, isOffline: true };
+      }
+    } catch {}
   }
+  return { data: localFallback(), isOffline: true };
 }
 
 // ── MENSA ───────────────────────────────────────────────────────
