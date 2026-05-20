@@ -87,7 +87,7 @@ RootNavigator (NativeStack)
     │   ├── GuideHome, GuideDetail
     └── Map
     + RootNavigator also owns: Profile, Settings, NewsFeed,
-      CoursesList, CourseDetail (registered directly — navigation/CoursesStack.js exists but is unused),
+      CoursesList, CourseDetail (registered directly — no separate stack),
       EventsList → EventsStack (navigation/EventsStack.js),
       Impressum, Datenschutz
 ```
@@ -182,6 +182,7 @@ From `app.json`:
 - `expo-web-browser` — in-app browser used by `CampusPlatformsScreen` to open external university platforms
 - `expo-clipboard` — copy-to-clipboard for platform URLs in `CampusPlatformsScreen`
 - `react-native-webview` — embedded web view used by `MensaScreen`; **not bundled in Expo Go** — `MensaScreen` wraps the `require` in a try/catch and shows an "Open in Browser" fallback when unavailable
+- `axios` — listed in `package.json` but not used; the entire API layer uses native `fetch`
 
 ### Utilities
 
