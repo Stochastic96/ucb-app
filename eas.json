@@ -14,15 +14,6 @@
         "EXPO_PUBLIC_STUDIP_BASE_URL": "https://studip.hochschule-trier.de/jsonapi.php/v1"
       }
     },
-    "preview": {
-      "distribution": "internal",
-      "channel": "preview",
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://vrnhkwhwoxhcjssqhdat.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_KEY": "sb_publishable_M15oPdD_Rg75_80UVcA80Q_r051Uhvg",
-        "EXPO_PUBLIC_STUDIP_BASE_URL": "https://studip.hochschule-trier.de/jsonapi.php/v1"
-      }
-    },
     "production": {
       "autoIncrement": true,
       "channel": "production",

@@ -22,13 +22,12 @@ npm run ios           # expo run:ios
 # CORS proxy for Stud.IP in local dev (if needed)
 npm run proxy         # node scripts/studip-proxy.js  (port 3001)
 
-# EAS cloud builds  (three profiles: development, preview, production)
+# EAS cloud builds  (two profiles: development, production)
 eas build --platform android --profile development
-eas build --platform android --profile preview
 eas build --platform android --profile production
 ```
 
-`production` profile uses `autoIncrement: true`. All three profiles share the same three `EXPO_PUBLIC_*` env vars defined in `eas.json`.
+`production` profile uses `autoIncrement: true`. Both profiles share the same three `EXPO_PUBLIC_*` env vars defined in `eas.json`.
 
 There is no test suite or linter configured.
 
