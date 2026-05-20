@@ -104,6 +104,9 @@ export function classifyError(err) {
   if (err.response?.status === 403) {
     return { type: 'AUTH_FAILED', message: 'Access denied. Please verify your credentials.' };
   }
+  if (err.response?.status === 429) {
+    return { type: 'RATE_LIMITED', message: 'Too many requests to Stud.IP. Wait a moment before refreshing.' };
+  }
   if (err.response?.status >= 500) {
     return { type: 'SERVER_DOWN', message: 'Stud.IP is currently unavailable. Try again later.' };
   }

@@ -1,6 +1,7 @@
 import { getApiClient, classifyError } from './api';
 import { setCache, getCache, getStaleCacheData } from './cache';
 import { CACHE_TTL } from '../constants/config';
+import { concurrentMap } from '../utils/concurrentMap';
 import useStore from '../store/useStore';
 import { toMillis } from '../utils/datetime';
 
@@ -78,7 +79,7 @@ export async function fetchAllEvents(courses, forceRefresh = false) {
   if (!courses || courses.length === 0) return [];
 
   const client = await getApiClient();
-  const results = await Promise.all(courses.map((c) => fetchEventsForCourse(c, client, forceRefresh)));
+  const results = await concurrentMap(courses, (c) => fetchEventsForCourse(c, client, forceRefresh), 3);
   const flat = results.flat().sort((a, b) => (toMillis(a.start) ?? Infinity) - (toMillis(b.start) ?? Infinity));
   useStore.getState().setEvents(flat);
   return flat;

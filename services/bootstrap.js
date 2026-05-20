@@ -10,6 +10,9 @@ import { toMillis } from '../utils/datetime';
 const WINDOW_PAST_MS = 30 * 24 * 60 * 60 * 1000;
 const WINDOW_FUTURE_MS = 180 * 24 * 60 * 60 * 1000;
 
+// Deduplication guard — concurrent callers share one in-flight bootstrap
+let _inflightBootstrap = null;
+
 function deriveActiveCourseIds(events) {
   const now = Date.now();
   const ids = new Set();
@@ -22,7 +25,15 @@ function deriveActiveCourseIds(events) {
   return ids;
 }
 
-export async function bootstrapSessionData(force = false) {
+export function bootstrapSessionData(force = false) {
+  if (_inflightBootstrap && !force) return _inflightBootstrap;
+  _inflightBootstrap = _runBootstrap(force).finally(() => {
+    _inflightBootstrap = null;
+  });
+  return _inflightBootstrap;
+}
+
+async function _runBootstrap(force) {
   const store = useStore.getState();
   store.setHydrating(true);
   store.setBootstrapError(null);

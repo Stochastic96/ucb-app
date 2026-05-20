@@ -5,14 +5,26 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { clearAllCache } from '../../services/cache';
+import { logout } from '../../services/auth';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, BG, BORDER, SURFACE } from '../../constants/colors';
 import { useNavigation } from '@react-navigation/native';
+
+// All user-created data keys that clearAllCache() intentionally preserves
+const USER_DATA_KEYS = [
+  'ucb_settings',
+  'ucb_news_last_seen_at',
+  'ucb_deadlines',
+  'ucb_exam_reg',
+  'ucb_exam_plans',
+  'ucb_going_state',
+];
 
 export default function SettingsScreen() {
   const { settings, updateSettings } = useStore();
   const navigation = useNavigation();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState('');
   const [hasBiometrics, setHasBiometrics] = useState(false);
@@ -42,6 +54,18 @@ export default function SettingsScreen() {
       setSnackbarVisible(true);
     } catch {
       setSnackbarMsg('Failed to clear cache');
+      setSnackbarVisible(true);
+    }
+  };
+
+  const handleDeleteAllData = async () => {
+    setShowDeleteAllConfirm(false);
+    try {
+      await AsyncStorage.multiRemove(USER_DATA_KEYS);
+      await clearAllCache();
+      await logout();
+    } catch {
+      setSnackbarMsg('Failed to delete data');
       setSnackbarVisible(true);
     }
   };
@@ -92,9 +116,19 @@ export default function SettingsScreen() {
       {/* Data Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Data</Text>
-        <TouchableOpacity style={styles.dangerRow} onPress={() => setShowClearConfirm(true)}>
+        <TouchableOpacity style={[styles.dangerRow, { marginBottom: 10, borderRadius: 10 }]} onPress={() => setShowClearConfirm(true)}>
+          <Ionicons name="refresh-outline" size={20} color="#E65100" />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.dangerLabel, { color: '#E65100' }]}>Clear cached data</Text>
+            <Text style={styles.dangerSub}>Removes Stud.IP data. Personal data kept.</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dangerRow} onPress={() => setShowDeleteAllConfirm(true)}>
           <Ionicons name="trash-outline" size={20} color="#D32F2F" />
-          <Text style={styles.dangerLabel}>Clear all cached data</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.dangerLabel}>Delete all my data</Text>
+            <Text style={styles.dangerSub}>Deletes deadlines, exam plans, settings. Logs out.</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -126,7 +160,7 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      {/* Clear Confirmation Dialog */}
+      {/* Clear cache dialog */}
       <Dialog visible={showClearConfirm} onDismiss={() => setShowClearConfirm(false)}>
         <Dialog.Title>Clear cached data?</Dialog.Title>
         <Dialog.Content>
@@ -134,9 +168,21 @@ export default function SettingsScreen() {
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={() => setShowClearConfirm(false)}>Cancel</Button>
-          <Button onPress={handleClearCache} textColor="#D32F2F">
-            Clear
-          </Button>
+          <Button onPress={handleClearCache} textColor="#E65100">Clear</Button>
+        </Dialog.Actions>
+      </Dialog>
+
+      {/* Delete all data dialog */}
+      <Dialog visible={showDeleteAllConfirm} onDismiss={() => setShowDeleteAllConfirm(false)}>
+        <Dialog.Title>Delete all your data?</Dialog.Title>
+        <Dialog.Content>
+          <Text>
+            This permanently deletes all your deadlines, exam plans, RSVP state, and settings — then logs you out.{'\n\n'}This cannot be undone.
+          </Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={() => setShowDeleteAllConfirm(false)}>Cancel</Button>
+          <Button onPress={handleDeleteAllData} textColor="#D32F2F">Delete everything</Button>
         </Dialog.Actions>
       </Dialog>
 
@@ -157,5 +203,6 @@ const styles = StyleSheet.create({
   settingValue: { fontSize: 13, color: INACTIVE },
   dangerRow: { backgroundColor: BG, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 12 },
   dangerLabel: { fontSize: 15, fontWeight: '500', color: '#D32F2F' },
+  dangerSub: { fontSize: 12, color: INACTIVE, marginTop: 2 },
   linkRow: { backgroundColor: BG, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 12 },
 });

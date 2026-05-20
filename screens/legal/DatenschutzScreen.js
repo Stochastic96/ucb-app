@@ -37,7 +37,7 @@ export default function DatenschutzScreen() {
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <View style={styles.introBanner}>
         <Text style={styles.introText}>
-          Diese App speichert alle Daten ausschließlich lokal auf deinem Gerät. Es werden keine Daten an Dritte weitergegeben. Keine Werbung. Kein Tracking.
+          Diese App speichert persönliche Daten (Zugangsdaten, Kurse, Termine) ausschließlich lokal auf deinem Gerät. Campusinhalte wie Mensaplan und Events werden von Supabase geladen — dabei werden keine personenbezogenen Daten übertragen. Keine Werbung. Kein Tracking.
         </Text>
       </View>
 
@@ -45,7 +45,7 @@ export default function DatenschutzScreen() {
         <DataRow
           icon="🔐"
           title="Anmeldedaten (Benutzername & Passwort)"
-          detail={'Speicherort: Sicherer Systemspeicher (SecureStore)\nZweck: Authentifizierung bei Stud.IP\nÜbertragung: Ausschließlich an studip.hochschule-trier.de\nAufbewahrung: Bis zur Abmeldung'}
+          detail={'Speicherort: Sicherer Systemspeicher (SecureStore, gerätespezifisch)\nZweck: Authentifizierung bei Stud.IP\nÜbertragung: Ausschließlich an studip.hochschule-trier.de\nAufbewahrung: Bis zur Abmeldung, max. 7 Tage (danach erneuter Login erforderlich)'}
         />
         <View style={styles.divider} />
         <DataRow
@@ -57,13 +57,27 @@ export default function DatenschutzScreen() {
         <DataRow
           icon="📚"
           title="Kursdaten, Termine & Neuigkeiten"
-          detail={'Speicherort: Lokaler Cache auf dem Gerät\nZweck: Offline-Verfügbarkeit\nAufbewahrung: 15 Minuten bis 24 Stunden (je nach Datentyp)'}
+          detail={'Speicherort: Lokaler Cache auf dem Gerät\nZweck: Offline-Verfügbarkeit\nAufbewahrung: 1 bis 24 Stunden (je nach Datentyp), bis zur Abmeldung'}
         />
         <View style={styles.divider} />
         <DataRow
           icon="✅"
-          title="Einstellungen & Checklisten-Fortschritt"
-          detail={'Speicherort: Lokaler App-Speicher\nZweck: Nutzereinstellungen & persönlicher Fortschritt\nAufbewahrung: Bis zur Deinstallation der App'}
+          title="Fristen, Prüfungspläne & persönliche Einstellungen"
+          detail={'Speicherort: Lokaler App-Speicher (nicht verschlüsselt)\nZweck: Nutzererstellte Daten & Einstellungen\nAufbewahrung: Bis zur Deinstallation oder manuellen Löschung (Einstellungen → Alle Daten löschen)'}
+        />
+      </Section>
+
+      <Section title="Externe Dienste (Drittanbieter)">
+        <DataRow
+          icon="🌐"
+          title="Supabase (supabase.com)"
+          detail={'Zweck: Bereitstellung von Campusinhalten (Mensaplan, Events, Ressourcen)\nDaten: Keine personenbezogenen Daten — nur anonyme Lesezugriffe auf öffentliche Inhalte\nStandort: EU (Frankfurt)\nDatenschutz: supabase.com/privacy'}
+        />
+        <View style={styles.divider} />
+        <DataRow
+          icon="📱"
+          title="Expo Application Services (expo.dev)"
+          detail={'Zweck: App-Updates (OTA) und Build-Infrastruktur\nDaten: Technische Gerätedaten für Update-Prüfung (keine Nutzerdaten)\nStandort: USA\nDatenschutz: expo.dev/privacy'}
         />
       </Section>
 
@@ -76,15 +90,15 @@ export default function DatenschutzScreen() {
       <Section title="Deine Rechte (Art. 15–22 DSGVO)">
         <RightRow text="Auskunft über deine gespeicherten Daten" />
         <RightRow text="Berichtigung unrichtiger Daten" />
-        <RightRow text="Löschung: Einstellungen → Daten → Cache leeren, dann App deinstallieren" />
+        <RightRow text="Löschung: Einstellungen → Daten → 'Alle Daten löschen', dann App deinstallieren" />
         <RightRow text="Einschränkung der Verarbeitung" />
         <RightRow text="Widerspruch gegen die Verarbeitung" />
         <RightRow text="Beschwerde bei einer Aufsichtsbehörde (z. B. LfDI Rheinland-Pfalz)" />
       </Section>
 
-      <Section title="Keine Weitergabe an Dritte">
+      <Section title="Datenweitergabe">
         <Text style={styles.body}>
-          Deine Daten werden nicht an Dritte weitergegeben, verkauft oder für Werbezwecke genutzt. Die einzige externe Verbindung der App ist die Stud.IP-API der Hochschule Trier, die für den Betrieb der App notwendig ist.
+          Deine persönlichen Daten (Zugangsdaten, Profil, Kurse, Termine) werden nicht an Dritte weitergegeben oder verkauft. Die App stellt lediglich eine Verbindung zur Stud.IP-API der Hochschule Trier her, um deine eigenen Daten abzurufen.{'\n\n'}Campusinhalte (Mensaplan, Campus-Events) werden über Supabase bereitgestellt — dabei werden keine personenbezogenen Daten übertragen.
         </Text>
       </Section>
 

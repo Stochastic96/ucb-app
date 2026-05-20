@@ -117,3 +117,27 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 - Fixed TimetableScreen navigation depth after moving from direct tab into ToolsStack
 - Fixed HomeScreen QUICK_LINKS pointing to removed Timetable tab
 - Fixed SafeAreaProvider missing (Sidebar used `useSafeAreaInsets` outside NavigationContainer)
+
+## 2026-05-20 — Security & Compliance hardening
+### New Files
+- utils/concurrentMap.js: Claude Sonnet 4.6 — concurrentMap + concurrentSettled utilities; cap Stud.IP parallel requests at 3
+- supabase/functions/check-admin/index.ts: Claude Sonnet 4.6 — Deno Edge Function; validates Stud.IP credentials then checks admin_users with service_role key (never exposes table to anon)
+
+### Services
+- services/auth.js: Claude Sonnet 4.6 — Session expiry (7 days), saveCredentials() helper, WHEN_UNLOCKED_THIS_DEVICE_ONLY SecureStore option, _deleteCredentials() utility
+- services/api.js: Claude Sonnet 4.6 — Handle HTTP 429 (RATE_LIMITED) in classifyError
+- services/events.js: Claude Sonnet 4.6 — Replace Promise.all with concurrentMap(limit=3)
+- services/news.js: Claude Sonnet 4.6 — Restructure to fire personal+global news eagerly and course news via concurrentSettled(limit=3); was firing all N+2 requests simultaneously
+- services/bootstrap.js: Claude Sonnet 4.6 — Add _inflightBootstrap deduplication guard; concurrent callers share one in-flight bootstrap
+
+### Store
+- store/useAdminStore.js: Claude Sonnet 4.6 — Admin check via Supabase Edge Function (check-admin) instead of direct table query; admin_users table now inaccessible to anon client
+
+### Screens
+- screens/LoginScreen.js: Claude Sonnet 4.6 — Rate limiting: 3 failed AUTH_FAILED attempts → 30s lockout with countdown; use saveCredentials() from auth.js
+- screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — "Delete all my data" danger action; clears user-created keys + cache + logout
+- screens/legal/DatenschutzScreen.js: Claude Sonnet 4.6 — Accurate third-party disclosure (Supabase, Expo); correct cache TTL; separate Datenweitergabe section
+- App.js: Claude Sonnet 4.6 — First-run privacy notice modal (ucb_privacy_v1 flag); only shown once
+
+### Config
+- constants/config.js: Claude Sonnet 4.6 — NEWS TTL 15min → 1 hour; add SESSION_MAX_AGE (7 days)

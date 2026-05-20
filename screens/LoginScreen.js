@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,25 +10,56 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import useStore from '../store/useStore';
 import useAdminStore from '../store/useAdminStore';
 import { createApiClient, classifyError, setCachedCredentials } from '../services/api';
+import { saveCredentials } from '../services/auth';
 import { normalizeProfile } from '../services/profile';
 import { bootstrapSessionData } from '../services/bootstrap';
 import { PRIMARY, INACTIVE, BG, BORDER } from '../constants/colors';
+
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MS = 30_000; // 30 seconds
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [failCount, setFailCount] = useState(0);
+  const [lockoutEnd, setLockoutEnd] = useState(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const tickRef = useRef(null);
   const setUser = useStore((s) => s.setUser);
   const setOffline = useStore((s) => s.setOffline);
   const checkAdminStatus = useAdminStore((s) => s.checkAdminStatus);
 
+  // Countdown ticker while locked out
+  useEffect(() => {
+    if (!lockoutEnd) return;
+    const tick = () => {
+      const remaining = Math.ceil((lockoutEnd - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockoutEnd(null);
+        setSecondsLeft(0);
+        clearInterval(tickRef.current);
+      } else {
+        setSecondsLeft(remaining);
+      }
+    };
+    tick();
+    tickRef.current = setInterval(tick, 1000);
+    return () => clearInterval(tickRef.current);
+  }, [lockoutEnd]);
+
   const handleLogin = async () => {
     if (!username.trim() || !password) {
       Alert.alert('Missing Fields', 'Please enter your username and password.');
+      return;
+    }
+
+    // Enforce lockout
+    if (lockoutEnd && Date.now() < lockoutEnd) {
+      Alert.alert('Too many attempts', `Please wait ${secondsLeft}s before trying again.`);
       return;
     }
 
@@ -40,12 +71,13 @@ export default function LoginScreen() {
       const response = await client.get('/users/me');
       const user = normalizeProfile(response.data.data);
 
-      // Store credentials
-      await SecureStore.setItemAsync('username', trimmedUsername);
-      await SecureStore.setItemAsync('password', password);
+      // Persist credentials with device-only SecureStore options + session timestamp
+      await saveCredentials(trimmedUsername, password);
       // Cache in memory so concurrent service calls don't race SecureStore
       setCachedCredentials(trimmedUsername, password);
 
+      setFailCount(0);
+      setLockoutEnd(null);
       setOffline(false);
       setUser(user);
       checkAdminStatus(user.username);
@@ -61,7 +93,17 @@ export default function LoginScreen() {
       }
 
       const type = error?.type ?? classifyError(error).type;
-      const status = error.response?.status;
+
+      // Increment fail counter on auth failures and impose lockout after MAX_ATTEMPTS
+      if (type === 'AUTH_FAILED') {
+        const next = failCount + 1;
+        if (next >= MAX_ATTEMPTS) {
+          setLockoutEnd(Date.now() + LOCKOUT_MS);
+          setFailCount(0);
+        } else {
+          setFailCount(next);
+        }
+      }
 
       let message;
       if (type === 'AUTH_FAILED') {
@@ -78,6 +120,8 @@ export default function LoginScreen() {
       setLoading(false);
     }
   };
+
+  const isLockedOut = lockoutEnd && Date.now() < lockoutEnd;
 
   return (
     <KeyboardAvoidingView
@@ -118,14 +162,16 @@ export default function LoginScreen() {
         />
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, (loading || isLockedOut) && styles.buttonDisabled]}
           onPress={handleLogin}
-          disabled={loading}
+          disabled={loading || !!isLockedOut}
           activeOpacity={0.85}
           accessibilityLabel="Log in"
           accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>{loading ? 'Logging in…' : 'Login'}</Text>
+          <Text style={styles.buttonText}>
+            {loading ? 'Logging in…' : isLockedOut ? `Try again in ${secondsLeft}s` : 'Login'}
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.hint}>

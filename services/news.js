@@ -1,5 +1,6 @@
 import { getApiClient, classifyError } from './api';
 import { getStaleCacheData, setCache } from './cache';
+import { concurrentSettled } from '../utils/concurrentMap';
 import useStore from '../store/useStore';
 import { syncUnreadNewsCount } from './newsState';
 import { toSeconds } from '../utils/datetime';
@@ -59,46 +60,44 @@ export async function fetchNews(userId, courses = []) {
 
   try {
     const client = await getApiClient();
+
+    // Personal + global fire immediately (2 requests, not per-course)
+    const [personalResult, globalResult] = await Promise.allSettled([
+      client.get(`/users/${userId}/news`),
+      client.get('/news'),
+    ]);
+
+    // Course news: capped at 3 concurrent requests to avoid hammering Stud.IP
+    const courseResults = await concurrentSettled(
+      courses,
+      (c) => client.get(`/courses/${c.id}/news`),
+      3
+    );
+
     const sources = [
-      {
-        source: 'Personal',
-        sourceKey: 'personal',
-        request: client.get(`/users/${userId}/news`),
-      },
-      {
-        source: 'UCB Global',
-        sourceKey: 'global',
-        request: client.get('/news'),
-      },
-      ...courses.map((c) =>
-        ({
-          source: c.title ?? 'Course',
-          sourceKey: `course:${c.id}`,
-          courseColor: c.color,
-          request: client.get(`/courses/${c.id}/news`),
-        })
-      ),
+      { source: 'Personal', sourceKey: 'personal', courseColor: null, result: personalResult },
+      { source: 'UCB Global', sourceKey: 'global', courseColor: null, result: globalResult },
+      ...courses.map((c, i) => ({
+        source: c.title ?? 'Course',
+        sourceKey: `course:${c.id}`,
+        courseColor: c.color,
+        result: courseResults[i],
+      })),
     ];
 
-    const results = await Promise.allSettled(sources.map((entry) => entry.request));
     const freshItems = [];
     const failedSourceKeys = new Set();
     let firstError = null;
 
-    results.forEach((result, index) => {
-      const descriptor = sources[index];
-
+    sources.forEach(({ source, sourceKey, courseColor, result }) => {
       if (result.status === 'fulfilled') {
         const payload = result.value?.data?.data ?? [];
         freshItems.push(
-          ...payload.map((item) =>
-            mapNewsItem(item, descriptor.source, descriptor.sourceKey, descriptor.courseColor)
-          )
+          ...payload.map((item) => mapNewsItem(item, source, sourceKey, courseColor))
         );
         return;
       }
-
-      failedSourceKeys.add(descriptor.sourceKey);
+      failedSourceKeys.add(sourceKey);
       if (!firstError) firstError = result.reason;
     });
 
