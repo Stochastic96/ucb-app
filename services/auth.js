@@ -4,7 +4,6 @@ import { clearAllCache } from './cache';
 import { normalizeProfile } from './profile';
 import { SESSION_MAX_AGE } from '../constants/config';
 import useStore from '../store/useStore';
-import useAdminStore from '../store/useAdminStore';
 
 // Credentials are device-only and cannot be restored from iCloud backup to another device
 const SECURE_OPTS = {
@@ -57,5 +56,4 @@ export async function logout() {
   await _deleteCredentials();
   await clearAllCache();
   useStore.getState().clearUser();
-  useAdminStore.getState().clearAdminStatus();
 }

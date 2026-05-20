@@ -141,3 +141,11 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 
 ### Config
 - constants/config.js: Claude Sonnet 4.6 — NEWS TTL 15min → 1 hour; add SESSION_MAX_AGE (7 days)
+
+## 2026-05-20 — Archive admin, clean code
+- _archive/admin/: Claude Sonnet 4.6 — Moved screens/admin/, navigation/AdminStack.js, store/useAdminStore.js, supabase/functions/check-admin/ to _archive/admin/ — admin panel shelved until needed
+- components/Sidebar.js: Claude Sonnet 4.6 — Removed useAdminStore import and Admin section
+- navigation/RootNavigator.js: Claude Sonnet 4.6 — Removed AdminStack import and Admin screen registration
+- screens/LoginScreen.js: Claude Sonnet 4.6 — Removed checkAdminStatus call
+- services/auth.js: Claude Sonnet 4.6 — Removed useAdminStore import and clearAdminStatus call
+- App.js: Claude Sonnet 4.6 — Removed useAdminStore import and checkAdminStatus call

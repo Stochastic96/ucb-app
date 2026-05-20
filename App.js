@@ -10,7 +10,6 @@ import Sidebar from './components/Sidebar';
 import BiometricLockScreen from './components/BiometricLockScreen';
 import { navigationRef } from './navigation/navigationRef';
 import useStore from './store/useStore';
-import useAdminStore from './store/useAdminStore';
 import { PRIMARY, DARK, INACTIVE, BG, BORDER } from './constants/colors';
 import { bootstrapSessionData } from './services/bootstrap';
 
@@ -114,7 +113,6 @@ export default function App() {
       const result = await restoreSession();
       if (result.valid && result.user) {
         setUser(result.user);
-        useAdminStore.getState().checkAdminStatus(result.user.username);
         try {
           await bootstrapSessionData();
         } catch {}

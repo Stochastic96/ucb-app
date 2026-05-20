@@ -16,7 +16,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useStore from '../store/useStore';
-import useAdminStore from '../store/useAdminStore';
 import { logout } from '../services/auth';
 import { navigationRef } from '../navigation/navigationRef';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, BORDER, ACCENT } from '../constants/colors';
@@ -53,7 +52,6 @@ export default function Sidebar() {
   const sidebarOpen = useStore((s) => s.sidebarOpen);
   const closeSidebar = useStore((s) => s.closeSidebar);
   const user = useStore((s) => s.user);
-  const isAdmin = useAdminStore((s) => s.isAdmin);
 
   const slideAnim = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
@@ -188,17 +186,6 @@ export default function Sidebar() {
               />
             ))}
           </SidebarSection>
-
-          {/* Admin */}
-          {isAdmin && (
-            <SidebarSection label="Admin">
-              <SidebarRow
-                icon="shield-checkmark-outline"
-                label="Admin Panel"
-                onPress={() => navigateTo({ target: 'stack', name: 'Admin' })}
-              />
-            </SidebarSection>
-          )}
 
           {/* Quick Links */}
           <SidebarSection label="Quick Links">

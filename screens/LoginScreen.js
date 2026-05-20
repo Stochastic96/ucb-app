@@ -11,7 +11,6 @@ import {
   ScrollView,
 } from 'react-native';
 import useStore from '../store/useStore';
-import useAdminStore from '../store/useAdminStore';
 import { createApiClient, classifyError, setCachedCredentials } from '../services/api';
 import { saveCredentials } from '../services/auth';
 import { normalizeProfile } from '../services/profile';
@@ -31,7 +30,6 @@ export default function LoginScreen() {
   const tickRef = useRef(null);
   const setUser = useStore((s) => s.setUser);
   const setOffline = useStore((s) => s.setOffline);
-  const checkAdminStatus = useAdminStore((s) => s.checkAdminStatus);
 
   // Countdown ticker while locked out
   useEffect(() => {
@@ -80,7 +78,6 @@ export default function LoginScreen() {
       setLockoutEnd(null);
       setOffline(false);
       setUser(user);
-      checkAdminStatus(user.username);
       didAuthenticate = true;
       await bootstrapSessionData(true);
     } catch (error) {
