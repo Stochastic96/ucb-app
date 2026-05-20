@@ -79,7 +79,7 @@ RootNavigator (NativeStack)
 └── Main → MainTabs (BottomTabs, lazy=false)
     ├── Home
     ├── Tools → ToolsStack (NativeStack)
-    │   ├── ToolsHome, Timetable (`screens/timetable/`), Mensa (`screens/mensa/`), SemesterCalendar (`screens/calendar/`)
+    │   ├── ToolsHome, Timetable (`screens/timetable/`), Mensa (`screens/mensa/` — WebView loading mensa.campus-company.eu; falls back to "Open in Browser" in Expo Go), SemesterCalendar (`screens/calendar/`)
     │   ├── CampusResources, PlannerList, AddDeadline
     │   ├── ExamTracker, ExamPlanner
     │   └── CampusPlatforms  (screens/collaboration/CampusPlatformsScreen.js)
@@ -181,6 +181,7 @@ From `app.json`:
 - `expo-local-authentication` — biometric prompt in `BiometricLockScreen`
 - `expo-web-browser` — in-app browser used by `CampusPlatformsScreen` to open external university platforms
 - `expo-clipboard` — copy-to-clipboard for platform URLs in `CampusPlatformsScreen`
+- `react-native-webview` — embedded web view used by `MensaScreen`; **not bundled in Expo Go** — `MensaScreen` wraps the `require` in a try/catch and shows an "Open in Browser" fallback when unavailable
 
 ### Utilities
 
