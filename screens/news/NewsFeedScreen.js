@@ -106,7 +106,7 @@ export default function NewsFeedScreen({ navigation, route }) {
   useFocusEffect(
     useCallback(() => {
       const seenAt = Date.now();
-      markNewsSeen(seenAt).then(() => setLastReadTs(seenAt));
+      markNewsSeen(seenAt).then(() => setLastReadTs(seenAt)).catch(() => {});
     }, [])
   );
 

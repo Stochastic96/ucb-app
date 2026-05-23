@@ -119,7 +119,7 @@ function FilesTab({ files }) {
       renderItem={({ item }) => (
         <TouchableOpacity
           style={styles.fileRow}
-          onPress={() => item.downloadUrl && Linking.openURL(item.downloadUrl)}
+          onPress={() => item.downloadUrl && /^https?:/i.test(item.downloadUrl) && Linking.openURL(item.downloadUrl)}
         >
           <Text style={styles.fileName} numberOfLines={1}>{item.name}</Text>
           <Text style={styles.fileSize}>{formatFileSize(item.size)}</Text>
