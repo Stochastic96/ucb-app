@@ -92,11 +92,11 @@ export default function Sidebar() {
   const navigateTo = (item) => {
     closeSidebar();
     setTimeout(() => {
-      if (!navigationRef.isReady()) return;
+      if (!navigationRef.current?.isReady()) return;
       if (item.target === 'tab') {
-        navigationRef.navigate('Main', { screen: item.name });
+        navigationRef.current.navigate('Main', { screen: item.name });
       } else {
-        navigationRef.navigate(item.name);
+        navigationRef.current.navigate(item.name);
       }
     }, 150);
   };

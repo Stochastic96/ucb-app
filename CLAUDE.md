@@ -66,8 +66,6 @@ Single Zustand store in `store/useStore.js`. Key slices:
 - **Sidebar**: `sidebarOpen` (global overlay `<Sidebar />` rendered in `App.js`)
 - **Offline**: `isOffline` — set to `false` on successful bootstrap, read by `<OfflineBanner />` (shown globally when `true`)
 
-`store/useAdminStore.js` is a separate store that checks Supabase `admin_users` table after login. Call `checkAdminStatus(studipUsername)` post-login; `isAdmin` gates the Admin entry in the Sidebar and the entire `AdminStack`.
-
 - **Settings**: `settings: { notificationsEnabled, biometricLockEnabled }` — persisted to AsyncStorage `ucb_settings` on change in `SettingsScreen.js`; loaded back in `App.js` on mount.
 
 ### Navigation Structure
@@ -90,8 +88,6 @@ RootNavigator (NativeStack)
       EventsList → EventsStack (navigation/EventsStack.js),
       Impressum, Datenschutz
 ```
-
-Admin panel lives in `navigation/AdminStack.js` and is pushed onto the stack from `Sidebar`. It owns: `AdminDashboard`, `MensaAdmin`, `EventsAdmin`, `SportsAdmin`, `GuideAdmin`, `GuideCategoryAdmin`, `ResourcesAdmin`, `CalendarAdmin` — all backed by the write operations in `contentService.js`. Note: `GuideAdminScreen` and `GuideCategoryAdminScreen` are both exported from the single file `screens/admin/GuideAdminScreen.js`.
 
 **Important**: `lazy={false}` on `MainTabs` pre-renders all tabs so nested stacks are initialised before programmatic navigation. Tab press listeners always reset to the root screen of each stack (`ToolsHome`, `GuideHome`) so users can never get stranded.
 
@@ -196,6 +192,10 @@ From `app.json`:
 - `markNewsSeen(timestamp)` updates both AsyncStorage and the store; called when the user opens the NewsFeed.
 
 `components/SimpleDatePicker.js` — native OS date/time picker wrapper around `@react-native-community/datetimepicker`. Exports `SimpleDatePicker` (date only) and `SimpleTimePicker` (time only). Used by `AddDeadlineScreen` and `ExamPlannerScreen`.
+
+`utils/concurrentMap.js` — concurrency-limited async iteration:
+- `concurrentMap(items, fn, limit=3)` — drop-in for `Promise.all(items.map(fn))` with a concurrency cap; used in the bootstrap pipeline when fetching events per course.
+- `concurrentSettled(items, fn, limit=3)` — same but wraps results as `{ status, value } | { status, reason }` (mirrors `Promise.allSettled`).
 
 `utils/datetime.js` — central date/time helpers used throughout the app:
 - `toMillis(value)` normalises any timestamp input (unix seconds, unix ms, ISO string, `Date`) to milliseconds; returns `null` for invalid values.

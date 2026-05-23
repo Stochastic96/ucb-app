@@ -50,7 +50,7 @@ function getCurrentSemesterCourses(courses) {
 }
 
 export default function SemesterCalendarScreen({ navigation }) {
-  const semester = calendarData.semesters.find((s) => s.id === calendarData.current);
+  const semester = calendarData.semesters.find((s) => s.id === calendarData.current) ?? calendarData.semesters[0];
   const courses = useStore((s) => s.courses);
   const [activeTab, setActiveTab] = useState('Overview');
 

@@ -353,7 +353,7 @@ export default function EventsScreen() {
     loadGoingState().then(({ goingEventIds: eIds, goingSportIds: sIds }) => {
       setGoingEventIds(eIds);
       setGoingSportIds(sIds);
-    });
+    }).catch(() => {});
   }, []);
 
   const loadContent = useCallback(async (isRefresh = false) => {
