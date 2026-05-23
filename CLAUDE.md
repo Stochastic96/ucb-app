@@ -29,7 +29,7 @@ eas build --platform android --profile production
 
 `production` profile uses `autoIncrement: true`. Both profiles share the same three `EXPO_PUBLIC_*` env vars defined in `eas.json`.
 
-There is no test suite or linter configured.
+There is no test suite or linter configured. The codebase is plain JavaScript (`.js` files throughout); `tsconfig.json` and TypeScript dev dependencies are present but only for editor type-checking support — do not create `.ts`/`.tsx` files.
 
 ## Environment Variables
 
@@ -48,8 +48,8 @@ The Stud.IP base URL can also be swapped to `http://localhost:3001` when running
 ### Auth & Session Flow
 
 1. `App.js` → on mount, loads persisted settings from AsyncStorage (`ucb_settings`) and calls `services/auth.checkExistingSession()`.
-2. `checkExistingSession` reads credentials from `expo-secure-store`, calls Stud.IP `/users/me`, and returns the user profile.
-3. On success, `bootstrapSessionData()` (`services/bootstrap.js`) runs a filtering pipeline: fetch profile → fetch all courses → fetch all events for those courses → derive `activeCourseIds` (events within 30 days past / 180 days future) → filter both courses and events to active only → fetch news. Stores results in the Zustand store and sets `isOffline: false`.
+2. `checkExistingSession` reads credentials from `expo-secure-store`, calls Stud.IP `/users/me`, and returns the user profile. Sessions older than `SESSION_MAX_AGE` (7 days, `constants/config.js`) require re-login.
+3. On success, `bootstrapSessionData()` (`services/bootstrap.js`) runs a filtering pipeline: fetch profile → fetch all courses → fetch all events for those courses → derive `activeCourseIds` (events within 30 days past / 180 days future) → filter both courses and events to active only → fetch news. Stores results in the Zustand store and sets `isOffline: false`. Concurrent callers share one in-flight bootstrap via a `_inflightBootstrap` deduplication guard — only one `_runBootstrap` runs at a time regardless of how many callers invoke `bootstrapSessionData()` simultaneously.
 4. `RootNavigator` gates on `useStore.isLoggedIn` — renders `LoginScreen` or `MainTabs`.
 
 Credentials (username / password) are stored in `expo-secure-store` and also cached in-memory (`services/api.js` `_cachedUsername/_cachedPassword`) to avoid concurrent SecureStore races.
@@ -65,6 +65,7 @@ Single Zustand store in `store/useStore.js`. Key slices:
 - **Deep-link**: `pendingMapBuilding` (Timetable → Map navigation)
 - **Sidebar**: `sidebarOpen` (global overlay `<Sidebar />` rendered in `App.js`)
 - **Offline**: `isOffline` — set to `false` on successful bootstrap, read by `<OfflineBanner />` (shown globally when `true`)
+- **Current semester**: `currentSemester` — set from Stud.IP `/semesters` during bootstrap; `null` until hydrated.
 
 - **Settings**: `settings: { notificationsEnabled, biometricLockEnabled }` — persisted to AsyncStorage `ucb_settings` on change in `SettingsScreen.js`; loaded back in `App.js` on mount.
 
