@@ -2,6 +2,9 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-23
+- CLAUDE.md: Claude Sonnet 4.6 — Improved arch docs: added currentSemester store slice, SESSION_MAX_AGE, bootstrap deduplication guard (_inflightBootstrap), and JS-only codebase clarification
+
 ## 2026-05-19
 - screens/mensa/MensaScreen.js: Claude — Replaced static JSON menu with embedded WebView loading mensa.campus-company.eu; added progress bar, loading overlay, error/retry state, and refresh button in header
 - components/SearchBar.js: Claude — New shared search input component with clear button, used across list screens
