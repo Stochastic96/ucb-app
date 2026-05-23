@@ -31,8 +31,9 @@ export async function scheduleEventReminder(ev) {
   const granted = await requestNotificationPermission();
   if (!granted) return false;
 
+  if (!ev.date) return false; // recurring events have no fixed date
   const eventDate = new Date(`${ev.date}T09:00:00`);
-  if (eventDate <= new Date()) return false; // past event
+  if (isNaN(eventDate.getTime()) || eventDate <= new Date()) return false;
 
   await Notifications.scheduleNotificationAsync({
     identifier: `event_${ev.id}`,

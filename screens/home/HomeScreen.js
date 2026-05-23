@@ -223,7 +223,7 @@ export default function HomeScreen({ navigation }) {
     loadGoingState().then(({ goingEventIds: eIds, goingSportIds: sIds }) => {
       setGoingEventIds(eIds);
       setGoingSportIds(sIds);
-    });
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {

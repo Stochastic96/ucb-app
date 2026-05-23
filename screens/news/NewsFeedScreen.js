@@ -77,6 +77,8 @@ export default function NewsFeedScreen({ navigation, route }) {
         const merged = await fetchNews(userId, courses);
         await syncUnreadNewsCount(merged);
       }
+    } catch {
+      // errors surfaced via bootstrapError in global store
     } finally {
       setLoading(false);
       setRefreshing(false);
