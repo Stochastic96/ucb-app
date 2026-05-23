@@ -49,7 +49,7 @@ async function _runBootstrap(force) {
     const allCourses = coursesResult?.data ?? [];
 
     // Fetch events for all enrolled courses — needed to determine which are active
-    const allEvents = await fetchAllEvents(allCourses, force);
+    const allEvents = (await fetchAllEvents(allCourses, force)) ?? [];
 
     // Keep only courses that have events in the current/upcoming semester window
     const activeCourseIds = deriveActiveCourseIds(allEvents);
@@ -84,6 +84,11 @@ async function _runBootstrap(force) {
       type: error?.type ?? 'UNKNOWN',
       message: error?.message ?? 'Unable to load your Stud.IP data.',
     };
+    // On a first-load failure, clear any partial state so the UI shows a clean error
+    if (!store.dataReady) {
+      store.setCourses([]);
+      store.setEvents([]);
+    }
     store.setBootstrapError(normalized);
     throw normalized;
   } finally {

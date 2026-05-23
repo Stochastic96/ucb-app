@@ -2,8 +2,22 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
-## 2026-05-23
+## 2026-05-23 — Full audit: crash fixes, security hardening, state integrity
 - CLAUDE.md: Claude Sonnet 4.6 — Improved arch docs: added currentSemester store slice, SESSION_MAX_AGE, bootstrap deduplication guard (_inflightBootstrap), and JS-only codebase clarification
+- utils/concurrentMap.js: Claude Sonnet 4.6 — Guard against null/undefined items (`!items?.length`) to prevent TypeError when API returns null
+- screens/exams/ExamPlannerScreen.js: Claude Sonnet 4.6 — Safe-guard route.params destructuring (??{}); add .catch() on loadExamData; atomic write order (AsyncStorage before Zustand)
+- screens/exams/ExamTrackerScreen.js: Claude Sonnet 4.6 — Add .catch() on loadExamData().then() to prevent unhandled rejection hanging the loading state
+- screens/courses/CourseDetailScreen.js: Claude Sonnet 4.6 — Add .catch() on Promise.allSettled chain; clear loading flag in catch so spinner never hangs
+- screens/guide/GuideDetailScreen.js: Claude Sonnet 4.6 — Add .catch() on AsyncStorage.getItem().then() to prevent uninitialised checklist state
+- screens/planner/PlannerScreen.js: Claude Sonnet 4.6 — Add .catch() on loadDeadlines().then() to prevent unhandled rejection
+- screens/planner/AddDeadlineScreen.js: Claude Sonnet 4.6 — Atomic write order reversed (AsyncStorage first, then Zustand) for crash-safe deadline persistence
+- screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — Atomic write order for settings (AsyncStorage first); deletion order fix (logout before wipe) for crash-safe data deletion
+- screens/mensa/MensaScreen.js: Claude Sonnet 4.6 — mixedContentMode "compatibility" → "never" to block HTTP subresources in HTTPS page
+- screens/guide/InfoSectionView.js: Claude Sonnet 4.6 — URL validation guard before Linking.openURL (blocks javascript:/data: injection from Supabase-sourced data)
+- services/contentService.js: Claude Sonnet 4.6 — Wrap localFallback() in try/catch; return [] on error instead of crashing the whole fallback chain
+- services/bootstrap.js: Claude Sonnet 4.6 — Guard fetchAllEvents return with ?? []; reset courses/events on first-load failure to avoid partial state
+- components/BiometricLockScreen.js: Claude Sonnet 4.6 — Add authenticatingRef guard to prevent concurrent auth attempts bypassing the 3-fail limit
+- App.js: Claude Sonnet 4.6 — Cold-start biometric gate (checks SecureStore before session restore); AppState listener reads live store state to avoid stale closure; handleUnlock runs session restore after biometric success on cold-start
 
 ## 2026-05-19
 - screens/mensa/MensaScreen.js: Claude — Replaced static JSON menu with embedded WebView loading mensa.campus-company.eu; added progress bar, loading overlay, error/retry state, and refresh button in header

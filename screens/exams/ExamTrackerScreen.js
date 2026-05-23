@@ -36,7 +36,7 @@ export default function ExamTrackerScreen({ navigation }) {
   const setExamRegistration = useStore((s) => s.setExamRegistration);
 
   useEffect(() => {
-    loadExamData().then(({ registrations }) => setExamRegistrations(registrations));
+    loadExamData().then(({ registrations }) => setExamRegistrations(registrations)).catch(() => {});
   }, []);
 
   const semCourses = useMemo(() => getCurrentSemesterCourses(courses), [courses]);

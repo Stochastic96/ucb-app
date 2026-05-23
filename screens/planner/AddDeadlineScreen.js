@@ -134,12 +134,12 @@ export default function AddDeadlineScreen({ navigation, route }) {
       }
 
       if (existing) {
-        updateDeadline(existing.id, deadline);
         const next = deadlines.map((d) => d.id === existing.id ? deadline : d);
         await saveDeadlines(next);
+        updateDeadline(existing.id, deadline);
       } else {
-        addDeadline(deadline);
         await saveDeadlines([deadline, ...deadlines]);
+        addDeadline(deadline);
       }
 
       navigation.goBack();

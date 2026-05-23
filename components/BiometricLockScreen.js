@@ -15,9 +15,12 @@ export default function BiometricLockScreen({ onUnlock }) {
   const clearUser = useStore((s) => s.clearUser);
   // Ref tracks failCount so handleAuthenticate never captures a stale value
   const failCountRef = useRef(0);
+  // Prevents concurrent auth attempts from bypassing the 3-fail limit
+  const authenticatingRef = useRef(false);
 
   const handleAuthenticate = useCallback(async () => {
-    if (failCountRef.current >= MAX_FAILS) return;
+    if (authenticatingRef.current || failCountRef.current >= MAX_FAILS) return;
+    authenticatingRef.current = true;
     setError('');
     try {
       const result = await LocalAuthentication.authenticateAsync({
@@ -39,6 +42,8 @@ export default function BiometricLockScreen({ onUnlock }) {
       }
     } catch {
       setError('Biometric authentication unavailable.');
+    } finally {
+      authenticatingRef.current = false;
     }
   }, [onUnlock]);
 

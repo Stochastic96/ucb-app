@@ -59,7 +59,7 @@ export default function InfoSectionView({ data }) {
             <TouchableOpacity
               key={link.id}
               style={styles.linkCard}
-              onPress={() => Linking.openURL(link.url)}
+              onPress={() => { if (/^(https?|tel|mailto):/i.test(link.url)) Linking.openURL(link.url); }}
               activeOpacity={0.8}
             >
               <View style={styles.linkLeft}>

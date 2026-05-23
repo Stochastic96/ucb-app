@@ -22,7 +22,7 @@ import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../
 
 
 export default function ExamPlannerScreen({ navigation, route }) {
-  const { courseId, courseTitle, courseColor } = route.params;
+  const { courseId, courseTitle, courseColor } = route.params ?? {};
   const setExamPlan = useStore((s) => s.setExamPlan);
   const examPlans = useStore((s) => s.examPlans);
   const setExamPlans = useStore((s) => s.setExamPlans);
@@ -43,7 +43,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    loadExamData().then(({ plans }) => setExamPlans(plans));
+    loadExamData().then(({ plans }) => setExamPlans(plans)).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -93,9 +93,9 @@ export default function ExamPlannerScreen({ navigation, route }) {
         await scheduleExamReminders(plan);
       }
 
-      setExamPlan(courseId, plan);
       const { plans } = await loadExamData();
       await saveExamPlans({ ...plans, [courseId]: plan });
+      setExamPlan(courseId, plan);
       navigation.goBack();
     } catch {
       Alert.alert('Error', 'Could not save exam plan. Please try again.');

@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { AppState, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NavigationContainer as NavContainer } from '@react-navigation/native';
 import { PaperProvider, MD3LightTheme, Modal, Portal } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 import RootNavigator from './navigation/RootNavigator';
 import Sidebar from './components/Sidebar';
@@ -38,11 +39,13 @@ const ucbTheme = {
 };
 
 export default function App() {
-  const { updateSettings, setUser, settings, isLoggedIn } = useStore();
+  const { updateSettings, setUser } = useStore();
   const [isLocked, setIsLocked] = useState(false);
   const [showPrivacyNotice, setShowPrivacyNotice] = useState(false);
   const backgroundedAt = useRef(null);
   const appState = useRef(AppState.currentState);
+  // Set when cold-start biometric gate is active — session restore runs after unlock
+  const pendingSessionRestoreRef = useRef(false);
 
   useEffect(() => {
     initializeApp();
@@ -56,18 +59,19 @@ export default function App() {
     return () => sub.remove();
   }, []);
 
+  // Single AppState listener — reads current settings from store to avoid closure stale value
   useEffect(() => {
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => subscription.remove();
-  }, [settings.biometricLockEnabled, isLoggedIn]);
+  }, []);
 
   const handleAppStateChange = (nextState) => {
-    const prev = appState.current;
     appState.current = nextState;
 
     if (nextState === 'background' || nextState === 'inactive') {
       backgroundedAt.current = Date.now();
     } else if (nextState === 'active') {
+      const { settings, isLoggedIn } = useStore.getState();
       if (
         settings.biometricLockEnabled &&
         isLoggedIn &&
@@ -80,17 +84,41 @@ export default function App() {
     }
   };
 
-  const initializeApp = async () => {
-    await loadSettings();
-    await checkExistingSession();
-    // Show first-run privacy notice if the user hasn't seen it yet
+  const handleUnlock = useCallback(async () => {
+    setIsLocked(false);
+    if (pendingSessionRestoreRef.current) {
+      pendingSessionRestoreRef.current = false;
+      await checkExistingSession();
+      await finishAppInit();
+    }
+  }, []);
+
+  const finishAppInit = async () => {
     const seen = await AsyncStorage.getItem('ucb_privacy_v1');
     if (!seen) setShowPrivacyNotice(true);
-    // Handle cold-start notification tap (app launched by tapping a notification)
     const lastResponse = await Notifications.getLastNotificationResponseAsync();
     if (lastResponse?.notification?.request?.identifier) {
       navigateFromNotification(lastResponse.notification.request.identifier);
     }
+  };
+
+  const initializeApp = async () => {
+    await loadSettings();
+
+    // Cold-start biometric gate: if biometric lock is enabled and credentials exist,
+    // show the lock screen before restoring the session.
+    const { settings } = useStore.getState();
+    if (settings.biometricLockEnabled) {
+      const storedUsername = await SecureStore.getItemAsync('username');
+      if (storedUsername) {
+        pendingSessionRestoreRef.current = true;
+        setIsLocked(true);
+        return;
+      }
+    }
+
+    await checkExistingSession();
+    await finishAppInit();
   };
 
   const handleAcceptPrivacy = async () => {
@@ -127,8 +155,8 @@ export default function App() {
           <RootNavigator />
         </NavContainer>
         <Sidebar />
-        {isLocked && isLoggedIn && (
-          <BiometricLockScreen onUnlock={() => setIsLocked(false)} />
+        {isLocked && (
+          <BiometricLockScreen onUnlock={handleUnlock} />
         )}
         {/* First-run privacy notice — shown once, above everything */}
         <Portal>

@@ -1,7 +1,7 @@
 // Runs fn over items with at most `limit` items in-flight simultaneously.
 // Drop-in replacement for Promise.all(items.map(fn)) with a concurrency cap.
 export async function concurrentMap(items, fn, limit = 3) {
-  if (!items.length) return [];
+  if (!items?.length) return [];
   const results = new Array(items.length);
   let next = 0;
 
@@ -21,7 +21,7 @@ export async function concurrentMap(items, fn, limit = 3) {
 // Like concurrentMap but wraps each result as { status, value } or { status, reason }
 // — drop-in replacement for Promise.allSettled(items.map(fn)) with a concurrency cap.
 export async function concurrentSettled(items, fn, limit = 3) {
-  if (!items.length) return [];
+  if (!items?.length) return [];
   const results = new Array(items.length);
   let next = 0;
 

@@ -81,7 +81,7 @@ export default function PlannerScreen({ navigation }) {
   const [filter, setFilter] = useState('all');
 
   useFocusEffect(useCallback(() => {
-    loadDeadlines().then(setDeadlines);
+    loadDeadlines().then(setDeadlines).catch(() => {});
   }, []));
 
   const toggleDone = useCallback(async (id, current) => {

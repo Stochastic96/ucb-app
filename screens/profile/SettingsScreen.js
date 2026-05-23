@@ -39,8 +39,8 @@ export default function SettingsScreen() {
 
   const persistSettings = async (patch) => {
     const next = { ...settings, ...patch };
-    updateSettings(patch);
     await AsyncStorage.setItem('ucb_settings', JSON.stringify(next));
+    updateSettings(patch);
   };
 
   const handleToggleNotifications = (val) => persistSettings({ notificationsEnabled: val });
@@ -61,9 +61,9 @@ export default function SettingsScreen() {
   const handleDeleteAllData = async () => {
     setShowDeleteAllConfirm(false);
     try {
+      await logout();
       await AsyncStorage.multiRemove(USER_DATA_KEYS);
       await clearAllCache();
-      await logout();
     } catch {
       setSnackbarMsg('Failed to delete data');
       setSnackbarVisible(true);

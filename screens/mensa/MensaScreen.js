@@ -88,7 +88,7 @@ export default function MensaScreen({ navigation }) {
         domStorageEnabled
         sharedCookiesEnabled
         allowsInlineMediaPlayback
-        mixedContentMode="compatibility"
+        mixedContentMode="never"
         // Mobile UA so the site renders its responsive layout
         userAgent="Mozilla/5.0 (Linux; Android 12; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
       />

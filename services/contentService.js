@@ -31,7 +31,11 @@ async function withFallback(cacheKey, fetcher, localFallback) {
       }
     } catch {}
   }
-  return { data: localFallback(), isOffline: true };
+  try {
+    return { data: localFallback(), isOffline: true };
+  } catch {
+    return { data: [], isOffline: true };
+  }
 }
 
 // ── MENSA ───────────────────────────────────────────────────────

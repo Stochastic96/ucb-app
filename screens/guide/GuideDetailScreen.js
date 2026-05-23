@@ -71,7 +71,7 @@ export default function GuideDetailScreen({ route }) {
       if (raw) {
         try { setChecked(JSON.parse(raw)); } catch {}
       }
-    });
+    }).catch(() => {});
   }, [category]);
 
   const toggleChecked = (id) => {

@@ -62,7 +62,7 @@ export default function CourseDetailScreen({ route }) {
       if (filesRes.status === 'fulfilled') setFiles(filesRes.value.data);
       if (announceRes.status === 'fulfilled') setAnnouncements(announceRes.value.data);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, [courseId]);
 
   return (
