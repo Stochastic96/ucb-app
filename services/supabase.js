@@ -1,14 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// All Supabase access is anonymous read-only — no auth sessions, nothing stored in AsyncStorage
 export const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
   process.env.EXPO_PUBLIC_SUPABASE_KEY,
   {
     auth: {
-      storage: AsyncStorage,
-      autoRefreshToken: true,
-      persistSession: true,
+      persistSession: false,
+      autoRefreshToken: false,
       detectSessionInUrl: false,
     },
   }

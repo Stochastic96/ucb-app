@@ -108,9 +108,11 @@ RootNavigator (NativeStack)
 
 **Supabase** — `services/supabase.js` + `services/contentService.js`
 - Used for admin-managed content: Mensa menu, campus events, sports schedule, campus resources, semester calendar, guide content.
-- `contentService.js` uses `withFallback(cacheKey, fetcher, localFallback)`: try Supabase → cache result to AsyncStorage (`ucb_remote_${cacheKey}`) → fall back to cached → fall back to bundled JSON in `data/`. Both read and write (upsert/delete) operations live in `contentService.js`.
+- The Supabase client uses the anon/publishable key with `persistSession: false` — all queries are anonymous read-only; no Supabase auth sessions are created or stored.
+- `contentService.js` uses `withFallback(cacheKey, fetcher, localFallback)`: try Supabase → cache result to AsyncStorage (`ucb_remote_${cacheKey}`) → fall back to cached → fall back to bundled JSON in `data/`. Read functions are called from screens; write/delete functions (upsert/delete) exist for admin tooling only and are not called from any active screen.
 - All Supabase tables have corresponding bundled JSON fallbacks in `data/`.
 - Tables (managed in Supabase dashboard — no local migrations): `mensa_menu`, `mensa_meta`, `campus_events`, `sports_schedule`, `campus_resources`, `guide_content`, `semester_calendar`, `calendar_events`, `admin_users`.
+- **Required RLS policies** (must be set in Supabase dashboard — anon key is public so writes must be blocked at the DB level): All content tables need `SELECT` enabled for anon, and `INSERT/UPDATE/DELETE` restricted to authenticated users with admin role only. Without these policies any holder of the anon key could write to the tables.
 
 ### Content & Guide Data
 

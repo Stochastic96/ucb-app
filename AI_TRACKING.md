@@ -2,6 +2,11 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-23 — Deep security audit: additional hardening
+- app.json: Claude Sonnet 4.6 — Set allowBackup:false on Android; prevents ADB backup extracting AsyncStorage (deadlines, exam plans, cached Stud.IP data) on non-rooted devices
+- services/supabase.js: Claude Sonnet 4.6 — Disable persistSession + autoRefreshToken; app never uses Supabase auth so no anon JWT should be stored in AsyncStorage
+- CLAUDE.md: Claude Sonnet 4.6 — Document required Supabase RLS policies; note that write functions exist for admin tooling only and are not called from active screens
+
 ## 2026-05-23 — Full audit: crash fixes, security hardening, state integrity
 - CLAUDE.md: Claude Sonnet 4.6 — Improved arch docs: added currentSemester store slice, SESSION_MAX_AGE, bootstrap deduplication guard (_inflightBootstrap), and JS-only codebase clarification
 - utils/concurrentMap.js: Claude Sonnet 4.6 — Guard against null/undefined items (`!items?.length`) to prevent TypeError when API returns null
