@@ -2,6 +2,9 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-25 — CLAUDE.md accuracy fixes
+- CLAUDE.md: Claude Sonnet 4.6 — Fix clearAllCache() docs (lists all 6 NON_CACHE_KEYS, DSGVO note); add RATE_LIMITED to classifyError types; document WHEN_UNLOCKED_THIS_DEVICE_ONLY SecureStore flag and ucb_session_created key; fix State Management list formatting; add _archive/admin/ section
+
 ## 2026-05-23 — Deep security audit: additional hardening
 - app.json: Claude Sonnet 4.6 — Set allowBackup:false on Android; prevents ADB backup extracting AsyncStorage (deadlines, exam plans, cached Stud.IP data) on non-rooted devices
 - services/supabase.js: Claude Sonnet 4.6 — Disable persistSession + autoRefreshToken; app never uses Supabase auth so no anon JWT should be stored in AsyncStorage

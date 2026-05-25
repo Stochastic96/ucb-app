@@ -52,7 +52,7 @@ The Stud.IP base URL can also be swapped to `http://localhost:3001` when running
 3. On success, `bootstrapSessionData()` (`services/bootstrap.js`) runs a filtering pipeline: fetch profile → fetch all courses → fetch all events for those courses → derive `activeCourseIds` (events within 30 days past / 180 days future) → filter both courses and events to active only → fetch news. Stores results in the Zustand store and sets `isOffline: false`. Concurrent callers share one in-flight bootstrap via a `_inflightBootstrap` deduplication guard — only one `_runBootstrap` runs at a time regardless of how many callers invoke `bootstrapSessionData()` simultaneously.
 4. `RootNavigator` gates on `useStore.isLoggedIn` — renders `LoginScreen` or `MainTabs`.
 
-Credentials (username / password) are stored in `expo-secure-store` and also cached in-memory (`services/api.js` `_cachedUsername/_cachedPassword`) to avoid concurrent SecureStore races.
+Credentials (username / password) are stored in `expo-secure-store` with `keychainAccessible: WHEN_UNLOCKED_THIS_DEVICE_ONLY` (prevents iCloud backup/restore to other devices) and also cached in-memory (`services/api.js` `_cachedUsername/_cachedPassword`) to avoid concurrent SecureStore races. Session age is tracked via the `ucb_session_created` SecureStore key.
 
 ### State Management
 
@@ -66,7 +66,6 @@ Single Zustand store in `store/useStore.js`. Key slices:
 - **Sidebar**: `sidebarOpen` (global overlay `<Sidebar />` rendered in `App.js`)
 - **Offline**: `isOffline` — set to `false` on successful bootstrap, read by `<OfflineBanner />` (shown globally when `true`)
 - **Current semester**: `currentSemester` — set from Stud.IP `/semesters` during bootstrap; `null` until hydrated.
-
 - **Settings**: `settings: { notificationsEnabled, biometricLockEnabled }` — persisted to AsyncStorage `ucb_settings` on change in `SettingsScreen.js`; loaded back in `App.js` on mount.
 
 ### Navigation Structure
@@ -98,13 +97,13 @@ RootNavigator (NativeStack)
 
 **Stud.IP (LMS)** — `services/api.js`
 - Raw `fetch`-based client with Basic Auth, 10 s timeout, JSON:API `Accept` header.
-- `classifyError()` maps HTTP/network errors to typed objects (`AUTH_FAILED`, `NO_INTERNET`, `SERVER_DOWN`, `NO_CREDENTIALS`, `UNKNOWN`).
+- `classifyError()` maps HTTP/network errors to typed objects: `AUTH_FAILED` (401/403), `RATE_LIMITED` (429), `SERVER_DOWN` (5xx), `NO_INTERNET` (network/abort), `NO_CREDENTIALS`, `UNKNOWN`.
 - `services/courses.js`, `services/events.js`, `services/news.js`, `services/profile.js` each wrap `getApiClient()`.
 
 **Caching** — `services/cache.js`
 - AsyncStorage with `ucb_` prefix, TTL-based (`constants/config.js` `CACHE_TTL`).
 - `getStaleCacheData()` returns expired data for offline fallback (ignores TTL).
-- `clearAllCache()` wipes all `ucb_*` keys except `ucb_settings`.
+- `clearAllCache()` wipes all `ucb_*` keys **except** the `NON_CACHE_KEYS` set: `ucb_settings`, `ucb_news_last_seen_at`, `ucb_deadlines`, `ucb_exam_reg`, `ucb_exam_plans`, `ucb_going_state`. These are user-owned data that must not be silently deleted (DSGVO Art. 5(1)(f)).
 
 **Supabase** — `services/supabase.js` + `services/contentService.js`
 - Used for admin-managed content: Mensa menu, campus events, sports schedule, campus resources, semester calendar, guide content.
@@ -208,6 +207,10 @@ From `app.json`:
 
 - `constants/colors.js` — all colour tokens; `PRIMARY = '#6FAE3E'` (green), `COURSE_COLORS` array (12 colours, assigned by `index % 12`).
 - `constants/config.js` — `BASE_URL`, `STUDIP_WEB_URL`, `CACHE_TTL` map.
+
+### Archive
+
+`_archive/admin/` — the admin panel (AdminStack, AdminDashboardScreen, and per-table admin screens for mensa, events, sports, resources, guide, calendar) was removed from the active app and moved here. It is not registered in any navigator. Do not import from or add back these files without re-evaluating the full admin auth flow.
 
 ### AI Usage Tracking
 
