@@ -4,6 +4,7 @@ import { fetchCourses } from './courses';
 import { fetchAllEvents } from './events';
 import { fetchNews } from './news';
 import { syncUnreadNewsCount } from './newsState';
+import { loadGoingState } from './reminders';
 import { toMillis } from '../utils/datetime';
 
 // 30 days back → 180 days ahead: covers the active semester plus next one
@@ -27,6 +28,17 @@ function deriveActiveCourseIds(events) {
 
 export function bootstrapSessionData(force = false) {
   if (_inflightBootstrap && !force) return _inflightBootstrap;
+
+  if (_inflightBootstrap && force) {
+    // Chain forced refresh after the current run completes — prevents two concurrent
+    // _runBootstrap calls from racing to write conflicting state to the store.
+    _inflightBootstrap = _inflightBootstrap
+      .catch(() => {})
+      .then(() => _runBootstrap(true))
+      .finally(() => { _inflightBootstrap = null; });
+    return _inflightBootstrap;
+  }
+
   _inflightBootstrap = _runBootstrap(force).finally(() => {
     _inflightBootstrap = null;
   });
@@ -66,6 +78,14 @@ async function _runBootstrap(force) {
 
     const news = await fetchNews(userId, courses);
     await syncUnreadNewsCount(news);
+
+    // Load persisted RSVP state once per bootstrap so every screen starts with it.
+    // Non-critical: a failure here must not abort the bootstrap.
+    try {
+      const { goingEventIds, goingSportIds } = await loadGoingState();
+      store.setGoingEventIds(goingEventIds);
+      store.setGoingSportIds(goingSportIds);
+    } catch {}
 
     const lastUpdated = new Date();
     store.setLastSyncAt(lastUpdated);

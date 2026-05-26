@@ -1,16 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 const PREFIX = 'ucb_';
 
 // Keys that must never be wiped by clearAllCache — user-owned personal data and preferences.
 // Clearing these without explicit consent would violate DSGVO Art. 5(1)(f) (integrity principle).
 const NON_CACHE_KEYS = new Set([
-  'ucb_settings',           // app preferences (notifications, biometric lock)
-  'ucb_news_last_seen_at',  // reading position — user preference, not Stud.IP cache
-  'ucb_deadlines',          // user-created deadline data
-  'ucb_exam_reg',           // user-set exam registration status
-  'ucb_exam_plans',         // user-created exam detail plans
-  'ucb_going_state',        // user RSVP state for events and sports
+  STORAGE_KEYS.SETTINGS,           // app preferences (notifications, biometric lock)
+  STORAGE_KEYS.NEWS_LAST_SEEN,     // reading position — user preference, not Stud.IP cache
+  STORAGE_KEYS.DEADLINES,          // user-created deadline data
+  STORAGE_KEYS.EXAM_REGISTRATIONS, // user-set exam registration status
+  STORAGE_KEYS.EXAM_PLANS,         // user-created exam detail plans
+  STORAGE_KEYS.GOING_STATE,        // user RSVP state for events and sports
 ]);
 
 export async function setCache(key, data) {

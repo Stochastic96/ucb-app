@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useStore from '../store/useStore';
 import { toMillis } from '../utils/datetime';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
-const LAST_SEEN_KEY = 'ucb_news_last_seen_at';
+const LAST_SEEN_KEY = STORAGE_KEYS.NEWS_LAST_SEEN;
 
 export async function getNewsLastSeenAt() {
   const raw = await AsyncStorage.getItem(LAST_SEEN_KEY);

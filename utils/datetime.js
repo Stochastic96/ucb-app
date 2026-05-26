@@ -81,6 +81,46 @@ export function formatRelativeFromNow(value) {
   });
 }
 
+// ── UI helpers ───────────────────────────────────────────────────
+
+export function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+export function getTimeUntil(isoOrUnix) {
+  const ts = toMillis(isoOrUnix);
+  if (ts === null) return '';
+  const diff = ts - Date.now();
+  if (diff <= 0) return 'now';
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `in ${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+  return rem > 0 ? `in ${hrs}h ${rem}m` : `in ${hrs}h`;
+}
+
+// Number of calendar days from today until dateStr (YYYY-MM-DD). Negative = past.
+export function daysUntil(dateStr) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((new Date(dateStr) - today) / 86400000);
+}
+
+// Format a YYYY-MM-DD string as "DD.MM" (German short date).
+// Optionally include an end date to produce "DD.MM–DD2.MM".
+export function formatShortDate(dateStr, endDateStr) {
+  if (!dateStr) return '';
+  const [, m, dd] = dateStr.split('-');
+  if (endDateStr) {
+    const [, , dd2] = endDateStr.split('-');
+    return `${dd}.${m}–${dd2}.${m}`;
+  }
+  return `${dd}.${m}`;
+}
+
 export function getWeekMonday(date) {
   const start = new Date(date);
   const day = start.getDay();

@@ -12,6 +12,7 @@ import BiometricLockScreen from './components/BiometricLockScreen';
 import { navigationRef } from './navigation/navigationRef';
 import useStore from './store/useStore';
 import { PRIMARY, DARK, INACTIVE, BG, BORDER } from './constants/colors';
+import { STORAGE_KEYS } from './constants/storageKeys';
 import { bootstrapSessionData } from './services/bootstrap';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
@@ -94,7 +95,7 @@ export default function App() {
   }, []);
 
   const finishAppInit = async () => {
-    const seen = await AsyncStorage.getItem('ucb_privacy_v1');
+    const seen = await AsyncStorage.getItem(STORAGE_KEYS.PRIVACY_ACCEPTED);
     if (!seen) setShowPrivacyNotice(true);
     const lastResponse = await Notifications.getLastNotificationResponseAsync();
     if (lastResponse?.notification?.request?.identifier) {
@@ -122,13 +123,13 @@ export default function App() {
   };
 
   const handleAcceptPrivacy = async () => {
-    await AsyncStorage.setItem('ucb_privacy_v1', '1');
+    await AsyncStorage.setItem(STORAGE_KEYS.PRIVACY_ACCEPTED, '1');
     setShowPrivacyNotice(false);
   };
 
   const loadSettings = async () => {
     try {
-      const raw = await AsyncStorage.getItem('ucb_settings');
+      const raw = await AsyncStorage.getItem(STORAGE_KEYS.SETTINGS);
       if (raw) updateSettings(JSON.parse(raw));
     } catch {
       // first launch — no settings yet

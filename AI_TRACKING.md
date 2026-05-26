@@ -2,6 +2,19 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-26 — Architecture refactor: quality, scalability, maintainability
+- constants/storageKeys.js: Claude Sonnet 4.6 — New file; single source of truth for all AsyncStorage key strings; eliminates scattered literals across App.js, reminders.js, newsState.js, cache.js
+- constants/colors.js: Claude Sonnet 4.6 — Add CATEGORY_COLORS export; eliminates identical definition duplicated in HomeScreen and EventsScreen
+- utils/datetime.js: Claude Sonnet 4.6 — Add getGreeting, getTimeUntil, formatShortDate, daysUntil; extracted from HomeScreen/EventsScreen where they were defined locally
+- services/cache.js: Claude Sonnet 4.6 — Import STORAGE_KEYS; NON_CACHE_KEYS now references constants instead of raw strings (was a manual sync requirement)
+- services/bootstrap.js: Claude Sonnet 4.6 — Fix race condition: force=true previously bypassed deduplication guard, allowing two concurrent _runBootstrap calls to race-write the store; now chains after the current run. Also loads going state once per bootstrap, removing duplicate AsyncStorage reads from HomeScreen and EventsScreen mounts
+- services/reminders.js: Claude Sonnet 4.6 — Complete DAY_WEEKDAY map (was only Monday/Wednesday/Thursday; sports on Tue/Fri/Sat/Sun silently got no reminder); use STORAGE_KEYS constants for persistence keys
+- services/newsState.js: Claude Sonnet 4.6 — Use STORAGE_KEYS.NEWS_LAST_SEEN instead of raw string literal
+- services/contentService.js: Claude Sonnet 4.6 — Add console.warn to withFallback catch; bare catch {} previously silenced all Supabase errors making fallback invisible in dev
+- App.js: Claude Sonnet 4.6 — Use STORAGE_KEYS for privacy and settings AsyncStorage reads
+- screens/home/HomeScreen.js: Claude Sonnet 4.6 — Remove inline EVENT_CATEGORY_COLORS, getGreeting, getTimeUntil, formatShortDate (now imported from shared modules); remove duplicate loadGoingState mount effect
+- screens/events/EventsScreen.js: Claude Sonnet 4.6 — Remove inline CATEGORY_COLORS, formatDate, daysUntil (now imported); remove duplicate loadGoingState mount effect
+
 ## 2026-05-25 — CLAUDE.md accuracy fixes
 - CLAUDE.md: Claude Sonnet 4.6 — Fix clearAllCache() docs (lists all 6 NON_CACHE_KEYS, DSGVO note); add RATE_LIMITED to classifyError types; document WHEN_UNLOCKED_THIS_DEVICE_ONLY SecureStore flag and ucb_session_created key; fix State Management list formatting; add _archive/admin/ section
 

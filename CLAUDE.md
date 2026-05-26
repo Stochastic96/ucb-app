@@ -179,7 +179,10 @@ From `app.json`:
 - `expo-web-browser` — in-app browser used by `CampusPlatformsScreen` to open external university platforms
 - `expo-clipboard` — copy-to-clipboard for platform URLs in `CampusPlatformsScreen`
 - `react-native-webview` — embedded web view used by `MensaScreen`; **not bundled in Expo Go** — `MensaScreen` wraps the `require` in a try/catch and shows an "Open in Browser" fallback when unavailable
+- `buffer` — polyfill used in `services/api.js` to base64-encode Basic Auth credentials; React Native has no native `Buffer`
+- `react-native-url-polyfill` — imported in `index.js` as `react-native-url-polyfill/auto` to patch the global `URL` class; required by the Supabase JS client — do not remove
 - `axios` — listed in `package.json` but not used; the entire API layer uses native `fetch`
+- `react-native-vector-icons` — listed in `package.json` but not used; all icon usage is via `@expo/vector-icons` (Ionicons)
 
 ### Utilities
 

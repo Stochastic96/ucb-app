@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { loadGoingState } from '../../services/reminders';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
@@ -19,21 +18,14 @@ import EventRow from '../../components/EventRow';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, DARK, INACTIVE, SURFACE, BG, ACCENT } from '../../constants/colors';
-import { isSameCalendarDay, toMillis } from '../../utils/datetime';
+import { PRIMARY, DARK, INACTIVE, SURFACE, BG, ACCENT, CATEGORY_COLORS } from '../../constants/colors';
+import { isSameCalendarDay, toMillis, getGreeting, getTimeUntil, formatShortDate } from '../../utils/datetime';
 import {
   getSportsForDate,
   getTodayCampusEvents,
   getUpcomingCampusEvents,
   isCampusEventActiveOnDate,
 } from '../../utils/campusContent';
-
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 function getTodayEvents(events) {
   const today = new Date();
@@ -50,29 +42,6 @@ function getNextEvent(events) {
       return millis !== null && millis > now;
     })
     .sort((a, b) => (toMillis(a.start) ?? Infinity) - (toMillis(b.start) ?? Infinity))[0] ?? null;
-}
-
-function getTimeUntil(isoOrUnix) {
-  const ts = toMillis(isoOrUnix);
-  if (ts === null) return '';
-  const diff = ts - Date.now();
-  if (diff <= 0) return 'now';
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `in ${mins}m`;
-  const hrs = Math.floor(mins / 60);
-  const rem = mins % 60;
-  return rem > 0 ? `in ${hrs}h ${rem}m` : `in ${hrs}h`;
-}
-
-const EVENT_CATEGORY_COLORS = {
-  party: '#E91E63', gaming: '#7B1FA2', social: '#1976D2', academic: '#455A64',
-  sports: '#388E3C', outdoor: '#F57C00', cultural: '#D84315', culture: '#00796B',
-  recurring: PRIMARY,
-};
-
-function formatShortDate(dateStr) {
-  const [, m, dd] = dateStr.split('-');
-  return `${dd}.${m}`;
 }
 
 function getCampusEventRowLabel(event) {
@@ -218,13 +187,6 @@ export default function HomeScreen({ navigation }) {
       };
     }, [loadDashboardContent])
   );
-
-  useEffect(() => {
-    loadGoingState().then(({ goingEventIds: eIds, goingSportIds: sIds }) => {
-      setGoingEventIds(eIds);
-      setGoingSportIds(sIds);
-    }).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -386,7 +348,7 @@ export default function HomeScreen({ navigation }) {
           </View>
           <View style={styles.eventsCard}>
             {campusPreview.map((ev) => {
-              const color = EVENT_CATEGORY_COLORS[ev.category] ?? PRIMARY;
+              const color = CATEGORY_COLORS[ev.category] ?? PRIMARY;
               const isGoing = goingEventIds.includes(ev.id);
               return (
                 <TouchableOpacity

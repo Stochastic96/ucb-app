@@ -10,6 +10,20 @@ export const TEXT = '#1A1A1A';
 export const TEXT_SECONDARY = '#555555';
 export const ACCENT = '#EDF6E5';
 
+// Campus-event category colors — used by HomeScreen and EventsScreen.
+// Keyed by the `category` field returned from Supabase `campus_events`.
+export const CATEGORY_COLORS = {
+  party: '#E91E63',
+  gaming: '#7B1FA2',
+  social: '#1976D2',
+  academic: '#455A64',
+  sports: '#388E3C',
+  outdoor: '#F57C00',
+  cultural: '#D84315',
+  culture: '#00796B',
+  recurring: '#6FAE3E', // PRIMARY — cannot reference PRIMARY here (defined below)
+};
+
 // 12 distinct colors for course color-coding (assigned by index % 12)
 export const COURSE_COLORS = [
   '#6FAE3E',

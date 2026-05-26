@@ -20,7 +20,9 @@ async function withFallback(cacheKey, fetcher, localFallback) {
       await AsyncStorage.setItem(`ucb_remote_${cacheKey}`, JSON.stringify(data));
       return { data, isOffline: false };
     }
-  } catch {}
+  } catch (err) {
+    console.warn(`[contentService] fetch failed for "${cacheKey}":`, err?.message ?? err);
+  }
 
   const cached = await AsyncStorage.getItem(`ucb_remote_${cacheKey}`);
   if (cached) {

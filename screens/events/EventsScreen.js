@@ -14,11 +14,10 @@ import {
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../../components/SearchBar';
-import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
+import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, CATEGORY_COLORS } from '../../constants/colors';
 import useStore from '../../store/useStore';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
 import {
-  loadGoingState,
   saveGoingState,
   scheduleEventReminder,
   scheduleSportReminder,
@@ -35,18 +34,7 @@ import {
   normalizeDayName,
   sortSportsEntries,
 } from '../../utils/campusContent';
-
-const CATEGORY_COLORS = {
-  party: '#E91E63',
-  gaming: '#7B1FA2',
-  social: '#1976D2',
-  academic: '#455A64',
-  sports: '#388E3C',
-  outdoor: '#F57C00',
-  cultural: '#D84315',
-  culture: '#00796B',
-  recurring: PRIMARY,
-};
+import { formatShortDate, daysUntil } from '../../utils/datetime';
 
 const SPORT_EMOJI = {
   'Table Tennis': '🏓',
@@ -60,21 +48,6 @@ const SPORT_EMOJI = {
   Cricket: '🏏',
 };
 
-function formatDate(dateStr, endDateStr) {
-  if (!dateStr) return '';
-  const [, m, dd] = dateStr.split('-');
-  if (endDateStr) {
-    const [, , dd2] = endDateStr.split('-');
-    return `${dd}.${m}–${dd2}.${m}`;
-  }
-  return `${dd}.${m}`;
-}
-
-function daysUntil(dateStr) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.round((new Date(dateStr) - today) / 86400000);
-}
 
 function EventCard({ ev, isGoing, onToggle }) {
   const color = CATEGORY_COLORS[ev.category] ?? PRIMARY;
@@ -87,7 +60,7 @@ function EventCard({ ev, isGoing, onToggle }) {
       <View style={[styles.eventBorder, { backgroundColor: color }]} />
       <View style={styles.eventDateBox}>
         <Text style={[styles.eventDate, past && styles.dimText]}>
-          {formatDate(ev.date, ev.endDate)}
+          {formatShortDate(ev.date, ev.endDate)}
         </Text>
       </View>
       <View style={styles.eventBody}>
@@ -347,14 +320,6 @@ export default function EventsScreen() {
   const removeGoingSport = useStore((s) => s.removeGoingSport);
   const setGoingEventIds = useStore((s) => s.setGoingEventIds);
   const setGoingSportIds = useStore((s) => s.setGoingSportIds);
-
-  // Load persisted going state on mount
-  useEffect(() => {
-    loadGoingState().then(({ goingEventIds: eIds, goingSportIds: sIds }) => {
-      setGoingEventIds(eIds);
-      setGoingSportIds(sIds);
-    }).catch(() => {});
-  }, []);
 
   const loadContent = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);

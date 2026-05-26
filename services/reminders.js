@@ -1,10 +1,14 @@
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
-const STORAGE_KEY = 'ucb_going_state';
+const STORAGE_KEY = STORAGE_KEYS.GOING_STATE;
 
-// weekday: 1=Sun, 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat
-const DAY_WEEKDAY = { Monday: 2, Wednesday: 4, Thursday: 5 };
+// Expo Notifications weekday: 1=Sun, 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat
+const DAY_WEEKDAY = {
+  Sunday: 1, Monday: 2, Tuesday: 3, Wednesday: 4,
+  Thursday: 5, Friday: 6, Saturday: 7,
+};
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -182,22 +186,22 @@ export async function cancelExamReminders(courseId) {
 
 export async function loadDeadlines() {
   try {
-    const raw = await AsyncStorage.getItem('ucb_deadlines');
+    const raw = await AsyncStorage.getItem(STORAGE_KEYS.DEADLINES);
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
 
 export async function saveDeadlines(deadlines) {
   try {
-    await AsyncStorage.setItem('ucb_deadlines', JSON.stringify(deadlines));
+    await AsyncStorage.setItem(STORAGE_KEYS.DEADLINES, JSON.stringify(deadlines));
   } catch {}
 }
 
 export async function loadExamData() {
   try {
     const [regRaw, planRaw] = await Promise.all([
-      AsyncStorage.getItem('ucb_exam_reg'),
-      AsyncStorage.getItem('ucb_exam_plans'),
+      AsyncStorage.getItem(STORAGE_KEYS.EXAM_REGISTRATIONS),
+      AsyncStorage.getItem(STORAGE_KEYS.EXAM_PLANS),
     ]);
     return {
       registrations: regRaw ? JSON.parse(regRaw) : {},
@@ -208,13 +212,13 @@ export async function loadExamData() {
 
 export async function saveExamRegistrations(data) {
   try {
-    await AsyncStorage.setItem('ucb_exam_reg', JSON.stringify(data));
+    await AsyncStorage.setItem(STORAGE_KEYS.EXAM_REGISTRATIONS, JSON.stringify(data));
   } catch {}
 }
 
 export async function saveExamPlans(data) {
   try {
-    await AsyncStorage.setItem('ucb_exam_plans', JSON.stringify(data));
+    await AsyncStorage.setItem(STORAGE_KEYS.EXAM_PLANS, JSON.stringify(data));
   } catch {}
 }
 
