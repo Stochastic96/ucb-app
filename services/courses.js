@@ -5,6 +5,17 @@ import { COURSE_COLORS } from '../constants/colors';
 import useStore from '../store/useStore';
 import { toMillis } from '../utils/datetime';
 
+// Returns courses belonging to the most-represented semester (used as a proxy for
+// "current semester" when the Stud.IP /semesters endpoint is unavailable).
+// fallbackLimit controls how many courses to return when no semester label exists.
+export function getCurrentSemesterCourses(courses, fallbackLimit = 10) {
+  if (!courses.length) return [];
+  const counts = {};
+  courses.forEach((c) => { if (c.semester) counts[c.semester] = (counts[c.semester] || 0) + 1; });
+  const current = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
+  return current ? courses.filter((c) => c.semester === current) : courses.slice(0, fallbackLimit);
+}
+
 function mapCourse(raw, index) {
   const attrs = raw.attributes ?? {};
   return {
