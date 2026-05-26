@@ -99,7 +99,12 @@ RootNavigator (NativeStack)
 - Raw `fetch`-based client with Basic Auth, 10 s timeout, JSON:API `Accept` header.
 - `classifyError()` maps HTTP/network errors to typed objects: `AUTH_FAILED` (401/403), `RATE_LIMITED` (429), `SERVER_DOWN` (5xx), `NO_INTERNET` (network/abort), `NO_CREDENTIALS`, `UNKNOWN`.
 - `services/courses.js`, `services/events.js`, `services/news.js`, `services/profile.js` each wrap `getApiClient()`.
-- `services/courses.js` also exports `getCurrentSemesterCourses(courses, fallbackLimit)` (pure filter using the store's `currentSemester`) and `fetchCurrentSemester()` (fetches `/semesters` and writes `currentSemester` to the store); both are called during bootstrap.
+- `services/courses.js` exports:
+  - `fetchCourses(userId, force)` — fetches and caches the user's course memberships; applies semester filter from the store on read.
+  - `fetchCurrentSemester()` — fetches `/semesters`, writes `currentSemester` to the store, and invalidates the courses cache when the semester changes. **Not called during bootstrap** — call it explicitly (e.g. from a screen) when a semester refresh is needed.
+  - `getCurrentSemesterCourses(courses, fallbackLimit)` — pure filter using the store's `currentSemester`; falls back to the most-represented semester label when the store value is `null`.
+  - `fetchCourseDetail(courseId)`, `fetchCourseFiles(courseId)`, `fetchCourseAnnouncements(courseId)` — used by `CourseDetailScreen` to load per-course detail, file refs, and course-level news.
+- `services/auth.js` exports `logout()` — clears in-memory credential cache, deletes all three SecureStore keys, wipes the async cache, and calls `useStore.getState().clearUser()`. Called from Profile, Settings, and Sidebar screens.
 
 **Caching** — `services/cache.js`
 - AsyncStorage with `ucb_` prefix, TTL-based (`constants/config.js` `CACHE_TTL`).
