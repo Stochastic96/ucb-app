@@ -83,3 +83,30 @@ export function buildNativeMapsLabel(building) {
   if (!building) return CAMPUS_CENTER.label;
   return `${building.name}, Umwelt-Campus Birkenfeld`;
 }
+
+const TYPE_COLORS = {
+  academic: '#6FAE3E',
+  dormitory: '#4A90E2',
+  hotel: '#F5A623',
+  building: '#78909C',
+};
+
+export function getTypeColor(type) {
+  return TYPE_COLORS[type] ?? TYPE_COLORS.building;
+}
+
+const TYPE_LABELS = {
+  academic: 'Academic',
+  dormitory: 'Housing',
+  hotel: 'Hotel',
+  building: 'Facility',
+};
+
+export function getTypeLabel(type) {
+  return TYPE_LABELS[type] ?? 'Building';
+}
+
+export function filterBuildingsByType(type) {
+  if (!type || type === 'all') return BUILDINGS;
+  return BUILDINGS.filter((b) => b.type === type);
+}

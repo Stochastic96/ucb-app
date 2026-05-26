@@ -1,130 +1,347 @@
 [
   {
+    "id": "9902",
+    "number": "9902",
+    "type": "dormitory",
+    "name": "Student Dormitory 9902",
+    "shortName": "9902",
+    "aliases": ["9902", "dorm 9902", "wohnheim 9902"],
+    "lat": 49.6077123,
+    "lng": 7.1720795,
+    "floors": 4,
+    "description": "4-storey student dormitory on the east side of campus.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9903",
+    "number": "9903",
+    "type": "dormitory",
+    "name": "Student Dormitory 9903",
+    "shortName": "9903",
+    "aliases": ["9903", "dorm 9903", "wohnheim 9903"],
+    "lat": 49.6073961,
+    "lng": 7.1716857,
+    "floors": 4,
+    "description": "4-storey student dormitory on the south-east side of campus.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9904",
+    "number": "9904",
+    "type": "dormitory",
+    "name": "Student Dormitory 9904",
+    "shortName": "9904",
+    "aliases": ["9904", "dorm 9904", "wohnheim 9904"],
+    "lat": 49.6077387,
+    "lng": 7.1716167,
+    "floors": 3,
+    "description": "3-storey student dormitory on the east side of campus.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9905",
+    "number": "9905",
+    "type": "dormitory",
+    "name": "Student Dormitory 9905",
+    "shortName": "9905",
+    "aliases": ["9905", "dorm 9905", "wohnheim 9905"],
+    "lat": 49.6086952,
+    "lng": 7.1716448,
+    "floors": 2,
+    "description": "2-storey student dormitory near Campus Allee.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9906",
+    "number": "9906",
+    "type": "dormitory",
+    "name": "Student Dormitory 9906",
+    "shortName": "9906",
+    "aliases": ["9906", "dorm 9906", "wohnheim 9906"],
+    "lat": 49.6083358,
+    "lng": 7.1712730,
+    "floors": 3,
+    "description": "Student dormitory on the east campus, close to Campus Allee.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9907",
+    "number": "9907",
+    "type": "dormitory",
+    "name": "Student Dormitory 9907",
+    "shortName": "9907",
+    "aliases": ["9907", "dorm 9907", "wohnheim 9907"],
+    "lat": 49.6090232,
+    "lng": 7.1712102,
+    "floors": 3,
+    "description": "3-storey student dormitory on the north-east corner of campus.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9908",
+    "number": "9908",
+    "type": "dormitory",
+    "name": "Student Dormitory 9908",
+    "shortName": "9908",
+    "aliases": ["9908", "99908", "dorm 9908", "wohnheim 9908"],
+    "lat": 49.6078083,
+    "lng": 7.1709751,
+    "floors": 3,
+    "description": "3-storey student dormitory on the south-east campus.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9911",
+    "number": "9911",
+    "type": "dormitory",
+    "name": "Student Dormitory 9911",
+    "shortName": "9911",
+    "aliases": ["9911", "11", "dorm 9911", "wohnheim 9911"],
+    "lat": 49.6086643,
+    "lng": 7.1708768,
+    "floors": 3,
+    "description": "Student dormitory near the north-east academic cluster.",
+    "services": ["Student housing", "Common areas"]
+  },
+  {
+    "id": "9912",
+    "number": "9912",
+    "type": "academic",
+    "name": "Building 9912",
+    "shortName": "9912",
+    "aliases": ["9912", "12"],
+    "lat": 49.6085100,
+    "lng": 7.1705000,
+    "description": "Academic building in the north-east campus cluster.",
+    "services": ["Lecture rooms", "Offices"]
+  },
+  {
     "id": "9913",
     "number": "9913",
+    "type": "academic",
     "name": "Faculty and Programme Offices",
     "shortName": "9913",
-    "aliases": [
-      "13",
-      "faculty offices",
-      "programme office",
-      "study advising"
-    ],
-    "lat": 49.6088072,
-    "lng": 7.1701828,
+    "aliases": ["9913", "13", "faculty offices", "programme office", "study advising"],
+    "lat": 49.6087301,
+    "lng": 7.1701884,
     "description": "Academic offices, programme consultations, and staff rooms for several UCB degree programmes.",
-    "services": [
-      "Programme offices",
-      "Study advising",
-      "Professor consultations"
-    ]
+    "services": ["Programme offices", "Study advising", "Professor consultations"]
   },
   {
     "id": "9914",
     "number": "9914",
-    "name": "Student Life and AStA Building",
+    "type": "academic",
+    "name": "Student Services and Examination Office",
     "shortName": "9914",
-    "aliases": [
-      "14",
-      "asta",
-      "student union",
-      "student life"
-    ],
-    "lat": 49.6080936,
-    "lng": 7.1702097,
-    "description": "Student-facing services including AStA contacts, student initiatives, and campus life support.",
-    "services": [
-      "AStA office",
-      "Student initiatives",
-      "Student support meetings"
-    ]
+    "aliases": ["9914", "14", "asta", "student union", "student services", "examination office", "international office", "pruefungsamt", "registrar", "studierendensekretariat"],
+    "lat": 49.6081071,
+    "lng": 7.1702223,
+    "description": "Core administration for enrollment certificates, exam support, international student contacts, and AStA student union.",
+    "services": ["Registrar", "Examination Office", "International Office", "AStA", "Student administration"]
+  },
+  {
+    "id": "9915",
+    "number": "9915",
+    "type": "academic",
+    "name": "Lecture Building 9915",
+    "shortName": "9915",
+    "aliases": ["9915", "15"],
+    "lat": 49.6083737,
+    "lng": 7.1698832,
+    "description": "Academic lecture and seminar building in the main campus row.",
+    "services": ["Lecture rooms", "Seminar rooms"]
+  },
+  {
+    "id": "9916",
+    "number": "9916",
+    "type": "academic",
+    "name": "Lecture Building 9916",
+    "shortName": "9916",
+    "aliases": ["9916", "16"],
+    "lat": 49.6083619,
+    "lng": 7.1695469,
+    "description": "Academic lecture and seminar building in the main campus row.",
+    "services": ["Lecture rooms", "Seminar rooms"]
   },
   {
     "id": "9917",
     "number": "9917",
+    "type": "academic",
     "name": "IT Service and Campus Support",
     "shortName": "9917",
-    "aliases": [
-      "17",
-      "it",
-      "it servicepoint",
-      "computer labs",
-      "service point"
-    ],
-    "lat": 49.6080933,
-    "lng": 7.1692014,
+    "aliases": ["9917", "17", "it", "it servicepoint", "computer labs", "service point"],
+    "lat": 49.6083095,
+    "lng": 7.1691849,
     "description": "IT ServicePoint, printing support, account setup, and technical help for Stud.IP, email, and campus systems.",
-    "services": [
-      "IT ServicePoint",
-      "Account setup",
-      "Printing support",
-      "Computer labs"
-    ]
+    "services": ["IT ServicePoint", "Account setup", "Printing support", "Computer labs"]
   },
   {
     "id": "9922",
     "number": "9922",
-    "name": "Zentraler Neubau and Library",
-    "shortName": "9922",
-    "aliases": [
-      "22",
-      "zentraler neubau",
-      "library",
-      "bibliothek",
-      "audimax"
-    ],
-    "lat": 49.6081806,
-    "lng": 7.1687406,
-    "description": "Central teaching building with library access, study areas, and large lecture spaces.",
-    "services": [
-      "Library",
-      "Study spaces",
-      "Large lecture rooms",
-      "Campus information points"
-    ]
+    "type": "academic",
+    "name": "Zentraler Neubau (ZN)",
+    "shortName": "ZN",
+    "aliases": ["9922", "22", "zn", "zentraler neubau", "library", "bibliothek", "bib", "audimax", "central building"],
+    "lat": 49.6083122,
+    "lng": 7.1687293,
+    "description": "The main academic building on campus. Houses the library (BIB), large lecture halls, seminar rooms, and study areas across multiple floors.",
+    "services": ["Library", "Study spaces", "Large lecture rooms", "Audimax", "Campus information points"]
   },
   {
     "id": "9924",
     "number": "9924",
-    "name": "Student Services and Examination Office",
+    "type": "academic",
+    "name": "Aula and Administration",
     "shortName": "9924",
-    "aliases": [
-      "24",
-      "registrar",
-      "studierendensekretariat",
-      "pruefungsamt",
-      "examination office",
-      "international office",
-      "student services"
-    ],
-    "lat": 49.6080386,
-    "lng": 7.1682969,
-    "description": "Core administration for enrollment certificates, exam support, international student contact points, and study administration.",
-    "services": [
-      "Registrar",
-      "Examination Office",
-      "International Office",
-      "Student administration"
-    ]
+    "aliases": ["9924", "24", "aula", "main hall", "ceremony hall", "administration"],
+    "lat": 49.6082539,
+    "lng": 7.1682770,
+    "description": "Houses the Aula (main ceremonial and events hall) along with administrative offices.",
+    "services": ["Aula / Events hall", "Administrative offices", "Ceremony events"]
+  },
+  {
+    "id": "9925",
+    "number": "9925",
+    "type": "academic",
+    "name": "IBT Technikum",
+    "shortName": "9925",
+    "aliases": ["9925", "25", "ibt", "technikum", "institut für betriebs", "technologiemanagement"],
+    "lat": 49.6082967,
+    "lng": 7.1679125,
+    "description": "Institut für Betriebs- und Technologiemanagement (IBT). Engineering labs, workshop spaces, and technology research facilities.",
+    "services": ["Engineering labs", "Workshop / Technikum", "IBT offices", "Research facilities"]
+  },
+  {
+    "id": "9926",
+    "number": "9926",
+    "type": "academic",
+    "name": "Lecture Building 9926",
+    "shortName": "9926",
+    "aliases": ["9926", "26"],
+    "lat": 49.6082862,
+    "lng": 7.1675753,
+    "description": "Academic lecture and seminar building in the west campus row.",
+    "services": ["Lecture rooms", "Seminar rooms"]
+  },
+  {
+    "id": "9927",
+    "number": "9927",
+    "type": "building",
+    "name": "Building 9927",
+    "shortName": "9927",
+    "aliases": ["9927", "27"],
+    "lat": 49.6086545,
+    "lng": 7.1671989,
+    "description": "Campus building on the west side near housing facilities.",
+    "services": []
   },
   {
     "id": "9928",
     "number": "9928",
+    "type": "building",
     "name": "Campus Company and Housing Support",
     "shortName": "9928",
-    "aliases": [
-      "28",
-      "campus company",
-      "housing",
-      "residence support"
-    ],
-    "lat": 49.6085114,
-    "lng": 7.1669025,
+    "aliases": ["9928", "28", "campus company", "housing", "residence support"],
+    "lat": 49.6085214,
+    "lng": 7.1668833,
     "description": "Campus Company services and residence-related support for campus housing and facilities.",
-    "services": [
-      "Housing support",
-      "Campus Company office",
-      "Facilities enquiries"
-    ]
+    "services": ["Housing support", "Campus Company office", "Facilities enquiries"]
+  },
+  {
+    "id": "9929",
+    "number": "9929",
+    "type": "hotel",
+    "name": "Campus Hotel",
+    "shortName": "Hotel",
+    "aliases": ["9929", "hotel", "h", "guesthouse"],
+    "lat": 49.6089002,
+    "lng": 7.1668192,
+    "description": "On-campus hotel accommodating visitors, conference guests, and short-stay needs.",
+    "services": ["Hotel accommodation", "Conference facilities"]
+  },
+  {
+    "id": "9930",
+    "number": "9930",
+    "type": "academic",
+    "name": "Science and Lab Building 9930",
+    "shortName": "9930",
+    "aliases": ["9930", "30"],
+    "lat": 49.6080009,
+    "lng": 7.1671478,
+    "description": "Laboratory and science facilities building on the south-west campus.",
+    "services": ["Laboratories", "Research rooms"]
+  },
+  {
+    "id": "9935",
+    "number": "9935",
+    "type": "building",
+    "name": "Building 9935",
+    "shortName": "9935",
+    "aliases": ["9935", "35"],
+    "lat": 49.6095715,
+    "lng": 7.1679832,
+    "description": "Campus building north of the main cluster.",
+    "services": []
+  },
+  {
+    "id": "9939",
+    "number": "9939",
+    "type": "academic",
+    "name": "Kommunikationsgebäude",
+    "shortName": "9939",
+    "aliases": ["9939", "39", "kommunikationsgebaeude", "communications", "media building"],
+    "lat": 49.6075096,
+    "lng": 7.1691610,
+    "description": "Communications and media building on the south campus. Wheelchair accessible.",
+    "services": ["Media facilities", "Communications", "Accessible entrance"]
+  },
+  {
+    "id": "9940",
+    "number": "9940",
+    "type": "academic",
+    "name": "Building 9940",
+    "shortName": "9940",
+    "aliases": ["9940", "40"],
+    "lat": 49.6072862,
+    "lng": 7.1712602,
+    "floors": 1,
+    "description": "Single-storey building on the south-east campus.",
+    "services": ["Offices"]
+  },
+  {
+    "id": "9942",
+    "number": "9942",
+    "type": "academic",
+    "name": "Building 9942",
+    "shortName": "9942",
+    "aliases": ["9942", "42"],
+    "lat": 49.6072811,
+    "lng": 7.1704156,
+    "description": "Academic building on the south campus.",
+    "services": ["Lecture rooms", "Offices"]
+  },
+  {
+    "id": "9970",
+    "number": "9970",
+    "type": "building",
+    "name": "Building 9970",
+    "shortName": "9970",
+    "aliases": ["9970", "70"],
+    "lat": 49.6106439,
+    "lng": 7.1674298,
+    "description": "Campus support building on the north site.",
+    "services": []
+  },
+  {
+    "id": "9972",
+    "number": "9972",
+    "type": "building",
+    "name": "Building 9972",
+    "shortName": "9972",
+    "aliases": ["9972", "72"],
+    "lat": 49.6101852,
+    "lng": 7.1675000,
+    "description": "Campus support building on the north site.",
+    "services": []
   }
 ]
