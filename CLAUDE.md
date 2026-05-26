@@ -99,6 +99,7 @@ RootNavigator (NativeStack)
 - Raw `fetch`-based client with Basic Auth, 10 s timeout, JSON:API `Accept` header.
 - `classifyError()` maps HTTP/network errors to typed objects: `AUTH_FAILED` (401/403), `RATE_LIMITED` (429), `SERVER_DOWN` (5xx), `NO_INTERNET` (network/abort), `NO_CREDENTIALS`, `UNKNOWN`.
 - `services/courses.js`, `services/events.js`, `services/news.js`, `services/profile.js` each wrap `getApiClient()`.
+- `services/courses.js` also exports `getCurrentSemesterCourses(courses, fallbackLimit)` (pure filter using the store's `currentSemester`) and `fetchCurrentSemester()` (fetches `/semesters` and writes `currentSemester` to the store); both are called during bootstrap.
 
 **Caching** — `services/cache.js`
 - AsyncStorage with `ucb_` prefix, TTL-based (`constants/config.js` `CACHE_TTL`).
@@ -159,6 +160,8 @@ Both route via `navigateFromNotification(identifier)`, which uses the notificati
 
 `components/BiometricLockScreen.js` uses `expo-local-authentication`. Rendered as a full-screen overlay in `App.js` above the `NavigationContainer` when `isLocked && isLoggedIn`. Lock triggers when the app returns to the foreground after being backgrounded for more than 30 s (`LOCK_GRACE_MS`) and `settings.biometricLockEnabled` is true. `onUnlock` callback clears `isLocked`.
 
+**Cold-start gate**: when biometric lock is enabled and credentials exist in SecureStore (checked via `SECURE_KEYS.USERNAME`), `initializeApp()` sets `isLocked=true` and returns early (storing a `pendingSessionRestoreRef` flag) — session restore and bootstrap are deferred until after the user unlocks. The `handleUnlock` callback detects this flag and calls `checkExistingSession()` + `finishAppInit()` (cold-start notification routing) after unlock.
+
 ### App Config Highlights
 
 From `app.json`:
@@ -210,6 +213,8 @@ From `app.json`:
 
 - `constants/colors.js` — all colour tokens; `PRIMARY = '#6FAE3E'` (green), `COURSE_COLORS` array (12 colours, assigned by `index % 12`).
 - `constants/config.js` — `BASE_URL`, `STUDIP_WEB_URL`, `CACHE_TTL` map.
+- `constants/storageKeys.js` — single source of truth for all AsyncStorage key strings exported as `STORAGE_KEYS`. `cache.js`'s `NON_CACHE_KEYS` references these constants. Never use raw `ucb_*` string literals elsewhere in the codebase.
+- `constants/secureKeys.js` — single source of truth for all `expo-secure-store` key strings exported as `SECURE_KEYS` (`USERNAME`, `PASSWORD`, `SESSION_CREATED`). Used in `services/auth.js`, `services/api.js`, and `App.js`. Never use raw string literals for these keys.
 
 ### Archive
 

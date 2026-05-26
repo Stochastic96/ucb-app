@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { AppState, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { AppState } from 'react-native';
 import { NavigationContainer as NavContainer } from '@react-navigation/native';
-import { PaperProvider, MD3LightTheme, Modal, Portal } from 'react-native-paper';
+import { PaperProvider, MD3LightTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
@@ -11,9 +11,11 @@ import Sidebar from './components/Sidebar';
 import BiometricLockScreen from './components/BiometricLockScreen';
 import { navigationRef } from './navigation/navigationRef';
 import useStore from './store/useStore';
-import { PRIMARY, DARK, INACTIVE, BG, BORDER } from './constants/colors';
+import { PRIMARY, DARK } from './constants/colors';
 import { STORAGE_KEYS } from './constants/storageKeys';
+import { SECURE_KEYS } from './constants/secureKeys';
 import { bootstrapSessionData } from './services/bootstrap';
+import { clearCachedCredentials } from './services/api';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
 // Only uses the identifier (not notification content) to avoid handling personal data.
@@ -42,7 +44,6 @@ const ucbTheme = {
 export default function App() {
   const { updateSettings, setUser } = useStore();
   const [isLocked, setIsLocked] = useState(false);
-  const [showPrivacyNotice, setShowPrivacyNotice] = useState(false);
   const backgroundedAt = useRef(null);
   const appState = useRef(AppState.currentState);
   // Set when cold-start biometric gate is active — session restore runs after unlock
@@ -71,6 +72,8 @@ export default function App() {
 
     if (nextState === 'background' || nextState === 'inactive') {
       backgroundedAt.current = Date.now();
+      // Remove password from JS heap while app is not in foreground
+      clearCachedCredentials();
     } else if (nextState === 'active') {
       const { settings, isLoggedIn } = useStore.getState();
       if (
@@ -95,8 +98,6 @@ export default function App() {
   }, []);
 
   const finishAppInit = async () => {
-    const seen = await AsyncStorage.getItem(STORAGE_KEYS.PRIVACY_ACCEPTED);
-    if (!seen) setShowPrivacyNotice(true);
     const lastResponse = await Notifications.getLastNotificationResponseAsync();
     if (lastResponse?.notification?.request?.identifier) {
       navigateFromNotification(lastResponse.notification.request.identifier);
@@ -110,7 +111,7 @@ export default function App() {
     // show the lock screen before restoring the session.
     const { settings } = useStore.getState();
     if (settings.biometricLockEnabled) {
-      const storedUsername = await SecureStore.getItemAsync('username');
+      const storedUsername = await SecureStore.getItemAsync(SECURE_KEYS.USERNAME);
       if (storedUsername) {
         pendingSessionRestoreRef.current = true;
         setIsLocked(true);
@@ -120,11 +121,6 @@ export default function App() {
 
     await checkExistingSession();
     await finishAppInit();
-  };
-
-  const handleAcceptPrivacy = async () => {
-    await AsyncStorage.setItem(STORAGE_KEYS.PRIVACY_ACCEPTED, '1');
-    setShowPrivacyNotice(false);
   };
 
   const loadSettings = async () => {
@@ -159,90 +155,7 @@ export default function App() {
         {isLocked && (
           <BiometricLockScreen onUnlock={handleUnlock} />
         )}
-        {/* First-run privacy notice — shown once, above everything */}
-        <Portal>
-          <Modal
-            visible={showPrivacyNotice}
-            dismissable={false}
-            contentContainerStyle={privacyStyles.modal}
-          >
-            <Text style={privacyStyles.title}>Datenschutzhinweis</Text>
-            <Text style={privacyStyles.subtitle}>UCB Navigator · Informeller Studentenapp</Text>
-            <View style={privacyStyles.bullets}>
-              <Text style={privacyStyles.bullet}>
-                Deine Stud.IP-Zugangsdaten werden ausschließlich an studip.hochschule-trier.de übertragen und sicher auf deinem Gerät gespeichert.
-              </Text>
-              <Text style={privacyStyles.bullet}>
-                Campusinhalte (Mensaplan, Events) werden anonym von Supabase geladen — keine personenbezogenen Daten werden übermittelt.
-              </Text>
-              <Text style={privacyStyles.bullet}>
-                Deine Fristen und Einstellungen bleiben lokal auf deinem Gerät. Kein Tracking, keine Werbung.
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => navigationRef.current?.navigate('Datenschutz')}
-              style={privacyStyles.linkBtn}
-            >
-              <Text style={privacyStyles.linkText}>Vollständige Datenschutzerklärung ansehen</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={privacyStyles.acceptBtn} onPress={handleAcceptPrivacy}>
-              <Text style={privacyStyles.acceptText}>Verstanden</Text>
-            </TouchableOpacity>
-          </Modal>
-        </Portal>
       </PaperProvider>
     </SafeAreaProvider>
   );
 }
-
-const privacyStyles = StyleSheet.create({
-  modal: {
-    backgroundColor: BG,
-    marginHorizontal: 20,
-    borderRadius: 16,
-    padding: 24,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 12,
-    color: INACTIVE,
-    marginBottom: 18,
-  },
-  bullets: {
-    gap: 12,
-    marginBottom: 20,
-  },
-  bullet: {
-    fontSize: 14,
-    color: '#333',
-    lineHeight: 20,
-    paddingLeft: 10,
-    borderLeftWidth: 2,
-    borderLeftColor: PRIMARY,
-  },
-  linkBtn: {
-    marginBottom: 14,
-    alignItems: 'center',
-  },
-  linkText: {
-    fontSize: 13,
-    color: PRIMARY,
-    textDecorationLine: 'underline',
-  },
-  acceptBtn: {
-    backgroundColor: PRIMARY,
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  acceptText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-});

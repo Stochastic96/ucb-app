@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { Buffer } from 'buffer';
 import { BASE_URL } from '../constants/config';
+import { SECURE_KEYS } from '../constants/secureKeys';
 
 // In-memory credential cache — avoids concurrent SecureStore races
 let _cachedUsername = null;
@@ -25,8 +26,8 @@ export async function getStoredCredentials() {
     return { username: _cachedUsername, password: _cachedPassword };
   }
 
-  const username = await SecureStore.getItemAsync('username');
-  const password = await SecureStore.getItemAsync('password');
+  const username = await SecureStore.getItemAsync(SECURE_KEYS.USERNAME);
+  const password = await SecureStore.getItemAsync(SECURE_KEYS.PASSWORD);
 
   if (!username || !password) {
     const err = new Error('No stored Stud.IP credentials');

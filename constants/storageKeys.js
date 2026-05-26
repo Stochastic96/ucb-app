@@ -7,5 +7,4 @@ export const STORAGE_KEYS = {
   EXAM_REGISTRATIONS: 'ucb_exam_reg',
   EXAM_PLANS: 'ucb_exam_plans',
   GOING_STATE: 'ucb_going_state',
-  PRIVACY_ACCEPTED: 'ucb_privacy_v1',
 };

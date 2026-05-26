@@ -3,6 +3,7 @@ import { getApiClient, classifyError, setCachedCredentials, clearCachedCredentia
 import { clearAllCache } from './cache';
 import { normalizeProfile } from './profile';
 import { SESSION_MAX_AGE } from '../constants/config';
+import { SECURE_KEYS } from '../constants/secureKeys';
 import useStore from '../store/useStore';
 
 // Credentials are device-only and cannot be restored from iCloud backup to another device
@@ -11,18 +12,18 @@ const SECURE_OPTS = {
 };
 
 export async function saveCredentials(username, password) {
-  await SecureStore.setItemAsync('username', username, SECURE_OPTS);
-  await SecureStore.setItemAsync('password', password, SECURE_OPTS);
-  await SecureStore.setItemAsync('ucb_session_created', String(Date.now()), SECURE_OPTS);
+  await SecureStore.setItemAsync(SECURE_KEYS.USERNAME, username, SECURE_OPTS);
+  await SecureStore.setItemAsync(SECURE_KEYS.PASSWORD, password, SECURE_OPTS);
+  await SecureStore.setItemAsync(SECURE_KEYS.SESSION_CREATED, String(Date.now()), SECURE_OPTS);
 }
 
 export async function checkExistingSession() {
-  const username = await SecureStore.getItemAsync('username');
-  const password = await SecureStore.getItemAsync('password');
+  const username = await SecureStore.getItemAsync(SECURE_KEYS.USERNAME);
+  const password = await SecureStore.getItemAsync(SECURE_KEYS.PASSWORD);
   if (!username || !password) return { valid: false, user: null, error: null };
 
   // Expire sessions older than SESSION_MAX_AGE (7 days) — forces re-login
-  const createdAt = await SecureStore.getItemAsync('ucb_session_created');
+  const createdAt = await SecureStore.getItemAsync(SECURE_KEYS.SESSION_CREATED);
   if (createdAt && Date.now() - Number(createdAt) > SESSION_MAX_AGE) {
     await _deleteCredentials();
     return { valid: false, user: null, error: { type: 'SESSION_EXPIRED', message: 'Your session has expired. Please log in again.' } };
@@ -46,9 +47,9 @@ export async function checkExistingSession() {
 }
 
 async function _deleteCredentials() {
-  await SecureStore.deleteItemAsync('username');
-  await SecureStore.deleteItemAsync('password');
-  await SecureStore.deleteItemAsync('ucb_session_created');
+  await SecureStore.deleteItemAsync(SECURE_KEYS.USERNAME);
+  await SecureStore.deleteItemAsync(SECURE_KEYS.PASSWORD);
+  await SecureStore.deleteItemAsync(SECURE_KEYS.SESSION_CREATED);
 }
 
 export async function logout() {
