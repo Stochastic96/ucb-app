@@ -2,6 +2,16 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-28 — German vocabulary + CampusPlanView integration
+- data/buildings.json: Claude Sonnet 4.6 — Renamed all dormitories to "Studierendenwohnheim XXXX", lecture buildings to "Lehrgebäude XXXX", 9912/9913 to German faculty names (Dekanat UWuR/UPuT), 9914 to "Prüfungsamt & AStA", 9925 to "IBT Technikum – Vizepräsidium", 9928 to "Campus Company & Wohnheim-Service"; all service labels converted to German
+- screens/map/MapScreen.js: Claude Sonnet 4.6 — Add "Campusplan anzeigen" outlined button in hero card; opens CampusPlanView in a full-screen Modal with back arrow; tapping a building in the plan closes the plan and opens the detail sheet
+
+## 2026-05-27 — Campus map: schematic plan view + building data corrections
+- data/buildings.json: Claude Sonnet 4.6 — Corrected 7 buildings from official website crawl: 9912 (UWuR dean's building), 9913 (UPuT vice dean), 9914 (AStA Room 012), 9924 (Studienservice Room 35, Dean, Chancellor), 9925 (VP Room 12), 9917 (IT-ServicePoint Room 112), renamed 9939→9938 (KG building number was wrong per official map)
+- screens/map/CampusPlanView.js: Claude Sonnet 4.6 — New component; interactive schematic campus plan matching official Umwelt-Campus map layout; 26 buildings as tappable blocks; parking areas, road labels, legend, compass; no location permission needed
+- screens/map/MapScreen.js: Claude Sonnet 4.6 — Add Map / Campus Plan toggle; CampusPlanView shares the same building selection bottom sheet
+- screens/map/MapScreen.js: GPT-5.2-Codex — Revert to legacy campus guide list UI (no in-app map), with search + external navigation
+
 ## 2026-05-26 — Architecture refactor: quality, scalability, maintainability
 - constants/storageKeys.js: Claude Sonnet 4.6 — New file; single source of truth for all AsyncStorage key strings; eliminates scattered literals across App.js, reminders.js, newsState.js, cache.js
 - constants/colors.js: Claude Sonnet 4.6 — Add CATEGORY_COLORS export; eliminates identical definition duplicated in HomeScreen and EventsScreen
