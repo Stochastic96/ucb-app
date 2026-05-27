@@ -110,14 +110,6 @@ async function _runBootstrap(force) {
       store.setEvents([]);
     }
     store.setBootstrapError(normalized);
-    try {
-      const { getCrashlytics, isFirebaseAvailable } = await import('./firebase');
-      if (isFirebaseAvailable()) {
-        getCrashlytics().recordError(
-          new Error(`bootstrap:${normalized.type}: ${normalized.message}`)
-        );
-      }
-    } catch {}
     throw normalized;
   } finally {
     store.setHydrating(false);

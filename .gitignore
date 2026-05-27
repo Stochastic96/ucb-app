@@ -41,5 +41,6 @@ yarn-error.*
 /ios
 /android
 
-# Firebase iOS config (no Apple Developer account — iOS not used)
+# Firebase config files
+google-services.json
 GoogleService-Info.plist
