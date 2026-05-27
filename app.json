@@ -31,7 +31,8 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION"
       ],
-      "package": "com.anonymous.ucb"
+      "package": "com.anonymous.ucb",
+      "googleServicesFile": "$GOOGLE_SERVICES_JSON"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,7 +43,8 @@
       "expo-notifications",
       "@react-native-community/datetimepicker",
       "expo-web-browser",
-      "react-native-maps"
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics"
     ],
     "extra": {
       "eas": {

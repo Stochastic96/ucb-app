@@ -16,6 +16,7 @@ import { STORAGE_KEYS } from './constants/storageKeys';
 import { SECURE_KEYS } from './constants/secureKeys';
 import { bootstrapSessionData } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
+import { initFirebase, getAnalytics, getCrashlytics, isFirebaseAvailable } from './services/firebase';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
 // Only uses the identifier (not notification content) to avoid handling personal data.
@@ -104,8 +105,23 @@ export default function App() {
     }
   };
 
+  function setupCrashlytics() {
+    try {
+      const crashlytics = getCrashlytics();
+      if (!crashlytics) return;
+      const defaultHandler = ErrorUtils.getGlobalHandler();
+      ErrorUtils.setGlobalHandler(async (error, isFatal) => {
+        try { await crashlytics.recordError(error); } catch {}
+        defaultHandler(error, isFatal);
+      });
+    } catch {}
+  }
+
   const initializeApp = async () => {
-    await loadSettings();
+    await Promise.all([
+      initFirebase().then(() => setupCrashlytics()),
+      loadSettings(),
+    ]);
 
     // Cold-start biometric gate: if biometric lock is enabled and credentials exist,
     // show the lock screen before restoring the session.
@@ -139,7 +155,15 @@ export default function App() {
       if (result.valid && result.user) {
         setUser(result.user);
         try {
+          if (isFirebaseAvailable()) {
+            getAnalytics().logEvent('session_restored', { method: 'secure_store' });
+          }
+        } catch {}
+        try {
           await bootstrapSessionData();
+          try {
+            if (isFirebaseAvailable()) getAnalytics().logEvent('bootstrap_complete');
+          } catch {}
         } catch {}
       }
     } catch {}
@@ -148,7 +172,18 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <PaperProvider theme={ucbTheme}>
-        <NavContainer ref={navigationRef}>
+        <NavContainer
+          ref={navigationRef}
+          onStateChange={() => {
+            if (!isFirebaseAvailable()) return;
+            try {
+              const route = navigationRef.current?.getCurrentRoute();
+              if (route?.name) {
+                getAnalytics().logScreenView({ screen_name: route.name, screen_class: route.name });
+              }
+            } catch {}
+          }}
+        >
           <RootNavigator />
         </NavContainer>
         <Sidebar />

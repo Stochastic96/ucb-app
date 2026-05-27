@@ -78,6 +78,10 @@ export default function LoginScreen() {
       setLockoutEnd(null);
       setOffline(false);
       setUser(user);
+      try {
+        const { getAnalytics, isFirebaseAvailable } = await import('../services/firebase');
+        if (isFirebaseAvailable()) getAnalytics().logEvent('login', { method: 'studip_basic_auth' });
+      } catch {}
       didAuthenticate = true;
       await bootstrapSessionData(true);
     } catch (error) {
