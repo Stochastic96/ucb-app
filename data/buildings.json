@@ -112,8 +112,30 @@
     "aliases": ["9912", "12"],
     "lat": 49.6085100,
     "lng": 7.1705000,
+    "floors": 2,
     "description": "Academic building in the north-east campus cluster.",
-    "services": ["Lecture rooms", "Offices"]
+    "services": ["Lecture rooms", "Offices"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Lecture Room [update]", "type": "lecture", "capacity": 60 },
+          { "number": "0.02", "name": "Lecture Room [update]", "type": "lecture", "capacity": 60 },
+          { "number": "0.03", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.02", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.03", "name": "Office [update]", "type": "office" },
+          { "number": "1.04", "name": "Office [update]", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9913",
@@ -124,8 +146,32 @@
     "aliases": ["9913", "13", "faculty offices", "programme office", "study advising"],
     "lat": 49.6087301,
     "lng": 7.1701884,
+    "floors": 2,
     "description": "Academic offices, programme consultations, and staff rooms for several UCB degree programmes.",
-    "services": ["Programme offices", "Study advising", "Professor consultations"]
+    "services": ["Programme offices", "Study advising", "Professor consultations"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Programme Secretary", "type": "admin" },
+          { "number": "0.02", "name": "Study Advisory Service", "type": "office" },
+          { "number": "0.03", "name": "Student Consultation Room", "type": "seminar", "capacity": 10 },
+          { "number": "0.04", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Professor Office [update]", "type": "office" },
+          { "number": "1.02", "name": "Professor Office [update]", "type": "office" },
+          { "number": "1.03", "name": "Professor Office [update]", "type": "office" },
+          { "number": "1.04", "name": "Professor Office [update]", "type": "office" },
+          { "number": "1.05", "name": "Professor Office [update]", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9914",
@@ -136,8 +182,33 @@
     "aliases": ["9914", "14", "asta", "student union", "student services", "examination office", "international office", "pruefungsamt", "registrar", "studierendensekretariat"],
     "lat": 49.6081071,
     "lng": 7.1702223,
+    "floors": 2,
     "description": "Core administration for enrollment certificates, exam support, international student contacts, and AStA student union.",
-    "services": ["Registrar", "Examination Office", "International Office", "AStA", "Student administration"]
+    "services": ["Registrar", "Examination Office", "International Office", "AStA", "Student administration"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Student Secretariat (Studierendensekretariat)", "type": "admin" },
+          { "number": "0.02", "name": "Examination Office (Prüfungsamt)", "type": "admin" },
+          { "number": "0.03", "name": "International Office", "type": "admin" },
+          { "number": "0.04", "name": "AStA – Student Union", "type": "office" },
+          { "number": "0.05", "name": "Financial Aid / BAföG Advice", "type": "admin" },
+          { "number": "0.06", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Rector's Secretariat", "type": "admin" },
+          { "number": "1.02", "name": "Dean's Office [update]", "type": "admin" },
+          { "number": "1.03", "name": "Administration Office [update]", "type": "admin" },
+          { "number": "1.04", "name": "Meeting Room", "type": "seminar", "capacity": 15 }
+        ]
+      }
+    ]
   },
   {
     "id": "9915",
@@ -148,8 +219,30 @@
     "aliases": ["9915", "15"],
     "lat": 49.6083737,
     "lng": 7.1698832,
+    "floors": 2,
     "description": "Academic lecture and seminar building in the main campus row.",
-    "services": ["Lecture rooms", "Seminar rooms"]
+    "services": ["Lecture rooms", "Seminar rooms"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Lecture Hall [update]", "type": "lecture", "capacity": 80 },
+          { "number": "0.02", "name": "Lecture Hall [update]", "type": "lecture", "capacity": 60 },
+          { "number": "0.03", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.02", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.03", "name": "Seminar Room [update]", "type": "seminar", "capacity": 25 },
+          { "number": "1.04", "name": "WC", "type": "facility" }
+        ]
+      }
+    ]
   },
   {
     "id": "9916",
@@ -160,8 +253,40 @@
     "aliases": ["9916", "16"],
     "lat": 49.6083619,
     "lng": 7.1695469,
+    "floors": 3,
     "description": "Academic lecture and seminar building in the main campus row.",
-    "services": ["Lecture rooms", "Seminar rooms"]
+    "services": ["Lecture rooms", "Seminar rooms"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Lecture Hall [update]", "type": "lecture", "capacity": 120 },
+          { "number": "0.02", "name": "Lecture Hall [update]", "type": "lecture", "capacity": 80 },
+          { "number": "0.03", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.02", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.03", "name": "PC Lab [update]", "type": "lab", "capacity": 24 },
+          { "number": "1.04", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 2,
+        "label": "2. OG",
+        "rooms": [
+          { "number": "2.01", "name": "Seminar Room [update]", "type": "seminar", "capacity": 25 },
+          { "number": "2.02", "name": "Seminar Room [update]", "type": "seminar", "capacity": 25 },
+          { "number": "2.03", "name": "Professor Office [update]", "type": "office" },
+          { "number": "2.04", "name": "Professor Office [update]", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9917",
@@ -172,8 +297,30 @@
     "aliases": ["9917", "17", "it", "it servicepoint", "computer labs", "service point"],
     "lat": 49.6083095,
     "lng": 7.1691849,
+    "floors": 2,
     "description": "IT ServicePoint, printing support, account setup, and technical help for Stud.IP, email, and campus systems.",
-    "services": ["IT ServicePoint", "Account setup", "Printing support", "Computer labs"]
+    "services": ["IT ServicePoint", "Account setup", "Printing support", "Computer labs"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "IT ServicePoint", "type": "it" },
+          { "number": "0.02", "name": "Printing & Copying Room", "type": "it" },
+          { "number": "0.03", "name": "Account Setup & Support", "type": "it" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Computer Lab [update]", "type": "lab", "capacity": 25 },
+          { "number": "1.02", "name": "Computer Lab [update]", "type": "lab", "capacity": 25 },
+          { "number": "1.03", "name": "Server Room", "type": "it" },
+          { "number": "1.04", "name": "IT Administration Office", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9922",
@@ -184,8 +331,50 @@
     "aliases": ["9922", "22", "zn", "zentraler neubau", "library", "bibliothek", "bib", "audimax", "central building"],
     "lat": 49.6083122,
     "lng": 7.1687293,
+    "floors": 4,
     "description": "The main academic building on campus. Houses the library (BIB), large lecture halls, seminar rooms, and study areas across multiple floors.",
-    "services": ["Library", "Study spaces", "Large lecture rooms", "Audimax", "Campus information points"]
+    "services": ["Library", "Study spaces", "Large lecture rooms", "Audimax", "Campus information points"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Library – Issue & Return Desk", "type": "library" },
+          { "number": "0.02", "name": "Library – Catalogue Terminals", "type": "library" },
+          { "number": "0.03", "name": "Library – Reading Area", "type": "library" },
+          { "number": "0.04", "name": "Campus Information Point", "type": "admin" },
+          { "number": "0.05", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Audimax / Large Lecture Hall", "type": "lecture", "capacity": 300 },
+          { "number": "1.02", "name": "Lecture Hall [update]", "type": "lecture", "capacity": 120 },
+          { "number": "1.03", "name": "Group Study Room 1", "type": "study", "capacity": 12 },
+          { "number": "1.04", "name": "Group Study Room 2", "type": "study", "capacity": 12 },
+          { "number": "1.05", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 2,
+        "label": "2. OG",
+        "rooms": [
+          { "number": "2.01", "name": "Silent Study Area", "type": "study" },
+          { "number": "2.02", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "2.03", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 }
+        ]
+      },
+      {
+        "level": 3,
+        "label": "3. OG",
+        "rooms": [
+          { "number": "3.01", "name": "Library Archive / Stacks", "type": "library" },
+          { "number": "3.02", "name": "Library Administration", "type": "admin" }
+        ]
+      }
+    ]
   },
   {
     "id": "9924",
@@ -196,8 +385,31 @@
     "aliases": ["9924", "24", "aula", "main hall", "ceremony hall", "administration"],
     "lat": 49.6082539,
     "lng": 7.1682770,
+    "floors": 2,
     "description": "Houses the Aula (main ceremonial and events hall) along with administrative offices.",
-    "services": ["Aula / Events hall", "Administrative offices", "Ceremony events"]
+    "services": ["Aula / Events hall", "Administrative offices", "Ceremony events"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Aula – Assembly & Events Hall", "type": "aula", "capacity": 250 },
+          { "number": "0.02", "name": "Foyer", "type": "facility" },
+          { "number": "0.03", "name": "Cafeteria / Mensa [update]", "type": "cafe" },
+          { "number": "0.04", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Administration Office [update]", "type": "admin" },
+          { "number": "1.02", "name": "Meeting Room [update]", "type": "seminar", "capacity": 20 },
+          { "number": "1.03", "name": "Meeting Room [update]", "type": "seminar", "capacity": 15 },
+          { "number": "1.04", "name": "Finance & HR Office [update]", "type": "admin" }
+        ]
+      }
+    ]
   },
   {
     "id": "9925",
@@ -208,8 +420,32 @@
     "aliases": ["9925", "25", "ibt", "technikum", "institut für betriebs", "technologiemanagement"],
     "lat": 49.6082967,
     "lng": 7.1679125,
+    "floors": 2,
     "description": "Institut für Betriebs- und Technologiemanagement (IBT). Engineering labs, workshop spaces, and technology research facilities.",
-    "services": ["Engineering labs", "Workshop / Technikum", "IBT offices", "Research facilities"]
+    "services": ["Engineering labs", "Workshop / Technikum", "IBT offices", "Research facilities"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Technikum Workshop A [update]", "type": "workshop" },
+          { "number": "0.02", "name": "Technikum Workshop B [update]", "type": "workshop" },
+          { "number": "0.03", "name": "Technical Storage", "type": "facility" },
+          { "number": "0.04", "name": "Safety Equipment Room", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "IBT Institute Office", "type": "office" },
+          { "number": "1.02", "name": "Research Lab [update]", "type": "lab" },
+          { "number": "1.03", "name": "Research Lab [update]", "type": "lab" },
+          { "number": "1.04", "name": "Professor Office [update]", "type": "office" },
+          { "number": "1.05", "name": "Professor Office [update]", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9926",
@@ -220,8 +456,30 @@
     "aliases": ["9926", "26"],
     "lat": 49.6082862,
     "lng": 7.1675753,
+    "floors": 2,
     "description": "Academic lecture and seminar building in the west campus row.",
-    "services": ["Lecture rooms", "Seminar rooms"]
+    "services": ["Lecture rooms", "Seminar rooms"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Lecture Hall [update]", "type": "lecture", "capacity": 80 },
+          { "number": "0.02", "name": "Lecture Hall [update]", "type": "lecture", "capacity": 60 },
+          { "number": "0.03", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.02", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "1.03", "name": "Lab / PC Room [update]", "type": "lab", "capacity": 24 },
+          { "number": "1.04", "name": "WC", "type": "facility" }
+        ]
+      }
+    ]
   },
   {
     "id": "9927",
@@ -268,8 +526,42 @@
     "aliases": ["9930", "30"],
     "lat": 49.6080009,
     "lng": 7.1671478,
+    "floors": 3,
     "description": "Laboratory and science facilities building on the south-west campus.",
-    "services": ["Laboratories", "Research rooms"]
+    "services": ["Laboratories", "Research rooms"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Chemistry Lab [update]", "type": "lab" },
+          { "number": "0.02", "name": "Biology Lab [update]", "type": "lab" },
+          { "number": "0.03", "name": "Lab Prep Room", "type": "facility" },
+          { "number": "0.04", "name": "Chemical Storage", "type": "facility" },
+          { "number": "0.05", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Physics Lab [update]", "type": "lab" },
+          { "number": "1.02", "name": "Electronics Lab [update]", "type": "lab" },
+          { "number": "1.03", "name": "Measurement Equipment Room", "type": "lab" },
+          { "number": "1.04", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 2,
+        "label": "2. OG",
+        "rooms": [
+          { "number": "2.01", "name": "Research Lab [update]", "type": "lab" },
+          { "number": "2.02", "name": "Research Lab [update]", "type": "lab" },
+          { "number": "2.03", "name": "Professor Office [update]", "type": "office" },
+          { "number": "2.04", "name": "Professor Office [update]", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9935",
@@ -292,8 +584,31 @@
     "aliases": ["9939", "39", "kommunikationsgebaeude", "communications", "media building"],
     "lat": 49.6075096,
     "lng": 7.1691610,
+    "floors": 2,
     "description": "Communications and media building on the south campus. Wheelchair accessible.",
-    "services": ["Media facilities", "Communications", "Accessible entrance"]
+    "services": ["Media facilities", "Communications", "Accessible entrance"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Media Lab [update]", "type": "lab" },
+          { "number": "0.02", "name": "Video / Recording Studio [update]", "type": "lab" },
+          { "number": "0.03", "name": "Accessible Entrance / Foyer", "type": "facility" },
+          { "number": "0.04", "name": "WC (Accessible)", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Conference Room [update]", "type": "seminar", "capacity": 20 },
+          { "number": "1.02", "name": "Office [update]", "type": "office" },
+          { "number": "1.03", "name": "Office [update]", "type": "office" },
+          { "number": "1.04", "name": "WC", "type": "facility" }
+        ]
+      }
+    ]
   },
   {
     "id": "9940",
@@ -306,7 +621,18 @@
     "lng": 7.1712602,
     "floors": 1,
     "description": "Single-storey building on the south-east campus.",
-    "services": ["Offices"]
+    "services": ["Offices"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Office [update]", "type": "office" },
+          { "number": "0.02", "name": "Office [update]", "type": "office" },
+          { "number": "0.03", "name": "Office [update]", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9942",
@@ -317,8 +643,29 @@
     "aliases": ["9942", "42"],
     "lat": 49.6072811,
     "lng": 7.1704156,
+    "floors": 2,
     "description": "Academic building on the south campus.",
-    "services": ["Lecture rooms", "Offices"]
+    "services": ["Lecture rooms", "Offices"],
+    "floorPlan": [
+      {
+        "level": 0,
+        "label": "EG",
+        "rooms": [
+          { "number": "0.01", "name": "Lecture Room [update]", "type": "lecture", "capacity": 60 },
+          { "number": "0.02", "name": "Seminar Room [update]", "type": "seminar", "capacity": 30 },
+          { "number": "0.03", "name": "WC", "type": "facility" }
+        ]
+      },
+      {
+        "level": 1,
+        "label": "1. OG",
+        "rooms": [
+          { "number": "1.01", "name": "Office [update]", "type": "office" },
+          { "number": "1.02", "name": "Office [update]", "type": "office" },
+          { "number": "1.03", "name": "Office [update]", "type": "office" }
+        ]
+      }
+    ]
   },
   {
     "id": "9970",

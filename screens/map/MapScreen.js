@@ -26,10 +26,12 @@ import {
   filterBuildingsByType,
   getTypeColor,
   getTypeLabel,
+  getRoomTypeIcon,
+  getRoomTypeLabel,
 } from '../../services/buildings';
 
 const { height: SCREEN_H } = Dimensions.get('window');
-const SHEET_H = SCREEN_H * 0.46;
+const SHEET_H = SCREEN_H * 0.62;
 
 const INITIAL_REGION = {
   latitude: CAMPUS_CENTER.lat,
@@ -49,7 +51,7 @@ const DARK_MAP_STYLE = [
   { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#6b7a99' }] },
   { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3d4f6e' }] },
   { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#111827' }] },
-  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1a2b1a' } ] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1a2b1a' }] },
   { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3d6b3d' }] },
   { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1526' }] },
   { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3a5068' }] },
@@ -62,6 +64,25 @@ const FILTERS = [
   { id: 'dormitory', label: 'Housing', icon: 'home-outline' },
   { id: 'hotel', label: 'Hotel', icon: 'bed-outline' },
 ];
+
+const ROOM_TYPE_COLORS = {
+  lecture:  '#6FAE3E',
+  seminar:  '#4A90E2',
+  lab:      '#9B59B6',
+  office:   '#F39C12',
+  admin:    '#E74C3C',
+  library:  '#16A085',
+  facility: '#607D8B',
+  workshop: '#E67E22',
+  it:       '#2980B9',
+  aula:     '#8E44AD',
+  study:    '#27AE60',
+  cafe:     '#D35400',
+};
+
+function getRoomColor(type) {
+  return ROOM_TYPE_COLORS[type] ?? '#607D8B';
+}
 
 function BuildingMarker({ building, isSelected, onSelect }) {
   const color = getTypeColor(building.type);
@@ -115,6 +136,31 @@ function BuildingMarker({ building, isSelected, onSelect }) {
   );
 }
 
+function RoomRow({ room }) {
+  const color = getRoomColor(room.type);
+  const icon = getRoomTypeIcon(room.type);
+  return (
+    <View style={styles.roomRow}>
+      <View style={[styles.roomIconWrap, { backgroundColor: color + '22' }]}>
+        <Ionicons name={icon} size={15} color={color} />
+      </View>
+      <View style={styles.roomInfo}>
+        <Text style={styles.roomNumber}>{room.number}</Text>
+        <Text style={styles.roomName} numberOfLines={1}>{room.name}</Text>
+      </View>
+      <View style={styles.roomMeta}>
+        {room.capacity ? (
+          <View style={styles.capacityBadge}>
+            <Ionicons name="people-outline" size={10} color="#6B7A99" />
+            <Text style={styles.capacityText}>{room.capacity}</Text>
+          </View>
+        ) : null}
+        <Text style={[styles.roomTypeLabel, { color }]}>{getRoomTypeLabel(room.type)}</Text>
+      </View>
+    </View>
+  );
+}
+
 export default function MapScreen() {
   const insets = useSafeAreaInsets();
   const mapRef = useRef(null);
@@ -123,11 +169,11 @@ export default function MapScreen() {
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [selectedFloor, setSelectedFloor] = useState(0);
 
   const pendingBuilding = useStore((s) => s.pendingMapBuilding);
   const clearPending = useStore((s) => s.clearPendingMapBuilding);
 
-  // Handle deep-link from timetable
   useEffect(() => {
     if (pendingBuilding) {
       const b = getBuildingByIdOrAlias(pendingBuilding) ?? buildFallbackBuilding(pendingBuilding);
@@ -168,6 +214,7 @@ export default function MapScreen() {
   const selectBuilding = useCallback(
     (building) => {
       setSelected(building);
+      setSelectedFloor(building.floorPlan?.[0]?.level ?? 0);
       openSheet();
       mapRef.current?.animateToRegion(
         {
@@ -210,11 +257,13 @@ export default function MapScreen() {
     outputRange: [0, 0.35],
   });
 
+  const floorPlan = selected?.floorPlan ?? null;
+  const currentFloorData = floorPlan?.find((f) => f.level === selectedFloor) ?? floorPlan?.[0];
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Map */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -247,7 +296,6 @@ export default function MapScreen() {
         ))}
       </MapView>
 
-      {/* Dim overlay when sheet is open */}
       <Animated.View
         style={[styles.dimOverlay, { opacity: mapDim }]}
         pointerEvents="none"
@@ -255,7 +303,6 @@ export default function MapScreen() {
 
       {/* Top bar */}
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
-        {/* Search */}
         <View style={styles.searchRow}>
           <View style={styles.searchBox}>
             <Ionicons name="search-outline" size={16} color="#6B7A99" />
@@ -274,7 +321,6 @@ export default function MapScreen() {
           </View>
         </View>
 
-        {/* Filter pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -306,7 +352,7 @@ export default function MapScreen() {
         </ScrollView>
       </View>
 
-      {/* Reset / campus button */}
+      {/* Reset button */}
       <TouchableOpacity style={styles.resetBtn} onPress={resetCamera} activeOpacity={0.85}>
         <Ionicons name="navigate-circle-outline" size={22} color="#6FAE3E" />
       </TouchableOpacity>
@@ -318,17 +364,15 @@ export default function MapScreen() {
           { transform: [{ translateY: sheetTranslate }], paddingBottom: insets.bottom + 12 },
         ]}
       >
-        {/* Handle */}
         <View style={styles.sheetHandle} />
 
         {selected && (
           <>
-            {/* Close */}
             <TouchableOpacity style={styles.sheetClose} onPress={closeSheet}>
               <Ionicons name="close" size={20} color="#6B7A99" />
             </TouchableOpacity>
 
-            {/* Header */}
+            {/* Building header */}
             <View style={styles.sheetHeader}>
               <View style={[styles.typeDot, { backgroundColor: getTypeColor(selected.type) }]} />
               <Text style={styles.typeLabel}>{getTypeLabel(selected.type).toUpperCase()}</Text>
@@ -336,9 +380,7 @@ export default function MapScreen() {
             <Text style={styles.sheetNumber}>{selected.number}</Text>
             <Text style={styles.sheetName}>{selected.name}</Text>
 
-            <View style={styles.divider} />
-
-            {/* Services */}
+            {/* Services pills */}
             {selected.services && selected.services.length > 0 && (
               <ScrollView
                 horizontal
@@ -354,28 +396,77 @@ export default function MapScreen() {
               </ScrollView>
             )}
 
-            {/* Description */}
-            {!!selected.description && (
-              <Text style={styles.sheetDesc} numberOfLines={3}>
-                {selected.description}
-              </Text>
+            <View style={styles.divider} />
+
+            {/* Floor plan browser */}
+            {floorPlan ? (
+              <View style={styles.floorSection}>
+                {/* Floor tab selector */}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.floorTabsContent}
+                  style={styles.floorTabsScroll}
+                >
+                  {floorPlan.map((floor) => {
+                    const active = floor.level === selectedFloor;
+                    return (
+                      <TouchableOpacity
+                        key={floor.level}
+                        style={[styles.floorTab, active && styles.floorTabActive]}
+                        onPress={() => setSelectedFloor(floor.level)}
+                        activeOpacity={0.75}
+                      >
+                        <Text style={[styles.floorTabText, active && styles.floorTabTextActive]}>
+                          {floor.label}
+                        </Text>
+                        {floor.rooms && (
+                          <Text style={[styles.floorRoomCount, active && styles.floorRoomCountActive]}>
+                            {floor.rooms.length} rooms
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+
+                {/* Room list */}
+                <ScrollView
+                  style={styles.roomList}
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled
+                >
+                  {(currentFloorData?.rooms ?? []).map((room, i) => (
+                    <RoomRow key={i} room={room} />
+                  ))}
+                  {(currentFloorData?.rooms ?? []).length === 0 && (
+                    <Text style={styles.noRooms}>No room data for this floor yet.</Text>
+                  )}
+                </ScrollView>
+              </View>
+            ) : (
+              /* Fallback: description for buildings without floor plans */
+              <View>
+                {!!selected.description && (
+                  <Text style={styles.sheetDesc} numberOfLines={3}>
+                    {selected.description}
+                  </Text>
+                )}
+                {!!selected.floors && (
+                  <Text style={styles.floorsText}>
+                    <Ionicons name="layers-outline" size={13} color="#6B7A99" />{' '}
+                    {selected.floors} {selected.floors === 1 ? 'floor' : 'floors'}
+                  </Text>
+                )}
+                {selected.isFallback && (
+                  <Text style={styles.fallbackNote}>
+                    This building appears in your timetable. Detailed info coming soon.
+                  </Text>
+                )}
+              </View>
             )}
 
-            {/* Floors */}
-            {!!selected.floors && (
-              <Text style={styles.floorsText}>
-                <Ionicons name="layers-outline" size={13} color="#6B7A99" />{' '}
-                {selected.floors} {selected.floors === 1 ? 'floor' : 'floors'}
-              </Text>
-            )}
-
-            {selected.isFallback && (
-              <Text style={styles.fallbackNote}>
-                This building appears in your timetable. Detailed info coming soon.
-              </Text>
-            )}
-
-            {/* Navigate */}
+            {/* Navigate button — always at bottom */}
             <TouchableOpacity
               style={[styles.navBtn, { backgroundColor: getTypeColor(selected.type) }]}
               onPress={() => handleNavigate(selected)}
@@ -400,7 +491,6 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
   },
 
-  // Top bar
   topBar: {
     position: 'absolute',
     top: 0,
@@ -424,7 +514,6 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, fontSize: 14, color: '#E2E8F0' },
 
-  // Filter pills
   filtersScroll: { marginTop: 8 },
   filtersContent: { paddingRight: 8, gap: 8, flexDirection: 'row' },
   filterPill: {
@@ -440,11 +529,10 @@ const styles = StyleSheet.create({
   filterLabel: { fontSize: 12, color: '#6B7A99', fontWeight: '600' },
   filterLabelActive: { color: '#fff' },
 
-  // Reset button
   resetBtn: {
     position: 'absolute',
     right: 16,
-    bottom: SCREEN_H * 0.5,
+    bottom: SCREEN_H * 0.65,
     width: 44,
     height: 44,
     borderRadius: 22,
@@ -455,7 +543,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Marker
   markerWrap: { alignItems: 'center', justifyContent: 'center', width: 44, height: 44 },
   badge: {
     width: 34,
@@ -484,13 +571,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
 
-  // Bottom sheet
   sheet: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    minHeight: SHEET_H,
+    height: SHEET_H,
     backgroundColor: '#141824',
     borderTopLeftRadius: 26,
     borderTopRightRadius: 26,
@@ -510,7 +596,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: 'rgba(255,255,255,0.18)',
     alignSelf: 'center',
-    marginBottom: 14,
+    marginBottom: 10,
   },
   sheetClose: {
     position: 'absolute',
@@ -523,37 +609,85 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 4 },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 2 },
   typeDot: { width: 8, height: 8, borderRadius: 4 },
   typeLabel: { fontSize: 11, color: '#6B7A99', fontWeight: '700', letterSpacing: 1 },
-  sheetNumber: { fontSize: 38, fontWeight: '800', color: '#F1F5F9', lineHeight: 44 },
-  sheetName: { fontSize: 16, fontWeight: '600', color: '#CBD5E1', marginTop: 2 },
-  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.07)', marginVertical: 14 },
+  sheetNumber: { fontSize: 34, fontWeight: '800', color: '#F1F5F9', lineHeight: 40 },
+  sheetName: { fontSize: 14, fontWeight: '600', color: '#CBD5E1', marginTop: 1, marginBottom: 8 },
 
-  // Services
-  servicesScroll: { marginBottom: 12 },
+  servicesScroll: { marginBottom: 0 },
   servicesContent: { gap: 8, flexDirection: 'row' },
   servicePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  servicePillText: { fontSize: 12, color: '#94A3B8', fontWeight: '500' },
+  servicePillText: { fontSize: 11, color: '#94A3B8', fontWeight: '500' },
 
-  sheetDesc: { fontSize: 13.5, color: '#64748B', lineHeight: 20, marginBottom: 8 },
-  floorsText: { fontSize: 12, color: '#4A5568', marginBottom: 12 },
-  fallbackNote: { fontSize: 12, color: '#4A5568', marginBottom: 12, lineHeight: 18 },
+  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.07)', marginVertical: 10 },
+
+  // Floor browser
+  floorSection: { flex: 1, minHeight: 0 },
+  floorTabsScroll: { flexGrow: 0, marginBottom: 10 },
+  floorTabsContent: { flexDirection: 'row', gap: 8 },
+  floorTab: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
+    minWidth: 60,
+  },
+  floorTabActive: {
+    backgroundColor: '#6FAE3E',
+    borderColor: '#6FAE3E',
+  },
+  floorTabText: { fontSize: 13, fontWeight: '700', color: '#6B7A99' },
+  floorTabTextActive: { color: '#fff' },
+  floorRoomCount: { fontSize: 10, color: '#4A5568', marginTop: 1 },
+  floorRoomCountActive: { color: 'rgba(255,255,255,0.7)' },
+
+  roomList: { flex: 1 },
+  roomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+    gap: 10,
+  },
+  roomIconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roomInfo: { flex: 1 },
+  roomNumber: { fontSize: 12, fontWeight: '700', color: '#94A3B8' },
+  roomName: { fontSize: 13, fontWeight: '500', color: '#E2E8F0' },
+  roomMeta: { alignItems: 'flex-end', gap: 3 },
+  capacityBadge: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  capacityText: { fontSize: 10, color: '#6B7A99' },
+  roomTypeLabel: { fontSize: 10, fontWeight: '600' },
+  noRooms: { fontSize: 13, color: '#4A5568', textAlign: 'center', marginTop: 20 },
+
+  sheetDesc: { fontSize: 13, color: '#64748B', lineHeight: 19, marginBottom: 8 },
+  floorsText: { fontSize: 12, color: '#4A5568', marginBottom: 10 },
+  fallbackNote: { fontSize: 12, color: '#4A5568', marginBottom: 10, lineHeight: 18 },
 
   navBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 14,
-    paddingVertical: 14,
-    marginTop: 8,
+    paddingVertical: 13,
+    marginTop: 10,
     gap: 8,
   },
   navBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },

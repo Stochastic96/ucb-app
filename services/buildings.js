@@ -110,3 +110,41 @@ export function filterBuildingsByType(type) {
   if (!type || type === 'all') return BUILDINGS;
   return BUILDINGS.filter((b) => b.type === type);
 }
+
+const ROOM_TYPE_ICONS = {
+  lecture:  'school-outline',
+  seminar:  'easel-outline',
+  lab:      'flask-outline',
+  office:   'person-outline',
+  admin:    'business-outline',
+  library:  'library-outline',
+  facility: 'water-outline',
+  workshop: 'construct-outline',
+  it:       'hardware-chip-outline',
+  aula:     'people-outline',
+  study:    'book-outline',
+  cafe:     'cafe-outline',
+};
+
+export function getRoomTypeIcon(type) {
+  return ROOM_TYPE_ICONS[type] ?? 'ellipse-outline';
+}
+
+const ROOM_TYPE_LABELS = {
+  lecture:  'Lecture Hall',
+  seminar:  'Seminar Room',
+  lab:      'Laboratory',
+  office:   'Office',
+  admin:    'Administration',
+  library:  'Library',
+  facility: 'Facility',
+  workshop: 'Workshop',
+  it:       'IT / Computer',
+  aula:     'Aula / Hall',
+  study:    'Study Room',
+  cafe:     'Café / Canteen',
+};
+
+export function getRoomTypeLabel(type) {
+  return ROOM_TYPE_LABELS[type] ?? 'Room';
+}
