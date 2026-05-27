@@ -41,6 +41,5 @@ yarn-error.*
 /ios
 /android
 
-# Firebase native config files (contain API keys — do not commit to public repos)
-google-services.json
+# Firebase iOS config (no Apple Developer account — iOS not used)
 GoogleService-Info.plist

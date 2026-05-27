@@ -32,7 +32,7 @@
         "android.permission.ACCESS_COARSE_LOCATION"
       ],
       "package": "com.anonymous.ucb",
-      "googleServicesFile": "$GOOGLE_SERVICES_JSON"
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
