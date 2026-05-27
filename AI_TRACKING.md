@@ -2,6 +2,21 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-28 — Engagement metrics (Supabase analytics)
+- services/analytics.js: Claude Sonnet 4.6 — New service: anonymous session-scoped event tracker; batches to Supabase every 30s or 10 events; no-op in dev; session_id is random UUID per cold start, never persisted or linked to user
+- App.js: Claude Sonnet 4.6 — Add startSession() on mount, flushNow() on AppState background
+- screens/home/HomeScreen.js: Claude Sonnet 4.6 — trackScreen('HomeScreen') in useFocusEffect
+- screens/map/MapScreen.js: Claude Sonnet 4.6 — trackScreen, campus_plan_opened, building_selected (list + plan), navigate_to_building, building_search_used
+- screens/timetable/TimetableScreen.js: Claude Sonnet 4.6 — trackScreen on mount
+- screens/mensa/MensaScreen.js: Claude Sonnet 4.6 — trackScreen on mount
+- screens/guide/GuideScreen.js: Claude Sonnet 4.6 — trackScreen + guide_category_opened per category
+- screens/news/NewsFeedScreen.js: Claude Sonnet 4.6 — trackScreen in useFocusEffect + news_item_opened
+- screens/planner/AddDeadlineScreen.js: Claude Sonnet 4.6 — deadline_added on new deadline save
+- services/reminders.js: Claude Sonnet 4.6 — notification_scheduled (type: event/sport/deadline/exam) in each schedule function
+- services/bootstrap.js: Claude Sonnet 4.6 — bootstrap_success (+ course_count) and bootstrap_error (+ error_type)
+- screens/legal/DatenschutzScreen.js: Claude Sonnet 4.6 — Add analytics disclosure row, update intro to "studentengeführtes Projekt", update Supabase section, update footer
+- screens/legal/ImpressumScreen.js: Claude Sonnet 4.6 — Add "Über dieses Projekt" section, version bump to Beta
+
 ## 2026-05-28 — German vocabulary + CampusPlanView integration
 - data/buildings.json: Claude Sonnet 4.6 — Renamed all dormitories to "Studierendenwohnheim XXXX", lecture buildings to "Lehrgebäude XXXX", 9912/9913 to German faculty names (Dekanat UWuR/UPuT), 9914 to "Prüfungsamt & AStA", 9925 to "IBT Technikum – Vizepräsidium", 9928 to "Campus Company & Wohnheim-Service"; all service labels converted to German
 - screens/map/MapScreen.js: Claude Sonnet 4.6 — Add "Campusplan anzeigen" outlined button in hero card; opens CampusPlanView in a full-screen Modal with back arrow; tapping a building in the plan closes the plan and opens the detail sheet

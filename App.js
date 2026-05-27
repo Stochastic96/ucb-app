@@ -16,6 +16,7 @@ import { STORAGE_KEYS } from './constants/storageKeys';
 import { SECURE_KEYS } from './constants/secureKeys';
 import { bootstrapSessionData } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
+import { startSession, flushNow } from './services/analytics';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
 // Only uses the identifier (not notification content) to avoid handling personal data.
@@ -50,6 +51,7 @@ export default function App() {
   const pendingSessionRestoreRef = useRef(false);
 
   useEffect(() => {
+    startSession();
     initializeApp();
   }, []);
 
@@ -72,8 +74,8 @@ export default function App() {
 
     if (nextState === 'background' || nextState === 'inactive') {
       backgroundedAt.current = Date.now();
-      // Remove password from JS heap while app is not in foreground
       clearCachedCredentials();
+      flushNow();
     } else if (nextState === 'active') {
       const { settings, isLoggedIn } = useStore.getState();
       if (

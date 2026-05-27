@@ -31,9 +31,15 @@ export default function ImpressumScreen() {
 
       <Section title="App-Information">
         <Row label="Name" value="UCB – Campus-Begleiter" />
-        <Row label="Version" value="1.0.0" />
-        <Row label="Art" value="Inoffizielles Studentenprojekt" />
+        <Row label="Version" value="1.0.0 (Beta)" />
+        <Row label="Art" value="Studentengeführtes Projekt" />
         <Row label="Plattform" value="iOS / Android (React Native)" />
+      </Section>
+
+      <Section title="Über dieses Projekt">
+        <Text style={styles.body}>
+          Diese App wurde von Studierenden der Hochschule Trier entwickelt, um den Campus-Alltag für internationale Studierende zu erleichtern. Es handelt sich um ein inoffizielles, studentengeführtes Vorhaben — ohne institutionelle Unterstützung oder Haftung der Hochschule Trier.{'\n\n'}Die App dient gleichzeitig als Proof of Concept und Forschungsprojekt zur Untersuchung der Nutzung mobiler Begleit-Apps im Hochschulkontext. Anonyme Nutzungsstatistiken werden erhoben (siehe Datenschutz).
+        </Text>
       </Section>
 
       <Section title="Offizielle Institution">

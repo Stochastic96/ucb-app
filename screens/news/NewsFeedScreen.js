@@ -3,6 +3,7 @@ import { FlatList, View, Text, StyleSheet, RefreshControl, Modal, ScrollView, To
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
+import { trackScreen, trackEvent } from '../../services/analytics';
 import { fetchNews } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -105,6 +106,7 @@ export default function NewsFeedScreen({ navigation, route }) {
 
   useFocusEffect(
     useCallback(() => {
+      trackScreen('NewsFeedScreen');
       const seenAt = Date.now();
       markNewsSeen(seenAt).then(() => setLastReadTs(seenAt)).catch(() => {});
     }, [])
@@ -170,7 +172,7 @@ export default function NewsFeedScreen({ navigation, route }) {
         data={filteredNews}
         keyExtractor={(i) => getNewsIdentity(i)}
         renderItem={({ item }) => (
-          <NewsCard item={item} unread={isUnread(item)} onPress={() => setSelected(item)} />
+          <NewsCard item={item} unread={isUnread(item)} onPress={() => { trackEvent('feature_use', 'news_item_opened'); setSelected(item); }} />
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
         contentContainerStyle={{ paddingVertical: 8, paddingBottom: 24 }}

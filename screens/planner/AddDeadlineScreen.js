@@ -11,6 +11,7 @@ import {
 import { SimpleDatePicker, SimpleTimePicker } from '../../components/SimpleDatePicker';
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
+import { trackEvent } from '../../services/analytics';
 import {
   scheduleDeadlineReminders,
   cancelDeadlineReminders,
@@ -140,6 +141,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
       } else {
         await saveDeadlines([deadline, ...deadlines]);
         addDeadline(deadline);
+        trackEvent('feature_use', 'deadline_added');
       }
 
       navigation.goBack();

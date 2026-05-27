@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storageKeys';
+import { trackEvent } from './analytics';
 
 const STORAGE_KEY = STORAGE_KEYS.GOING_STATE;
 
@@ -48,6 +49,7 @@ export async function scheduleEventReminder(ev) {
     },
     trigger: eventDate,
   });
+  trackEvent('feature_use', 'notification_scheduled', { type: 'event' });
   return true;
 }
 
@@ -76,6 +78,7 @@ export async function scheduleSportReminder(sport) {
       repeats: true,
     },
   });
+  trackEvent('feature_use', 'notification_scheduled', { type: 'sport' });
   return true;
 }
 
@@ -126,6 +129,9 @@ export async function scheduleDeadlineReminders(deadline) {
     }
   }
 
+  if (Object.keys(ids).length > 0) {
+    trackEvent('feature_use', 'notification_scheduled', { type: 'deadline' });
+  }
   return ids;
 }
 
@@ -174,6 +180,9 @@ export async function scheduleExamReminders(exam) {
     ids.twoHour = `exam_2h_${exam.courseId}`;
   }
 
+  if (Object.keys(ids).length > 0) {
+    trackEvent('feature_use', 'notification_scheduled', { type: 'exam' });
+  }
   return ids;
 }
 

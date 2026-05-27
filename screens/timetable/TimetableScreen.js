@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
+import { trackScreen } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, BG, BORDER } from '../../constants/colors';
 import { formatTime24, getWeekMonday, isSameCalendarDay, toDate } from '../../utils/datetime';
@@ -58,6 +59,7 @@ export default function TimetableScreen({ navigation }) {
   const isCurrentWeek = getWeekMonday(new Date()).getTime() === weekStart.getTime();
 
   useEffect(() => {
+    trackScreen('TimetableScreen');
     if (!userId) return;
     if (!dataReady && !isHydrating) {
       bootstrapSessionData().catch(() => {});

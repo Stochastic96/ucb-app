@@ -2,6 +2,7 @@ import React, { useRef, useState, useLayoutEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ActivityIndicator, Text, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
+import { trackScreen } from '../../services/analytics';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
 
 // react-native-webview is not bundled in Expo Go — graceful fallback below
@@ -16,6 +17,8 @@ export default function MensaScreen({ navigation }) {
   const webViewRef = useRef(null);
   const openSidebar = useStore((s) => s.openSidebar);
   const [loading, setLoading] = useState(true);
+
+  useLayoutEffect(() => { trackScreen('MensaScreen'); }, []);
   const [loadError, setLoadError] = useState(false);
   const [progress, setProgress] = useState(0);
 

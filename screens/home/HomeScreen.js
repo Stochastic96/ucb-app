@@ -11,6 +11,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
+import { trackScreen } from '../../services/analytics';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
 import { getNewsIdentity } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
@@ -165,6 +166,7 @@ export default function HomeScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
+      trackScreen('HomeScreen');
       let active = true;
 
       const refreshDashboardContent = async () => {

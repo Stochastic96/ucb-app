@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../../components/SearchBar';
@@ -11,6 +11,7 @@ import phrases from '../../data/guide_phrases.json';
 import faq from '../../data/guide_faq.json';
 import contacts from '../../data/guide_contacts.json';
 import emergency from '../../data/guide_emergency.json';
+import { trackScreen, trackEvent } from '../../services/analytics';
 
 const CATEGORY_COLORS = {
   emergency: '#D32F2F',
@@ -31,6 +32,8 @@ const CATEGORY_COLORS = {
 
 export default function GuideScreen({ navigation }) {
   const [query, setQuery] = useState('');
+
+  useEffect(() => { trackScreen('GuideScreen'); }, []);
 
   const categories = [
     { id: 'emergency', icon: 'alert-circle-outline', label: 'Emergency Info', count: emergency.length, desc: 'Ambulance, police, fire & campus security' },
@@ -85,12 +88,10 @@ export default function GuideScreen({ navigation }) {
           return (
             <TouchableOpacity
               style={styles.card}
-              onPress={() =>
-                navigation.push('GuideDetail', {
-                  category: item.id,
-                  title: item.label,
-                })
-              }
+              onPress={() => {
+                trackEvent('feature_use', 'guide_category_opened', { category: item.id });
+                navigation.push('GuideDetail', { category: item.id, title: item.label });
+              }}
               activeOpacity={0.8}
             >
               <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>

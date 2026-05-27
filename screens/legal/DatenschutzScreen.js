@@ -37,7 +37,7 @@ export default function DatenschutzScreen() {
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <View style={styles.introBanner}>
         <Text style={styles.introText}>
-          Diese App speichert persönliche Daten (Zugangsdaten, Kurse, Termine) ausschließlich lokal auf deinem Gerät. Campusinhalte wie Mensaplan und Events werden von Supabase geladen — dabei werden keine personenbezogenen Daten übertragen. Keine Werbung. Kein Tracking.
+          Diese App ist ein studentengeführtes Projekt und steht in keiner offiziellen Verbindung zur Hochschule Trier. Persönliche Daten (Zugangsdaten, Kurse, Termine) werden ausschließlich lokal auf deinem Gerät gespeichert. Campusinhalte werden von Supabase geladen — dabei werden keine personenbezogenen Daten übertragen. Keine Werbung. Kein personenbezogenes Tracking.
         </Text>
       </View>
 
@@ -61,6 +61,12 @@ export default function DatenschutzScreen() {
         />
         <View style={styles.divider} />
         <DataRow
+          icon="📊"
+          title="Anonyme Nutzungsstatistiken"
+          detail={'Speicherort: Supabase (EU – Frankfurt), max. 90 Tage\nZweck: Verbesserung der App – Forschungsprojekt\nDaten: Aufgerufene Screens, genutzte Funktionen, Fehler, Plattform (iOS/Android), App-Version\nSession-ID: Zufällige UUID pro App-Start, kein Bezug zu Login, Gerät oder Identität\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)'}
+        />
+        <View style={styles.divider} />
+        <DataRow
           icon="✅"
           title="Fristen, Prüfungspläne & persönliche Einstellungen"
           detail={'Speicherort: Lokaler App-Speicher (nicht verschlüsselt)\nZweck: Nutzererstellte Daten & Einstellungen\nAufbewahrung: Bis zur Deinstallation oder manuellen Löschung (Einstellungen → Alle Daten löschen)'}
@@ -72,6 +78,12 @@ export default function DatenschutzScreen() {
           icon="🌐"
           title="Supabase (supabase.com)"
           detail={'Zweck: Bereitstellung von Campusinhalten (Mensaplan, Events, Ressourcen)\nDaten: Keine personenbezogenen Daten — nur anonyme Lesezugriffe auf öffentliche Inhalte\nStandort: EU (Frankfurt)\nDatenschutz: supabase.com/privacy'}
+        />
+        <View style={styles.divider} />
+        <DataRow
+          icon="📈"
+          title="Supabase – Anonyme Nutzungsstatistiken"
+          detail={'Zweck: Speicherung anonymer Engagement-Ereignisse zur App-Verbesserung\nDaten: Keine personenbezogenen Daten — Session-ID ist nicht mit einem Nutzerkonto verknüpft\nStandort: EU (Frankfurt) · Aufbewahrung: 90 Tage\nDatenschutz: supabase.com/privacy'}
         />
         <View style={styles.divider} />
         <DataRow
@@ -111,7 +123,7 @@ export default function DatenschutzScreen() {
         </Text>
       </Section>
 
-      <Text style={styles.footer}>Stand: Mai 2026 · UCB App v1.0.0</Text>
+      <Text style={styles.footer}>Stand: Mai 2026 · UCB App v1.0.0 · Studentenprojekt</Text>
     </ScrollView>
   );
 }

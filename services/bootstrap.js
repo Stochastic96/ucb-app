@@ -1,5 +1,6 @@
 import useStore from '../store/useStore';
 import { fetchProfile } from './profile';
+import { trackEvent } from './analytics';
 import { fetchCourses } from './courses';
 import { fetchAllEvents } from './events';
 import { fetchNews } from './news';
@@ -91,6 +92,7 @@ async function _runBootstrap(force) {
     store.setLastSyncAt(lastUpdated);
     store.setDataReady(true);
     store.setOffline(false);
+    trackEvent('session_start', 'bootstrap_success', { course_count: courses.length });
 
     return {
       profile: profileResult?.data ?? null,
@@ -109,6 +111,7 @@ async function _runBootstrap(force) {
       store.setCourses([]);
       store.setEvents([]);
     }
+    trackEvent('error', 'bootstrap_error', { error_type: normalized.type });
     store.setBootstrapError(normalized);
     throw normalized;
   } finally {

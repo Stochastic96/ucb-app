@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -21,15 +21,29 @@ import {
   searchBuildings,
 } from '../../services/buildings';
 import CampusPlanView from './CampusPlanView';
+import { useFocusEffect } from '@react-navigation/native';
+import { trackScreen, trackEvent } from '../../services/analytics';
 
 export default function MapScreen() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const [showPlan, setShowPlan] = useState(false);
+  const searchTrackedRef = React.useRef(false);
+
+  const handleSearchChange = (text) => {
+    if (text.length === 1 && !searchTrackedRef.current) {
+      searchTrackedRef.current = true;
+      trackEvent('feature_use', 'building_search_used');
+    }
+    if (text.length === 0) searchTrackedRef.current = false;
+    setSearch(text);
+  };
   const pendingBuilding = useStore((s) => s.pendingMapBuilding);
   const clearPending = useStore((s) => s.clearPendingMapBuilding);
 
   const visibleBuildings = searchBuildings(search);
+
+  useFocusEffect(useCallback(() => { trackScreen('MapScreen'); }, []));
 
   useEffect(() => {
     if (pendingBuilding) {
@@ -40,6 +54,7 @@ export default function MapScreen() {
   }, [pendingBuilding, clearPending]);
 
   const handleNavigate = (b) => {
+    trackEvent('feature_use', 'navigate_to_building', { building_id: b.id });
     const label = buildNativeMapsLabel(b);
     if (Platform.OS === 'ios') {
       Linking.openURL(`maps://maps.apple.com/?ll=${b.lat},${b.lng}&q=${encodeURIComponent(label)}`);
@@ -73,7 +88,7 @@ export default function MapScreen() {
             <Ionicons name="navigate-outline" size={18} color="#fff" />
             <Text style={styles.campusButtonText}>Open Campus in Maps</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.planButton} onPress={() => setShowPlan(true)} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.planButton} onPress={() => { trackEvent('feature_use', 'campus_plan_opened'); setShowPlan(true); }} activeOpacity={0.85}>
             <Ionicons name="map-outline" size={18} color={PRIMARY} />
             <Text style={styles.planButtonText}>Campusplan anzeigen</Text>
           </TouchableOpacity>
@@ -86,10 +101,10 @@ export default function MapScreen() {
             placeholder="Search buildings..."
             placeholderTextColor={INACTIVE}
             value={search}
-            onChangeText={setSearch}
+            onChangeText={handleSearchChange}
           />
           {search ? (
-            <TouchableOpacity onPress={() => setSearch('')}>
+            <TouchableOpacity onPress={() => { searchTrackedRef.current = false; setSearch(''); }}>
               <Ionicons name="close-circle" size={18} color={INACTIVE} />
             </TouchableOpacity>
           ) : null}
@@ -104,7 +119,7 @@ export default function MapScreen() {
             <TouchableOpacity
               key={b.id}
               style={styles.buildingCard}
-              onPress={() => setSelected(b)}
+              onPress={() => { trackEvent('feature_use', 'building_selected', { building_id: b.id }); setSelected(b); }}
               activeOpacity={0.85}
             >
               <View style={styles.buildingBadge}>
@@ -142,7 +157,7 @@ export default function MapScreen() {
           </View>
           <CampusPlanView
             selectedId={selected?.id ?? null}
-            onSelectBuilding={(b) => { setSelected(b); setShowPlan(false); }}
+            onSelectBuilding={(b) => { trackEvent('feature_use', 'building_selected', { building_id: b.id, source: 'plan' }); setSelected(b); setShowPlan(false); }}
           />
         </View>
       </Modal>
