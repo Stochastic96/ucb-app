@@ -128,7 +128,14 @@ function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh
     );
   }, [campusEvents, query]);
 
-  const sections = useMemo(() => buildCampusEventSections(filtered), [filtered]);
+  const sections = useMemo(() => {
+    const upcoming = filtered.filter((ev) => !isCampusEventPast(ev));
+    const past = filtered.filter((ev) => isCampusEventPast(ev));
+    const upcomingSections = buildCampusEventSections(upcoming);
+    if (past.length === 0) return upcomingSections;
+    const pastSorted = [...past].sort((a, b) => new Date(b.date) - new Date(a.date));
+    return [...upcomingSections, { title: 'Past Events', data: pastSorted }];
+  }, [filtered]);
 
   return (
     <SectionList

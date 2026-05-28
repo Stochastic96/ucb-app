@@ -2,6 +2,9 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-28 — Events screen: upcoming first
+- screens/events/EventsScreen.js: Claude Sonnet 4.6 — Show upcoming events before past ones; past events moved to a "Past Events" section at the bottom (still visible but de-prioritised)
+
 ## 2026-05-28 — UI/UX audit fixes
 - screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — Remove dead non-interactive "Map" section (static info with no action)
 - screens/map/MapScreen.js: Claude Sonnet 4.6 — Fix "Apple Maps" → "Maps" (app supports both iOS and Android); translate "Campusplan anzeigen" → "View Campus Plan" for language consistency
