@@ -11,8 +11,9 @@ import {
 import { fetchCourseDetail, fetchCourseFiles, fetchCourseAnnouncements } from '../../services/courses';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { PRIMARY, INACTIVE, SURFACE, BG, BORDER } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
-const TABS = ['Info', 'Files', 'Announcements'];
+const TAB_KEYS = ['course_tab_info', 'course_tab_files', 'course_tab_announcements'];
 
 function stripHtml(html) {
   if (!html) return '';
@@ -45,8 +46,9 @@ function formatFileSize(bytes) {
 }
 
 export default function CourseDetailScreen({ route }) {
+  const t = useTranslation();
   const { courseId, color } = route.params ?? {};
-  const [activeTab, setActiveTab] = useState('Info');
+  const [activeTab, setActiveTab] = useState(TAB_KEYS[0]);
   const [detail, setDetail] = useState(null);
   const [files, setFiles] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -72,13 +74,13 @@ export default function CourseDetailScreen({ route }) {
 
       {/* Tabs */}
       <View style={styles.tabRow}>
-        {TABS.map((tab) => (
+        {TAB_KEYS.map((key) => (
           <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.tabActive]}
-            onPress={() => setActiveTab(tab)}
+            key={key}
+            style={[styles.tab, activeTab === key && styles.tabActive]}
+            onPress={() => setActiveTab(key)}
           >
-            <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
+            <Text style={[styles.tabText, activeTab === key && styles.tabTextActive]}>{t(key)}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -87,29 +89,29 @@ export default function CourseDetailScreen({ route }) {
         <View style={{ padding: 20 }}><SkeletonLoader lines={6} /></View>
       ) : (
         <>
-          {activeTab === 'Info' && <InfoTab detail={detail} />}
-          {activeTab === 'Files' && <FilesTab files={files} />}
-          {activeTab === 'Announcements' && <AnnouncementsTab items={announcements} />}
+          {activeTab === TAB_KEYS[0] && <InfoTab detail={detail} t={t} />}
+          {activeTab === TAB_KEYS[1] && <FilesTab files={files} t={t} />}
+          {activeTab === TAB_KEYS[2] && <AnnouncementsTab items={announcements} t={t} />}
         </>
       )}
     </View>
   );
 }
 
-function InfoTab({ detail }) {
+function InfoTab({ detail, t }) {
   const attrs = detail?.attributes ?? {};
-  const description = attrs.description ?? 'No description available.';
+  const description = attrs.description ?? t('course_no_description');
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
-      <Text style={styles.sectionLabel}>Description</Text>
+      <Text style={styles.sectionLabel}>{t('course_description')}</Text>
       <Text style={styles.bodyText}>{description}</Text>
     </ScrollView>
   );
 }
 
-function FilesTab({ files }) {
+function FilesTab({ files, t }) {
   if (!files.length) {
-    return <EmptyTab message="No files in this course." />;
+    return <EmptyTab message={t('course_no_files')} />;
   }
   return (
     <FlatList
@@ -129,9 +131,9 @@ function FilesTab({ files }) {
   );
 }
 
-function AnnouncementsTab({ items }) {
+function AnnouncementsTab({ items, t }) {
   if (!items.length) {
-    return <EmptyTab message="No announcements for this course." />;
+    return <EmptyTab message={t('course_no_announcements')} />;
   }
   return (
     <FlatList

@@ -14,6 +14,7 @@ import { getNewsIdentity } from '../../services/news';
 import { toMillis } from '../../utils/datetime';
 import ErrorState from '../../components/ErrorState';
 import SearchBar from '../../components/SearchBar';
+import { useTranslation } from '../../services/i18n';
 
 function formatFullDate(raw) {
   const ts = toMillis(raw);
@@ -24,6 +25,7 @@ function formatFullDate(raw) {
 }
 
 export default function NewsFeedScreen({ navigation, route }) {
+  const t = useTranslation();
   const news = useStore((s) => s.news);
   const userId = useStore((s) => s.userId);
   const courses = useStore((s) => s.courses);
@@ -138,7 +140,7 @@ export default function NewsFeedScreen({ navigation, route }) {
         <SearchBar
           value={query}
           onChangeText={setQuery}
-          placeholder="Search news…"
+          placeholder={t('news_search_placeholder')}
         />
       </View>
 
@@ -179,9 +181,7 @@ export default function NewsFeedScreen({ navigation, route }) {
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text style={styles.emptyText}>
-              {query || sourceFilter !== 'All'
-                ? 'No news matches your search.'
-                : 'No news at the moment.'}
+              {query || sourceFilter !== 'All' ? t('news_no_results') : t('news_empty')}
             </Text>
           </View>
         }

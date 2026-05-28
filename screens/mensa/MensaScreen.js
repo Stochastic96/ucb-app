@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
 import { trackScreen } from '../../services/analytics';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 // react-native-webview is not bundled in Expo Go — graceful fallback below
 let WebView = null;
@@ -14,6 +15,7 @@ try {
 const MENSA_URL = 'https://mensa.campus-company.eu/';
 
 export default function MensaScreen({ navigation }) {
+  const t = useTranslation();
   const webViewRef = useRef(null);
   const openSidebar = useStore((s) => s.openSidebar);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ export default function MensaScreen({ navigation }) {
           <TouchableOpacity
             onPress={() => { setLoadError(false); setLoading(true); webViewRef.current?.reload(); }}
             hitSlop={12}
-            accessibilityLabel="Reload Mensa page"
+            accessibilityLabel={t('mensa_reload')}
           >
             <Ionicons name="refresh" size={22} color={PRIMARY} />
           </TouchableOpacity>
@@ -48,17 +50,15 @@ export default function MensaScreen({ navigation }) {
     return (
       <View style={styles.expoGoFallback}>
         <Ionicons name="restaurant-outline" size={56} color={BORDER} />
-        <Text style={styles.errorTitle}>Mensa Menu</Text>
-        <Text style={styles.errorSub}>
-          The live Mensa menu requires a Dev Client build and is not available in Expo Go.
-        </Text>
+        <Text style={styles.errorTitle}>{t('screen_mensa')}</Text>
+        <Text style={styles.errorSub}>{t('mensa_expo_go_msg')}</Text>
         <TouchableOpacity
           style={styles.retryBtn}
           onPress={() => Linking.openURL(MENSA_URL).catch(() => {})}
           activeOpacity={0.8}
         >
           <Ionicons name="open-outline" size={17} color="#fff" />
-          <Text style={styles.retryText}>Open Mensa Website</Text>
+          <Text style={styles.retryText}>{t('mensa_open_website')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -100,7 +100,7 @@ export default function MensaScreen({ navigation }) {
       {loading && !loadError && (
         <View style={styles.loadingOverlay} pointerEvents="none">
           <ActivityIndicator size="large" color={PRIMARY} />
-          <Text style={styles.loadingText}>Loading Mensa menu…</Text>
+          <Text style={styles.loadingText}>{t('mensa_loading')}</Text>
         </View>
       )}
 
@@ -108,22 +108,22 @@ export default function MensaScreen({ navigation }) {
       {loadError && (
         <View style={styles.errorOverlay}>
           <Ionicons name="restaurant-outline" size={52} color={BORDER} />
-          <Text style={styles.errorTitle}>Couldn't load Mensa</Text>
-          <Text style={styles.errorSub}>Check your connection and try again.</Text>
+          <Text style={styles.errorTitle}>{t('mensa_error_title')}</Text>
+          <Text style={styles.errorSub}>{t('mensa_error_msg')}</Text>
           <TouchableOpacity
             style={styles.retryBtn}
             onPress={() => { setLoadError(false); setLoading(true); webViewRef.current?.reload(); }}
             activeOpacity={0.8}
           >
             <Ionicons name="refresh" size={17} color="#fff" />
-            <Text style={styles.retryText}>Retry</Text>
+            <Text style={styles.retryText}>{t('common_retry')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.openExternalBtn}
             onPress={() => Linking.openURL(MENSA_URL).catch(() => {})}
             activeOpacity={0.7}
           >
-            <Text style={styles.openExternalText}>Open in Browser</Text>
+            <Text style={styles.openExternalText}>{t('mensa_open_browser')}</Text>
           </TouchableOpacity>
         </View>
       )}

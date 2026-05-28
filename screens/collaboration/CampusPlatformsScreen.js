@@ -5,13 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 import useStore from '../../store/useStore';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 const PLATFORMS = [
   {
@@ -47,6 +47,7 @@ const PLATFORMS = [
 ];
 
 export default function CampusPlatformsScreen() {
+  const t = useTranslation();
   const courses = useStore((s) => s.courses);
   const [coursesExpanded, setCoursesExpanded] = useState(false);
   const [tipsExpanded, setTipsExpanded] = useState(false);
@@ -92,16 +93,16 @@ export default function CampusPlatformsScreen() {
         </View>
       ))}
 
-      {/* Your courses — context helper */}
+      {/* Your courses */}
       {courses.length > 0 && (
         <>
           <TouchableOpacity
             style={styles.accordionHeader}
             onPress={() => setCoursesExpanded((v) => !v)}
             accessibilityRole="button"
-            accessibilityLabel={coursesExpanded ? 'Collapse your courses' : 'Expand your courses'}
+            accessibilityLabel={coursesExpanded ? t('platforms_collapse_courses') : t('platforms_expand_courses')}
           >
-            <Text style={styles.sectionLabel}>Your Active Courses</Text>
+            <Text style={styles.sectionLabel}>{t('platforms_your_courses')}</Text>
             <Ionicons
               name={coursesExpanded ? 'chevron-up' : 'chevron-down'}
               size={16}
@@ -111,18 +112,16 @@ export default function CampusPlatformsScreen() {
 
           {coursesExpanded && (
             <View style={styles.accordionBody}>
-              <Text style={styles.accordionHint}>
-                Copy a course name to use as your Mattermost team name.
-              </Text>
+              <Text style={styles.accordionHint}>{t('platforms_copy_hint')}</Text>
               {courses.map((course) => (
                 <View key={course.id} style={styles.courseRow}>
                   <Text style={styles.courseName} numberOfLines={1}>
-                    {course.title ?? course.attributes?.title ?? 'Unnamed course'}
+                    {course.title ?? course.attributes?.title ?? t('platforms_unnamed_course')}
                   </Text>
                   <TouchableOpacity
                     onPress={() => copyCourse(course.title ?? course.attributes?.title ?? '', course.id)}
                     hitSlop={8}
-                    accessibilityLabel={`Copy course name: ${course.title ?? ''}`}
+                    accessibilityLabel={t('platforms_copy_label', { title: course.title ?? '' })}
                     accessibilityRole="button"
                   >
                     <Ionicons
@@ -138,14 +137,14 @@ export default function CampusPlatformsScreen() {
         </>
       )}
 
-      {/* Quick tips */}
+      {/* Setup tips */}
       <TouchableOpacity
         style={styles.accordionHeader}
         onPress={() => setTipsExpanded((v) => !v)}
         accessibilityRole="button"
-        accessibilityLabel={tipsExpanded ? 'Collapse setup tips' : 'Expand setup tips'}
+        accessibilityLabel={tipsExpanded ? t('platforms_collapse_tips') : t('platforms_expand_tips')}
       >
-        <Text style={styles.sectionLabel}>Setup Tips</Text>
+        <Text style={styles.sectionLabel}>{t('platforms_setup_tips')}</Text>
         <Ionicons
           name={tipsExpanded ? 'chevron-up' : 'chevron-down'}
           size={16}
@@ -175,7 +174,6 @@ export default function CampusPlatformsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACE },
   content: { paddingBottom: 40 },
-
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
@@ -183,8 +181,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
-
-  // Platform cards
   card: {
     backgroundColor: BG,
     marginHorizontal: 12,
@@ -215,8 +211,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   openBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
-
-  // Accordions
   accordionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -234,13 +228,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: BORDER,
   },
-  accordionHint: {
-    fontSize: 13,
-    color: INACTIVE,
-    marginBottom: 10,
-  },
-
-  // Course rows
+  accordionHint: { fontSize: 13, color: INACTIVE, marginBottom: 10 },
   courseRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -250,8 +238,6 @@ const styles = StyleSheet.create({
     borderBottomColor: BORDER,
   },
   courseName: { flex: 1, fontSize: 14, color: '#1A1A1A', marginRight: 12 },
-
-  // Tips
   tipBlock: { marginBottom: 14 },
   tipHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   tipDot: { width: 8, height: 8, borderRadius: 4 },

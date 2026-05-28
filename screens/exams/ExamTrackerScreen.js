@@ -13,12 +13,12 @@ import useStore from '../../store/useStore';
 import { loadExamData, saveExamRegistrations } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, ERROR, BORDER } from '../../constants/colors';
 import calendarData from '../../data/semester_calendar.json';
+import { useTranslation } from '../../services/i18n';
 
 const QIS_URL = 'https://qis.hochschule-trier.de/';
 
 function getCurrentSemesterCourses(courses) {
   if (!courses.length) return [];
-  // Find the most recent semester label
   const counts = {};
   courses.forEach((c) => { if (c.semester) counts[c.semester] = (counts[c.semester] || 0) + 1; });
   const current = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
@@ -31,6 +31,7 @@ function daysUntil(dateStr) {
 }
 
 export default function ExamTrackerScreen({ navigation }) {
+  const t = useTranslation();
   const openSidebar = useStore((s) => s.openSidebar);
   const courses = useStore((s) => s.courses);
   const examRegistrations = useStore((s) => s.examRegistrations);
@@ -45,7 +46,7 @@ export default function ExamTrackerScreen({ navigation }) {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 4 }}>
-          <Tooltip text={"Check off each course once you've registered in QIS.\n\nTap 'Open QIS' to register directly. This is a checklist only — it doesn't register you automatically."} />
+          <Tooltip text={t('exam_tracker_tooltip')} />
           <TouchableOpacity onPress={openSidebar} hitSlop={12}>
             <Ionicons name="menu" size={24} color={PRIMARY} />
           </TouchableOpacity>
@@ -89,10 +90,10 @@ export default function ExamTrackerScreen({ navigation }) {
           />
           <View style={{ flex: 1 }}>
             <Text style={[styles.bannerTitle, regDays <= 7 && styles.bannerTitleUrgent]}>
-              Exam registration deadline
+              {t('exam_tracker_reg_deadline')}
             </Text>
             <Text style={styles.bannerSub}>
-              {regDays === 0 ? 'Today is the last day!' : `${regDays} days left — closes ${regDeadline.date}`}
+              {regDays === 0 ? t('exam_tracker_last_day') : t('exam_tracker_days_left', { days: regDays, date: regDeadline.date })}
             </Text>
           </View>
         </View>
@@ -101,10 +102,10 @@ export default function ExamTrackerScreen({ navigation }) {
       {/* Progress */}
       <View style={styles.progressCard}>
         <View style={styles.progressTop}>
-          <Text style={styles.progressTitle}>Registration Progress</Text>
+          <Text style={styles.progressTitle}>{t('exam_tracker_progress')}</Text>
           <Text style={styles.progressCount}>
             <Text style={{ color: PRIMARY, fontWeight: '800' }}>{registeredCount}</Text>
-            /{semCourses.length} courses
+            /{semCourses.length} {t('common_courses')}
           </Text>
         </View>
         <View style={styles.progressTrack}>
@@ -116,7 +117,7 @@ export default function ExamTrackerScreen({ navigation }) {
           activeOpacity={0.8}
         >
           <Ionicons name="school-outline" size={16} color={PRIMARY} />
-          <Text style={styles.qisBtnText}>Open QIS to register</Text>
+          <Text style={styles.qisBtnText}>{t('exam_tracker_open_qis')}</Text>
           <Ionicons name="open-outline" size={14} color={PRIMARY} />
         </TouchableOpacity>
       </View>
@@ -124,12 +125,12 @@ export default function ExamTrackerScreen({ navigation }) {
       {semCourses.length === 0 ? (
         <View style={styles.empty}>
           <Ionicons name="albums-outline" size={40} color={BORDER} />
-          <Text style={styles.emptyText}>No courses found for the current semester</Text>
-          <Text style={styles.emptySub}>Pull to refresh in the Home or Timetable screen</Text>
+          <Text style={styles.emptyText}>{t('exam_tracker_no_courses')}</Text>
+          <Text style={styles.emptySub}>{t('exam_tracker_pull_refresh')}</Text>
         </View>
       ) : (
         <>
-          <Text style={styles.sectionLabel}>Current Semester Courses</Text>
+          <Text style={styles.sectionLabel}>{t('exam_tracker_courses_header')}</Text>
           {semCourses.map((course) => {
             const reg = examRegistrations[course.id];
             const registered = reg?.registered ?? false;
@@ -153,7 +154,7 @@ export default function ExamTrackerScreen({ navigation }) {
                         color={registered ? '#fff' : INACTIVE}
                       />
                       <Text style={[styles.regToggleText, registered && styles.regToggleTextOn]}>
-                        {registered ? 'Registered' : 'Not registered'}
+                        {registered ? t('exam_tracker_registered') : t('exam_tracker_not_registered')}
                       </Text>
                     </TouchableOpacity>
                     {registered && (
@@ -163,7 +164,7 @@ export default function ExamTrackerScreen({ navigation }) {
                         activeOpacity={0.75}
                       >
                         <Ionicons name="document-text-outline" size={14} color={DARK} />
-                        <Text style={styles.plannerBtnText}>Exam Planner</Text>
+                        <Text style={styles.plannerBtnText}>{t('exam_tracker_planner')}</Text>
                         <Ionicons name="chevron-forward" size={14} color={DARK} />
                       </TouchableOpacity>
                     )}

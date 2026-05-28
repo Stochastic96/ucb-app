@@ -15,6 +15,7 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, SURFACE, BG, ERROR, BORDER } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 function formatLastUpdated(date) {
   if (!date) return '';
@@ -29,21 +30,22 @@ function formatLastUpdated(date) {
 const PORTAL_LINKS = [
   {
     id: 'qis',
-    label: 'QIS — Grades & Exams',
-    description: 'View grades, register for exams',
+    labelKey: 'profile_qis_label',
+    descKey: 'profile_qis_desc',
     icon: 'school-outline',
     url: 'https://qis.hochschule-trier.de/',
   },
   {
     id: 'portal',
-    label: 'Student Portal',
-    description: 'Enrollment letter, student services',
+    labelKey: 'profile_portal_label',
+    descKey: 'profile_portal_desc',
     icon: 'globe-outline',
     url: 'https://idp.fh-trier.de/idp/profile/SAML2/Redirect/SSO?execution=e5s1&lang=en',
   },
 ];
 
 export default function ProfileScreen({ navigation }) {
+  const t = useTranslation();
   const profile = useStore((s) => s.user);
   const courseCount = useStore((s) => s.courses.length);
   const dataReady = useStore((s) => s.dataReady);
@@ -119,23 +121,23 @@ export default function ProfileScreen({ navigation }) {
           <Text style={styles.name}>{profile?.fullName}</Text>
           <Text style={styles.username}>@{profile?.username}</Text>
           {lastSyncAt && (
-            <Text style={styles.cacheNote}>Last updated {formatLastUpdated(lastSyncAt)}</Text>
+            <Text style={styles.cacheNote}>{t('profile_last_updated', { when: formatLastUpdated(lastSyncAt) })}</Text>
           )}
         </View>
 
         <View style={styles.card}>
-          <InfoRow icon="mail-outline" label="Email" value={profile?.email || '—'} />
-          <InfoRow icon="person-outline" label="Username" value={profile?.username || '—'} />
-          <InfoRow icon="book-outline" label="Enrolled Courses" value={String(courseCount)} last />
+          <InfoRow icon="mail-outline" label={t('profile_email')} value={profile?.email || '—'} />
+          <InfoRow icon="person-outline" label={t('profile_username')} value={profile?.username || '—'} />
+          <InfoRow icon="book-outline" label={t('profile_enrolled')} value={String(courseCount)} last />
         </View>
 
         <View style={styles.card}>
-          <LinkRow icon="albums-outline" label="My Courses" onPress={() => navigation.navigate('CoursesList')} />
-          <LinkRow icon="settings-outline" label="Settings" onPress={() => navigation.navigate('Settings')} last />
+          <LinkRow icon="albums-outline" label={t('profile_my_courses')} onPress={() => navigation.navigate('CoursesList')} />
+          <LinkRow icon="settings-outline" label={t('profile_settings')} onPress={() => navigation.navigate('Settings')} last />
         </View>
 
         {/* University portals */}
-        <Text style={styles.sectionLabel}>University Portals</Text>
+        <Text style={styles.sectionLabel}>{t('profile_portals')}</Text>
         <View style={styles.card}>
           {PORTAL_LINKS.map((link, i) => (
             <TouchableOpacity
@@ -148,8 +150,8 @@ export default function ProfileScreen({ navigation }) {
                 <Ionicons name={link.icon} size={20} color={PRIMARY} />
               </View>
               <View style={styles.portalText}>
-                <Text style={styles.portalLabel}>{link.label}</Text>
-                <Text style={styles.portalDesc}>{link.description}</Text>
+                <Text style={styles.portalLabel}>{t(link.labelKey)}</Text>
+                <Text style={styles.portalDesc}>{t(link.descKey)}</Text>
               </View>
               <Ionicons name="open-outline" size={16} color={INACTIVE} />
             </TouchableOpacity>

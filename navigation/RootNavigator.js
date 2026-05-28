@@ -14,6 +14,7 @@ import EventsStack from './EventsStack';
 import ImpressumScreen from '../screens/legal/ImpressumScreen';
 import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
 import { PRIMARY } from '../constants/colors';
+import { t } from '../services/i18n';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,7 +40,7 @@ export default function RootNavigator() {
             component={ProfileScreen}
             options={{
               headerShown: true,
-              title: 'Profile',
+              title: t('screen_profile'),
               headerTintColor: PRIMARY,
               headerRight: () => <MenuButton />,
             }}
@@ -49,7 +50,7 @@ export default function RootNavigator() {
             component={SettingsScreen}
             options={{
               headerShown: true,
-              title: 'Settings',
+              title: t('screen_settings'),
               headerTintColor: PRIMARY,
               headerRight: () => <MenuButton />,
             }}
@@ -59,7 +60,7 @@ export default function RootNavigator() {
             component={NewsFeedScreen}
             options={{
               headerShown: true,
-              title: 'News',
+              title: t('screen_news'),
               headerTintColor: PRIMARY,
               headerRight: () => <MenuButton />,
             }}
@@ -69,7 +70,7 @@ export default function RootNavigator() {
             component={CoursesScreen}
             options={{
               headerShown: true,
-              title: 'My Courses',
+              title: t('screen_courses'),
               headerTintColor: PRIMARY,
               headerRight: () => <MenuButton />,
             }}
@@ -79,7 +80,7 @@ export default function RootNavigator() {
             component={CourseDetailScreen}
             options={({ route }) => ({
               headerShown: true,
-              title: route.params?.title ?? 'Course',
+              title: route.params?.title ?? t('screen_course'),
               headerTintColor: PRIMARY,
               headerBackTitle: '',
               headerRight: () => <MenuButton />,
@@ -93,12 +94,12 @@ export default function RootNavigator() {
           <Stack.Screen
             name="Impressum"
             component={ImpressumScreen}
-            options={{ headerShown: true, title: 'Impressum', headerTintColor: PRIMARY }}
+            options={{ headerShown: true, title: t('screen_impressum'), headerTintColor: PRIMARY }}
           />
           <Stack.Screen
             name="Datenschutz"
             component={DatenschutzScreen}
-            options={{ headerShown: true, title: 'Datenschutzerklärung', headerTintColor: PRIMARY }}
+            options={{ headerShown: true, title: t('screen_datenschutz'), headerTintColor: PRIMARY }}
           />
         </>
       ) : (

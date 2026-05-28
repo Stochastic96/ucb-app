@@ -14,6 +14,7 @@ import ExamPlannerScreen from '../screens/exams/ExamPlannerScreen';
 import CampusPlatformsScreen from '../screens/collaboration/CampusPlatformsScreen';
 import useStore from '../store/useStore';
 import { PRIMARY } from '../constants/colors';
+import { t } from '../services/i18n';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,58 +38,58 @@ export default function ToolsStack() {
       <Stack.Screen
         name="ToolsHome"
         component={ToolsScreen}
-        options={{ title: 'Tools', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_tools'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="Timetable"
         component={TimetableScreen}
-        options={{ title: 'Timetable', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_timetable'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="Mensa"
         component={MensaScreen}
-        options={{ title: 'Mensa Menu', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_mensa'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="SemesterCalendar"
         component={SemesterCalendarScreen}
-        options={{ title: 'Semester Calendar', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_semester_calendar'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="CampusResources"
         component={CampusResourcesScreen}
-        options={{ title: 'Campus Resources', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_campus_resources'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="PlannerList"
         component={PlannerScreen}
-        options={{ title: 'Deadline Planner', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_planner'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="AddDeadline"
         component={AddDeadlineScreen}
         options={({ route }) => ({
-          title: route.params?.deadline ? 'Edit Deadline' : 'Add Deadline',
+          title: route.params?.deadline ? t('screen_edit_deadline') : t('screen_add_deadline'),
           headerRight: () => <MenuButton />,
         })}
       />
       <Stack.Screen
         name="ExamTracker"
         component={ExamTrackerScreen}
-        options={{ title: 'Exam Registration', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_exam_tracker'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="ExamPlanner"
         component={ExamPlannerScreen}
         options={({ route }) => ({
-          title: route.params?.courseTitle ?? 'Exam Plan',
+          title: route.params?.courseTitle ?? t('screen_exam_plan'),
           headerRight: () => <MenuButton />,
         })}
       />
       <Stack.Screen
         name="CampusPlatforms"
         component={CampusPlatformsScreen}
-        options={{ title: 'Campus Platforms', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_campus_platforms'), headerRight: () => <MenuButton /> }}
       />
     </Stack.Navigator>
   );

@@ -7,6 +7,7 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, SURFACE, BG, BORDER } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 function groupBySemester(courses) {
   const map = {};
@@ -21,6 +22,7 @@ function groupBySemester(courses) {
 }
 
 export default function CoursesScreen({ navigation }) {
+  const t = useTranslation();
   const courses = useStore((s) => s.courses);
   const dataReady = useStore((s) => s.dataReady);
   const isHydrating = useStore((s) => s.isHydrating);
@@ -102,7 +104,7 @@ export default function CoursesScreen({ navigation }) {
         <SearchBar
           value={query}
           onChangeText={setQuery}
-          placeholder="Search by name, lecturer…"
+          placeholder={t('courses_search_placeholder')}
         />
       </View>
 
@@ -115,7 +117,7 @@ export default function CoursesScreen({ navigation }) {
           contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
           ListEmptyComponent={
             <View style={styles.empty}>
-              <Text style={styles.emptyText}>No courses match "{query}"</Text>
+              <Text style={styles.emptyText}>{t('courses_no_results', { query })}</Text>
             </View>
           }
         />
@@ -136,7 +138,7 @@ export default function CoursesScreen({ navigation }) {
           contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
           ListEmptyComponent={
             <View style={styles.empty}>
-              <Text style={styles.emptyText}>No courses found.</Text>
+              <Text style={styles.emptyText}>{t('courses_empty')}</Text>
             </View>
           }
         />

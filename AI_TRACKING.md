@@ -228,6 +228,39 @@ Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of th
 ### Config
 - constants/config.js: Claude Sonnet 4.6 — NEWS TTL 15min → 1 hour; add SESSION_MAX_AGE (7 days)
 
+## 2026-05-28 — Full multilingual support (EN / DE)
+- services/i18n.js: Claude Sonnet 4.6 — New module-level i18n singleton: initLanguage, getLanguage, saveLanguage, t(key, params), useTranslation hook; language persisted to AsyncStorage 'ucb_language'
+- constants/translations/en.js: Claude Sonnet 4.6 — Full English string map (~300+ keys) with {{param}} interpolation syntax
+- constants/translations/de.js: Claude Sonnet 4.6 — Full German string map using UCB campus terminology (Stundenplan, Prüfungsanmeldung, Speiseplan, Semesterkalender, etc.)
+- App.js: Claude Sonnet 4.6 — languageReady gate: renders null until initLanguage() resolves to prevent first-render flash of wrong language
+- screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — Language section with EN/DE pill buttons; confirm dialog + Updates.reloadAsync() hard restart; try/catch fallback for Expo Go dev mode
+- navigation/MainTabs.js: Claude Sonnet 4.6 — Tab labels use t() from i18n (safe at startup since language is fixed until restart)
+- navigation/ToolsStack.js: Claude Sonnet 4.6 — All screen title options use t() calls
+- navigation/RootNavigator.js: Claude Sonnet 4.6 — All screen title options use t() calls
+- navigation/GuideStack.js: Claude Sonnet 4.6 — All screen title options use t() calls
+- screens/LoginScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/home/HomeScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/tools/ToolsScreen.js: Claude Sonnet 4.6 — TOOLS array refactored to labelKey/descKey; all strings translated
+- screens/profile/ProfileScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/map/MapScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/timetable/TimetableScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/mensa/MensaScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/news/NewsFeedScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/courses/CoursesScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t() calls
+- screens/courses/CourseDetailScreen.js: Claude Sonnet 4.6 — TAB_KEYS array replaces English label strings; sub-components receive t as prop
+- screens/events/EventsScreen.js: Claude Sonnet 4.6 — All hardcoded UI strings replaced with t(); day filter, reminder alerts, past section header translated
+- screens/exams/ExamTrackerScreen.js: Claude Sonnet 4.6 — Progress count, deadline banner, toggle labels translated
+- screens/exams/ExamPlannerScreen.js: Claude Sonnet 4.6 — Form labels, field names in error messages, alerts translated
+- screens/planner/PlannerScreen.js: Claude Sonnet 4.6 — CATEGORY_META/FILTERS use labelKey; UrgencyBadge receives t as prop; delete dialog, reminder pills translated
+- screens/planner/AddDeadlineScreen.js: Claude Sonnet 4.6 — CATEGORIES use labelKey; subject label/placeholder, picker header, save button translated
+- screens/resources/CampusResourcesScreen.js: Claude Sonnet 4.6 — Hero, search, filter chips, empty state translated
+- screens/collaboration/CampusPlatformsScreen.js: Claude Sonnet 4.6 — Section headers, copy hint, accessibility labels translated
+- screens/calendar/SemesterCalendarScreen.js: Claude Sonnet 4.6 — TAB_KEYS array; CATEGORY_CONFIG uses labelKey; all sub-components receive t as prop; progress, countdown, course count labels translated
+- screens/guide/GuideDetailScreen.js: Claude Sonnet 4.6 — EmptyState calls useTranslation() itself; all search placeholders, checklist progress, week headers, services label, building number, copy feedback translated
+- components/Sidebar.js: Claude Sonnet 4.6 — Nav labels and logout dialog translated
+- components/OfflineBanner.js: Claude Sonnet 4.6 — Banner text translated
+- screens/guide/GuideScreen.js: Claude Sonnet 4.6 — Hero title/sub, search placeholder, category labels/descs, disclaimer translated
+
 ## 2026-05-20 — Archive admin, clean code
 - _archive/admin/: Claude Sonnet 4.6 — Moved screens/admin/, navigation/AdminStack.js, store/useAdminStore.js, supabase/functions/check-admin/ to _archive/admin/ — admin panel shelved until needed
 - components/Sidebar.js: Claude Sonnet 4.6 — Removed useAdminStore import and Admin section

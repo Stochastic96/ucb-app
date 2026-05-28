@@ -19,30 +19,31 @@ import useStore from '../store/useStore';
 import { logout } from '../services/auth';
 import { navigationRef } from '../navigation/navigationRef';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, BORDER, ACCENT } from '../constants/colors';
+import { t } from '../services/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SIDEBAR_WIDTH = Math.min(SCREEN_WIDTH * 0.8, 320);
 
 const NAV_ITEMS = [
-  { label: 'Home', icon: 'home-outline', activeIcon: 'home', target: 'tab', name: 'Home' },
-  { label: 'Tools', icon: 'grid-outline', activeIcon: 'grid', target: 'tab', name: 'Tools' },
-  { label: 'Guide', icon: 'book-outline', activeIcon: 'book', target: 'tab', name: 'Guide' },
-  { label: 'Map', icon: 'map-outline', activeIcon: 'map', target: 'tab', name: 'Map' },
+  { labelKey: 'sidebar_home', icon: 'home-outline', activeIcon: 'home', target: 'tab', name: 'Home' },
+  { labelKey: 'sidebar_tools', icon: 'grid-outline', activeIcon: 'grid', target: 'tab', name: 'Tools' },
+  { labelKey: 'sidebar_guide', icon: 'book-outline', activeIcon: 'book', target: 'tab', name: 'Guide' },
+  { labelKey: 'sidebar_map', icon: 'map-outline', activeIcon: 'map', target: 'tab', name: 'Map' },
 ];
 
 const ACCOUNT_ITEMS = [
-  { label: 'Profile', icon: 'person-outline', target: 'stack', name: 'Profile' },
-  { label: 'Settings', icon: 'settings-outline', target: 'stack', name: 'Settings' },
+  { labelKey: 'sidebar_profile', icon: 'person-outline', target: 'stack', name: 'Profile' },
+  { labelKey: 'sidebar_settings', icon: 'settings-outline', target: 'stack', name: 'Settings' },
 ];
 
 const QUICK_LINKS = [
   {
-    label: 'QIS — Grades & Exams',
+    labelKey: 'sidebar_qis',
     icon: 'school-outline',
     url: 'https://qis.hochschule-trier.de/',
   },
   {
-    label: 'Student Portal',
+    labelKey: 'sidebar_portal',
     icon: 'globe-outline',
     url: 'https://idp.fh-trier.de/idp/profile/SAML2/Redirect/SSO?execution=e5s1&lang=en',
   },
@@ -107,10 +108,10 @@ export default function Sidebar() {
   };
 
   const handleLogout = () => {
-    Alert.alert('Log out?', 'You will need to log in again to access your data.', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('sidebar_logout_title'), t('sidebar_logout_msg'), [
+      { text: t('common_cancel'), style: 'cancel' },
       {
-        text: 'Logout',
+        text: t('sidebar_logout'),
         style: 'destructive',
         onPress: async () => {
           closeSidebar();
@@ -164,36 +165,36 @@ export default function Sidebar() {
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
           {/* Navigation */}
-          <SidebarSection label="Navigate">
+          <SidebarSection label={t('sidebar_navigate')}>
             {NAV_ITEMS.map((item) => (
               <SidebarRow
                 key={item.name}
                 icon={item.icon}
-                label={item.label}
+                label={t(item.labelKey)}
                 onPress={() => navigateTo(item)}
               />
             ))}
           </SidebarSection>
 
           {/* Account */}
-          <SidebarSection label="Account">
+          <SidebarSection label={t('sidebar_account')}>
             {ACCOUNT_ITEMS.map((item) => (
               <SidebarRow
                 key={item.name}
                 icon={item.icon}
-                label={item.label}
+                label={t(item.labelKey)}
                 onPress={() => navigateTo(item)}
               />
             ))}
           </SidebarSection>
 
           {/* Quick Links */}
-          <SidebarSection label="Quick Links">
+          <SidebarSection label={t('sidebar_quick_links')}>
             {QUICK_LINKS.map((link) => (
               <SidebarRow
-                key={link.label}
+                key={link.labelKey}
                 icon={link.icon}
-                label={link.label}
+                label={t(link.labelKey)}
                 onPress={() => openLink(link.url)}
                 external
               />
@@ -202,9 +203,9 @@ export default function Sidebar() {
         </ScrollView>
 
         {/* Logout */}
-        <TouchableOpacity style={styles.logoutRow} onPress={handleLogout} activeOpacity={0.7} accessibilityLabel="Log out" accessibilityRole="button">
+        <TouchableOpacity style={styles.logoutRow} onPress={handleLogout} activeOpacity={0.7} accessibilityLabel={t('sidebar_logout')} accessibilityRole="button">
           <Ionicons name="log-out-outline" size={20} color={ERROR} />
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>{t('sidebar_logout')}</Text>
         </TouchableOpacity>
       </Animated.View>
     </Modal>

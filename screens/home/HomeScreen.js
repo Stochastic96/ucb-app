@@ -27,6 +27,7 @@ import {
   getUpcomingCampusEvents,
   isCampusEventActiveOnDate,
 } from '../../utils/campusContent';
+import { useTranslation } from '../../services/i18n';
 
 function getTodayEvents(events) {
   const today = new Date();
@@ -56,13 +57,13 @@ function getCampusEventRowLabel(event) {
 }
 
 const QUICK_LINKS = [
-  { label: 'Courses', icon: 'albums-outline', screen: 'CoursesList' },
-  { label: 'Timetable', icon: 'calendar-outline', tab: 'Tools', nestedScreen: 'ToolsHome', nestedParams: { openTimetable: true } },
-  { label: 'Map', icon: 'map-outline', tab: 'Map' },
-  { label: 'Guide', icon: 'book-outline', tab: 'Guide' },
+  { labelKey: 'home_quick_courses', icon: 'albums-outline', screen: 'CoursesList' },
+  { labelKey: 'home_quick_timetable', icon: 'calendar-outline', tab: 'Tools', nestedScreen: 'ToolsHome', nestedParams: { openTimetable: true } },
+  { labelKey: 'home_quick_map', icon: 'map-outline', tab: 'Map' },
+  { labelKey: 'home_quick_guide', icon: 'book-outline', tab: 'Guide' },
 ];
 
-function QuickLinkButton({ link, onPress }) {
+function QuickLinkButton({ link, label, onPress }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const onPressIn = () =>
@@ -81,13 +82,14 @@ function QuickLinkButton({ link, onPress }) {
         activeOpacity={1}
       >
         <Ionicons name={link.icon} size={28} color={DARK} />
-        <Text style={styles.quickLabel}>{link.label}</Text>
+        <Text style={styles.quickLabel}>{label}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
 export default function HomeScreen({ navigation }) {
+  const t = useTranslation();
   const user = useStore((s) => s.user);
   const events = useStore((s) => s.events);
   const courses = useStore((s) => s.courses);
@@ -277,9 +279,7 @@ export default function HomeScreen({ navigation }) {
       {bootstrapError && (
         <View style={styles.inlineWarning}>
           <Ionicons name="alert-circle-outline" size={18} color="#B26A00" />
-          <Text style={styles.inlineWarningText}>
-            Some campus data could not be loaded. Pull to refresh and try again.
-          </Text>
+          <Text style={styles.inlineWarningText}>{t('home_error_loading')}</Text>
         </View>
       )}
 
@@ -292,13 +292,17 @@ export default function HomeScreen({ navigation }) {
         >
           <View style={styles.cardHeader}>
             <Ionicons name="time-outline" size={18} color={DARK} />
-            <Text style={styles.cardTitle}>Next Class</Text>
+            <Text style={styles.cardTitle}>{t('home_next_class')}</Text>
           </View>
           <View style={[styles.nextClassBar, { backgroundColor: nextEvent.courseColor }]} />
           <Text style={styles.nextClassTime}>{getTimeUntil(nextEvent.start)}</Text>
           <Text style={styles.nextClassCourse}>{nextEvent.courseTitle}</Text>
           {!!nextEvent.room && (
-            <Text style={styles.nextClassRoom}>Room {nextEvent.room}{nextEvent.building ? `, Building ${nextEvent.building}` : ''}</Text>
+            <Text style={styles.nextClassRoom}>
+              {nextEvent.building
+                ? t('home_room_building', { room: nextEvent.room, building: nextEvent.building })
+                : t('home_room', { room: nextEvent.room })}
+            </Text>
           )}
         </TouchableOpacity>
       )}
@@ -308,7 +312,7 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="calendar-outline" size={18} color={DARK} />
-            <Text style={styles.cardTitle}>Today</Text>
+            <Text style={styles.cardTitle}>{t('home_today')}</Text>
           </View>
           {todayEvents.slice(0, 4).map((e) => (
             <EventRow key={e.id} event={e} />
@@ -320,9 +324,9 @@ export default function HomeScreen({ navigation }) {
       {topNews.length > 0 && (
         <View style={styles.section}>
           <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>Latest News</Text>
+            <Text style={styles.sectionTitle}>{t('home_latest_news')}</Text>
             <TouchableOpacity onPress={() => openRootScreen('NewsFeed')}>
-              <Text style={styles.seeAll}>See all →</Text>
+              <Text style={styles.seeAll}>{t('common_see_all')}</Text>
             </TouchableOpacity>
           </View>
           {topNews.map((item) => (
@@ -342,10 +346,10 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.sectionRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Ionicons name="calendar-outline" size={18} color={DARK} />
-              <Text style={styles.sectionTitle}>{hasTodayHighlights ? "What's On Today" : 'Campus Events'}</Text>
+              <Text style={styles.sectionTitle}>{hasTodayHighlights ? t('home_whats_on') : t('home_campus_events')}</Text>
             </View>
             <TouchableOpacity onPress={() => openRootScreen('EventsList')}>
-              <Text style={styles.seeAll}>See all →</Text>
+              <Text style={styles.seeAll}>{t('common_see_all')}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.eventsCard}>
@@ -371,7 +375,7 @@ export default function HomeScreen({ navigation }) {
             {todaySports.length > 0 && (
               <View style={styles.sportsTodayBlock}>
                 {campusPreview.length > 0 && <View style={styles.sectionDivider} />}
-                <Text style={styles.sportsTodayTitle}>Sports Today</Text>
+                <Text style={styles.sportsTodayTitle}>{t('home_sports_today')}</Text>
                 {todaySports.slice(0, 4).map((sport) => {
                   const isGoing = goingSportIds.includes(sport.id);
                   return (
@@ -403,12 +407,13 @@ export default function HomeScreen({ navigation }) {
 
       {/* Quick links */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Links</Text>
+        <Text style={styles.sectionTitle}>{t('home_quick_links')}</Text>
         <View style={styles.quickGrid}>
           {QUICK_LINKS.map((link) => (
             <QuickLinkButton
-              key={link.label}
+              key={link.labelKey}
               link={link}
+              label={t(link.labelKey)}
               onPress={() => {
                 if (link.nestedScreen) navigation.navigate(link.tab, { screen: link.nestedScreen, params: link.nestedParams });
                 else if (link.tab) openTab(link.tab);

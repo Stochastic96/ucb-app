@@ -11,17 +11,18 @@ import { Ionicons } from '@expo/vector-icons';
 import calendarData from '../../data/semester_calendar.json';
 import useStore from '../../store/useStore';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, ERROR } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 const QIS_URL = 'https://qis.hochschule-trier.de/';
 
 const CATEGORY_CONFIG = {
-  academic: { color: '#1976D2', bg: '#E3F2FD', label: 'Academic' },
-  exams:    { color: '#E65100', bg: '#FBE9E7', label: 'Exams' },
-  admin:    { color: '#6A1B9A', bg: '#F3E5F5', label: 'Admin' },
-  holiday:  { color: '#2E7D32', bg: '#E8F5E9', label: 'Holiday' },
+  academic: { color: '#1976D2', bg: '#E3F2FD', labelKey: 'calendar_filter_academic' },
+  exams:    { color: '#E65100', bg: '#FBE9E7', labelKey: 'calendar_filter_exams' },
+  admin:    { color: '#6A1B9A', bg: '#F3E5F5', labelKey: 'calendar_filter_admin' },
+  holiday:  { color: '#2E7D32', bg: '#E8F5E9', labelKey: 'calendar_filter_holiday' },
 };
 
-const TABS = ['Overview', 'Key Dates', 'My Courses'];
+const TAB_KEYS = ['calendar_overview', 'calendar_key_dates', 'calendar_my_courses'];
 
 function daysUntil(dateStr) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -50,9 +51,10 @@ function getCurrentSemesterCourses(courses) {
 }
 
 export default function SemesterCalendarScreen({ navigation }) {
+  const t = useTranslation();
   const semester = calendarData.semesters.find((s) => s.id === calendarData.current) ?? calendarData.semesters[0];
   const courses = useStore((s) => s.courses);
-  const [activeTab, setActiveTab] = useState('Overview');
+  const [activeTab, setActiveTab] = useState(TAB_KEYS[0]);
 
   const progress = useMemo(() => semesterProgress(semester), [semester]);
   const progressPct = Math.round(progress * 100);
@@ -74,7 +76,7 @@ export default function SemesterCalendarScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Semester header — always visible */}
+      {/* Semester header */}
       <View style={styles.semHeader}>
         <View style={styles.semHeaderTop}>
           <View style={[styles.semBadge, { backgroundColor: semester.color }]}>
@@ -86,25 +88,25 @@ export default function SemesterCalendarScreen({ navigation }) {
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${Math.min(progressPct, 100)}%` }]} />
           </View>
-          <Text style={styles.progressLabel}>{progressPct}% through lectures</Text>
+          <Text style={styles.progressLabel}>{progressPct}{t('calendar_lectures_pct')}</Text>
         </View>
       </View>
 
       {/* Tabs */}
       <View style={styles.tabBar}>
-        {TABS.map((tab) => (
+        {TAB_KEYS.map((key) => (
           <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.tabActive]}
-            onPress={() => setActiveTab(tab)}
+            key={key}
+            style={[styles.tab, activeTab === key && styles.tabActive]}
+            onPress={() => setActiveTab(key)}
           >
-            <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
+            <Text style={[styles.tabText, activeTab === key && styles.tabTextActive]}>{t(key)}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {activeTab === 'Overview' && (
+        {activeTab === TAB_KEYS[0] && (
           <OverviewTab
             semester={semester}
             upcoming={upcoming}
@@ -114,22 +116,21 @@ export default function SemesterCalendarScreen({ navigation }) {
             examPeriod={examPeriod}
             reenrollment={reenrollment}
             navigation={navigation}
+            t={t}
           />
         )}
-        {activeTab === 'Key Dates' && (
-          <KeyDatesTab events={semester.events} />
+        {activeTab === TAB_KEYS[1] && (
+          <KeyDatesTab events={semester.events} t={t} />
         )}
-        {activeTab === 'My Courses' && (
-          <MyCoursesTab semCourses={semCourses} semester={semester} navigation={navigation} />
+        {activeTab === TAB_KEYS[2] && (
+          <MyCoursesTab semCourses={semCourses} semester={semester} navigation={navigation} t={t} />
         )}
       </ScrollView>
     </View>
   );
 }
 
-// ─── Overview Tab ───────────────────────────────────────────────────────────
-
-function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPeriod, reenrollment, navigation }) {
+function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPeriod, reenrollment, navigation, t }) {
   const examRegDays = examRegDeadline ? daysUntil(examRegDeadline.date) : null;
 
   return (
@@ -141,41 +142,42 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
             color={examRegDays <= 7 ? ERROR : '#1565C0'} />
           <View style={{ flex: 1 }}>
             <Text style={[styles.alertTitle, examRegDays <= 7 && { color: ERROR }]}>
-              Exam registration{examRegDays === 0 ? ' closes today!' : ` closes in ${examRegDays} days`}
+              {t('calendar_exam_reg')}{examRegDays === 0 ? ` ${t('calendar_exam_reg_today')}` : ` ${t('calendar_exam_reg_days', { days: examRegDays })}`}
             </Text>
-            <Text style={styles.alertSub}>Register for exams in QIS before {examRegDeadline.date}</Text>
+            <Text style={styles.alertSub}>{t('calendar_register_before', { date: examRegDeadline.date })}</Text>
           </View>
           <TouchableOpacity
             style={styles.alertBtn}
             onPress={() => Linking.openURL(QIS_URL).catch(() => {})}
           >
-            <Text style={styles.alertBtnText}>Open QIS</Text>
+            <Text style={styles.alertBtnText}>{t('calendar_open_qis')}</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Key milestones row */}
-      <Text style={styles.groupLabel}>Semester Milestones</Text>
+      {/* Key milestones */}
+      <Text style={styles.groupLabel}>{t('calendar_milestones')}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.milestonesRow}>
         <MilestoneCard
           icon="school-outline"
-          label="Lectures"
+          label={t('calendar_lectures')}
           dates={`${formatDate(semester.lectureStart)} →\n${formatDate(semester.lectureEnd)}`}
           color="#1976D2"
         />
         {examRegEvent && (
           <MilestoneCard
             icon="create-outline"
-            label="Exam Registration"
+            label={t('calendar_exam_reg')}
             dates={`${formatDate(examRegEvent.date)} →\n${formatDate(examRegDeadline?.date ?? examRegEvent.date)}`}
             color="#E65100"
             urgent={examRegDays !== null && examRegDays >= 0 && examRegDays <= 14}
+            t={t}
           />
         )}
         {examPeriod && (
           <MilestoneCard
             icon="document-text-outline"
-            label="Exam Period"
+            label={t('calendar_exam_period')}
             dates={`${formatDate(examPeriod.date)} →\n${formatDate(examPeriod.endDate ?? examPeriod.date)}`}
             color="#6A1B9A"
           />
@@ -183,25 +185,25 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
         {reenrollment && (
           <MilestoneCard
             icon="card-outline"
-            label="Re-enrollment"
+            label={t('calendar_reenrollment')}
             dates={`Deadline:\n${formatDate(reenrollment.date)}`}
             color="#00796B"
           />
         )}
       </ScrollView>
 
-      {/* Next 5 upcoming events */}
+      {/* Upcoming events */}
       {upcoming.length > 0 && (
         <>
-          <Text style={styles.groupLabel}>Upcoming</Text>
+          <Text style={styles.groupLabel}>{t('calendar_upcoming')}</Text>
           {upcoming.map((ev) => (
-            <CompactEventRow key={ev.id} event={ev} />
+            <CompactEventRow key={ev.id} event={ev} t={t} />
           ))}
         </>
       )}
 
-      {/* QIS quick action */}
-      <Text style={styles.groupLabel}>Quick Actions</Text>
+      {/* Quick actions */}
+      <Text style={styles.groupLabel}>{t('calendar_quick_actions')}</Text>
       <TouchableOpacity
         style={styles.quickAction}
         onPress={() => Linking.openURL(QIS_URL).catch(() => {})}
@@ -209,8 +211,8 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
       >
         <View style={styles.qaIcon}><Ionicons name="school-outline" size={20} color={PRIMARY} /></View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.qaLabel}>QIS — Grades & Exam Registration</Text>
-          <Text style={styles.qaSub}>Register for exams, view grades</Text>
+          <Text style={styles.qaLabel}>{t('calendar_qis_label')}</Text>
+          <Text style={styles.qaSub}>{t('calendar_qis_desc')}</Text>
         </View>
         <Ionicons name="open-outline" size={16} color={INACTIVE} />
       </TouchableOpacity>
@@ -221,8 +223,8 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
       >
         <View style={styles.qaIcon}><Ionicons name="document-outline" size={20} color={PRIMARY} /></View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.qaLabel}>Student Portal</Text>
-          <Text style={styles.qaSub}>Enrollment letter, semester fee</Text>
+          <Text style={styles.qaLabel}>{t('calendar_portal_label')}</Text>
+          <Text style={styles.qaSub}>{t('calendar_portal_desc')}</Text>
         </View>
         <Ionicons name="open-outline" size={16} color={INACTIVE} />
       </TouchableOpacity>
@@ -230,7 +232,7 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
   );
 }
 
-function MilestoneCard({ icon, label, dates, color, urgent }) {
+function MilestoneCard({ icon, label, dates, color, urgent, t }) {
   return (
     <View style={[styles.milestoneCard, urgent && styles.milestoneCardUrgent]}>
       <View style={[styles.milestoneIcon, { backgroundColor: color + '20' }]}>
@@ -240,14 +242,14 @@ function MilestoneCard({ icon, label, dates, color, urgent }) {
       <Text style={styles.milestoneDates}>{dates}</Text>
       {urgent && (
         <View style={styles.urgentBadge}>
-          <Text style={styles.urgentBadgeText}>Soon</Text>
+          <Text style={styles.urgentBadgeText}>{t ? t('calendar_soon') : 'Soon'}</Text>
         </View>
       )}
     </View>
   );
 }
 
-function CompactEventRow({ event }) {
+function CompactEventRow({ event, t }) {
   const cfg = CATEGORY_CONFIG[event.category] ?? CATEGORY_CONFIG.academic;
   const days = daysUntil(event.date);
   return (
@@ -259,16 +261,14 @@ function CompactEventRow({ event }) {
       </View>
       <View style={[styles.chip, { backgroundColor: cfg.bg }]}>
         <Text style={[styles.chipText, { color: cfg.color }]}>
-          {days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days}d`}
+          {days === 0 ? t('calendar_today') : days === 1 ? t('calendar_tomorrow') : t('calendar_days', { days })}
         </Text>
       </View>
     </View>
   );
 }
 
-// ─── Key Dates Tab ───────────────────────────────────────────────────────────
-
-function KeyDatesTab({ events }) {
+function KeyDatesTab({ events, t }) {
   const [filter, setFilter] = useState('all');
   const sorted = useMemo(() =>
     events
@@ -280,10 +280,12 @@ function KeyDatesTab({ events }) {
   const past = sorted.filter((e) => daysUntil(e.date) < 0);
   const upcoming = sorted.filter((e) => daysUntil(e.date) >= 0);
 
+  const filterKeys = ['all', 'academic', 'exams', 'admin', 'holiday'];
+
   return (
     <>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-        {['all', 'academic', 'exams', 'admin', 'holiday'].map((cat) => {
+        {filterKeys.map((cat) => {
           const cfg = CATEGORY_CONFIG[cat];
           const active = filter === cat;
           return (
@@ -293,7 +295,7 @@ function KeyDatesTab({ events }) {
               onPress={() => setFilter(cat)}
             >
               <Text style={[styles.filterChipText, active && { color: '#fff' }]}>
-                {cat === 'all' ? 'All' : cfg?.label}
+                {cat === 'all' ? t('calendar_filter_all') : t(cfg?.labelKey ?? cat)}
               </Text>
             </TouchableOpacity>
           );
@@ -302,21 +304,21 @@ function KeyDatesTab({ events }) {
 
       {upcoming.length > 0 && (
         <>
-          <Text style={styles.groupLabel}>Upcoming</Text>
-          {upcoming.map((ev) => <FullEventRow key={ev.id} event={ev} />)}
+          <Text style={styles.groupLabel}>{t('calendar_upcoming')}</Text>
+          {upcoming.map((ev) => <FullEventRow key={ev.id} event={ev} t={t} />)}
         </>
       )}
       {past.length > 0 && (
         <>
-          <Text style={[styles.groupLabel, { color: INACTIVE }]}>Past</Text>
-          {[...past].reverse().map((ev) => <FullEventRow key={ev.id} event={ev} past />)}
+          <Text style={[styles.groupLabel, { color: INACTIVE }]}>{t('calendar_filter_past')}</Text>
+          {[...past].reverse().map((ev) => <FullEventRow key={ev.id} event={ev} past t={t} />)}
         </>
       )}
     </>
   );
 }
 
-function FullEventRow({ event, past }) {
+function FullEventRow({ event, past, t }) {
   const [expanded, setExpanded] = useState(false);
   const cfg = CATEGORY_CONFIG[event.category] ?? CATEGORY_CONFIG.academic;
   const days = daysUntil(event.date);
@@ -339,27 +341,25 @@ function FullEventRow({ event, past }) {
           <Text style={styles.expandedDesc}>{event.description}</Text>
         ) : null}
         <View style={[styles.catChip, { backgroundColor: past ? '#F5F5F5' : cfg.bg }]}>
-          <Text style={[styles.catChipText, { color: past ? INACTIVE : cfg.color }]}>{cfg.label}</Text>
+          <Text style={[styles.catChipText, { color: past ? INACTIVE : cfg.color }]}>{t(cfg.labelKey)}</Text>
         </View>
       </View>
       <View style={[styles.chip, { backgroundColor: past ? '#F5F5F5' : cfg.bg, marginLeft: 4 }]}>
         <Text style={[styles.chipText, { color: past ? INACTIVE : cfg.color }]}>
-          {past ? 'Done' : days === 0 ? 'Today' : `${days}d`}
+          {past ? t('calendar_done') : days === 0 ? t('calendar_today') : t('calendar_days', { days })}
         </Text>
       </View>
     </TouchableOpacity>
   );
 }
 
-// ─── My Courses Tab ──────────────────────────────────────────────────────────
-
-function MyCoursesTab({ semCourses, semester, navigation }) {
+function MyCoursesTab({ semCourses, semester, navigation, t }) {
   if (!semCourses.length) {
     return (
       <View style={styles.empty}>
         <Ionicons name="albums-outline" size={44} color="#DDD" />
-        <Text style={styles.emptyTitle}>No courses loaded</Text>
-        <Text style={styles.emptySub}>Pull to refresh on the Home screen to sync your courses</Text>
+        <Text style={styles.emptyTitle}>{t('calendar_no_courses')}</Text>
+        <Text style={styles.emptySub}>{t('calendar_no_courses_hint')}</Text>
       </View>
     );
   }
@@ -367,9 +367,9 @@ function MyCoursesTab({ semCourses, semester, navigation }) {
   return (
     <>
       <View style={styles.coursesHeader}>
-        <Text style={styles.coursesCount}>{semCourses.length} courses · {semester.shortName}</Text>
+        <Text style={styles.coursesCount}>{t('calendar_courses_count', { count: semCourses.length, semester: semester.shortName })}</Text>
         <TouchableOpacity onPress={() => navigation.getParent()?.getParent()?.navigate('CoursesList')}>
-          <Text style={styles.coursesLink}>View all →</Text>
+          <Text style={styles.coursesLink}>{t('calendar_view_all')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -394,13 +394,9 @@ function MyCoursesTab({ semCourses, semester, navigation }) {
         </TouchableOpacity>
       ))}
 
-      {/* Exam planning reminder */}
       <View style={styles.examReminderBox}>
         <Ionicons name="bulb-outline" size={18} color={DARK} />
-        <Text style={styles.examReminderText}>
-          Track your exam registrations and plan exam details in the{' '}
-          <Text style={{ fontWeight: '700', color: PRIMARY }}>Exam Registration</Text> tool.
-        </Text>
+        <Text style={styles.examReminderText}>{t('calendar_exam_tracker_hint')}</Text>
       </View>
     </>
   );

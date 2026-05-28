@@ -11,18 +11,20 @@ import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../../components/SearchBar';
 import resources from '../../data/campus_resources.json';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, BORDER } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'mobility', label: '🚲 Mobility' },
-  { id: 'food', label: '🍽 Food' },
-  { id: 'sports', label: '⚽ Sports' },
-  { id: 'study', label: '📚 Study' },
+  { id: 'all',          labelKey: 'common_all' },
+  { id: 'mobility',     label: '🚲 Mobility' },
+  { id: 'food',         label: '🍽 Food' },
+  { id: 'sports',       label: '⚽ Sports' },
+  { id: 'study',        label: '📚 Study' },
   { id: 'sustainability', label: '🌱 Green' },
-  { id: 'community', label: '👥 Community' },
+  { id: 'community',   label: '👥 Community' },
 ];
 
 export default function CampusResourcesScreen() {
+  const t = useTranslation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [expanded, setExpanded] = useState(null);
   const [query, setQuery] = useState('');
@@ -45,8 +47,8 @@ export default function CampusResourcesScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Hero */}
       <View style={styles.hero}>
-        <Text style={styles.heroTitle}>Campus Resources</Text>
-        <Text style={styles.heroSub}>Everything UCB offers — most of it free</Text>
+        <Text style={styles.heroTitle}>{t('resources_title')}</Text>
+        <Text style={styles.heroSub}>{t('resources_subtitle')}</Text>
       </View>
 
       {/* Search */}
@@ -54,7 +56,7 @@ export default function CampusResourcesScreen() {
         <SearchBar
           value={query}
           onChangeText={setQuery}
-          placeholder="Search resources…"
+          placeholder={t('resources_search_placeholder')}
         />
       </View>
 
@@ -67,7 +69,7 @@ export default function CampusResourcesScreen() {
             onPress={() => setActiveCategory(cat.id)}
           >
             <Text style={[styles.filterChipText, activeCategory === cat.id && styles.filterChipTextActive]}>
-              {cat.label}
+              {cat.labelKey ? t(cat.labelKey) : cat.label}
             </Text>
           </TouchableOpacity>
         ))}
@@ -77,7 +79,7 @@ export default function CampusResourcesScreen() {
       {filtered.length === 0 ? (
         <View style={styles.empty}>
           <Ionicons name="search-outline" size={36} color={BORDER} />
-          <Text style={styles.emptyText}>No resources match your search</Text>
+          <Text style={styles.emptyText}>{t('resources_no_results')}</Text>
         </View>
       ) : (
         filtered.map((resource) => (
@@ -94,8 +96,6 @@ export default function CampusResourcesScreen() {
 }
 
 function ResourceCard({ resource, expanded, onToggle }) {
-  const hasContact = resource.contact || resource.phone || resource.instagram;
-
   return (
     <TouchableOpacity
       style={styles.card}

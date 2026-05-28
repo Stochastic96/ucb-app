@@ -17,6 +17,7 @@ import { SECURE_KEYS } from './constants/secureKeys';
 import { bootstrapSessionData } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
 import { startSession, flushNow } from './services/analytics';
+import { initLanguage } from './services/i18n';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
 // Only uses the identifier (not notification content) to avoid handling personal data.
@@ -44,6 +45,7 @@ const ucbTheme = {
 
 export default function App() {
   const { updateSettings, setUser } = useStore();
+  const [languageReady, setLanguageReady] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const backgroundedAt = useRef(null);
   const appState = useRef(AppState.currentState);
@@ -51,6 +53,7 @@ export default function App() {
   const pendingSessionRestoreRef = useRef(false);
 
   useEffect(() => {
+    initLanguage().then(() => setLanguageReady(true));
     startSession();
     initializeApp();
   }, []);
@@ -146,6 +149,8 @@ export default function App() {
       }
     } catch {}
   };
+
+  if (!languageReady) return null;
 
   return (
     <SafeAreaProvider>

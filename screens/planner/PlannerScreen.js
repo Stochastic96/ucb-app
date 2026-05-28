@@ -14,19 +14,7 @@ import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
-
-const CATEGORY_META = {
-  academic:     { label: 'Academic',     color: PRIMARY,    icon: 'school-outline' },
-  bureaucratic: { label: 'Bureaucratic', color: '#E65100',  icon: 'document-text-outline' },
-  personal:     { label: 'Personal',     color: '#7B1FA2',  icon: 'person-outline' },
-};
-
-const FILTERS = [
-  { key: 'all', label: 'All' },
-  { key: 'academic', label: 'Academic' },
-  { key: 'bureaucratic', label: 'Bureaucratic' },
-  { key: 'personal', label: 'Personal' },
-];
+import { useTranslation } from '../../services/i18n';
 
 function daysUntil(dateStr) {
   const today = new Date();
@@ -40,20 +28,20 @@ function formatDueDate(dateStr) {
     ' · ' + d.toLocaleTimeString('en-DE', { hour: '2-digit', minute: '2-digit' });
 }
 
-function UrgencyBadge({ days, done }) {
+function UrgencyBadge({ days, done, t }) {
   if (done) return (
     <View style={[styles.badge, { backgroundColor: '#F5F5F5' }]}>
-      <Text style={[styles.badgeText, { color: INACTIVE }]}>Done</Text>
+      <Text style={[styles.badgeText, { color: INACTIVE }]}>{t('planner_badge_done')}</Text>
     </View>
   );
   if (days < 0) return (
     <View style={[styles.badge, { backgroundColor: '#FFEBEE' }]}>
-      <Text style={[styles.badgeText, { color: ERROR }]}>Overdue</Text>
+      <Text style={[styles.badgeText, { color: ERROR }]}>{t('planner_badge_overdue')}</Text>
     </View>
   );
   if (days === 0) return (
     <View style={[styles.badge, { backgroundColor: '#FFF3E0' }]}>
-      <Text style={[styles.badgeText, { color: '#E65100', fontWeight: '800' }]}>Today</Text>
+      <Text style={[styles.badgeText, { color: '#E65100', fontWeight: '800' }]}>{t('planner_badge_today')}</Text>
     </View>
   );
   if (days <= 2) return (
@@ -74,6 +62,7 @@ function UrgencyBadge({ days, done }) {
 }
 
 export default function PlannerScreen({ navigation }) {
+  const t = useTranslation();
   const deadlines = useStore((s) => s.deadlines);
   const setDeadlines = useStore((s) => s.setDeadlines);
   const updateDeadline = useStore((s) => s.updateDeadline);
@@ -82,11 +71,24 @@ export default function PlannerScreen({ navigation }) {
   const courses = useStore((s) => s.courses);
   const [filter, setFilter] = useState('all');
 
+  const CATEGORY_META = {
+    academic:     { labelKey: 'deadline_cat_academic',     color: PRIMARY,    icon: 'school-outline' },
+    bureaucratic: { labelKey: 'deadline_cat_bureaucratic', color: '#E65100',  icon: 'document-text-outline' },
+    personal:     { labelKey: 'deadline_cat_personal',     color: '#7B1FA2',  icon: 'person-outline' },
+  };
+
+  const FILTERS = [
+    { key: 'all',          labelKey: 'planner_filter_all' },
+    { key: 'academic',     labelKey: 'planner_filter_academic' },
+    { key: 'bureaucratic', labelKey: 'planner_filter_bureaucratic' },
+    { key: 'personal',     labelKey: 'planner_filter_personal' },
+  ];
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 4 }}>
-          <Tooltip text={"Add deadlines for portfolios, submissions, or exams.\n\nTap a card to edit it. You'll get reminders 24h and 2h before the due time."} />
+          <Tooltip text={t('planner_tooltip')} />
           <TouchableOpacity onPress={openSidebar} hitSlop={12}>
             <Ionicons name="menu" size={24} color={PRIMARY} />
           </TouchableOpacity>
@@ -107,10 +109,10 @@ export default function PlannerScreen({ navigation }) {
   }, [deadlines]);
 
   const confirmDelete = (id, title) => {
-    Alert.alert('Delete deadline?', `"${title}" will be removed.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('planner_delete_title'), t('planner_delete_msg', { title }), [
+      { text: t('common_cancel'), style: 'cancel' },
       {
-        text: 'Delete',
+        text: t('common_delete'),
         style: 'destructive',
         onPress: async () => {
           await cancelDeadlineReminders(id);
@@ -133,11 +135,11 @@ export default function PlannerScreen({ navigation }) {
     return (
       <View style={styles.empty}>
         <Ionicons name="checkmark-circle-outline" size={56} color={BORDER} />
-        <Text style={styles.emptyTitle}>No deadlines yet</Text>
-        <Text style={styles.emptySub}>Track your portfolio, presentations, and assignments</Text>
-        <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddDeadline')} accessibilityLabel="Add deadline" accessibilityRole="button">
+        <Text style={styles.emptyTitle}>{t('planner_empty_title')}</Text>
+        <Text style={styles.emptySub}>{t('planner_empty_sub')}</Text>
+        <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddDeadline')} accessibilityRole="button">
           <Ionicons name="add" size={20} color="#fff" />
-          <Text style={styles.addBtnText}>Add Deadline</Text>
+          <Text style={styles.addBtnText}>{t('planner_add')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -161,14 +163,13 @@ export default function PlannerScreen({ navigation }) {
               style={[styles.filterChip, active && { backgroundColor: activeColor, borderColor: activeColor }]}
               onPress={() => setFilter(f.key)}
               activeOpacity={0.75}
-              accessibilityLabel={`Filter by ${f.label}`}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
             >
               {meta && (
                 <View style={[styles.filterDot, { backgroundColor: active ? '#fff' : meta.color }]} />
               )}
-              <Text style={[styles.filterChipText, active && { color: '#fff' }]}>{f.label}</Text>
+              <Text style={[styles.filterChipText, active && { color: '#fff' }]}>{t(f.labelKey)}</Text>
             </TouchableOpacity>
           );
         })}
@@ -180,7 +181,7 @@ export default function PlannerScreen({ navigation }) {
         contentContainerStyle={[styles.list, visible.length === 0 && { flex: 1 }]}
         ListEmptyComponent={
           <View style={styles.emptyFilter}>
-            <Text style={styles.emptyFilterText}>No {filter} deadlines</Text>
+            <Text style={styles.emptyFilterText}>{t('planner_no_filter', { filter: t(FILTERS.find(f => f.key === filter)?.labelKey ?? 'planner_filter_all').toLowerCase() })}</Text>
           </View>
         }
         renderItem={({ item: d }) => {
@@ -192,7 +193,6 @@ export default function PlannerScreen({ navigation }) {
                 style={styles.checkBtn}
                 onPress={() => toggleDone(d.id, d.completed)}
                 hitSlop={8}
-                accessibilityLabel={d.completed ? 'Mark as not done' : 'Mark as done'}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: d.completed }}
               >
@@ -206,20 +206,19 @@ export default function PlannerScreen({ navigation }) {
                 style={styles.cardBody}
                 onPress={() => navigation.navigate('AddDeadline', { deadline: d })}
                 activeOpacity={0.7}
-                accessibilityLabel={`Edit deadline: ${d.title}`}
                 accessibilityRole="button"
               >
                 <View style={styles.cardTop}>
                   <Text style={[styles.cardTitle, d.completed && styles.strikethrough]} numberOfLines={2}>
                     {d.title}
                   </Text>
-                  <UrgencyBadge days={daysUntil(d.dueDate)} done={d.completed} />
+                  <UrgencyBadge days={daysUntil(d.dueDate)} done={d.completed} t={t} />
                 </View>
                 <View style={styles.metaRow}>
                   {catMeta && (
                     <View style={[styles.categoryPill, { backgroundColor: catMeta.color + '18', borderColor: catMeta.color + '40' }]}>
                       <View style={[styles.categoryDot, { backgroundColor: catMeta.color }]} />
-                      <Text style={[styles.categoryPillText, { color: catMeta.color }]}>{catMeta.label}</Text>
+                      <Text style={[styles.categoryPillText, { color: catMeta.color }]}>{t(catMeta.labelKey)}</Text>
                     </View>
                   )}
                   {d.subject ? (
@@ -234,15 +233,14 @@ export default function PlannerScreen({ navigation }) {
                 <Text style={styles.dueDate}>{formatDueDate(d.dueDate)}</Text>
                 {d.note ? <Text style={styles.note} numberOfLines={2}>{d.note}</Text> : null}
                 <View style={styles.reminders}>
-                  {d.remind24h && <ReminderPill label="24h before" />}
-                  {d.remind2h && <ReminderPill label="2h before" />}
+                  {d.remind24h && <ReminderPill label={t('planner_reminder_24h')} />}
+                  {d.remind2h && <ReminderPill label={t('planner_reminder_2h')} />}
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteBtn}
                 onPress={() => confirmDelete(d.id, d.title)}
                 hitSlop={8}
-                accessibilityLabel={`Delete deadline: ${d.title}`}
                 accessibilityRole="button"
               >
                 <Ionicons name="trash-outline" size={18} color={INACTIVE} />
@@ -255,7 +253,6 @@ export default function PlannerScreen({ navigation }) {
         style={styles.fab}
         onPress={() => navigation.navigate('AddDeadline')}
         activeOpacity={0.85}
-        accessibilityLabel="Add deadline"
         accessibilityRole="button"
       >
         <Ionicons name="add" size={28} color="#fff" />

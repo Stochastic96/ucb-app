@@ -12,6 +12,7 @@ import faq from '../../data/guide_faq.json';
 import contacts from '../../data/guide_contacts.json';
 import emergency from '../../data/guide_emergency.json';
 import { trackScreen, trackEvent } from '../../services/analytics';
+import { useTranslation } from '../../services/i18n';
 
 const CATEGORY_COLORS = {
   emergency: '#D32F2F',
@@ -31,25 +32,26 @@ const CATEGORY_COLORS = {
 };
 
 export default function GuideScreen({ navigation }) {
+  const t = useTranslation();
   const [query, setQuery] = useState('');
 
   useEffect(() => { trackScreen('GuideScreen'); }, []);
 
   const categories = [
-    { id: 'emergency', icon: 'alert-circle-outline', label: 'Emergency Info', count: emergency.length, desc: 'Ambulance, police, fire & campus security' },
-    { id: 'buildings', icon: 'home-outline', label: 'Campus Buildings', count: buildings.length, desc: 'Locations, rooms & services' },
-    { id: 'checklist', icon: 'checkbox-outline', label: 'First Week Checklist', count: checklist.length, desc: 'Everything to do when you arrive' },
-    { id: 'offices', icon: 'business-outline', label: 'Office Directory', count: offices.length, desc: 'Opening hours & contacts' },
-    { id: 'contacts', icon: 'person-outline', label: 'Contacts', count: contacts.length, desc: 'Professors & key departments' },
-    { id: 'glossary', icon: 'book-outline', label: 'German Glossary', count: glossary.length, desc: 'University terms explained' },
-    { id: 'phrases', icon: 'chatbubble-outline', label: 'German Phrases', count: phrases.length, desc: 'Tap any phrase to copy it' },
-    { id: 'faq', icon: 'help-circle-outline', label: 'FAQ', count: faq.length, desc: 'Common questions answered' },
-    { id: 'work', icon: 'briefcase-outline', label: 'Work & Finance', count: 6, desc: 'Working rights, Minijob, Werkstudent' },
-    { id: 'health', icon: 'medical-outline', label: 'Health Insurance', count: 6, desc: 'GKV, enrollment steps, providers' },
-    { id: 'accommodation', icon: 'bed-outline', label: 'Accommodation', count: 5, desc: 'Campus housing, Kaltmiete vs. Warmmiete' },
-    { id: 'bureaucracy', icon: 'document-text-outline', label: 'Bureaucracy & Arrival', count: 7, desc: 'Anmeldung, residence permit, tax ID' },
-    { id: 'language', icon: 'language-outline', label: 'Language Learning', count: 4, desc: 'Free & local German courses' },
-    { id: 'rights', icon: 'shield-checkmark-outline', label: 'Student Rights', count: 4, desc: 'Counselling, exam review, AStA, hardship fund' },
+    { id: 'emergency', icon: 'alert-circle-outline', label: t('guide_cat_emergency'), count: emergency.length, desc: t('guide_cat_emergency_desc') },
+    { id: 'buildings', icon: 'home-outline', label: t('guide_cat_buildings'), count: buildings.length, desc: t('guide_cat_buildings_desc') },
+    { id: 'checklist', icon: 'checkbox-outline', label: t('guide_cat_checklist'), count: checklist.length, desc: t('guide_cat_checklist_desc') },
+    { id: 'offices', icon: 'business-outline', label: t('guide_cat_offices'), count: offices.length, desc: t('guide_cat_offices_desc') },
+    { id: 'contacts', icon: 'person-outline', label: t('guide_cat_contacts'), count: contacts.length, desc: t('guide_cat_contacts_desc') },
+    { id: 'glossary', icon: 'book-outline', label: t('guide_cat_glossary'), count: glossary.length, desc: t('guide_cat_glossary_desc') },
+    { id: 'phrases', icon: 'chatbubble-outline', label: t('guide_cat_phrases'), count: phrases.length, desc: t('guide_cat_phrases_desc') },
+    { id: 'faq', icon: 'help-circle-outline', label: t('guide_cat_faq'), count: faq.length, desc: t('guide_cat_faq_desc') },
+    { id: 'work', icon: 'briefcase-outline', label: t('guide_cat_work'), count: 6, desc: t('guide_cat_work_desc') },
+    { id: 'health', icon: 'medical-outline', label: t('guide_cat_health'), count: 6, desc: t('guide_cat_health_desc') },
+    { id: 'accommodation', icon: 'bed-outline', label: t('guide_cat_accommodation'), count: 5, desc: t('guide_cat_accommodation_desc') },
+    { id: 'bureaucracy', icon: 'document-text-outline', label: t('guide_cat_bureaucracy'), count: 7, desc: t('guide_cat_bureaucracy_desc') },
+    { id: 'language', icon: 'language-outline', label: t('guide_cat_language'), count: 4, desc: t('guide_cat_language_desc') },
+    { id: 'rights', icon: 'shield-checkmark-outline', label: t('guide_cat_rights'), count: 4, desc: t('guide_cat_rights_desc') },
   ];
 
   const visibleCategories = useMemo(() => {
@@ -69,23 +71,23 @@ export default function GuideScreen({ navigation }) {
         ListHeaderComponent={
           <>
             <View style={styles.hero}>
-              <Text style={styles.heroTitle}>Survival Guide</Text>
-              <Text style={styles.heroSub}>Your field guide to life at Hochschule Trier</Text>
+              <Text style={styles.heroTitle}>{t('guide_title')}</Text>
+              <Text style={styles.heroSub}>{t('guide_subtitle')}</Text>
             </View>
             <View style={styles.searchWrapper}>
               <SearchBar
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Search topics…"
+                placeholder={t('guide_search_placeholder')}
               />
             </View>
-            {!query.trim() && <DisclaimerBanner />}
-            <Text style={styles.sectionLabel}>Topics</Text>
+            {!query.trim() && <DisclaimerBanner t={t} />}
+            <Text style={styles.sectionLabel}>{t('guide_topics')}</Text>
           </>
         }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>No topics match "{query}"</Text>
+            <Text style={styles.emptyText}>{t('guide_no_results', { query })}</Text>
           </View>
         }
         renderItem={({ item }) => {
@@ -95,7 +97,7 @@ export default function GuideScreen({ navigation }) {
               style={styles.card}
               onPress={() => {
                 trackEvent('feature_use', 'guide_category_opened', { category: item.id });
-                navigation.push('GuideDetail', { category: item.id, title: item.label });
+                navigation.push('GuideDetail', { category: item.id, title: item.label, titleKey: `guide_cat_${item.id}` });
               }}
               activeOpacity={0.75}
               accessibilityLabel={`${item.label}: ${item.desc}`}
@@ -120,15 +122,13 @@ export default function GuideScreen({ navigation }) {
   );
 }
 
-function DisclaimerBanner() {
+function DisclaimerBanner({ t }) {
   return (
     <View style={styles.disclaimer}>
       <Ionicons name="information-circle-outline" size={18} color="#795548" style={{ marginRight: 6, marginTop: 1 }} />
       <View style={{ flex: 1 }}>
-        <Text style={styles.disclaimerTitle}>Unofficial Student App</Text>
-        <Text style={styles.disclaimerText}>
-          This app is not affiliated with or endorsed by the university. All information is provided for guidance only and may be outdated. Always verify with official university sources. No liability is assumed for errors or omissions (Haftungsausschluss).
-        </Text>
+        <Text style={styles.disclaimerTitle}>{t('guide_disclaimer_title')}</Text>
+        <Text style={styles.disclaimerText}>{t('guide_disclaimer_text')}</Text>
       </View>
     </View>
   );

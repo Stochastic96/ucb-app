@@ -23,8 +23,10 @@ import {
 import CampusPlanView from './CampusPlanView';
 import { useFocusEffect } from '@react-navigation/native';
 import { trackScreen, trackEvent } from '../../services/analytics';
+import { useTranslation } from '../../services/i18n';
 
 export default function MapScreen() {
+  const t = useTranslation();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const [showPlan, setShowPlan] = useState(false);
@@ -80,17 +82,15 @@ export default function MapScreen() {
           <View style={styles.heroIcon}>
             <Ionicons name="map-outline" size={24} color={PRIMARY} />
           </View>
-          <Text style={styles.heroTitle}>Campus Guide</Text>
-          <Text style={styles.heroText}>
-            Browse buildings here and open turn-by-turn directions in Maps.
-          </Text>
+          <Text style={styles.heroTitle}>{t('map_title')}</Text>
+          <Text style={styles.heroText}>{t('map_subtitle')}</Text>
           <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85}>
             <Ionicons name="navigate-outline" size={18} color="#fff" />
-            <Text style={styles.campusButtonText}>Open Campus in Maps</Text>
+            <Text style={styles.campusButtonText}>{t('map_open_campus')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.planButton} onPress={() => { trackEvent('feature_use', 'campus_plan_opened'); setShowPlan(true); }} activeOpacity={0.85}>
             <Ionicons name="map-outline" size={18} color={PRIMARY} />
-            <Text style={styles.planButtonText}>View Campus Plan</Text>
+            <Text style={styles.planButtonText}>{t('map_view_plan')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -98,7 +98,7 @@ export default function MapScreen() {
           <Ionicons name="search-outline" size={18} color={INACTIVE} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search buildings..."
+            placeholder={t('map_search_placeholder')}
             placeholderTextColor={INACTIVE}
             value={search}
             onChangeText={handleSearchChange}
@@ -111,7 +111,7 @@ export default function MapScreen() {
         </View>
 
         <Text style={styles.countText}>
-          {visibleBuildings.length} building{visibleBuildings.length === 1 ? '' : 's'}
+          {visibleBuildings.length === 1 ? t('map_buildings_count_one') : t('map_buildings_count', { count: visibleBuildings.length })}
         </Text>
 
         {visibleBuildings.length > 0 ? (
@@ -140,8 +140,8 @@ export default function MapScreen() {
         ) : (
           <View style={styles.emptyContainer}>
             <Ionicons name="search-outline" size={42} color={INACTIVE} />
-            <Text style={styles.emptyTitle}>No buildings found</Text>
-            <Text style={styles.emptyText}>Try another name, short name, or building number.</Text>
+            <Text style={styles.emptyTitle}>{t('map_no_results_title')}</Text>
+            <Text style={styles.emptyText}>{t('map_no_results_msg')}</Text>
           </View>
         )}
       </ScrollView>
@@ -152,7 +152,7 @@ export default function MapScreen() {
             <TouchableOpacity onPress={() => setShowPlan(false)} style={styles.planBack}>
               <Ionicons name="arrow-back" size={22} color="#1A1A1A" />
             </TouchableOpacity>
-            <Text style={styles.planTitle}>Campusplan</Text>
+            <Text style={styles.planTitle}>{t('map_campusplan_title')}</Text>
             <View style={{ width: 38 }} />
           </View>
           <CampusPlanView
@@ -175,7 +175,7 @@ export default function MapScreen() {
                 )}
                 {selected.services && selected.services.length > 0 && (
                   <>
-                    <Text style={styles.servicesLabel}>Services</Text>
+                    <Text style={styles.servicesLabel}>{t('map_services')}</Text>
                     {selected.services.map((svc, i) => (
                       <Text key={i} style={styles.service}>
                         • {svc}
@@ -184,16 +184,14 @@ export default function MapScreen() {
                   </>
                 )}
                 {selected.isFallback ? (
-                  <Text style={styles.fallbackNote}>
-                    Exact in-app guide data is still being curated for this building. Directions will open at the campus with your building number in the query.
-                  </Text>
+                  <Text style={styles.fallbackNote}>{t('map_fallback_note')}</Text>
                 ) : null}
                 <TouchableOpacity
                   style={styles.navBtn}
                   onPress={() => handleNavigate(selected)}
                 >
                   <Ionicons name="navigate" size={18} color="#fff" />
-                  <Text style={styles.navBtnText}>Navigate Here</Text>
+                  <Text style={styles.navBtnText}>{t('map_navigate')}</Text>
                 </TouchableOpacity>
               </>
             )}

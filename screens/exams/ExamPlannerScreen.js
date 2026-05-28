@@ -20,9 +20,11 @@ import {
   loadExamData,
 } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 
 export default function ExamPlannerScreen({ navigation, route }) {
+  const t = useTranslation();
   const { courseId, courseTitle, courseColor } = route.params ?? {};
   const setExamPlan = useStore((s) => s.setExamPlan);
   const examPlans = useStore((s) => s.examPlans);
@@ -30,7 +32,6 @@ export default function ExamPlannerScreen({ navigation, route }) {
 
   const existing = examPlans[courseId];
 
-  // Parse stored YYYY-MM-DD as local midnight to avoid UTC-offset date shift
   const [examDate, setExamDate] = useState(existing?.examDate ? new Date(existing.examDate + 'T00:00:00') : null);
   const [examTime, setExamTime] = useState(existing?.examTime ? (() => {
     const d = new Date(); const [h, m] = existing.examTime.split(':'); d.setHours(+h, +m, 0, 0); return d;
@@ -53,7 +54,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 4 }}>
-          <Tooltip text={"Fill in the date, time, room and building for your exam.\n\nEnable reminders to get a notification the day before and 2 hours before the exam starts."} />
+          <Tooltip text={t('exam_planner_tooltip')} />
           <TouchableOpacity onPress={openSidebar} hitSlop={12}>
             <Ionicons name="menu" size={24} color={PRIMARY} />
           </TouchableOpacity>
@@ -71,16 +72,16 @@ export default function ExamPlannerScreen({ navigation, route }) {
   }, [buildingSearch]);
 
   const missingFields = [];
-  if (!examDate) missingFields.push('exam date');
-  if (!examTime) missingFields.push('start time');
-  if (!room.trim()) missingFields.push('room number');
-  if (!building.trim()) missingFields.push('building');
+  if (!examDate) missingFields.push(t('exam_planner_date').toLowerCase());
+  if (!examTime) missingFields.push(t('exam_planner_time').toLowerCase());
+  if (!room.trim()) missingFields.push(t('exam_planner_room').toLowerCase());
+  if (!building.trim()) missingFields.push(t('exam_planner_building').toLowerCase());
 
   const isComplete = missingFields.length === 0;
 
   const handleSave = async () => {
     if (!examDate) {
-      Alert.alert('Date required', 'Please set the exam date before saving.');
+      Alert.alert(t('exam_planner_date_required_title'), t('exam_planner_date_required_msg'));
       return;
     }
     setSaving(true);
@@ -92,7 +93,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
       const plan = {
         courseId,
         courseTitle,
-        examDate: examDate.toISOString().split('T')[0], // store as YYYY-MM-DD only
+        examDate: examDate.toISOString().split('T')[0],
         examTime: timeStr,
         room: room.trim(),
         building: building.trim(),
@@ -101,10 +102,8 @@ export default function ExamPlannerScreen({ navigation, route }) {
         savedAt: new Date().toISOString(),
       };
 
-      // Cancel old reminders
       await cancelExamReminders(courseId);
 
-      // Schedule new reminders if enabled and complete
       if (remindersEnabled && timeStr) {
         await scheduleExamReminders(plan);
       }
@@ -114,7 +113,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
       setExamPlan(courseId, plan);
       navigation.goBack();
     } catch {
-      Alert.alert('Error', 'Could not save exam plan. Please try again.');
+      Alert.alert(t('common_error'), t('exam_planner_error_msg'));
     } finally {
       setSaving(false);
     }
@@ -124,7 +123,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       {/* Header card */}
       <View style={[styles.courseCard, { borderLeftColor: courseColor ?? PRIMARY }]}>
-        <Text style={styles.courseLabel}>Exam Plan</Text>
+        <Text style={styles.courseLabel}>{t('screen_exam_plan')}</Text>
         <Text style={styles.courseTitle}>{courseTitle}</Text>
       </View>
 
@@ -133,35 +132,35 @@ export default function ExamPlannerScreen({ navigation, route }) {
         <View style={styles.warningBox}>
           <Ionicons name="alert-circle-outline" size={18} color='#E65100' />
           <Text style={styles.warningText}>
-            Missing: {missingFields.join(', ')}. Fill everything in for full reminders.
+            {t('exam_planner_missing', { fields: missingFields.join(', ') })}
           </Text>
         </View>
       )}
 
       {/* Exam date */}
-      <FormSection label="Exam Date">
+      <FormSection label={t('exam_planner_date')}>
         <SimpleDatePicker
           value={examDate}
           onChange={setExamDate}
           minimumDate={new Date()}
-          label="Exam Date"
+          label={t('exam_planner_date')}
         />
       </FormSection>
 
       {/* Start time */}
-      <FormSection label="Start Time">
+      <FormSection label={t('exam_planner_time')}>
         <SimpleTimePicker
           value={examTime}
           onChange={setExamTime}
-          label="Start Time"
+          label={t('exam_planner_time')}
         />
       </FormSection>
 
       {/* Room */}
-      <FormSection label="Room Number">
+      <FormSection label={t('exam_planner_room')}>
         <TextInput
           style={styles.input}
-          placeholder="e.g. 9930-230"
+          placeholder={t('exam_planner_room_placeholder')}
           placeholderTextColor={INACTIVE}
           value={room}
           onChangeText={setRoom}
@@ -170,13 +169,13 @@ export default function ExamPlannerScreen({ navigation, route }) {
       </FormSection>
 
       {/* Building */}
-      <FormSection label="Building">
+      <FormSection label={t('exam_planner_building')}>
         <TextInput
           style={styles.input}
-          placeholder="Search campus buildings..."
+          placeholder={t('exam_planner_building_placeholder')}
           placeholderTextColor={INACTIVE}
           value={buildingSearch}
-          onChangeText={(t) => { setBuildingSearch(t); setBuilding(t); }}
+          onChangeText={(v) => { setBuildingSearch(v); setBuilding(v); }}
           maxLength={60}
         />
         {buildingSuggestions.length > 0 && (
@@ -196,10 +195,10 @@ export default function ExamPlannerScreen({ navigation, route }) {
       </FormSection>
 
       {/* Notes */}
-      <FormSection label="Notes">
+      <FormSection label={t('exam_planner_notes')}>
         <TextInput
           style={[styles.input, styles.notesInput]}
-          placeholder="Allowed materials, tips, what to bring..."
+          placeholder={t('exam_planner_notes_placeholder')}
           placeholderTextColor={INACTIVE}
           value={notes}
           onChangeText={setNotes}
@@ -209,7 +208,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
       </FormSection>
 
       {/* Reminders toggle */}
-      <FormSection label="Reminders">
+      <FormSection label={t('exam_planner_reminders')}>
         <TouchableOpacity
           style={styles.toggleRow}
           onPress={() => setRemindersEnabled((v) => !v)}
@@ -217,8 +216,10 @@ export default function ExamPlannerScreen({ navigation, route }) {
         >
           <Ionicons name="notifications-outline" size={18} color={PRIMARY} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.toggleLabel}>Exam reminders</Text>
-            <Text style={styles.toggleSub}>Day before + 2 hours before{!isComplete ? ' (needs all fields)' : ''}</Text>
+            <Text style={styles.toggleLabel}>{t('exam_planner_reminders_label')}</Text>
+            <Text style={styles.toggleSub}>
+              {t('exam_planner_reminders_sub')}{!isComplete ? t('exam_planner_reminders_needs_fields') : ''}
+            </Text>
           </View>
           <View style={[styles.toggle, remindersEnabled && styles.toggleOn]}>
             <View style={[styles.toggleThumb, remindersEnabled && styles.toggleThumbOn]} />
@@ -234,7 +235,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
         activeOpacity={0.85}
       >
         <Ionicons name="checkmark-circle" size={20} color="#fff" />
-        <Text style={styles.saveBtnText}>Save Exam Plan</Text>
+        <Text style={styles.saveBtnText}>{t('exam_planner_save')}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

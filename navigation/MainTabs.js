@@ -9,6 +9,7 @@ import ToolsStack from './ToolsStack';
 import OfflineBanner from '../components/OfflineBanner';
 import useStore from '../store/useStore';
 import { PRIMARY, INACTIVE } from '../constants/colors';
+import { t } from '../services/i18n';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,7 +23,7 @@ const ICONS = {
 function MenuButton() {
   const openSidebar = useStore((s) => s.openSidebar);
   return (
-    <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 8 }} accessibilityLabel="Open menu" accessibilityRole="button">
+    <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 8 }} accessibilityLabel={t('nav_open_menu')} accessibilityRole="button">
       <Ionicons name="menu" size={24} color={PRIMARY} />
     </TouchableOpacity>
   );
@@ -59,17 +60,16 @@ export default function MainTabs() {
           name="Home"
           component={HomeScreen}
           options={{
+            tabBarLabel: t('tab_home'),
             tabBarBadge: unreadNewsCount > 0 ? unreadNewsCount : undefined,
-            tabBarAccessibilityLabel: 'Home tab',
+            tabBarAccessibilityLabel: t('tab_home_a11y'),
           }}
         />
         <Tab.Screen
           name="Tools"
           component={ToolsStack}
-          options={{ headerShown: false, tabBarAccessibilityLabel: 'Tools tab' }}
+          options={{ headerShown: false, tabBarLabel: t('tab_tools'), tabBarAccessibilityLabel: t('tab_tools_a11y') }}
           listeners={({ navigation }) => ({
-            // Always reset to ToolsHome when the tab button is tapped, so the
-            // user is never stranded deep in the stack with no way back.
             tabPress: (e) => {
               e.preventDefault();
               navigation.navigate('Tools', { screen: 'ToolsHome' });
@@ -79,7 +79,7 @@ export default function MainTabs() {
         <Tab.Screen
           name="Guide"
           component={GuideStack}
-          options={{ headerShown: false, tabBarAccessibilityLabel: 'Guide tab' }}
+          options={{ headerShown: false, tabBarLabel: t('tab_guide'), tabBarAccessibilityLabel: t('tab_guide_a11y') }}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
               e.preventDefault();
@@ -87,7 +87,7 @@ export default function MainTabs() {
             },
           })}
         />
-        <Tab.Screen name="Map" component={MapScreen} options={{ title: 'Campus Map', tabBarAccessibilityLabel: 'Map tab' }} />
+        <Tab.Screen name="Map" component={MapScreen} options={{ title: t('tab_map'), tabBarLabel: t('tab_map'), tabBarAccessibilityLabel: t('tab_map_a11y') }} />
       </Tab.Navigator>
     </View>
   );

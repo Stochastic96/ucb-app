@@ -13,6 +13,7 @@ import guideEmergency from '../../data/guide_emergency.json';
 import { Linking } from 'react-native';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
 import SearchBar from '../../components/SearchBar';
+import { useTranslation } from '../../services/i18n';
 import { getAllBuildings } from '../../services/buildings';
 import InfoSectionView from './InfoSectionView';
 import guideWork from '../../data/guide_work.json';
@@ -42,11 +43,12 @@ const CATEGORIES = {
   faq: guideFaq,
 };
 
-function EmptyState({ message = 'No results found.' }) {
+function EmptyState({ message }) {
+  const t = useTranslation();
   return (
     <View style={styles.emptyState}>
       <Ionicons name="search-outline" size={36} color={INACTIVE} />
-      <Text style={styles.emptyText}>{message}</Text>
+      <Text style={styles.emptyText}>{message ?? t('guide_detail_no_results')}</Text>
     </View>
   );
 }
@@ -64,6 +66,7 @@ export default function GuideDetailScreen({ route }) {
   const [selectedFaqCat, setSelectedFaqCat] = useState('all');
   // Phrase copy feedback: stores the id of the last copied phrase briefly
   const [copiedId, setCopiedId] = useState(null);
+  const t = useTranslation();
 
   // Load persisted checklist state on mount
   useEffect(() => {
@@ -136,7 +139,7 @@ export default function GuideDetailScreen({ route }) {
     return (
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
         <View style={styles.searchWrapper}>
-          <SearchBar value={search} onChangeText={setSearch} placeholder="Search contacts…" />
+          <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_contacts')} />
         </View>
         <FlatList
           data={filtered}
@@ -176,7 +179,7 @@ export default function GuideDetailScreen({ route }) {
       return acc;
     }, {});
     const allTasks = filtered;
-    const checkedCount = allTasks.filter(t => checked[t.id]).length;
+    const checkedCount = allTasks.filter(task => checked[task.id]).length;
     const progress = allTasks.length > 0 ? checkedCount / allTasks.length : 0;
     const done = allTasks.length > 0 && checkedCount === allTasks.length;
 
@@ -184,9 +187,9 @@ export default function GuideDetailScreen({ route }) {
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
         <View style={{ margin: 16, marginBottom: 8 }}>
           {done ? (
-            <Text style={[styles.progressLabel, { color: '#2E7D32' }]}>All done! Great work 🎉</Text>
+            <Text style={[styles.progressLabel, { color: '#2E7D32' }]}>{t('guide_all_done')}</Text>
           ) : (
-            <Text style={styles.progressLabel}>Progress: {checkedCount} / {allTasks.length}</Text>
+            <Text style={styles.progressLabel}>{t('guide_progress', { checked: checkedCount, total: allTasks.length })}</Text>
           )}
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: done ? '#2E7D32' : PRIMARY }]} />
@@ -195,7 +198,7 @@ export default function GuideDetailScreen({ route }) {
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
           {Object.keys(grouped).sort((a, b) => a - b).map(week => (
             <View key={week} style={{ marginBottom: 18 }}>
-              <Text style={styles.checklistWeekHeader}>Week {week}</Text>
+              <Text style={styles.checklistWeekHeader}>{t('guide_week', { week })}</Text>
               {grouped[week].map(item => (
                 <TouchableOpacity
                   key={item.id}
@@ -242,7 +245,7 @@ export default function GuideDetailScreen({ route }) {
             <View style={styles.officeHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.officeName}>{item.name}</Text>
-                <Text style={styles.officeSubtitle}>Building {item.building}, Room {item.room}</Text>
+                <Text style={styles.officeSubtitle}>{t('guide_office_location', { building: item.building, room: item.room })}</Text>
               </View>
               <Ionicons name={expanded[item.id] ? 'chevron-up' : 'chevron-down'} size={20} color={PRIMARY} />
             </View>
@@ -263,9 +266,9 @@ export default function GuideDetailScreen({ route }) {
                 )}
                 {(item.tasks ?? []).length > 0 && (
                   <>
-                    <Text style={styles.taskLabel}>Services:</Text>
-                    {(item.tasks ?? []).map((t, i) => (
-                      <Text key={i} style={styles.taskItem}>• {t}</Text>
+                    <Text style={styles.taskLabel}>{t('guide_services')}</Text>
+                    {(item.tasks ?? []).map((task, i) => (
+                      <Text key={i} style={styles.taskItem}>• {task}</Text>
                     ))}
                   </>
                 )}
@@ -282,7 +285,7 @@ export default function GuideDetailScreen({ route }) {
     return (
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
         <View style={styles.searchWrapper}>
-          <SearchBar value={search} onChangeText={setSearch} placeholder="Search terms…" />
+          <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_terms')} />
         </View>
         <FlatList
           data={filtered}
@@ -327,7 +330,7 @@ export default function GuideDetailScreen({ route }) {
                 </View>
                 <View style={styles.copyBadge}>
                   <Ionicons name={copiedId === p.id ? 'checkmark' : 'copy-outline'} size={16} color={copiedId === p.id ? '#2E7D32' : INACTIVE} />
-                  {copiedId === p.id && <Text style={styles.copiedText}>Copied</Text>}
+                  {copiedId === p.id && <Text style={styles.copiedText}>{t('guide_copied')}</Text>}
                 </View>
               </TouchableOpacity>
             ))}
@@ -345,14 +348,14 @@ export default function GuideDetailScreen({ route }) {
     return (
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
         <View style={styles.searchWrapper}>
-          <SearchBar value={search} onChangeText={setSearch} placeholder="Search FAQ…" />
+          <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_faq')} />
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.faqTabRow} contentContainerStyle={{ alignItems: 'center' }}>
           <TouchableOpacity
             style={[styles.faqCatTab, selectedFaqCat === 'all' && styles.faqCatTabActive]}
             onPress={() => setSelectedFaqCat('all')}
           >
-            <Text style={[styles.faqCatTabText, selectedFaqCat === 'all' && styles.faqCatTabTextActive]}>All</Text>
+            <Text style={[styles.faqCatTabText, selectedFaqCat === 'all' && styles.faqCatTabTextActive]}>{t('common_all')}</Text>
           </TouchableOpacity>
           {faqCategories.map(cat => (
             <TouchableOpacity
@@ -396,7 +399,7 @@ export default function GuideDetailScreen({ route }) {
   return (
     <View style={{ flex: 1, backgroundColor: SURFACE }}>
       <View style={styles.searchWrapper}>
-        <SearchBar value={search} onChangeText={setSearch} placeholder="Search buildings…" />
+        <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_buildings')} />
       </View>
       <FlatList
         data={filtered}
@@ -405,12 +408,12 @@ export default function GuideDetailScreen({ route }) {
         ListEmptyComponent={<EmptyState />}
         renderItem={({ item }) => (
           <View style={styles.buildingCard}>
-            <Text style={styles.buildingNum}>Building {item.number}</Text>
+            <Text style={styles.buildingNum}>{t('guide_building_num', { number: item.number })}</Text>
             <Text style={styles.buildingName}>{item.name}</Text>
             <Text style={styles.buildingDesc}>{item.description}</Text>
             {item.services && item.services.length > 0 && (
               <View>
-                <Text style={styles.servicesLabel}>Services:</Text>
+                <Text style={styles.servicesLabel}>{t('guide_services')}</Text>
                 {item.services.map((s, i) => (
                   <Text key={i} style={styles.service}>• {s}</Text>
                 ))}

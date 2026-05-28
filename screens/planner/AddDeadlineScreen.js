@@ -18,18 +18,12 @@ import {
   saveDeadlines,
 } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, BORDER, ACCENT } from '../../constants/colors';
-
-const CATEGORIES = [
-  { key: 'academic',     label: 'Academic',     color: PRIMARY,   icon: 'school-outline' },
-  { key: 'bureaucratic', label: 'Bureaucratic', color: '#E65100', icon: 'document-text-outline' },
-  { key: 'personal',     label: 'Personal',     color: '#7B1FA2', icon: 'person-outline' },
-];
+import { useTranslation } from '../../services/i18n';
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-// Returns courses from the most-represented semester (current) in the store
 function getCurrentSemesterCourses(courses) {
   if (!courses.length) return [];
   const counts = {};
@@ -39,6 +33,7 @@ function getCurrentSemesterCourses(courses) {
 }
 
 export default function AddDeadlineScreen({ navigation, route }) {
+  const t = useTranslation();
   const existing = route.params?.deadline;
   const courses = useStore((s) => s.courses);
   const addDeadline = useStore((s) => s.addDeadline);
@@ -61,10 +56,14 @@ export default function AddDeadlineScreen({ navigation, route }) {
   const [subjectFocused, setSubjectFocused] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Current semester courses used by the Academic picker
+  const CATEGORIES = [
+    { key: 'academic',     labelKey: 'deadline_cat_academic',     color: PRIMARY,   icon: 'school-outline' },
+    { key: 'bureaucratic', labelKey: 'deadline_cat_bureaucratic', color: '#E65100', icon: 'document-text-outline' },
+    { key: 'personal',     labelKey: 'deadline_cat_personal',     color: '#7B1FA2', icon: 'person-outline' },
+  ];
+
   const semesterCourses = useMemo(() => getCurrentSemesterCourses(courses), [courses]);
 
-  // Academic picker: show all semester courses on focus, filter as user types
   const academicMatches = useMemo(() => {
     if (!subjectFocused || category !== 'academic') return [];
     const q = subject.trim().toLowerCase();
@@ -73,7 +72,6 @@ export default function AddDeadlineScreen({ navigation, route }) {
       : semesterCourses.filter((c) => c.title.toLowerCase().includes(q));
   }, [subjectFocused, category, subject, semesterCourses]);
 
-  // Non-academic: suggestion-while-typing from all courses (existing behaviour)
   const textSuggestions = useMemo(() => {
     if (category === 'academic' || !subjectFocused || subject.length === 0) return [];
     return courses
@@ -93,7 +91,6 @@ export default function AddDeadlineScreen({ navigation, route }) {
 
   const handleSubjectChange = (text) => {
     setSubject(text);
-    // If the user edits the text away from the linked course title, unlink it
     if (linkedCourseId && text !== linkedCourse?.title) {
       setLinkedCourseId(null);
     }
@@ -101,13 +98,12 @@ export default function AddDeadlineScreen({ navigation, route }) {
 
   const handleCategoryChange = (key) => {
     setCategory(key);
-    // Clear course link when switching away from Academic
     if (key !== 'academic') setLinkedCourseId(null);
   };
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Title required', 'Please enter a title for this deadline.');
+      Alert.alert(t('deadline_title_required_title'), t('deadline_title_required_msg'));
       return;
     }
     setSaving(true);
@@ -146,35 +142,34 @@ export default function AddDeadlineScreen({ navigation, route }) {
 
       navigation.goBack();
     } catch {
-      Alert.alert('Error', 'Could not save deadline. Please try again.');
+      Alert.alert(t('common_error'), t('deadline_error_msg'));
     } finally {
       setSaving(false);
     }
   };
 
-  const subjectLabel = category === 'academic' ? 'Course / Module' : 'Subject / Module';
+  const subjectLabel = category === 'academic' ? t('deadline_course_label') : t('deadline_subject_label');
   const subjectPlaceholder = category === 'academic'
-    ? (semesterCourses.length > 0 ? 'Tap to pick a course, or type to search…' : 'e.g. Media Design')
-    : 'e.g. Residence registration or internship';
+    ? (semesterCourses.length > 0 ? t('deadline_course_placeholder') : t('deadline_subject_academic_placeholder'))
+    : t('deadline_subject_other_placeholder');
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       {/* Title */}
-      <FormSection label="Title *">
+      <FormSection label={t('deadline_title_label')}>
         <TextInput
           style={styles.input}
-          placeholder="e.g. Portfolio submission"
+          placeholder={t('deadline_title_placeholder')}
           placeholderTextColor={INACTIVE}
           value={title}
           onChangeText={setTitle}
           maxLength={80}
           autoFocus={!existing}
-          accessibilityLabel="Deadline title"
         />
       </FormSection>
 
-      {/* Category — placed before subject so the subject label adapts */}
-      <FormSection label="Category">
+      {/* Category */}
+      <FormSection label={t('deadline_category')}>
         <View style={styles.categoryRow}>
           {CATEGORIES.map((cat) => {
             const active = category === cat.key;
@@ -184,12 +179,11 @@ export default function AddDeadlineScreen({ navigation, route }) {
                 style={[styles.categoryChip, active && { backgroundColor: cat.color, borderColor: cat.color }]}
                 onPress={() => handleCategoryChange(cat.key)}
                 activeOpacity={0.75}
-                accessibilityLabel={`${cat.label} category`}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
                 <Ionicons name={cat.icon} size={14} color={active ? '#fff' : INACTIVE} />
-                <Text style={[styles.categoryChipText, active && { color: '#fff' }]}>{cat.label}</Text>
+                <Text style={[styles.categoryChipText, active && { color: '#fff' }]}>{t(cat.labelKey)}</Text>
               </TouchableOpacity>
             );
           })}
@@ -198,7 +192,6 @@ export default function AddDeadlineScreen({ navigation, route }) {
 
       {/* Subject / Course picker */}
       <FormSection label={subjectLabel}>
-        {/* Linked course badge — shown when a course is selected */}
         {linkedCourse && (
           <View style={[styles.linkedBadge, { borderLeftColor: linkedCourse.color ?? PRIMARY }]}>
             <View style={[styles.linkedDot, { backgroundColor: linkedCourse.color ?? PRIMARY }]} />
@@ -206,7 +199,6 @@ export default function AddDeadlineScreen({ navigation, route }) {
             <TouchableOpacity
               onPress={() => { setLinkedCourseId(null); setSubject(''); }}
               hitSlop={8}
-              accessibilityLabel="Remove linked course"
             >
               <Ionicons name="close-circle" size={16} color={INACTIVE} />
             </TouchableOpacity>
@@ -221,15 +213,13 @@ export default function AddDeadlineScreen({ navigation, route }) {
           onFocus={() => setSubjectFocused(true)}
           onBlur={() => setTimeout(() => setSubjectFocused(false), 180)}
           maxLength={80}
-          accessibilityLabel={subjectLabel}
         />
 
-        {/* Academic course picker — full list on focus, filtered as you type */}
         {academicMatches.length > 0 && (
           <View style={styles.suggestions}>
             <View style={styles.pickerHeader}>
               <Ionicons name="school-outline" size={12} color={PRIMARY} />
-              <Text style={styles.pickerHeaderText}>Current semester courses</Text>
+              <Text style={styles.pickerHeaderText}>{t('deadline_semester_courses')}</Text>
             </View>
             {academicMatches.map((course) => {
               const selected = linkedCourseId === course.id;
@@ -238,7 +228,6 @@ export default function AddDeadlineScreen({ navigation, route }) {
                   key={course.id}
                   style={[styles.courseRow, selected && styles.courseRowSelected]}
                   onPress={() => selectCourse(course)}
-                  accessibilityLabel={`Select course: ${course.title}`}
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
                 >
@@ -252,13 +241,12 @@ export default function AddDeadlineScreen({ navigation, route }) {
             })}
             {academicMatches.length === 0 && subject.length > 0 && (
               <View style={styles.noMatch}>
-                <Text style={styles.noMatchText}>No course matches — your text will be saved as-is.</Text>
+                <Text style={styles.noMatchText}>{t('deadline_no_course_match')}</Text>
               </View>
             )}
           </View>
         )}
 
-        {/* Non-academic text autocomplete */}
         {textSuggestions.length > 0 && (
           <View style={styles.suggestions}>
             {textSuggestions.map((name) => (
@@ -266,7 +254,6 @@ export default function AddDeadlineScreen({ navigation, route }) {
                 key={name}
                 style={styles.suggestionRow}
                 onPress={() => { setSubject(name); setSubjectFocused(false); }}
-                accessibilityLabel={`Select course: ${name}`}
                 accessibilityRole="button"
               >
                 <Ionicons name="book-outline" size={14} color={PRIMARY} />
@@ -278,50 +265,50 @@ export default function AddDeadlineScreen({ navigation, route }) {
       </FormSection>
 
       {/* Due date & time */}
-      <FormSection label="Due Date & Time">
+      <FormSection label={t('deadline_due_datetime')}>
         <View style={styles.dateRow}>
           <View style={{ flex: 1, borderRightWidth: 1, borderRightColor: '#ECECEC' }}>
             <SimpleDatePicker
               value={dueDate}
               onChange={(d) => setDueDate((prev) => { const n = new Date(d); n.setHours(prev.getHours(), prev.getMinutes()); return n; })}
               minimumDate={new Date()}
-              label="Due Date"
+              label={t('deadline_due_date')}
             />
           </View>
           <View style={{ flex: 1 }}>
             <SimpleTimePicker
               value={dueDate}
               onChange={(d) => setDueDate((prev) => { const n = new Date(prev); n.setHours(d.getHours(), d.getMinutes()); return n; })}
-              label="Due Time"
+              label={t('deadline_due_time')}
             />
           </View>
         </View>
       </FormSection>
 
       {/* Note */}
-      <FormSection label="Short Note">
+      <FormSection label={t('deadline_note_label')}>
         <TextInput
           style={[styles.input, styles.noteInput]}
-          placeholder="Any details or instructions to remember..."
+          placeholder={t('deadline_note_placeholder')}
           placeholderTextColor={INACTIVE}
           value={note}
           onChangeText={setNote}
           maxLength={200}
           multiline
         />
-        <Text style={styles.charCount}>{note.length}/200</Text>
+        <Text style={styles.charCount}>{t('deadline_note_count', { count: note.length })}</Text>
       </FormSection>
 
       {/* Reminders */}
-      <FormSection label="Reminders">
+      <FormSection label={t('deadline_reminders')}>
         <ToggleRow
-          label="24 hours before"
+          label={t('deadline_reminder_24h')}
           icon="notifications-outline"
           value={remind24h}
           onToggle={() => setRemind24h((v) => !v)}
         />
         <ToggleRow
-          label="2 hours before"
+          label={t('deadline_reminder_2h')}
           icon="alarm-outline"
           value={remind2h}
           onToggle={() => setRemind2h((v) => !v)}
@@ -335,11 +322,10 @@ export default function AddDeadlineScreen({ navigation, route }) {
         onPress={handleSave}
         disabled={saving}
         activeOpacity={0.85}
-        accessibilityLabel={existing ? 'Save changes' : 'Add deadline'}
         accessibilityRole="button"
       >
         <Ionicons name={existing ? 'checkmark-circle' : 'add-circle'} size={20} color="#fff" />
-        <Text style={styles.saveBtnText}>{existing ? 'Save Changes' : 'Add Deadline'}</Text>
+        <Text style={styles.saveBtnText}>{existing ? t('deadline_save_changes') : t('deadline_add')}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -387,8 +373,6 @@ const styles = StyleSheet.create({
   input: { paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: '#1A1A1A' },
   noteInput: { minHeight: 80, textAlignVertical: 'top' },
   charCount: { fontSize: 11, color: INACTIVE, textAlign: 'right', paddingRight: 14, paddingBottom: 8 },
-
-  // Linked course badge
   linkedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -402,8 +386,6 @@ const styles = StyleSheet.create({
   },
   linkedDot: { width: 10, height: 10, borderRadius: 5 },
   linkedText: { flex: 1, fontSize: 13, fontWeight: '600', color: DARK },
-
-  // Academic course picker dropdown
   suggestions: { borderTopWidth: 1, borderTopColor: '#ECECEC' },
   pickerHeader: {
     flexDirection: 'row',
@@ -428,8 +410,6 @@ const styles = StyleSheet.create({
   courseRowText: { flex: 1, fontSize: 14, color: '#1A1A1A' },
   noMatch: { padding: 14 },
   noMatchText: { fontSize: 13, color: INACTIVE },
-
-  // Non-academic suggestion rows (existing style)
   suggestionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -440,8 +420,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F5F5F5',
   },
   suggestionText: { fontSize: 14, color: '#1A1A1A', flex: 1 },
-
-  // Category chips
   categoryRow: { flexDirection: 'row', padding: 12, gap: 8 },
   categoryChip: {
     flex: 1,
@@ -456,7 +434,6 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   categoryChipText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
-
   dateRow: { flexDirection: 'row' },
   toggleRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
   toggleRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F2F2F2' },

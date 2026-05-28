@@ -17,6 +17,7 @@ import { PRIMARY, INACTIVE, BG, BORDER } from '../../constants/colors';
 import { formatTime24, getWeekMonday, isSameCalendarDay, toDate } from '../../utils/datetime';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
+import { useTranslation } from '../../services/i18n';
 
 const HOUR_HEIGHT = 60;
 const START_HOUR = 8;
@@ -46,6 +47,7 @@ function formatDayHeader(date) {
 }
 
 export default function TimetableScreen({ navigation }) {
+  const t = useTranslation();
   const events = useStore((s) => s.events);
   const courses = useStore((s) => s.courses);
   const userId = useStore((s) => s.userId);
@@ -132,7 +134,7 @@ export default function TimetableScreen({ navigation }) {
             onPress={() => setWeekStart(getWeekMonday(new Date()))}
             style={styles.todayBtn}
           >
-            <Text style={styles.todayBtnText}>Today</Text>
+            <Text style={styles.todayBtnText}>{t('timetable_today')}</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity onPress={() => setWeekStart(addDays(weekStart, 7))} style={styles.navBtn}>
@@ -205,7 +207,7 @@ export default function TimetableScreen({ navigation }) {
 
       {!isHydrating && dataReady && events.length === 0 ? (
         <View style={styles.emptyWrap}>
-          <Text style={styles.emptyText}>No timetable events are available yet.</Text>
+          <Text style={styles.emptyText}>{t('timetable_empty')}</Text>
         </View>
       ) : null}
 
@@ -222,8 +224,10 @@ export default function TimetableScreen({ navigation }) {
                 </Text>
                 {!!selected.room && (
                   <Text style={styles.sheetDetail}>
-                    <Ionicons name="location-outline" size={14} color={INACTIVE} /> Room {selected.room}
-                    {selected.building ? `, Building ${selected.building}` : ''}
+                    <Ionicons name="location-outline" size={14} color={INACTIVE} />{' '}
+                    {selected.building
+                      ? `${t('timetable_room', { number: selected.room })}, ${t('timetable_building', { number: selected.building })}`
+                      : t('timetable_room', { number: selected.room })}
                   </Text>
                 )}
                 {!!selected.professorName && (
@@ -237,7 +241,7 @@ export default function TimetableScreen({ navigation }) {
                     onPress={() => navigateToBuilding(selected.buildingId)}
                   >
                     <Ionicons name="navigate-outline" size={16} color="#fff" />
-                    <Text style={styles.navigateBtnText}>Navigate to Building</Text>
+                    <Text style={styles.navigateBtnText}>{t('timetable_navigate')}</Text>
                   </TouchableOpacity>
                 )}
                 {!!selected.courseId && (
@@ -246,7 +250,7 @@ export default function TimetableScreen({ navigation }) {
                     onPress={() => openCourseDetail(selected)}
                   >
                     <Ionicons name="book-outline" size={16} color={PRIMARY} />
-                    <Text style={styles.secondaryBtnText}>View Course</Text>
+                    <Text style={styles.secondaryBtnText}>{t('timetable_view_course')}</Text>
                   </TouchableOpacity>
                 )}
               </>

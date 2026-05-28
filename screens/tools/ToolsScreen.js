@@ -9,116 +9,27 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT } from '../../constants/colors';
+import { useTranslation } from '../../services/i18n';
 
 // Active tools — fully functional
 const TOOLS = [
-  {
-    id: 'timetable',
-    label: 'Timetable',
-    description: 'Your weekly class schedule',
-    icon: 'calendar-outline',
-    iconColor: '#2196F3',
-    iconBg: '#E3F2FD',
-    screen: 'Timetable',
-  },
-  {
-    id: 'mensa',
-    label: 'Mensa Menu',
-    description: "This week's lunch menu · Vegan Monday 🌱",
-    icon: 'restaurant-outline',
-    iconColor: '#4CAF50',
-    iconBg: '#E8F5E9',
-    screen: 'Mensa',
-  },
-  {
-    id: 'calendar',
-    label: 'Semester Planner',
-    description: 'Key dates, courses & exam planning',
-    icon: 'calendar-number-outline',
-    iconColor: '#6FAE3E',
-    iconBg: '#EDF6E5',
-    screen: 'SemesterCalendar',
-  },
-  {
-    id: 'exams',
-    label: 'Exam Registration',
-    description: 'Track registrations · Plan exam details',
-    icon: 'school-outline',
-    iconColor: '#E65100',
-    iconBg: '#FBE9E7',
-    screen: 'ExamTracker',
-  },
-  {
-    id: 'events',
-    label: 'Events & Sports',
-    description: 'Campus events and sports schedule',
-    icon: 'football-outline',
-    iconColor: '#E91E63',
-    iconBg: '#FCE4EC',
-    screen: 'EventsList',
-    rootScreen: true,
-  },
-  {
-    id: 'courses',
-    label: 'My Courses',
-    description: 'Files, announcements and course details',
-    icon: 'albums-outline',
-    iconColor: '#3F51B5',
-    iconBg: '#E8EAF6',
-    screen: 'CoursesList',
-    rootScreen: true,
-  },
-  {
-    id: 'news',
-    label: 'News',
-    description: 'University and course updates',
-    icon: 'newspaper-outline',
-    iconColor: '#FF9800',
-    iconBg: '#FFF3E0',
-    screen: 'NewsFeed',
-    rootScreen: true,
-  },
-  {
-    id: 'planner',
-    label: 'Deadline Planner',
-    description: 'Track portfolios, submissions & presentations with reminders',
-    icon: 'checkmark-circle-outline',
-    iconColor: '#9C27B0',
-    iconBg: '#F3E5F5',
-    screen: 'PlannerList',
-  },
-  {
-    id: 'resources',
-    label: 'Campus Resources',
-    description: 'Bike rental, Green Office events, sports & more',
-    icon: 'bicycle-outline',
-    iconColor: '#00796B',
-    iconBg: '#E0F2F1',
-    screen: 'CampusResources',
-  },
-  {
-    id: 'platforms',
-    label: 'Campus Platforms',
-    description: 'Mattermost, BigBlueButton & Teams — in-app',
-    icon: 'grid-outline',
-    iconColor: '#0369A1',
-    iconBg: '#E0F2FE',
-    screen: 'CampusPlatforms',
-  },
-  {
-    id: 'library-booking',
-    label: 'Library Room Booking',
-    description: 'Reserve a study room via UCBib',
-    icon: 'library-outline',
-    iconColor: '#5C6BC0',
-    iconBg: '#E8EAF6',
-    externalUrl: 'https://www.supersaas.co.uk/schedule/UCBib/UCBib-Arbeitsraum?lang=uk',
-  },
+  { id: 'timetable', labelKey: 'tool_timetable', descKey: 'tool_timetable_desc', icon: 'calendar-outline', iconColor: '#2196F3', iconBg: '#E3F2FD', screen: 'Timetable' },
+  { id: 'mensa', labelKey: 'tool_mensa', descKey: 'tool_mensa_desc', icon: 'restaurant-outline', iconColor: '#4CAF50', iconBg: '#E8F5E9', screen: 'Mensa' },
+  { id: 'calendar', labelKey: 'tool_semester', descKey: 'tool_semester_desc', icon: 'calendar-number-outline', iconColor: '#6FAE3E', iconBg: '#EDF6E5', screen: 'SemesterCalendar' },
+  { id: 'exams', labelKey: 'tool_exam_reg', descKey: 'tool_exam_reg_desc', icon: 'school-outline', iconColor: '#E65100', iconBg: '#FBE9E7', screen: 'ExamTracker' },
+  { id: 'events', labelKey: 'tool_events', descKey: 'tool_events_desc', icon: 'football-outline', iconColor: '#E91E63', iconBg: '#FCE4EC', screen: 'EventsList', rootScreen: true },
+  { id: 'courses', labelKey: 'tool_courses', descKey: 'tool_courses_desc', icon: 'albums-outline', iconColor: '#3F51B5', iconBg: '#E8EAF6', screen: 'CoursesList', rootScreen: true },
+  { id: 'news', labelKey: 'tool_news', descKey: 'tool_news_desc', icon: 'newspaper-outline', iconColor: '#FF9800', iconBg: '#FFF3E0', screen: 'NewsFeed', rootScreen: true },
+  { id: 'planner', labelKey: 'tool_planner', descKey: 'tool_planner_desc', icon: 'checkmark-circle-outline', iconColor: '#9C27B0', iconBg: '#F3E5F5', screen: 'PlannerList' },
+  { id: 'resources', labelKey: 'tool_resources', descKey: 'tool_resources_desc', icon: 'bicycle-outline', iconColor: '#00796B', iconBg: '#E0F2F1', screen: 'CampusResources' },
+  { id: 'platforms', labelKey: 'tool_platforms', descKey: 'tool_platforms_desc', icon: 'grid-outline', iconColor: '#0369A1', iconBg: '#E0F2FE', screen: 'CampusPlatforms' },
+  { id: 'library-booking', labelKey: 'tool_library', descKey: 'tool_library_desc', icon: 'library-outline', iconColor: '#5C6BC0', iconBg: '#E8EAF6', externalUrl: 'https://www.supersaas.co.uk/schedule/UCBib/UCBib-Arbeitsraum?lang=uk' },
 ];
 
 const COMING_SOON = [];
 
 export default function ToolsScreen({ navigation, route }) {
+  const t = useTranslation();
   useEffect(() => {
     if (route.params?.openTimetable) {
       navigation.setParams({ openTimetable: undefined });
@@ -141,8 +52,8 @@ export default function ToolsScreen({ navigation, route }) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.hero}>
-        <Text style={styles.heroTitle}>Student Tools</Text>
-        <Text style={styles.heroSub}>Timetable, Mensa, Exams, Planner & more</Text>
+        <Text style={styles.heroTitle}>{t('tools_hero_title')}</Text>
+        <Text style={styles.heroSub}>{t('tools_hero_sub')}</Text>
       </View>
 
       {TOOLS.map((tool) => (
@@ -151,15 +62,15 @@ export default function ToolsScreen({ navigation, route }) {
           style={styles.toolCard}
           onPress={() => navigateTo(tool)}
           activeOpacity={0.75}
-          accessibilityLabel={`${tool.label}: ${tool.description}`}
+          accessibilityLabel={`${t(tool.labelKey)}: ${t(tool.descKey)}`}
           accessibilityRole="button"
         >
           <View style={[styles.toolIcon, { backgroundColor: tool.iconBg }]}>
             <Ionicons name={tool.icon} size={24} color={tool.iconColor} />
           </View>
           <View style={styles.toolText}>
-            <Text style={styles.toolLabel}>{tool.label}</Text>
-            <Text style={styles.toolDesc}>{tool.description}</Text>
+            <Text style={styles.toolLabel}>{t(tool.labelKey)}</Text>
+            <Text style={styles.toolDesc}>{t(tool.descKey)}</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
         </TouchableOpacity>

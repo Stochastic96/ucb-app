@@ -6,6 +6,7 @@ import GuideScreen from '../screens/guide/GuideScreen';
 import GuideDetailScreen from '../screens/guide/GuideDetailScreen';
 import useStore from '../store/useStore';
 import { PRIMARY } from '../constants/colors';
+import { t } from '../services/i18n';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,13 +30,13 @@ export default function GuideStack() {
       <Stack.Screen
         name="GuideHome"
         component={GuideScreen}
-        options={{ title: 'Survival Guide', headerRight: () => <MenuButton /> }}
+        options={{ title: t('screen_survival_guide'), headerRight: () => <MenuButton /> }}
       />
       <Stack.Screen
         name="GuideDetail"
         component={GuideDetailScreen}
         options={({ route }) => ({
-          title: route.params?.title ?? 'Guide',
+          title: route.params?.title ?? t('screen_guide'),
           headerRight: () => <MenuButton />,
         })}
       />

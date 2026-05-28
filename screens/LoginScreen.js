@@ -16,11 +16,13 @@ import { saveCredentials } from '../services/auth';
 import { normalizeProfile } from '../services/profile';
 import { bootstrapSessionData } from '../services/bootstrap';
 import { PRIMARY, INACTIVE, BG, BORDER } from '../constants/colors';
+import { useTranslation } from '../services/i18n';
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MS = 30_000; // 30 seconds
 
 export default function LoginScreen() {
+  const t = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,13 +53,13 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
-      Alert.alert('Missing Fields', 'Please enter your username and password.');
+      Alert.alert(t('login_error_missing_title'), t('login_error_missing_msg'));
       return;
     }
 
     // Enforce lockout
     if (lockoutEnd && Date.now() < lockoutEnd) {
-      Alert.alert('Too many attempts', `Please wait ${secondsLeft}s before trying again.`);
+      Alert.alert(t('login_error_too_many_title'), t('login_error_too_many_msg', { seconds: secondsLeft }));
       return;
     }
 
@@ -82,10 +84,7 @@ export default function LoginScreen() {
       await bootstrapSessionData(true);
     } catch (error) {
       if (didAuthenticate) {
-        Alert.alert(
-          'Signed In',
-          'Your login worked, but some campus data could not be loaded yet. Open the app and pull to refresh in a moment.'
-        );
+        Alert.alert(t('login_success_title'), t('login_success_msg'));
         return;
       }
 
@@ -104,15 +103,15 @@ export default function LoginScreen() {
 
       let message;
       if (type === 'AUTH_FAILED') {
-        message = 'Wrong username or password. Use the same credentials you use to log into Stud.IP on the web.';
+        message = t('login_error_auth_msg');
       } else if (type === 'NO_INTERNET') {
-        message = 'Cannot reach Stud.IP. Check your internet connection and try again.';
+        message = t('login_error_no_internet');
       } else if (type === 'SERVER_DOWN') {
-        message = 'Stud.IP server is currently unavailable. Try again later.';
+        message = t('login_error_server');
       } else {
-        message = 'Something went wrong. Please try again or check your internet connection.';
+        message = t('login_error_unknown');
       }
-      Alert.alert('Login Failed', message);
+      Alert.alert(t('login_error_auth_title'), message);
     } finally {
       setLoading(false);
     }
@@ -136,26 +135,26 @@ export default function LoginScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="Stud.IP username (e.g. prsh4078)"
+          placeholder={t('login_username_placeholder')}
           placeholderTextColor={INACTIVE}
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="next"
-          accessibilityLabel="Stud.IP username"
+          accessibilityLabel={t('login_username_placeholder')}
         />
 
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder={t('login_password_placeholder')}
           placeholderTextColor={INACTIVE}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           returnKeyType="done"
           onSubmitEditing={handleLogin}
-          accessibilityLabel="Password"
+          accessibilityLabel={t('login_password_placeholder')}
         />
 
         <TouchableOpacity
@@ -163,21 +162,21 @@ export default function LoginScreen() {
           onPress={handleLogin}
           disabled={loading || !!isLockedOut}
           activeOpacity={0.85}
-          accessibilityLabel="Log in"
+          accessibilityLabel={t('login_button')}
           accessibilityRole="button"
         >
           <Text style={styles.buttonText}>
-            {loading ? 'Logging in…' : isLockedOut ? `Try again in ${secondsLeft}s` : 'Login'}
+            {loading
+              ? t('login_button_loading')
+              : isLockedOut
+              ? t('login_button_retry', { seconds: secondsLeft })
+              : t('login_button')}
           </Text>
         </TouchableOpacity>
 
-        <Text style={styles.hint}>
-          Use your Hochschule Trier Stud.IP username and password — the same ones you use at studip.hochschule-trier.de
-        </Text>
+        <Text style={styles.hint}>{t('login_hint')}</Text>
 
-        <Text style={styles.disclaimer}>
-          Unofficial student app · Not affiliated with Hochschule Trier
-        </Text>
+        <Text style={styles.disclaimer}>{t('login_disclaimer')}</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

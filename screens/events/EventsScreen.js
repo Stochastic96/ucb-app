@@ -35,6 +35,7 @@ import {
   sortSportsEntries,
 } from '../../utils/campusContent';
 import { formatShortDate, daysUntil } from '../../utils/datetime';
+import { useTranslation } from '../../services/i18n';
 
 const SPORT_EMOJI = {
   'Table Tennis': '🏓',
@@ -49,7 +50,7 @@ const SPORT_EMOJI = {
 };
 
 
-function EventCard({ ev, isGoing, onToggle }) {
+function EventCard({ ev, isGoing, onToggle, t }) {
   const color = CATEGORY_COLORS[ev.category] ?? PRIMARY;
   const past = isCampusEventPast(ev);
   const today = isCampusEventActiveOnDate(ev);
@@ -72,13 +73,13 @@ function EventCard({ ev, isGoing, onToggle }) {
       <View style={styles.eventRight}>
         {today && (
           <View style={[styles.badge, { backgroundColor: PRIMARY }]}>
-            <Text style={styles.badgeText}>TODAY</Text>
+            <Text style={styles.badgeText}>{t('events_today')}</Text>
           </View>
         )}
         {!past && !today && days !== null && days <= 7 && (
           <View style={[styles.badge, { backgroundColor: '#FF9800' }]}>
             <Text style={styles.badgeText}>
-              {days === 1 ? 'Tomorrow' : `${days}d`}
+              {days === 1 ? t('common_tomorrow') : `${days}d`}
             </Text>
           </View>
         )}
@@ -100,21 +101,21 @@ function EventCard({ ev, isGoing, onToggle }) {
   );
 }
 
-function RecurringBanner({ campusEvents }) {
+function RecurringBanner({ campusEvents, t }) {
   const rec = campusEvents.find((event) => isCampusEventRecurring(event));
   if (!rec) return null;
   return (
     <View style={styles.recurringBanner}>
       <Text style={styles.recurringEmoji}>🔁</Text>
       <View style={{ flex: 1 }}>
-        <Text style={styles.recurringTitle}>Every {rec.recurringDay} at {rec.time}</Text>
+        <Text style={styles.recurringTitle}>{t('events_recurring', { day: rec.recurringDay, time: rec.time })}</Text>
         <Text style={styles.recurringDesc}>{rec.title} — {rec.organizer}</Text>
       </View>
     </View>
   );
 }
 
-function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh, refreshing }) {
+function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh, refreshing, t }) {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -134,8 +135,8 @@ function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh
     const upcomingSections = buildCampusEventSections(upcoming);
     if (past.length === 0) return upcomingSections;
     const pastSorted = [...past].sort((a, b) => new Date(b.date) - new Date(a.date));
-    return [...upcomingSections, { title: 'Past Events', data: pastSorted }];
-  }, [filtered]);
+    return [...upcomingSections, { title: t('events_past_header'), data: pastSorted }];
+  }, [filtered, t]);
 
   return (
     <SectionList
@@ -148,10 +149,10 @@ function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh
             <SearchBar
               value={query}
               onChangeText={setQuery}
-              placeholder="Search events, organizer…"
+              placeholder={t('events_search_placeholder')}
             />
           </View>
-          {!query.trim() && <RecurringBanner campusEvents={campusEvents} />}
+          {!query.trim() && <RecurringBanner campusEvents={campusEvents} t={t} />}
         </>
       }
       renderSectionHeader={({ section }) => (
@@ -162,15 +163,14 @@ function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh
           ev={item}
           isGoing={goingEventIds.includes(item.id)}
           onToggle={onToggleEvent}
+          t={t}
         />
       )}
       stickySectionHeadersEnabled={false}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
-      ListEmptyComponent={<Text style={styles.emptyText}>No campus events are available right now.</Text>}
+      ListEmptyComponent={<Text style={styles.emptyText}>{t('events_no_campus')}</Text>}
       ListFooterComponent={
-        <Text style={styles.footerNote}>
-          Changes possible — follow KADU on Instagram for updates.
-        </Text>
+        <Text style={styles.footerNote}>{t('events_kadu_note')}</Text>
       }
     />
   );
@@ -211,43 +211,43 @@ function SportCard({ item, isGoing, onToggle }) {
   );
 }
 
-function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refreshing }) {
+function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refreshing, t }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const availableDays = useMemo(
     () => DAY_ORDER.filter((day) => sportsData.some((entry) => normalizeDayName(entry.day) === day)),
     [sportsData]
   );
-  const dayOptions = useMemo(() => ['All', ...availableDays], [availableDays]);
+  const dayOptions = useMemo(() => [t('common_all'), ...availableDays], [availableDays, t]);
 
   useEffect(() => {
     const today = getCurrentDayName();
-    const fallbackDay = availableDays.includes(today) ? today : 'All';
+    const fallbackDay = availableDays.includes(today) ? today : t('common_all');
 
     if (selectedDay === null) {
       setSelectedDay(fallbackDay);
       return;
     }
 
-    if (selectedDay !== 'All' && !availableDays.includes(selectedDay)) {
+    if (selectedDay !== t('common_all') && !availableDays.includes(selectedDay)) {
       setSelectedDay(fallbackDay);
     }
-  }, [availableDays, selectedDay]);
+  }, [availableDays, selectedDay, t]);
 
-  const activeDay = selectedDay ?? 'All';
+  const activeDay = selectedDay ?? t('common_all');
 
   const filtered = useMemo(
     () => (
-      activeDay === 'All'
+      activeDay === t('common_all')
         ? sortSportsEntries(sportsData)
         : sortSportsEntries(sportsData.filter((item) => normalizeDayName(item.day) === activeDay))
     ),
-    [activeDay, sportsData]
+    [activeDay, sportsData, t]
   );
 
   const grouped = useMemo(() => {
-    if (activeDay !== 'All') return null;
+    if (activeDay !== t('common_all')) return null;
     return groupSportsByDay(sportsData);
-  }, [activeDay, sportsData]);
+  }, [activeDay, sportsData, t]);
 
   return (
     <ScrollView
@@ -256,9 +256,7 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refres
     >
       <View style={styles.infoBanner}>
         <Ionicons name="information-circle-outline" size={16} color="#1565C0" />
-        <Text style={styles.infoText}>
-          Free to join — no registration needed. Tap the bell to set a weekly reminder.
-        </Text>
+        <Text style={styles.infoText}>{t('events_sports_info')}</Text>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
@@ -297,17 +295,16 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refres
           ))}
 
       {filtered.length === 0 && (
-        <Text style={styles.emptyText}>No sports sessions are available for this day.</Text>
+        <Text style={styles.emptyText}>{t('events_no_sports')}</Text>
       )}
 
-      <Text style={styles.footerNote}>
-        Sports schedule valid from 23.03.2026. Hall: Umwelt-Campus Birkenfeld.
-      </Text>
+      <Text style={styles.footerNote}>{t('events_sports_note')}</Text>
     </ScrollView>
   );
 }
 
 export default function EventsScreen() {
+  const t = useTranslation();
   const navigation = useNavigation();
   const canGoBack = navigation.canGoBack();
 
@@ -324,8 +321,6 @@ export default function EventsScreen() {
   const removeGoingEvent = useStore((s) => s.removeGoingEvent);
   const addGoingSport = useStore((s) => s.addGoingSport);
   const removeGoingSport = useStore((s) => s.removeGoingSport);
-  const setGoingEventIds = useStore((s) => s.setGoingEventIds);
-  const setGoingSportIds = useStore((s) => s.setGoingSportIds);
 
   const loadContent = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -363,11 +358,10 @@ export default function EventsScreen() {
     } else {
       const ok = await scheduleEventReminder(ev);
       if (ok === false && !isCampusEventPast(ev)) {
-        // permission denied
         Alert.alert(
-          'Notifications disabled',
-          'Enable notifications in Settings to get reminders.',
-          [{ text: 'OK' }]
+          t('events_notif_disabled_title'),
+          t('events_notif_disabled_msg'),
+          [{ text: t('common_ok') }]
         );
         return;
       }
@@ -375,10 +369,10 @@ export default function EventsScreen() {
       const next = [...goingEventIds, ev.id];
       await saveGoingState(next, goingSportIds);
       if (ok) {
-        Alert.alert('Reminder set!', `You'll get a reminder the morning of ${ev.title}.`, [{ text: 'OK' }]);
+        Alert.alert(t('events_reminder_set_title'), t('events_reminder_event_msg', { title: ev.title }), [{ text: t('common_ok') }]);
       }
     }
-  }, [goingEventIds, goingSportIds]);
+  }, [goingEventIds, goingSportIds, t]);
 
   const handleToggleSport = useCallback(async (sport) => {
     const going = goingSportIds.includes(sport.id);
@@ -391,9 +385,9 @@ export default function EventsScreen() {
       const ok = await scheduleSportReminder(sport);
       if (ok === false) {
         Alert.alert(
-          'Notifications disabled',
-          'Enable notifications in Settings to get reminders.',
-          [{ text: 'OK' }]
+          t('events_notif_disabled_title'),
+          t('events_notif_disabled_msg'),
+          [{ text: t('common_ok') }]
         );
         return;
       }
@@ -401,12 +395,12 @@ export default function EventsScreen() {
       const next = [...goingSportIds, sport.id];
       await saveGoingState(goingEventIds, next);
       Alert.alert(
-        'Weekly reminder set!',
-        `You'll be reminded 30 min before ${sport.sport} every ${sport.day}.`,
-        [{ text: 'OK' }]
+        t('events_reminder_set_title'),
+        t('events_reminder_sport_msg', { sport: sport.sport, day: sport.day }),
+        [{ text: t('common_ok') }]
       );
     }
-  }, [goingEventIds, goingSportIds]);
+  }, [goingEventIds, goingSportIds, t]);
 
   const goingCount = goingEventIds.length + goingSportIds.length;
 
@@ -423,12 +417,14 @@ export default function EventsScreen() {
               <Ionicons name="chevron-back" size={26} color="#1A1A1A" />
             </TouchableOpacity>
           )}
-          <Text style={styles.screenTitle}>Events</Text>
+          <Text style={styles.screenTitle}>{t('screen_events')}</Text>
         </View>
         {goingCount > 0 && (
           <View style={styles.goingPill}>
             <Ionicons name="notifications" size={13} color="#fff" />
-            <Text style={styles.goingPillText}>{goingCount} reminder{goingCount > 1 ? 's' : ''}</Text>
+            <Text style={styles.goingPillText}>
+              {goingCount === 1 ? t('events_reminders_count_one') : t('events_reminders_count', { count: goingCount })}
+            </Text>
           </View>
         )}
       </View>
@@ -440,7 +436,7 @@ export default function EventsScreen() {
         >
           <Ionicons name="calendar-outline" size={16} color={activeTab === 'events' ? PRIMARY : INACTIVE} />
           <Text style={[styles.tabBtnText, activeTab === 'events' && styles.tabBtnTextActive]}>
-            Campus Events
+            {t('events_tab_campus')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -449,7 +445,7 @@ export default function EventsScreen() {
         >
           <Ionicons name="basketball-outline" size={16} color={activeTab === 'sports' ? PRIMARY : INACTIVE} />
           <Text style={[styles.tabBtnText, activeTab === 'sports' && styles.tabBtnTextActive]}>
-            Sports
+            {t('events_tab_sports')}
           </Text>
           {goingSportIds.length > 0 && (
             <View style={styles.tabCountDot}>
@@ -463,7 +459,7 @@ export default function EventsScreen() {
         {loadingContent ? (
           <View style={styles.loadingState}>
             <ActivityIndicator color={PRIMARY} />
-            <Text style={styles.loadingText}>Loading campus content...</Text>
+            <Text style={styles.loadingText}>{t('events_loading')}</Text>
           </View>
         ) : contentError ? (
           <ScrollView
@@ -473,11 +469,11 @@ export default function EventsScreen() {
             }
           >
             <Ionicons name="cloud-offline-outline" size={48} color="#CCC" />
-            <Text style={styles.errorTitle}>Couldn't load events</Text>
-            <Text style={styles.errorSub}>Pull down to retry, or check your connection.</Text>
+            <Text style={styles.errorTitle}>{t('events_error_title')}</Text>
+            <Text style={styles.errorSub}>{t('events_error_msg')}</Text>
             <TouchableOpacity style={styles.retryBtn} onPress={() => loadContent()}>
               <Ionicons name="refresh" size={16} color="#fff" />
-              <Text style={styles.retryBtnText}>Retry</Text>
+              <Text style={styles.retryBtnText}>{t('common_retry')}</Text>
             </TouchableOpacity>
           </ScrollView>
         ) : activeTab === 'events' ? (
@@ -487,6 +483,7 @@ export default function EventsScreen() {
             onToggleEvent={handleToggleEvent}
             onRefresh={() => loadContent(true)}
             refreshing={refreshing}
+            t={t}
           />
         ) : (
           <SportsTab
@@ -495,6 +492,7 @@ export default function EventsScreen() {
             onToggleSport={handleToggleSport}
             onRefresh={() => loadContent(true)}
             refreshing={refreshing}
+            t={t}
           />
         )}
       </View>
