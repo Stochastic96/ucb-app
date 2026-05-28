@@ -2,6 +2,9 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-28 — Guide/Tools UI consistency pass
+- screens/guide/GuideScreen.js: Claude Sonnet 4.6 — Align visual style with ToolsScreen: add hero banner, SURFACE background, card borderRadius 14, elevation 2, icon box 48×48/r13, label 16/700, desc 13, chevron size 18, marginHorizontal 12 on cards, "Topics" section label
+
 ## 2026-05-28 — Engagement metrics (Supabase analytics)
 - services/analytics.js: Claude Sonnet 4.6 — New service: anonymous session-scoped event tracker; batches to Supabase every 30s or 10 events; no-op in dev; session_id is random UUID per cold start, never persisted or linked to user
 - App.js: Claude Sonnet 4.6 — Add startSession() on mount, flushNow() on AppState background

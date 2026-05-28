@@ -65,9 +65,13 @@ export default function GuideScreen({ navigation }) {
       <FlatList
         data={visibleCategories}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+        contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <>
+            <View style={styles.hero}>
+              <Text style={styles.heroTitle}>Survival Guide</Text>
+              <Text style={styles.heroSub}>Your field guide to life at Hochschule Trier</Text>
+            </View>
             <View style={styles.searchWrapper}>
               <SearchBar
                 value={query}
@@ -76,6 +80,7 @@ export default function GuideScreen({ navigation }) {
               />
             </View>
             {!query.trim() && <DisclaimerBanner />}
+            <Text style={styles.sectionLabel}>Topics</Text>
           </>
         }
         ListEmptyComponent={
@@ -92,10 +97,12 @@ export default function GuideScreen({ navigation }) {
                 trackEvent('feature_use', 'guide_category_opened', { category: item.id });
                 navigation.push('GuideDetail', { category: item.id, title: item.label });
               }}
-              activeOpacity={0.8}
+              activeOpacity={0.75}
+              accessibilityLabel={`${item.label}: ${item.desc}`}
+              accessibilityRole="button"
             >
-              <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>
-                <Ionicons name={item.icon} size={26} color={color} />
+              <View style={[styles.iconBox, { backgroundColor: color + '20' }]}>
+                <Ionicons name={item.icon} size={24} color={color} />
               </View>
               <View style={styles.content}>
                 <Text style={styles.label}>{item.label}</Text>
@@ -104,7 +111,7 @@ export default function GuideScreen({ navigation }) {
               <View style={styles.countBadge}>
                 <Text style={styles.countText}>{item.count}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={INACTIVE} style={{ marginLeft: 4 }} />
+              <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
             </TouchableOpacity>
           );
         }}
@@ -128,8 +135,29 @@ function DisclaimerBanner() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  searchWrapper: { marginBottom: 14 },
+  container: { flex: 1, backgroundColor: SURFACE },
+  listContent: { paddingBottom: 40 },
+  hero: {
+    backgroundColor: BG,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ECECEC',
+    marginBottom: 14,
+  },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
+  heroSub: { fontSize: 13, color: INACTIVE, marginTop: 3 },
+  searchWrapper: { marginHorizontal: 12, marginBottom: 14 },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: INACTIVE,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
   empty: { alignItems: 'center', paddingTop: 40 },
   emptyText: { color: INACTIVE, fontSize: 14 },
   disclaimer: {
@@ -137,6 +165,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF8E1',
     borderRadius: 10,
     padding: 12,
+    marginHorizontal: 12,
     marginBottom: 14,
     borderWidth: 1,
     borderColor: '#FFE082',
@@ -147,19 +176,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: BG,
-    borderRadius: 12,
+    marginHorizontal: 12,
+    borderRadius: 14,
     padding: 14,
-    marginBottom: 10,
-    elevation: 1,
+    marginBottom: 8,
+    gap: 14,
+    elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
   },
-  iconBox: { width: 46, height: 46, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  iconBox: { width: 48, height: 48, borderRadius: 13, justifyContent: 'center', alignItems: 'center' },
   content: { flex: 1 },
-  label: { fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
-  desc: { fontSize: 12, color: INACTIVE, marginTop: 2 },
-  countBadge: { backgroundColor: '#F0F0F0', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3, marginRight: 4 },
+  label: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
+  desc: { fontSize: 13, color: INACTIVE, marginTop: 2 },
+  countBadge: { backgroundColor: '#F0F0F0', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
   countText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
 });
