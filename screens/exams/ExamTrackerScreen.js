@@ -31,6 +31,7 @@ function daysUntil(dateStr) {
 }
 
 export default function ExamTrackerScreen({ navigation }) {
+  const openSidebar = useStore((s) => s.openSidebar);
   const courses = useStore((s) => s.courses);
   const examRegistrations = useStore((s) => s.examRegistrations);
   const setExamRegistrations = useStore((s) => s.setExamRegistrations);
@@ -38,6 +39,19 @@ export default function ExamTrackerScreen({ navigation }) {
 
   useEffect(() => {
     loadExamData().then(({ registrations }) => setExamRegistrations(registrations)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 4 }}>
+          <Tooltip text={"Check off each course once you've registered in QIS.\n\nTap 'Open QIS' to register directly. This is a checklist only — it doesn't register you automatically."} />
+          <TouchableOpacity onPress={openSidebar} hitSlop={12}>
+            <Ionicons name="menu" size={24} color={PRIMARY} />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
   }, []);
 
   const semCourses = useMemo(() => getCurrentSemesterCourses(courses), [courses]);
@@ -87,10 +101,7 @@ export default function ExamTrackerScreen({ navigation }) {
       {/* Progress */}
       <View style={styles.progressCard}>
         <View style={styles.progressTop}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={styles.progressTitle}>Registration Progress</Text>
-            <Tooltip text={"Check off each course once you've registered in QIS. Tap 'Open QIS' to go there directly. This is just a checklist — it does not register you automatically."} />
-          </View>
+          <Text style={styles.progressTitle}>Registration Progress</Text>
           <Text style={styles.progressCount}>
             <Text style={{ color: PRIMARY, fontWeight: '800' }}>{registeredCount}</Text>
             /{semCourses.length} courses

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -78,8 +78,22 @@ export default function PlannerScreen({ navigation }) {
   const setDeadlines = useStore((s) => s.setDeadlines);
   const updateDeadline = useStore((s) => s.updateDeadline);
   const removeDeadline = useStore((s) => s.removeDeadline);
+  const openSidebar = useStore((s) => s.openSidebar);
   const courses = useStore((s) => s.courses);
   const [filter, setFilter] = useState('all');
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 4 }}>
+          <Tooltip text={"Add deadlines for portfolios, submissions, or exams.\n\nTap a card to edit it. You'll get reminders 24h and 2h before the due time."} />
+          <TouchableOpacity onPress={openSidebar} hitSlop={12}>
+            <Ionicons name="menu" size={24} color={PRIMARY} />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, []);
 
   useFocusEffect(useCallback(() => {
     loadDeadlines().then(setDeadlines).catch(() => {});
@@ -131,14 +145,12 @@ export default function PlannerScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Filter chips + help */}
-      <View style={styles.filterRow}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterBar}
-          contentContainerStyle={styles.filterBarContent}
-        >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterBar}
+        contentContainerStyle={styles.filterBarContent}
+      >
         {FILTERS.map((f) => {
           const active = filter === f.key;
           const meta = CATEGORY_META[f.key];
@@ -160,11 +172,7 @@ export default function PlannerScreen({ navigation }) {
             </TouchableOpacity>
           );
         })}
-        </ScrollView>
-        <View style={styles.filterTooltip}>
-          <Tooltip text={"Add deadlines for portfolios, submissions, or exams. Tap a deadline to edit it, swipe left to delete. You'll get reminders 24h and 2h before the due time."} />
-        </View>
-      </View>
+      </ScrollView>
 
       <FlatList
         data={visible}
@@ -267,9 +275,7 @@ function ReminderPill({ label }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACE },
-  filterRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: BG, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  filterBar: { flex: 1 },
-  filterTooltip: { paddingHorizontal: 12, paddingVertical: 12 },
+  filterBar: { flexGrow: 0, backgroundColor: BG, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   filterBarContent: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
   filterChip: {
     flexDirection: 'row',
