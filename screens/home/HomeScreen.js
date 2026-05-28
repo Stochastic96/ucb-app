@@ -57,7 +57,7 @@ function getCampusEventRowLabel(event) {
 
 const QUICK_LINKS = [
   { label: 'Courses', icon: 'albums-outline', screen: 'CoursesList' },
-  { label: 'Timetable', icon: 'calendar-outline', tab: 'Tools', nestedScreen: 'Timetable' },
+  { label: 'Timetable', icon: 'calendar-outline', tab: 'Tools', nestedScreen: 'ToolsHome', nestedParams: { openTimetable: true } },
   { label: 'Map', icon: 'map-outline', tab: 'Map' },
   { label: 'Guide', icon: 'book-outline', tab: 'Guide' },
 ];
@@ -287,7 +287,7 @@ export default function HomeScreen({ navigation }) {
       {nextEvent && (
         <TouchableOpacity
           style={styles.card}
-          onPress={() => navigation.navigate('Tools', { screen: 'Timetable' })}
+          onPress={() => navigation.navigate('Tools', { screen: 'ToolsHome', params: { openTimetable: true } })}
           activeOpacity={0.85}
         >
           <View style={styles.cardHeader}>
@@ -410,7 +410,7 @@ export default function HomeScreen({ navigation }) {
               key={link.label}
               link={link}
               onPress={() => {
-                if (link.nestedScreen) navigation.navigate(link.tab, { screen: link.nestedScreen });
+                if (link.nestedScreen) navigation.navigate(link.tab, { screen: link.nestedScreen, params: link.nestedParams });
                 else if (link.tab) openTab(link.tab);
                 else if (link.screen) openRootScreen(link.screen);
               }}

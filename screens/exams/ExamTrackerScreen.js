@@ -8,6 +8,7 @@ import {
   Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadExamData, saveExamRegistrations } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, ERROR, BORDER } from '../../constants/colors';
@@ -86,7 +87,10 @@ export default function ExamTrackerScreen({ navigation }) {
       {/* Progress */}
       <View style={styles.progressCard}>
         <View style={styles.progressTop}>
-          <Text style={styles.progressTitle}>Registration Progress</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={styles.progressTitle}>Registration Progress</Text>
+            <Tooltip text={"Check off each course once you've registered in QIS. Tap 'Open QIS' to go there directly. This is just a checklist — it does not register you automatically."} />
+          </View>
           <Text style={styles.progressCount}>
             <Text style={{ color: PRIMARY, fontWeight: '800' }}>{registeredCount}</Text>
             /{semCourses.length} courses

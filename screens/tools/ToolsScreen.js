@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -118,7 +118,14 @@ const TOOLS = [
 
 const COMING_SOON = [];
 
-export default function ToolsScreen({ navigation }) {
+export default function ToolsScreen({ navigation, route }) {
+  useEffect(() => {
+    if (route.params?.openTimetable) {
+      navigation.setParams({ openTimetable: undefined });
+      navigation.navigate('Timetable');
+    }
+  }, [route.params?.openTimetable]);
+
   const navigateTo = (tool) => {
     if (tool.externalUrl) {
       Linking.openURL(tool.externalUrl);
@@ -135,11 +142,9 @@ export default function ToolsScreen({ navigation }) {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.hero}>
         <Text style={styles.heroTitle}>Student Tools</Text>
-        <Text style={styles.heroSub}>Everything you need — all in one place</Text>
+        <Text style={styles.heroSub}>Timetable, Mensa, Exams, Planner & more</Text>
       </View>
 
-      {/* Active tools */}
-      <Text style={styles.sectionLabel}>Available</Text>
       {TOOLS.map((tool) => (
         <TouchableOpacity
           key={tool.id}
@@ -180,15 +185,6 @@ const styles = StyleSheet.create({
   },
   heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
   heroSub: { fontSize: 13, color: INACTIVE, marginTop: 3 },
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: INACTIVE,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginHorizontal: 16,
-    marginBottom: 8,
-  },
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',

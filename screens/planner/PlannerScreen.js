@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
@@ -130,13 +131,14 @@ export default function PlannerScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Filter chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterBar}
-        contentContainerStyle={styles.filterBarContent}
-      >
+      {/* Filter chips + help */}
+      <View style={styles.filterRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterBar}
+          contentContainerStyle={styles.filterBarContent}
+        >
         {FILTERS.map((f) => {
           const active = filter === f.key;
           const meta = CATEGORY_META[f.key];
@@ -158,7 +160,11 @@ export default function PlannerScreen({ navigation }) {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+        </ScrollView>
+        <View style={styles.filterTooltip}>
+          <Tooltip text={"Add deadlines for portfolios, submissions, or exams. Tap a deadline to edit it, swipe left to delete. You'll get reminders 24h and 2h before the due time."} />
+        </View>
+      </View>
 
       <FlatList
         data={visible}
@@ -261,7 +267,9 @@ function ReminderPill({ label }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACE },
-  filterBar: { flexGrow: 0, backgroundColor: BG, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  filterRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: BG, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  filterBar: { flex: 1 },
+  filterTooltip: { paddingHorizontal: 12, paddingVertical: 12 },
   filterBarContent: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
   filterChip: {
     flexDirection: 'row',

@@ -302,8 +302,7 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refres
 
 export default function EventsScreen() {
   const navigation = useNavigation();
-  const parentNav = navigation.getParent();
-  const canGoBack = parentNav?.canGoBack() ?? false;
+  const canGoBack = navigation.canGoBack();
 
   const [activeTab, setActiveTab] = useState('events');
   const [campusEvents, setCampusEvents] = useState([]);
@@ -410,7 +409,7 @@ export default function EventsScreen() {
         <View style={styles.headerLeft}>
           {canGoBack && (
             <TouchableOpacity
-              onPress={() => parentNav.goBack()}
+              onPress={() => navigation.goBack()}
               style={styles.backBtn}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >

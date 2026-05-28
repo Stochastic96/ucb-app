@@ -2,6 +2,14 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-28 — Navigation fixes + Tooltip component
+- screens/events/EventsScreen.js: Claude Sonnet 4.6 — Fix back button: canGoBack/goBack was checking EventsStack (single-screen, always false) instead of the full navigation tree
+- screens/home/HomeScreen.js: Claude Sonnet 4.6 — Fix Timetable back arrow from Home: navigate to ToolsHome+openTimetable param instead of directly to Timetable (race condition when ToolsStack uninitialized)
+- screens/tools/ToolsScreen.js: Claude Sonnet 4.6 — Handle openTimetable param via useEffect (pushes Timetable from within ToolsStack → guaranteed back arrow); remove "Available" label; informative hero subtitle
+- components/Tooltip.js: Claude Sonnet 4.6 — Reusable ? icon with fade modal overlay; tap to dismiss
+- screens/planner/PlannerScreen.js: Claude Sonnet 4.6 — Add Tooltip in filter bar explaining deadlines + reminders
+- screens/exams/ExamTrackerScreen.js: Claude Sonnet 4.6 — Add Tooltip alongside progress title explaining QIS checklist behaviour
+
 ## 2026-05-28 — Guide/Tools UI consistency pass
 - screens/guide/GuideScreen.js: Claude Sonnet 4.6 — Align visual style with ToolsScreen: add hero banner, SURFACE background, card borderRadius 14, elevation 2, icon box 48×48/r13, label 16/700, desc 13, chevron size 18, marginHorizontal 12 on cards, "Topics" section label
 
