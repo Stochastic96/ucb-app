@@ -72,17 +72,6 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Map Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Map</Text>
-        <View style={styles.settingRow}>
-          <View>
-            <Text style={styles.settingLabel}>Campus navigation</Text>
-            <Text style={styles.settingValue}>Using building list and Apple Maps directions</Text>
-          </View>
-        </View>
-      </View>
-
       {/* Notifications Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Notifications & Security</Text>

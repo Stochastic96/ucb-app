@@ -2,6 +2,11 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-05-28 — UI/UX audit fixes
+- screens/profile/SettingsScreen.js: Claude Sonnet 4.6 — Remove dead non-interactive "Map" section (static info with no action)
+- screens/map/MapScreen.js: Claude Sonnet 4.6 — Fix "Apple Maps" → "Maps" (app supports both iOS and Android); translate "Campusplan anzeigen" → "View Campus Plan" for language consistency
+- screens/guide/GuideDetailScreen.js: Claude Sonnet 4.6 — Replace raw TextInput search bars in contacts/glossary/faq/buildings sub-screens with shared SearchBar component for visual consistency
+
 ## 2026-05-28 — Navigation fixes + Tooltip component
 - screens/events/EventsScreen.js: Claude Sonnet 4.6 — Fix back button: canGoBack/goBack was checking EventsStack (single-screen, always false) instead of the full navigation tree
 - screens/home/HomeScreen.js: Claude Sonnet 4.6 — Fix Timetable back arrow from Home: navigate to ToolsHome+openTimetable param instead of directly to Timetable (race condition when ToolsStack uninitialized)

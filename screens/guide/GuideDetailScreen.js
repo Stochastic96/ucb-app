@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import guideContacts from '../../data/guide_contacts.json';
 import guideEmergency from '../../data/guide_emergency.json';
 import { Linking } from 'react-native';
 import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
+import SearchBar from '../../components/SearchBar';
 import { getAllBuildings } from '../../services/buildings';
 import InfoSectionView from './InfoSectionView';
 import guideWork from '../../data/guide_work.json';
@@ -134,13 +135,9 @@ export default function GuideDetailScreen({ route }) {
   if (category === 'contacts') {
     return (
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search contacts..."
-          placeholderTextColor={INACTIVE}
-          value={search}
-          onChangeText={setSearch}
-        />
+        <View style={styles.searchWrapper}>
+          <SearchBar value={search} onChangeText={setSearch} placeholder="Search contacts…" />
+        </View>
         <FlatList
           data={filtered}
           keyExtractor={(i) => String(i.id)}
@@ -284,13 +281,9 @@ export default function GuideDetailScreen({ route }) {
   if (category === 'glossary') {
     return (
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search terms..."
-          placeholderTextColor={INACTIVE}
-          value={search}
-          onChangeText={setSearch}
-        />
+        <View style={styles.searchWrapper}>
+          <SearchBar value={search} onChangeText={setSearch} placeholder="Search terms…" />
+        </View>
         <FlatList
           data={filtered}
           keyExtractor={(i) => String(i.id)}
@@ -351,13 +344,9 @@ export default function GuideDetailScreen({ route }) {
 
     return (
       <View style={{ flex: 1, backgroundColor: SURFACE }}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search FAQ..."
-          placeholderTextColor={INACTIVE}
-          value={search}
-          onChangeText={setSearch}
-        />
+        <View style={styles.searchWrapper}>
+          <SearchBar value={search} onChangeText={setSearch} placeholder="Search FAQ…" />
+        </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.faqTabRow} contentContainerStyle={{ alignItems: 'center' }}>
           <TouchableOpacity
             style={[styles.faqCatTab, selectedFaqCat === 'all' && styles.faqCatTabActive]}
@@ -406,13 +395,9 @@ export default function GuideDetailScreen({ route }) {
   // buildings (default)
   return (
     <View style={{ flex: 1, backgroundColor: SURFACE }}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search buildings..."
-        placeholderTextColor={INACTIVE}
-        value={search}
-        onChangeText={setSearch}
-      />
+      <View style={styles.searchWrapper}>
+        <SearchBar value={search} onChangeText={setSearch} placeholder="Search buildings…" />
+      </View>
       <FlatList
         data={filtered}
         keyExtractor={(i) => String(i.id ?? i.number)}
@@ -442,6 +427,7 @@ export default function GuideDetailScreen({ route }) {
 const styles = StyleSheet.create({
   emptyState: { alignItems: 'center', marginTop: 60, opacity: 0.5 },
   emptyText: { fontSize: 14, color: INACTIVE, marginTop: 8 },
+  searchWrapper: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 },
   linkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
   emergencyCard: { backgroundColor: BG, padding: 14, borderRadius: 10, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: '#D32F2F' },
   emergencyName: { fontSize: 16, fontWeight: '700', color: '#D32F2F' },
@@ -459,7 +445,6 @@ const styles = StyleSheet.create({
   contactOrg: { fontSize: 12, color: INACTIVE, marginTop: 2 },
   contactOffice: { fontSize: 12, color: INACTIVE, marginTop: 4 },
   contactEmail: { fontSize: 13, color: PRIMARY, textDecorationLine: 'underline' },
-  searchBar: { backgroundColor: BG, margin: 12, marginBottom: 4, padding: 12, borderRadius: 10, fontSize: 14, borderWidth: 1, borderColor: BORDER },
   checklistItem: { backgroundColor: BG, padding: 14, borderRadius: 10, marginBottom: 10 },
   checklistTask: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', marginTop: 2 },
   checklistDetails: { fontSize: 13, color: '#555', marginTop: 6, lineHeight: 20 },

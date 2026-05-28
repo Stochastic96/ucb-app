@@ -82,7 +82,7 @@ export default function MapScreen() {
           </View>
           <Text style={styles.heroTitle}>Campus Guide</Text>
           <Text style={styles.heroText}>
-            Browse buildings here and open turn-by-turn directions in Apple Maps.
+            Browse buildings here and open turn-by-turn directions in Maps.
           </Text>
           <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85}>
             <Ionicons name="navigate-outline" size={18} color="#fff" />
@@ -90,7 +90,7 @@ export default function MapScreen() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.planButton} onPress={() => { trackEvent('feature_use', 'campus_plan_opened'); setShowPlan(true); }} activeOpacity={0.85}>
             <Ionicons name="map-outline" size={18} color={PRIMARY} />
-            <Text style={styles.planButtonText}>Campusplan anzeigen</Text>
+            <Text style={styles.planButtonText}>View Campus Plan</Text>
           </TouchableOpacity>
         </View>
 
