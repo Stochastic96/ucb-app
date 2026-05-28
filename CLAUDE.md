@@ -116,7 +116,7 @@ RootNavigator (NativeStack)
 - The Supabase client uses the anon/publishable key with `persistSession: false` — all queries are anonymous read-only; no Supabase auth sessions are created or stored.
 - `contentService.js` uses `withFallback(cacheKey, fetcher, localFallback)`: try Supabase → cache result to AsyncStorage (`ucb_remote_${cacheKey}`) → fall back to cached → fall back to bundled JSON in `data/`. Read functions are called from screens; write/delete functions (upsert/delete) exist for admin tooling only and are not called from any active screen.
 - All Supabase tables have corresponding bundled JSON fallbacks in `data/`.
-- Tables (managed in Supabase dashboard — no local migrations): `mensa_menu`, `mensa_meta`, `campus_events`, `sports_schedule`, `campus_resources`, `guide_content`, `semester_calendar`, `calendar_events`, `admin_users`.
+- Tables (managed in Supabase dashboard — no local migrations): `mensa_menu`, `mensa_meta`, `campus_events`, `sports_schedule`, `campus_resources`, `guide_content`, `semester_calendar`, `calendar_events`, `admin_users`, `engagement_events`.
 - **Required RLS policies** (must be set in Supabase dashboard — anon key is public so writes must be blocked at the DB level): All content tables need `SELECT` enabled for anon, and `INSERT/UPDATE/DELETE` restricted to authenticated users with admin role only. Without these policies any holder of the anon key could write to the tables.
 
 ### Content & Guide Data
@@ -133,6 +133,16 @@ Guide content lives in `data/guide_*.json` files (14 categories: accommodation, 
 - `DAY_ORDER` — Mon–Sun array used for consistent day ordering throughout the app.
 
 Other bundled JSON fallbacks in `data/`: `campus_resources.json`, `events_campus.json`, `events_sports.json`, `mensa_week.json`, `semester_calendar.json` — all follow the same contentService offline-first pattern.
+
+### Analytics
+
+`services/analytics.js` — anonymous engagement metrics written to Supabase `engagement_events` table:
+- Entirely no-op in `__DEV__` mode so local testing never pollutes production data.
+- Uses a random UUID as `SESSION_ID` generated fresh on each cold start — never persisted or linked to any user identity.
+- Events are batched: flushed automatically when the queue reaches `BATCH_SIZE=10`, or after `FLUSH_INTERVAL_MS=30s`, whichever comes first. `flushNow()` is called from `App.js` when the app moves to the background.
+- Exported helpers: `startSession()` (call once on app mount), `trackScreen(name)` (call from `useFocusEffect`), `trackEvent(type, name, properties?)` for fine-grained feature tracking.
+- Event types: `'session_start'`, `'screen_view'`, `'feature_use'`, `'error'`.
+- The `engagement_events` table is write-only from the anon key perspective — no RLS read access for anon. Analytics failures are silently swallowed so they can never break the app.
 
 ### Screen Patterns
 
