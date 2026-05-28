@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SimpleDatePicker, SimpleTimePicker } from '../../components/SimpleDatePicker';
 import { Ionicons } from '@expo/vector-icons';
+import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { searchBuildings } from '../../services/buildings';
 import {
@@ -42,8 +43,23 @@ export default function ExamPlannerScreen({ navigation, route }) {
   const [buildingSuggestions, setBuildingSuggestions] = useState([]);
   const [saving, setSaving] = useState(false);
 
+  const openSidebar = useStore((s) => s.openSidebar);
+
   useEffect(() => {
     loadExamData().then(({ plans }) => setExamPlans(plans)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 4 }}>
+          <Tooltip text={"Fill in the date, time, room and building for your exam.\n\nEnable reminders to get a notification the day before and 2 hours before the exam starts."} />
+          <TouchableOpacity onPress={openSidebar} hitSlop={12}>
+            <Ionicons name="menu" size={24} color={PRIMARY} />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
   }, []);
 
   useEffect(() => {
