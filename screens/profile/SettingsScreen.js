@@ -4,7 +4,6 @@ import { Dialog, Button, Snackbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
-import * as Updates from 'expo-updates';
 import { clearAllCache } from '../../services/cache';
 import { logout } from '../../services/auth';
 import useStore from '../../store/useStore';
@@ -61,12 +60,9 @@ export default function SettingsScreen() {
   const handleLangConfirm = async () => {
     setShowLangConfirm(false);
     await saveLanguage(pendingLang);
-    try {
-      await Updates.reloadAsync();
-    } catch {
-      setSnackbarMsg(t('settings_lang_dev_note'));
-      setSnackbarVisible(true);
-    }
+    // Soft remount: updating the store language re-keys the app tree in App.js
+    // so every screen re-reads translations immediately — no app restart.
+    useStore.getState().setLanguage(pendingLang);
   };
 
   const handleClearCache = async () => {

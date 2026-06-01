@@ -2,6 +2,15 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-06-01 — Beta prep: OSM map, English-first language, improved engagement analytics
+- screens/map/MapScreen.js: Claude Opus 4.8 — Restored v1 interactive map; switched to OpenStreetMap `<UrlTile>` + `mapType="none"` + `PROVIDER_DEFAULT` so no Google Maps API key is needed; added screen + `map_building_opened` analytics
+- screens/map/CampusPlanView.js: Claude Opus 4.8 — Deleted (schematic plan view replaced by the OSM map)
+- package.json / app.json: Claude Opus 4.8 — Re-added `react-native-maps@1.20.1` + plugin; no location permissions (map shows buildings, not GPS)
+- App.js / store/useStore.js / screens/profile/SettingsScreen.js + constants/translations: Claude Opus 4.8 — Language switch now soft-remounts via `key={language}` instead of `Updates.reloadAsync()`; English-first default
+- services/analytics.js: Claude Opus 4.8 — Kept Supabase engagement backend; added session lifecycle (start/end/resume with duration + counts), durable AsyncStorage queue surviving app kills, `app_language` cohort in properties, MAX_QUEUE cap + retry
+- screens (Events, Profile, Tools, CampusResources, Map): Claude Opus 4.8 — Added `trackScreen` coverage for engagement analysis
+- eas.json / .env: Claude Opus 4.8 — Removed leftover unused `EXPO_PUBLIC_MAPBOX_TOKEN`; kept Stud.IP + Supabase keys (Supabase key is public anon, not a personal credential); login ships empty
+
 ## 2026-05-28 — Events screen: upcoming first
 - screens/events/EventsScreen.js: Claude Sonnet 4.6 — Show upcoming events before past ones; past events moved to a "Past Events" section at the bottom (still visible but de-prioritised)
 

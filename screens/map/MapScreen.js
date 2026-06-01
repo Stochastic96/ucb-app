@@ -1,327 +1,556 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
-  Modal,
-  Linking,
+  Animated,
+  Dimensions,
   Platform,
+  Linking,
+  TextInput,
   ScrollView,
+  StatusBar,
 } from 'react-native';
+import MapView, { Marker, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, BG, BORDER } from '../../constants/colors';
+import { trackScreen, trackEvent } from '../../services/analytics';
 import {
-  buildFallbackBuilding,
-  buildNativeMapsLabel,
   CAMPUS_CENTER,
   getBuildingByIdOrAlias,
-  searchBuildings,
+  buildFallbackBuilding,
+  buildNativeMapsLabel,
+  filterBuildingsByType,
+  getTypeColor,
+  getTypeLabel,
 } from '../../services/buildings';
-import CampusPlanView from './CampusPlanView';
-import { useFocusEffect } from '@react-navigation/native';
-import { trackScreen, trackEvent } from '../../services/analytics';
-import { useTranslation } from '../../services/i18n';
+
+const { height: SCREEN_H } = Dimensions.get('window');
+const SHEET_H = SCREEN_H * 0.46;
+
+const INITIAL_REGION = {
+  latitude: CAMPUS_CENTER.lat,
+  longitude: CAMPUS_CENTER.lng,
+  latitudeDelta: 0.014,
+  longitudeDelta: 0.014,
+};
+
+// OpenStreetMap raster tiles — no Google Maps API key required.
+// Rendered via <UrlTile> on top of a base-less map (mapType="none").
+const OSM_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+const FILTERS = [
+  { id: 'all', label: 'All', icon: 'grid-outline' },
+  { id: 'academic', label: 'Academic', icon: 'school-outline' },
+  { id: 'dormitory', label: 'Housing', icon: 'home-outline' },
+  { id: 'hotel', label: 'Hotel', icon: 'bed-outline' },
+];
+
+function BuildingMarker({ building, isSelected, onSelect }) {
+  const color = getTypeColor(building.type);
+  const pulse = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const loopRef = useRef(null);
+
+  useEffect(() => {
+    if (isSelected) {
+      Animated.spring(scale, { toValue: 1.15, useNativeDriver: true, damping: 8, stiffness: 180 }).start();
+      loopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulse, { toValue: 1, duration: 950, useNativeDriver: true }),
+          Animated.timing(pulse, { toValue: 0, duration: 950, useNativeDriver: true }),
+        ])
+      );
+      loopRef.current.start();
+    } else {
+      loopRef.current?.stop();
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true, damping: 10 }).start();
+      pulse.setValue(0);
+    }
+    return () => loopRef.current?.stop();
+  }, [isSelected]);
+
+  const ringScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 2.6] });
+  const ringOpacity = pulse.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0.55, 0.25, 0] });
+
+  return (
+    <TouchableOpacity onPress={onSelect} activeOpacity={0.85}>
+      <Animated.View style={[styles.markerWrap, { transform: [{ scale }] }]}>
+        {isSelected && (
+          <Animated.View
+            style={[
+              styles.pulseRing,
+              { borderColor: color, transform: [{ scale: ringScale }], opacity: ringOpacity },
+            ]}
+          />
+        )}
+        <View
+          style={[
+            styles.badge,
+            { backgroundColor: color },
+            isSelected && styles.badgeSelected,
+          ]}
+        >
+          <Text style={styles.badgeNum}>{building.number.slice(-2)}</Text>
+        </View>
+      </Animated.View>
+    </TouchableOpacity>
+  );
+}
 
 export default function MapScreen() {
-  const t = useTranslation();
-  const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState(null);
-  const [showPlan, setShowPlan] = useState(false);
-  const searchTrackedRef = React.useRef(false);
+  const insets = useSafeAreaInsets();
+  const mapRef = useRef(null);
+  const sheetAnim = useRef(new Animated.Value(0)).current;
 
-  const handleSearchChange = (text) => {
-    if (text.length === 1 && !searchTrackedRef.current) {
-      searchTrackedRef.current = true;
-      trackEvent('feature_use', 'building_search_used');
-    }
-    if (text.length === 0) searchTrackedRef.current = false;
-    setSearch(text);
-  };
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+
   const pendingBuilding = useStore((s) => s.pendingMapBuilding);
   const clearPending = useStore((s) => s.clearPendingMapBuilding);
 
-  const visibleBuildings = searchBuildings(search);
+  useEffect(() => { trackScreen('MapScreen'); }, []);
 
-  useFocusEffect(useCallback(() => { trackScreen('MapScreen'); }, []));
-
+  // Handle deep-link from timetable
   useEffect(() => {
     if (pendingBuilding) {
       const b = getBuildingByIdOrAlias(pendingBuilding) ?? buildFallbackBuilding(pendingBuilding);
-      if (b) setSelected(b);
+      if (b) selectBuilding(b);
       clearPending();
     }
-  }, [pendingBuilding, clearPending]);
+  }, [pendingBuilding]);
 
-  const handleNavigate = (b) => {
-    trackEvent('feature_use', 'navigate_to_building', { building_id: b.id });
-    const label = buildNativeMapsLabel(b);
-    if (Platform.OS === 'ios') {
-      Linking.openURL(`maps://maps.apple.com/?ll=${b.lat},${b.lng}&q=${encodeURIComponent(label)}`);
-    } else {
-      Linking.openURL(`geo:${b.lat},${b.lng}?q=${encodeURIComponent(label)}`);
-    }
-    setSelected(null);
+  const visibleBuildings = (() => {
+    const byType = filterBuildingsByType(activeFilter);
+    if (!search.trim()) return byType;
+    const token = search.toLowerCase().trim();
+    return byType.filter(
+      (b) =>
+        b.name.toLowerCase().includes(token) ||
+        b.number.includes(token) ||
+        (b.aliases ?? []).some((a) => a.toLowerCase().includes(token))
+    );
+  })();
+
+  const openSheet = useCallback(() => {
+    Animated.spring(sheetAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      damping: 18,
+      stiffness: 140,
+    }).start();
+  }, [sheetAnim]);
+
+  const closeSheet = useCallback(() => {
+    Animated.timing(sheetAnim, {
+      toValue: 0,
+      duration: 220,
+      useNativeDriver: true,
+    }).start(() => setSelected(null));
+  }, [sheetAnim]);
+
+  const selectBuilding = useCallback(
+    (building) => {
+      setSelected(building);
+      trackEvent('feature_use', 'map_building_opened', { building: building.number, type: building.type });
+      openSheet();
+      mapRef.current?.animateToRegion(
+        {
+          latitude: building.lat - 0.0010,
+          longitude: building.lng,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        },
+        550
+      );
+    },
+    [openSheet]
+  );
+
+  const resetCamera = () => {
+    closeSheet();
+    setTimeout(() => {
+      mapRef.current?.animateToRegion(INITIAL_REGION, 500);
+    }, selected ? 240 : 0);
   };
 
-  const handleOpenCampus = () => {
-    const label = CAMPUS_CENTER.label;
+  const handleNavigate = (building) => {
+    const label = buildNativeMapsLabel(building);
     if (Platform.OS === 'ios') {
-      Linking.openURL(`maps://maps.apple.com/?ll=${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}&q=${encodeURIComponent(label)}`);
+      Linking.openURL(
+        `maps://maps.apple.com/?ll=${building.lat},${building.lng}&q=${encodeURIComponent(label)}`
+      );
     } else {
-      Linking.openURL(`geo:${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}?q=${encodeURIComponent(label)}`);
+      Linking.openURL(`geo:${building.lat},${building.lng}?q=${encodeURIComponent(label)}`);
     }
   };
+
+  const sheetTranslate = sheetAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [SHEET_H + 60, 0],
+  });
+
+  const mapDim = sheetAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.35],
+  });
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.heroCard}>
-          <View style={styles.heroIcon}>
-            <Ionicons name="map-outline" size={24} color={PRIMARY} />
-          </View>
-          <Text style={styles.heroTitle}>{t('map_title')}</Text>
-          <Text style={styles.heroText}>{t('map_subtitle')}</Text>
-          <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85}>
-            <Ionicons name="navigate-outline" size={18} color="#fff" />
-            <Text style={styles.campusButtonText}>{t('map_open_campus')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.planButton} onPress={() => { trackEvent('feature_use', 'campus_plan_opened'); setShowPlan(true); }} activeOpacity={0.85}>
-            <Ionicons name="map-outline" size={18} color={PRIMARY} />
-            <Text style={styles.planButtonText}>{t('map_view_plan')}</Text>
-          </TouchableOpacity>
-        </View>
+      <StatusBar barStyle="light-content" />
 
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={18} color={INACTIVE} style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('map_search_placeholder')}
-            placeholderTextColor={INACTIVE}
-            value={search}
-            onChangeText={handleSearchChange}
-          />
-          {search ? (
-            <TouchableOpacity onPress={() => { searchTrackedRef.current = false; setSearch(''); }}>
-              <Ionicons name="close-circle" size={18} color={INACTIVE} />
-            </TouchableOpacity>
-          ) : null}
-        </View>
+      {/* Map — OpenStreetMap tiles over a base-less map (no API key needed) */}
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        provider={PROVIDER_DEFAULT}
+        mapType="none"
+        initialRegion={INITIAL_REGION}
+        showsUserLocation={false}
+        showsMyLocationButton={false}
+        showsCompass={false}
+        showsScale={false}
+        showsPointsOfInterest={false}
+        showsBuildings={false}
+        rotateEnabled={false}
+        pitchEnabled={false}
+        onPress={() => { if (selected) closeSheet(); }}
+      >
+        <UrlTile
+          urlTemplate={OSM_TILE_URL}
+          maximumZ={19}
+          flipY={false}
+          shouldReplaceMapContent
+          tileSize={256}
+          zIndex={-1}
+        />
+        {visibleBuildings.map((b) => (
+          <Marker
+            key={b.id}
+            coordinate={{ latitude: b.lat, longitude: b.lng }}
+            tracksViewChanges={selected?.id === b.id}
+            anchor={{ x: 0.5, y: 0.5 }}
+          >
+            <BuildingMarker
+              building={b}
+              isSelected={selected?.id === b.id}
+              onSelect={() => selectBuilding(b)}
+            />
+          </Marker>
+        ))}
+      </MapView>
 
-        <Text style={styles.countText}>
-          {visibleBuildings.length === 1 ? t('map_buildings_count_one') : t('map_buildings_count', { count: visibleBuildings.length })}
-        </Text>
+      {/* Dim overlay when sheet is open */}
+      <Animated.View
+        style={[styles.dimOverlay, { opacity: mapDim }]}
+        pointerEvents="none"
+      />
 
-        {visibleBuildings.length > 0 ? (
-          visibleBuildings.map((b) => (
-            <TouchableOpacity
-              key={b.id}
-              style={styles.buildingCard}
-              onPress={() => { trackEvent('feature_use', 'building_selected', { building_id: b.id }); setSelected(b); }}
-              activeOpacity={0.85}
-            >
-              <View style={styles.buildingBadge}>
-                <Text style={styles.buildingBadgeText}>{b.number}</Text>
-              </View>
-              <View style={styles.buildingInfo}>
-                <Text style={styles.buildingName}>{b.name}</Text>
-                <Text style={styles.buildingMeta}>{b.shortName}</Text>
-                {!!b.description && (
-                  <Text style={styles.buildingDesc} numberOfLines={2}>
-                    {b.description}
-                  </Text>
-                )}
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
-            </TouchableOpacity>
-          ))
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="search-outline" size={42} color={INACTIVE} />
-            <Text style={styles.emptyTitle}>{t('map_no_results_title')}</Text>
-            <Text style={styles.emptyText}>{t('map_no_results_msg')}</Text>
-          </View>
-        )}
-      </ScrollView>
-
-      <Modal visible={showPlan} animationType="slide" onRequestClose={() => setShowPlan(false)}>
-        <View style={styles.planModal}>
-          <View style={styles.planHeader}>
-            <TouchableOpacity onPress={() => setShowPlan(false)} style={styles.planBack}>
-              <Ionicons name="arrow-back" size={22} color="#1A1A1A" />
-            </TouchableOpacity>
-            <Text style={styles.planTitle}>{t('map_campusplan_title')}</Text>
-            <View style={{ width: 38 }} />
-          </View>
-          <CampusPlanView
-            selectedId={selected?.id ?? null}
-            onSelectBuilding={(b) => { trackEvent('feature_use', 'building_selected', { building_id: b.id, source: 'plan' }); setSelected(b); setShowPlan(false); }}
-          />
-        </View>
-      </Modal>
-
-      <Modal visible={!!selected} transparent animationType="slide" onRequestClose={() => setSelected(null)}>
-        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setSelected(null)}>
-          <View style={styles.sheet}>
-            {selected && (
-              <>
-                <View style={styles.sheetHandle} />
-                <Text style={styles.sheetNumber}>{selected.number}</Text>
-                <Text style={styles.sheetName}>{selected.name}</Text>
-                {!!selected.description && (
-                  <Text style={styles.sheetDesc}>{selected.description}</Text>
-                )}
-                {selected.services && selected.services.length > 0 && (
-                  <>
-                    <Text style={styles.servicesLabel}>{t('map_services')}</Text>
-                    {selected.services.map((svc, i) => (
-                      <Text key={i} style={styles.service}>
-                        • {svc}
-                      </Text>
-                    ))}
-                  </>
-                )}
-                {selected.isFallback ? (
-                  <Text style={styles.fallbackNote}>{t('map_fallback_note')}</Text>
-                ) : null}
-                <TouchableOpacity
-                  style={styles.navBtn}
-                  onPress={() => handleNavigate(selected)}
-                >
-                  <Ionicons name="navigate" size={18} color="#fff" />
-                  <Text style={styles.navBtnText}>{t('map_navigate')}</Text>
-                </TouchableOpacity>
-              </>
+      {/* Top bar */}
+      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
+        {/* Search */}
+        <View style={styles.searchRow}>
+          <View style={styles.searchBox}>
+            <Ionicons name="search-outline" size={16} color="#6B7A99" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search buildings..."
+              placeholderTextColor="#4A5568"
+              value={search}
+              onChangeText={setSearch}
+            />
+            {!!search && (
+              <TouchableOpacity onPress={() => setSearch('')}>
+                <Ionicons name="close-circle" size={16} color="#4A5568" />
+              </TouchableOpacity>
             )}
           </View>
-        </TouchableOpacity>
-      </Modal>
+        </View>
+
+        {/* Filter pills */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filtersScroll}
+          contentContainerStyle={styles.filtersContent}
+        >
+          {FILTERS.map((f) => {
+            const active = activeFilter === f.id;
+            const color = f.id === 'all' ? '#6FAE3E' : getTypeColor(f.id);
+            return (
+              <TouchableOpacity
+                key={f.id}
+                style={[styles.filterPill, active && { backgroundColor: color, borderColor: color }]}
+                onPress={() => setActiveFilter(f.id)}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={f.icon}
+                  size={13}
+                  color={active ? '#fff' : '#6B7A99'}
+                  style={{ marginRight: 4 }}
+                />
+                <Text style={[styles.filterLabel, active && styles.filterLabelActive]}>
+                  {f.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Reset / campus button */}
+      <TouchableOpacity style={styles.resetBtn} onPress={resetCamera} activeOpacity={0.85}>
+        <Ionicons name="navigate-circle-outline" size={22} color="#6FAE3E" />
+      </TouchableOpacity>
+
+      {/* Bottom sheet */}
+      <Animated.View
+        style={[
+          styles.sheet,
+          { transform: [{ translateY: sheetTranslate }], paddingBottom: insets.bottom + 12 },
+        ]}
+      >
+        {/* Handle */}
+        <View style={styles.sheetHandle} />
+
+        {selected && (
+          <>
+            {/* Close */}
+            <TouchableOpacity style={styles.sheetClose} onPress={closeSheet}>
+              <Ionicons name="close" size={20} color="#6B7A99" />
+            </TouchableOpacity>
+
+            {/* Header */}
+            <View style={styles.sheetHeader}>
+              <View style={[styles.typeDot, { backgroundColor: getTypeColor(selected.type) }]} />
+              <Text style={styles.typeLabel}>{getTypeLabel(selected.type).toUpperCase()}</Text>
+            </View>
+            <Text style={styles.sheetNumber}>{selected.number}</Text>
+            <Text style={styles.sheetName}>{selected.name}</Text>
+
+            <View style={styles.divider} />
+
+            {/* Services */}
+            {selected.services && selected.services.length > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.servicesScroll}
+                contentContainerStyle={styles.servicesContent}
+              >
+                {selected.services.map((svc, i) => (
+                  <View key={i} style={styles.servicePill}>
+                    <Text style={styles.servicePillText}>{svc}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            {/* Description */}
+            {!!selected.description && (
+              <Text style={styles.sheetDesc} numberOfLines={3}>
+                {selected.description}
+              </Text>
+            )}
+
+            {/* Floors */}
+            {!!selected.floors && (
+              <Text style={styles.floorsText}>
+                <Ionicons name="layers-outline" size={13} color="#6B7A99" />{' '}
+                {selected.floors} {selected.floors === 1 ? 'floor' : 'floors'}
+              </Text>
+            )}
+
+            {selected.isFallback && (
+              <Text style={styles.fallbackNote}>
+                This building appears in your timetable. Detailed info coming soon.
+              </Text>
+            )}
+
+            {/* Navigate */}
+            <TouchableOpacity
+              style={[styles.navBtn, { backgroundColor: getTypeColor(selected.type) }]}
+              onPress={() => handleNavigate(selected)}
+              activeOpacity={0.88}
+            >
+              <Ionicons name="navigate" size={18} color="#fff" />
+              <Text style={styles.navBtnText}>Navigate to Entrance</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
-  content: { padding: 12, paddingBottom: 32 },
-  heroCard: {
-    backgroundColor: '#F4F7FB',
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#D9E3F0',
+  container: { flex: 1, backgroundColor: '#AAD3DF' },
+  map: { flex: 1 },
+  dimOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+    pointerEvents: 'none',
   },
-  heroIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#E2ECF8',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
-  heroText: { fontSize: 14, color: '#506070', marginTop: 6, lineHeight: 20 },
-  campusButton: {
-    marginTop: 14,
-    backgroundColor: PRIMARY,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  campusButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  planButton: {
-    marginTop: 8,
-    borderWidth: 1.5,
-    borderColor: PRIMARY,
-    borderRadius: 12,
-    paddingVertical: 11,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  planButtonText: { color: PRIMARY, fontWeight: '700', fontSize: 15 },
-  planModal: { flex: 1, backgroundColor: BG },
-  planHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingTop: 52,
+
+  // Top bar
+  topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 14,
     paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
-    backgroundColor: BG,
   },
-  planBack: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
-  planTitle: { fontSize: 18, fontWeight: '800', color: '#1A1A1A' },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A', marginTop: 12 },
-  emptyText: { fontSize: 14, color: INACTIVE, marginTop: 6, textAlign: 'center' },
-  searchBar: {
+  searchRow: { flexDirection: 'row', alignItems: 'center' },
+  searchBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(17, 24, 39, 0.94)',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    height: 42,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    gap: 8,
+  },
+  searchInput: { flex: 1, fontSize: 14, color: '#E2E8F0' },
+
+  // Filter pills
+  filtersScroll: { marginTop: 8 },
+  filtersContent: { paddingRight: 8, gap: 8, flexDirection: 'row' },
+  filterPill: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    backgroundColor: BG,
-    borderRadius: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: 'rgba(17, 24, 39, 0.9)',
     borderWidth: 1,
-    borderColor: BORDER,
-    height: 40,
+    borderColor: 'rgba(255,255,255,0.10)',
   },
-  searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#1A1A1A' },
-  countText: { marginTop: 12, marginBottom: 8, color: INACTIVE, fontSize: 13, fontWeight: '600' },
-  buildingCard: {
-    backgroundColor: '#fff',
+  filterLabel: { fontSize: 12, color: '#6B7A99', fontWeight: '600' },
+  filterLabelActive: { color: '#fff' },
+
+  // Reset button
+  resetBtn: {
+    position: 'absolute',
+    right: 16,
+    bottom: SCREEN_H * 0.5,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(17, 24, 39, 0.92)',
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  buildingBadge: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: PRIMARY,
+    borderColor: 'rgba(111,174,62,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buildingBadgeText: { color: '#fff', fontWeight: '800', fontSize: 15 },
-  buildingInfo: { flex: 1 },
-  buildingName: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
-  buildingMeta: { fontSize: 12, color: INACTIVE, marginTop: 3 },
-  buildingDesc: { fontSize: 13, color: '#4A5560', marginTop: 6, lineHeight: 18 },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: BG, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 40 },
-  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: BORDER, alignSelf: 'center', marginBottom: 12 },
-  sheetNumber: { fontSize: 28, fontWeight: '800', color: PRIMARY },
-  sheetName: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginTop: 2 },
-  sheetDesc: { fontSize: 14, color: '#555', marginTop: 10, lineHeight: 20 },
-  servicesLabel: { fontSize: 12, color: INACTIVE, fontWeight: '700', textTransform: 'uppercase', marginTop: 12, marginBottom: 6 },
-  service: { fontSize: 13, color: '#444', marginBottom: 4 },
-  fallbackNote: { fontSize: 13, color: INACTIVE, marginTop: 12, lineHeight: 18 },
+
+  // Marker
+  markerWrap: { alignItems: 'center', justifyContent: 'center', width: 44, height: 44 },
+  badge: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  },
+  badgeSelected: {
+    borderWidth: 2.5,
+    borderColor: '#fff',
+    shadowOpacity: 0.7,
+    shadowRadius: 8,
+  },
+  badgeNum: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.3 },
+  pulseRing: {
+    position: 'absolute',
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    borderWidth: 2,
+  },
+
+  // Bottom sheet
+  sheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    minHeight: SHEET_H,
+    backgroundColor: '#141824',
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+    shadowColor: '#000',
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: -4 },
+    elevation: 20,
+  },
+  sheetHandle: {
+    width: 38,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  sheetClose: {
+    position: 'absolute',
+    top: 18,
+    right: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 4 },
+  typeDot: { width: 8, height: 8, borderRadius: 4 },
+  typeLabel: { fontSize: 11, color: '#6B7A99', fontWeight: '700', letterSpacing: 1 },
+  sheetNumber: { fontSize: 38, fontWeight: '800', color: '#F1F5F9', lineHeight: 44 },
+  sheetName: { fontSize: 16, fontWeight: '600', color: '#CBD5E1', marginTop: 2 },
+  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.07)', marginVertical: 14 },
+
+  // Services
+  servicesScroll: { marginBottom: 12 },
+  servicesContent: { gap: 8, flexDirection: 'row' },
+  servicePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  servicePillText: { fontSize: 12, color: '#94A3B8', fontWeight: '500' },
+
+  sheetDesc: { fontSize: 13.5, color: '#64748B', lineHeight: 20, marginBottom: 8 },
+  floorsText: { fontSize: 12, color: '#4A5568', marginBottom: 12 },
+  fallbackNote: { fontSize: 12, color: '#4A5568', marginBottom: 12, lineHeight: 18 },
+
   navBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: PRIMARY,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginTop: 16,
     justifyContent: 'center',
+    borderRadius: 14,
+    paddingVertical: 14,
+    marginTop: 8,
     gap: 8,
   },
-  navBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  navBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });

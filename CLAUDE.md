@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## About
 
-UCB Navigator is an Expo 54 / React Native app for international students at Hochschule Trier (Germany). It integrates with **Stud.IP** (the university's LMS) via its JSON:API and with **Supabase** for admin-managed content. The app slug is `ucb-navigator`; the actual university is Hochschule Trier, not UC Berkeley — the name is historical.
+UCB Navigator is an Expo 54 / React Native app for international students at Hochschule Trier (Germany). It integrates with **Stud.IP** (the university's LMS) via its JSON:API and with **Supabase** for admin-managed content and anonymous engagement analytics; all Supabase-backed content has bundled JSON fallbacks in `data/`. The app slug is `ucb-navigator`; the actual university is Hochschule Trier, not UC Berkeley — the name is historical.
 
 ## Commands
 
@@ -27,7 +27,7 @@ eas build --platform android --profile development
 eas build --platform android --profile production
 ```
 
-`production` profile uses `autoIncrement: true`. Both profiles share the same three `EXPO_PUBLIC_*` env vars defined in `eas.json`.
+`production` profile uses `autoIncrement: true`. Both profiles share the same three `EXPO_PUBLIC_*` env vars defined in `eas.json` (Stud.IP base URL + Supabase URL/key).
 
 There is no test suite or linter configured. The codebase is plain JavaScript (`.js` files throughout); `tsconfig.json` and TypeScript dev dependencies are present but only for editor type-checking support — do not create `.ts`/`.tsx` files.
 
@@ -40,6 +40,8 @@ EXPO_PUBLIC_STUDIP_BASE_URL=https://studip.hochschule-trier.de/jsonapi.php/v1
 EXPO_PUBLIC_SUPABASE_URL=https://vrnhkwhwoxhcjssqhdat.supabase.co
 EXPO_PUBLIC_SUPABASE_KEY=<publishable anon key>
 ```
+
+The Supabase key is the public anon/publishable key (read-only via RLS) — it is **not** a personal credential. No personal Stud.IP login is stored in code or config; the login screen ships empty.
 
 The Stud.IP base URL can also be swapped to `http://localhost:3001` when running the local proxy.
 
@@ -117,11 +119,11 @@ RootNavigator (NativeStack)
 - `contentService.js` uses `withFallback(cacheKey, fetcher, localFallback)`: try Supabase → cache result to AsyncStorage (`ucb_remote_${cacheKey}`) → fall back to cached → fall back to bundled JSON in `data/`. Read functions are called from screens; write/delete functions (upsert/delete) exist for admin tooling only and are not called from any active screen.
 - All Supabase tables have corresponding bundled JSON fallbacks in `data/`.
 - Tables (managed in Supabase dashboard — no local migrations): `mensa_menu`, `mensa_meta`, `campus_events`, `sports_schedule`, `campus_resources`, `guide_content`, `semester_calendar`, `calendar_events`, `admin_users`, `engagement_events`.
-- **Required RLS policies** (must be set in Supabase dashboard — anon key is public so writes must be blocked at the DB level): All content tables need `SELECT` enabled for anon, and `INSERT/UPDATE/DELETE` restricted to authenticated users with admin role only. Without these policies any holder of the anon key could write to the tables.
+- **Required RLS policies** (must be set in Supabase dashboard — anon key is public so writes must be blocked at the DB level): All content tables need `SELECT` enabled for anon, and `INSERT/UPDATE/DELETE` restricted to authenticated users with admin role only. The `engagement_events` table is **insert-only** for anon (no SELECT). Without these policies any holder of the anon key could write to the tables.
 
 ### Content & Guide Data
 
-Guide content lives in `data/guide_*.json` files (14 categories: accommodation, bureaucracy, buildings, checklist, contacts, emergency, faq, glossary, health, language, offices, phrases, rights, work) and is also fetched from the Supabase `guide_content` table (keyed by `category`). Buildings data (`data/buildings.json`) drives both the Guide buildings section and the Map screen.
+Guide content lives in `data/guide_*.json` files (14 categories: accommodation, bureaucracy, buildings, checklist, contacts, emergency, faq, glossary, health, language, offices, phrases, rights, work) and is also fetched from the Supabase `guide_content` table (keyed by `category`), with the bundled JSON as fallback. Buildings data (`data/buildings.json`) drives both the Guide buildings section and the Map screen.
 
 `utils/campusContent.js` — campus event and sports schedule helpers:
 - `normalizeDayName(value)` — maps German day names (montag, dienstag …) to English equivalents and vice versa.
@@ -134,15 +136,22 @@ Guide content lives in `data/guide_*.json` files (14 categories: accommodation, 
 
 Other bundled JSON fallbacks in `data/`: `campus_resources.json`, `events_campus.json`, `events_sports.json`, `mensa_week.json`, `semester_calendar.json` — all follow the same contentService offline-first pattern.
 
+### Internationalization (EN/DE)
+
+`services/i18n.js` — lightweight string-table i18n, **English-first** (German is being completed):
+- Translations live in `constants/translations/en.js` and `de.js` — flat `key → string` maps. `t(key, params)` looks up the active language, falls back to English, then to the raw key; `{{param}}` placeholders are interpolated.
+- The active language is a **module-level variable** (`_language`, default `'en'`) so `t()` works in non-component modules too (e.g. `services/reminders.js`). `initLanguage()` (called in `App.js` on mount, gated by `languageReady`) loads the persisted choice from AsyncStorage key `ucb_language`.
+- It is mirrored into the Zustand store (`language` / `setLanguage`). **Changing language does a soft remount, not a hard app restart**: `App.js` wraps the tree in `<React.Fragment key={language}>`, so updating `store.language` (from `SettingsScreen`) remounts everything and every `t()` re-reads. `expo-updates`' `reloadAsync` is **not** used for this.
+
 ### Analytics
 
-`services/analytics.js` — anonymous engagement metrics written to Supabase `engagement_events` table:
-- Entirely no-op in `__DEV__` mode so local testing never pollutes production data.
-- Uses a random UUID as `SESSION_ID` generated fresh on each cold start — never persisted or linked to any user identity.
-- Events are batched: flushed automatically when the queue reaches `BATCH_SIZE=10`, or after `FLUSH_INTERVAL_MS=30s`, whichever comes first. `flushNow()` is called from `App.js` when the app moves to the background.
-- Exported helpers: `startSession()` (call once on app mount), `trackScreen(name)` (call from `useFocusEffect`), `trackEvent(type, name, properties?)` for fine-grained feature tracking.
-- Event types: `'session_start'`, `'screen_view'`, `'feature_use'`, `'error'`.
-- The `engagement_events` table is write-only from the anon key perspective — no RLS read access for anon. Analytics failures are silently swallowed so they can never break the app.
+`services/analytics.js` — anonymous engagement metrics written to the Supabase `engagement_events` table. **No personal data**; entirely no-op in `__DEV__` so local testing never pollutes production data.
+- `SESSION_ID` is a random UUID generated fresh on each cold start — never persisted or linked to any login/device/identity.
+- Extra signal is merged **inside the `properties` jsonb** (e.g. `app_language`, `ts`, session-end metrics) — the inserted top-level columns stay fixed (`session_id`, `event_type`, `event_name`, `properties`, `platform`, `app_version`) so we never depend on schema columns that may not exist.
+- **Durable queue**: pending events are persisted to AsyncStorage (`ucb_analytics_q`) on enqueue and restored on next `startSession()`, so events survive an app kill before flush. Batches flush at `BATCH_SIZE=10` or every `FLUSH_INTERVAL_MS=30s`; failed inserts are re-queued (capped at `MAX_QUEUE=200`). Failures are swallowed — analytics never breaks the app.
+- **Session lifecycle** (wired in `App.js` via AppState): `startSession()` on mount; `endSession()` on background emits a `session_end` event with `duration_ms` / `screens_viewed` / `events` (idempotent via an `_ended` guard); `resumeSession()` on returning to foreground starts a fresh span.
+- Exported helpers: `startSession()`, `endSession()`, `resumeSession()`, `trackScreen(name)` (call on mount/focus), `trackEvent(type, name, properties?)`, `flushNow()`.
+- Event types: `'session_start'`, `'session_end'`, `'screen_view'`, `'feature_use'`, `'error'`. Screen-view coverage spans the main tabs/tools; feature events include `map_building_opened`, `guide_category_opened`, `deadline_added`, `news_item_opened`. Document the user-facing disclosure in `DatenschutzScreen.js` when adding new signals.
 
 ### Screen Patterns
 
@@ -182,7 +191,8 @@ Both route via `navigateFromNotification(identifier)`, which uses the notificati
 From `app.json`:
 - URL scheme: `"ucb"` — deep-link infrastructure is ready in the store (`pendingMapBuilding`), but no `linking` prop is wired to `NavigationContainer` yet
 - `newArchEnabled: true` — New React Native architecture enabled
-- Android: `edgeToEdgeEnabled: true`; requires `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION` (Map screen)
+- Android: `edgeToEdgeEnabled: true`. No location permissions — the Map shows buildings only, not the user's GPS position.
+- `plugins` includes `"react-native-maps"`. The Map uses **OpenStreetMap raster tiles via `<UrlTile>` + `mapType="none"`**, so **no Google Maps API key** is required (works on Android/iOS in dev/EAS builds, not Expo Go).
 - OTA updates via Expo's update server using `sdkVersion` runtime version policy
 
 ### Key Dependencies
@@ -191,13 +201,14 @@ From `app.json`:
 - `@expo/vector-icons` (Ionicons) — all icon usage throughout the app
 - `expo-linear-gradient` — gradient backgrounds (HomeScreen header)
 - `expo-notifications` — scheduled local notifications (`services/reminders.js`)
-- `expo-location` — GPS/location for the campus Map screen
+- `react-native-maps` — campus Map (`screens/map/MapScreen.js`); rendered with OpenStreetMap `<UrlTile>` over a base-less map (no API key). **Not bundled in Expo Go** — requires a dev/EAS build.
 - `react-native-calendars` — calendar UI in planner/deadline screens
 - `expo-local-authentication` — biometric prompt in `BiometricLockScreen`
 - `expo-web-browser` — in-app browser used by `CampusPlatformsScreen` to open external university platforms
 - `expo-clipboard` — copy-to-clipboard for platform URLs in `CampusPlatformsScreen`
 - `react-native-webview` — embedded web view used by `MensaScreen`; **not bundled in Expo Go** — `MensaScreen` wraps the `require` in a try/catch and shows an "Open in Browser" fallback when unavailable
 - `buffer` — polyfill used in `services/api.js` to base64-encode Basic Auth credentials; React Native has no native `Buffer`
+- `expo-updates` — OTA updates (`app.json` `updates.url`). Note: it is **not** used for language switching (that is a soft remount; see Internationalization).
 - `react-native-url-polyfill` — imported in `index.js` as `react-native-url-polyfill/auto` to patch the global `URL` class; required by the Supabase JS client — do not remove
 - `axios` — listed in `package.json` but not used; the entire API layer uses native `fetch`
 - `react-native-vector-icons` — listed in `package.json` but not used; all icon usage is via `@expo/vector-icons` (Ionicons)

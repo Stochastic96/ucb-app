@@ -50,6 +50,12 @@ const useStore = create((set, get) => ({
   updateSettings: (partial) =>
     set((s) => ({ settings: { ...s.settings, ...partial } })),
 
+  // Active UI language ('en' | 'de'). Mirrors services/i18n's module-level
+  // language; changing it triggers a soft remount of the app tree in App.js
+  // (key={language}) so every t() re-reads — no hard app restart.
+  language: 'en',
+  setLanguage: (language) => set({ language }),
+
   // Offline
   isOffline: false,
   setOffline: (v) => set({ isOffline: v }),

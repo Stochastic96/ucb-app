@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { trackScreen } from '../../services/analytics';
 import {
   View,
   Text,
@@ -305,6 +306,7 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refres
 
 export default function EventsScreen() {
   const t = useTranslation();
+  useEffect(() => { trackScreen('EventsScreen'); }, []);
   const navigation = useNavigation();
   const canGoBack = navigation.canGoBack();
 
