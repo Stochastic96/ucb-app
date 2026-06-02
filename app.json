@@ -24,7 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "allowBackup": false,
-      "package": "com.anonymous.ucb"
+      "package": "app.ucbnavigator"
     },
     "web": {
       "favicon": "./assets/favicon.png"
