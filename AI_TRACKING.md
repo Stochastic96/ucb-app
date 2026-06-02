@@ -2,14 +2,24 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
-## 2026-06-01 — Beta prep: OSM map, English-first language, improved engagement analytics
-- screens/map/MapScreen.js: Claude Opus 4.8 — Restored v1 interactive map; switched to OpenStreetMap `<UrlTile>` + `mapType="none"` + `PROVIDER_DEFAULT` so no Google Maps API key is needed; added screen + `map_building_opened` analytics
-- screens/map/CampusPlanView.js: Claude Opus 4.8 — Deleted (schematic plan view replaced by the OSM map)
-- package.json / app.json: Claude Opus 4.8 — Re-added `react-native-maps@1.20.1` + plugin; no location permissions (map shows buildings, not GPS)
+## 2026-06-02 — Map: external maps only, main buildings only
+- screens/map/MapScreen.js: Claude Opus 4.8 — Removed the "View campus plan" button + its modal (kept "Open campus in maps" external-maps link); filtered the building list to main campus buildings via `searchBuildings(search).filter(isMainCampusBuilding)`; removed now-unused plan styles
+- screens/map/CampusPlanView.js: Claude Opus 4.8 — Deleted (the schematic campus plan; its only entry point was the removed plan button)
+- services/buildings.js: Claude Opus 4.8 — Added `isMainCampusBuilding` (academic/hotel types) so the Map hides student dormitories and generic "Building 99XX" entries while keeping ZN (9922) + KG (9938); deep-link lookups via `getBuildingByIdOrAlias` still resolve every building
+
+## 2026-06-01 — Copilot init instructions
+- COPILOT.md: GPT-5.2-Codex — Added Copilot init instructions mirroring CLAUDE.md for repo guidance
+
+## 2026-06-01 — Home screen liveliness: redesigned cards + basketball scene
+- screens/home/HomeScreen.js: Claude Opus 4.8 — Redesigned "What's on today" + "Sports today" rows (category-tinted date tiles, two-line title/meta layout) and Quick Links (white cards with colored circular icon badges, per-link color identity); removed dead `getCampusEventRowLabel` helper
+- screens/home/HomeScreen.js: Claude Opus 4.8 — Per-sport icons via `MaterialCommunityIcons` (`SPORT_VISUALS`/`getSportVisual`) so each sport reads at a glance instead of identical barbells
+
+## 2026-06-01 — Beta prep: English-first language + improved engagement analytics
+- Map: kept the existing schematic campus map (`screens/map/CampusPlanView.js` + `MapScreen.js`) as-is — no `react-native-maps` (native module, unsupported in Expo Go)
 - App.js / store/useStore.js / screens/profile/SettingsScreen.js + constants/translations: Claude Opus 4.8 — Language switch now soft-remounts via `key={language}` instead of `Updates.reloadAsync()`; English-first default
 - services/analytics.js: Claude Opus 4.8 — Kept Supabase engagement backend; added session lifecycle (start/end/resume with duration + counts), durable AsyncStorage queue surviving app kills, `app_language` cohort in properties, MAX_QUEUE cap + retry
-- screens (Events, Profile, Tools, CampusResources, Map): Claude Opus 4.8 — Added `trackScreen` coverage for engagement analysis
-- eas.json / .env: Claude Opus 4.8 — Removed leftover unused `EXPO_PUBLIC_MAPBOX_TOKEN`; kept Stud.IP + Supabase keys (Supabase key is public anon, not a personal credential); login ships empty
+- screens (Events, Profile, Tools, CampusResources): Claude Opus 4.8 — Added `trackScreen` coverage for engagement analysis
+- .env: Claude Opus 4.8 — Removed leftover unused `EXPO_PUBLIC_MAPBOX_TOKEN`; kept Stud.IP + Supabase keys (Supabase key is public anon, not a personal credential); login ships empty
 
 ## 2026-05-28 — Events screen: upcoming first
 - screens/events/EventsScreen.js: Claude Sonnet 4.6 — Show upcoming events before past ones; past events moved to a "Past Events" section at the bottom (still visible but de-prioritised)
