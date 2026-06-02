@@ -16,8 +16,8 @@ import { STORAGE_KEYS } from './constants/storageKeys';
 import { SECURE_KEYS } from './constants/secureKeys';
 import { bootstrapSessionData } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
-import { startSession, flushNow } from './services/analytics';
-import { initLanguage } from './services/i18n';
+import { startSession, endSession, resumeSession } from './services/analytics';
+import { initLanguage, getLanguage } from './services/i18n';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
 // Only uses the identifier (not notification content) to avoid handling personal data.
@@ -45,6 +45,7 @@ const ucbTheme = {
 
 export default function App() {
   const { updateSettings, setUser } = useStore();
+  const language = useStore((s) => s.language);
   const [languageReady, setLanguageReady] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const backgroundedAt = useRef(null);
@@ -53,7 +54,12 @@ export default function App() {
   const pendingSessionRestoreRef = useRef(false);
 
   useEffect(() => {
-    initLanguage().then(() => setLanguageReady(true));
+    initLanguage().then(() => {
+      // Mirror the persisted language into the store so a later change can
+      // trigger a soft remount (see key={language} below).
+      useStore.getState().setLanguage(getLanguage());
+      setLanguageReady(true);
+    });
     startSession();
     initializeApp();
   }, []);
@@ -78,8 +84,11 @@ export default function App() {
     if (nextState === 'background' || nextState === 'inactive') {
       backgroundedAt.current = Date.now();
       clearCachedCredentials();
-      flushNow();
+      // session_end (with engagement duration) on true background; idempotent so
+      // repeated inactive/background churn won't emit duplicates.
+      endSession();
     } else if (nextState === 'active') {
+      resumeSession();
       const { settings, isLoggedIn } = useStore.getState();
       if (
         settings.biometricLockEnabled &&
@@ -155,13 +164,17 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <PaperProvider theme={ucbTheme}>
-        <NavContainer ref={navigationRef}>
-          <RootNavigator />
-        </NavContainer>
-        <Sidebar />
-        {isLocked && (
-          <BiometricLockScreen onUnlock={handleUnlock} />
-        )}
+        {/* key={language} → changing language soft-remounts the whole tree so
+            every t() re-reads the new strings, with no hard app restart. */}
+        <React.Fragment key={language}>
+          <NavContainer ref={navigationRef}>
+            <RootNavigator />
+          </NavContainer>
+          <Sidebar />
+          {isLocked && (
+            <BiometricLockScreen onUnlock={handleUnlock} />
+          )}
+        </React.Fragment>
       </PaperProvider>
     </SafeAreaProvider>
   );

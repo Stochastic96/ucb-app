@@ -111,6 +111,15 @@ export function filterBuildingsByType(type) {
   return BUILDINGS.filter((b) => b.type === type);
 }
 
+// Main campus buildings shown on the Map screen: academic/teaching/admin
+// buildings plus the Campus Hotel. Student dormitories and generic
+// "Building 99XX" entries are intentionally excluded.
+const MAIN_BUILDING_TYPES = new Set(['academic', 'hotel']);
+
+export function isMainCampusBuilding(building) {
+  return MAIN_BUILDING_TYPES.has(building?.type);
+}
+
 const ROOM_TYPE_ICONS = {
   lecture:  'school-outline',
   seminar:  'easel-outline',

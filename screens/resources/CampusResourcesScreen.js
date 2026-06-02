@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { trackScreen } from '../../services/analytics';
 import {
   View,
   Text,
@@ -25,6 +26,7 @@ const CATEGORIES = [
 
 export default function CampusResourcesScreen() {
   const t = useTranslation();
+  useEffect(() => { trackScreen('CampusResourcesScreen'); }, []);
   const [activeCategory, setActiveCategory] = useState('all');
   const [expanded, setExpanded] = useState(null);
   const [query, setQuery] = useState('');

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { trackScreen } from '../../services/analytics';
 import {
   View,
   Text,
@@ -46,6 +47,7 @@ const PORTAL_LINKS = [
 
 export default function ProfileScreen({ navigation }) {
   const t = useTranslation();
+  useEffect(() => { trackScreen('ProfileScreen'); }, []);
   const profile = useStore((s) => s.user);
   const courseCount = useStore((s) => s.courses.length);
   const dataReady = useStore((s) => s.dataReady);

@@ -18,9 +18,9 @@ import {
   buildNativeMapsLabel,
   CAMPUS_CENTER,
   getBuildingByIdOrAlias,
+  isMainCampusBuilding,
   searchBuildings,
 } from '../../services/buildings';
-import CampusPlanView from './CampusPlanView';
 import { useFocusEffect } from '@react-navigation/native';
 import { trackScreen, trackEvent } from '../../services/analytics';
 import { useTranslation } from '../../services/i18n';
@@ -29,7 +29,6 @@ export default function MapScreen() {
   const t = useTranslation();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
-  const [showPlan, setShowPlan] = useState(false);
   const searchTrackedRef = React.useRef(false);
 
   const handleSearchChange = (text) => {
@@ -43,7 +42,7 @@ export default function MapScreen() {
   const pendingBuilding = useStore((s) => s.pendingMapBuilding);
   const clearPending = useStore((s) => s.clearPendingMapBuilding);
 
-  const visibleBuildings = searchBuildings(search);
+  const visibleBuildings = searchBuildings(search).filter(isMainCampusBuilding);
 
   useFocusEffect(useCallback(() => { trackScreen('MapScreen'); }, []));
 
@@ -87,10 +86,6 @@ export default function MapScreen() {
           <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85}>
             <Ionicons name="navigate-outline" size={18} color="#fff" />
             <Text style={styles.campusButtonText}>{t('map_open_campus')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.planButton} onPress={() => { trackEvent('feature_use', 'campus_plan_opened'); setShowPlan(true); }} activeOpacity={0.85}>
-            <Ionicons name="map-outline" size={18} color={PRIMARY} />
-            <Text style={styles.planButtonText}>{t('map_view_plan')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -145,22 +140,6 @@ export default function MapScreen() {
           </View>
         )}
       </ScrollView>
-
-      <Modal visible={showPlan} animationType="slide" onRequestClose={() => setShowPlan(false)}>
-        <View style={styles.planModal}>
-          <View style={styles.planHeader}>
-            <TouchableOpacity onPress={() => setShowPlan(false)} style={styles.planBack}>
-              <Ionicons name="arrow-back" size={22} color="#1A1A1A" />
-            </TouchableOpacity>
-            <Text style={styles.planTitle}>{t('map_campusplan_title')}</Text>
-            <View style={{ width: 38 }} />
-          </View>
-          <CampusPlanView
-            selectedId={selected?.id ?? null}
-            onSelectBuilding={(b) => { trackEvent('feature_use', 'building_selected', { building_id: b.id, source: 'plan' }); setSelected(b); setShowPlan(false); }}
-          />
-        </View>
-      </Modal>
 
       <Modal visible={!!selected} transparent animationType="slide" onRequestClose={() => setSelected(null)}>
         <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setSelected(null)}>
@@ -236,33 +215,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   campusButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  planButton: {
-    marginTop: 8,
-    borderWidth: 1.5,
-    borderColor: PRIMARY,
-    borderRadius: 12,
-    paddingVertical: 11,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  planButtonText: { color: PRIMARY, fontWeight: '700', fontSize: 15 },
-  planModal: { flex: 1, backgroundColor: BG },
-  planHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingTop: 52,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
-    backgroundColor: BG,
-  },
-  planBack: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
-  planTitle: { fontSize: 18, fontWeight: '800', color: '#1A1A1A' },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A', marginTop: 12 },
   emptyText: { fontSize: 14, color: INACTIVE, marginTop: 6, textAlign: 'center' },

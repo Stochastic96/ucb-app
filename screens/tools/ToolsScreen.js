@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { trackScreen } from '../../services/analytics';
 import {
   View,
   Text,
@@ -30,6 +31,7 @@ const COMING_SOON = [];
 
 export default function ToolsScreen({ navigation, route }) {
   const t = useTranslation();
+  useEffect(() => { trackScreen('ToolsScreen'); }, []);
   useEffect(() => {
     if (route.params?.openTimetable) {
       navigation.setParams({ openTimetable: undefined });
