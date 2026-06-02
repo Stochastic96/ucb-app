@@ -88,7 +88,7 @@ RootNavigator (NativeStack)
     + RootNavigator also owns: Profile, Settings, NewsFeed,
       CoursesList, CourseDetail (registered directly — no separate stack),
       EventsList → EventsStack (navigation/EventsStack.js),
-      Impressum, Datenschutz
+      FactOfTheDay (screens/facts/FactScreen.js), Impressum, Datenschutz
 ```
 
 **Important**: `lazy={false}` on `MainTabs` pre-renders all tabs so nested stacks are initialised before programmatic navigation. Tab press listeners always reset to the root screen of each stack (`ToolsHome`, `GuideHome`) so users can never get stranded.
@@ -135,6 +135,14 @@ Guide content lives in `data/guide_*.json` files (14 categories: accommodation, 
 - `DAY_ORDER` — Mon–Sun array used for consistent day ordering throughout the app.
 
 Other bundled JSON fallbacks in `data/`: `campus_resources.json`, `events_campus.json`, `events_sports.json`, `mensa_week.json`, `semester_calendar.json` — all follow the same contentService offline-first pattern.
+
+### Fact of the Day
+
+A daily sustainability-trivia feature (fits the Umwelt-Campus identity).
+- `data/facts.json` — ~37 curated facts shaped `{ id, category, emoji, en: { hook, fact }, source, sourceName }`. **Bilingual-ready** via per-language keys (only `en` is populated today; `getFactCopy(fact, lang)` falls back to English). This is a **bundled-only** dataset loaded directly by `services/facts.js` — it is *not* part of the contentService/Supabase pipeline.
+- `services/facts.js` — `getDailyFact()` deterministically picks one fact per local calendar day (stable for everyone that day). A **3-reveals-per-day** allowance (`MAX_REVEALS`) lets the user draw new unseen facts via the screen's "Next" button; it resets at local midnight (`msUntilReset`). State `{ date, revealCount, seenIds }` persists to `STORAGE_KEYS.FACT_STATE` (`ucb_fact_state`), which is in `cache.js`'s `NON_CACHE_KEYS` so a cache clear never resets the allowance.
+- `screens/facts/FactScreen.js` (RootNavigator route `FactOfTheDay`) — single card that cycles all facts in place: built-in `Animated` entrance per fact, `expo-haptics` on reveal/lock, category-coloured gradient (`FACT_CATEGORY_COLORS` in `constants/colors.js`), source out-links via `expo-web-browser`, reveals-left dots, and a locked countdown once the daily allowance is spent.
+- `HomeScreen.js` shows the day's hook in a "Did you know?" teaser that opens the screen. Category chip labels are `fact_cat_*` translation keys.
 
 ### Internationalization (EN/DE)
 
@@ -208,6 +216,7 @@ From `app.json`:
 - `buffer` — polyfill used in `services/api.js` to base64-encode Basic Auth credentials; React Native has no native `Buffer`
 - `expo-updates` — OTA updates (`app.json` `updates.url`). Note: it is **not** used for language switching (that is a soft remount; see Internationalization).
 - `react-native-url-polyfill` — imported in `index.js` as `react-native-url-polyfill/auto` to patch the global `URL` class; required by the Supabase JS client — do not remove
+- `expo-haptics` — light tap / warning feedback in the Fact screen. The Fact card animations use React Native's **built-in `Animated`** API (not Reanimated/Moti). Moti + `react-native-reanimated` were tried and removed: in Expo Go they couple to specific native versions (`react-native-worklets` must match Expo Go's bundled build) and Moti pulled in a duplicate React — both surfaced as runtime crashes. Stick to `Animated` unless/until the app ships as a dev/EAS build rather than Expo Go.
 - `axios` — listed in `package.json` but not used; the entire API layer uses native `fetch`
 - `react-native-vector-icons` — listed in `package.json` but not used; all icon usage is via `@expo/vector-icons` (Ionicons)
 

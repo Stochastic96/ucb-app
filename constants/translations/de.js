@@ -454,4 +454,21 @@ export default {
   // --- Calendar extras ---
   calendar_view_all: 'Alle anzeigen →',
   calendar_done: 'Erledigt',
+
+  // --- Fact of the Day ---
+  fact_screen_title: 'Schon gewusst?',
+  fact_home_title: 'Schon gewusst?',
+  fact_home_cta: 'Tippen zum Entdecken',
+  fact_next: 'Nächster Fakt',
+  fact_source: 'Quelle',
+  fact_reveals_left: 'Noch {{count}} von {{max}} heute',
+  fact_reveals_left_one: 'Noch 1 Fakt heute',
+  fact_locked_title: 'Das waren deine Fakten für heute! 🌱',
+  fact_locked_msg: 'Komm in {{time}} für neue Fakten wieder.',
+  fact_cat_energy: 'Energie',
+  fact_cat_nature: 'Natur',
+  fact_cat_water: 'Wasser',
+  fact_cat_waste: 'Abfall & Kreislauf',
+  fact_cat_mobility: 'Mobilität',
+  fact_cat_policy: 'Politik',
 };

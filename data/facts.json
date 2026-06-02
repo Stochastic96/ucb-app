@@ -1,0 +1,410 @@
+[
+  {
+    "id": "bathing-water",
+    "category": "water",
+    "emoji": "🏖️",
+    "en": {
+      "hook": "Nearly every European beach and lake is safe for swimming",
+      "fact": "Decades of strict wastewater laws and constant monitoring mean the vast majority of Europe's bathing sites rate 'excellent' for water quality — turning once-polluted industrial rivers back into safe public swimming spots."
+    },
+    "source": "https://www.eea.europa.eu/en/topics/in-depth/bathing-water",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "solar-vs-oil",
+    "category": "energy",
+    "emoji": "☀️",
+    "en": {
+      "hook": "The world now invests more in solar power than in drilling for oil",
+      "fact": "Capital flowing into solar technology has overtaken spending on fossil-fuel extraction — a milestone marking solar's shift from niche alternative to the dominant pillar of the global energy transition."
+    },
+    "source": "https://www.iea.org/reports/world-energy-investment-2023/overview-and-key-findings",
+    "sourceName": "IEA"
+  },
+  {
+    "id": "glitter-ban",
+    "category": "waste",
+    "emoji": "✨",
+    "en": {
+      "hook": "The EU banned loose glitter to protect the oceans",
+      "fact": "To stop tiny non-biodegradable plastic particles building up in oceans and the food chain, EU law phased out microplastics in cosmetics and loose glitter — pushing the beauty and craft industries toward biodegradable alternatives."
+    },
+    "source": "https://eur-lex.europa.eu/eli/reg/2023/2055/oj",
+    "sourceName": "EUR-Lex"
+  },
+  {
+    "id": "reusable-cup",
+    "category": "waste",
+    "emoji": "☕",
+    "en": {
+      "hook": "German cafés are legally required to offer a reusable cup",
+      "fact": "National law (the Mehrwegpflicht) requires restaurants and cafés to offer a reusable container for takeaway food and drinks, making the wash-and-return habit the easy default instead of disposable plastic."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/abfall-ressourcen/produktverantwortung-in-der-abfallwirtschaft/mehrwegpflicht-fuer-einwegkunststoff",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "organic-farmland",
+    "category": "nature",
+    "emoji": "🌾",
+    "en": {
+      "hook": "Germany's organic farmland is bigger than the country of Lebanon",
+      "fact": "Driven by consumer demand and supportive policy, the area of strictly organic, pesticide-free German farmland keeps expanding — protecting groundwater, rebuilding soil life, and giving pollinators a vast connected refuge."
+    },
+    "source": "https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Landwirtschaft-Forstwirtschaft-Fischerei/Oekologischer-Landbau/_inhalt.html",
+    "sourceName": "Destatis"
+  },
+  {
+    "id": "green-roofs",
+    "category": "nature",
+    "emoji": "🏙️",
+    "en": {
+      "hook": "German cities are turning bare rooftops into buzzing meadows",
+      "fact": "Municipalities subsidise converting flat roofs into soil-covered green roofs that cool the city, soak up heavy rain like a sponge to cut flooding, and create surprise stepping-stone habitats for urban bees."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/klima-energie/klimafolgen-anpassung",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "heat-pump",
+    "category": "energy",
+    "emoji": "🔁",
+    "en": {
+      "hook": "The most efficient home heater is basically a fridge running in reverse",
+      "fact": "Heat pumps don't burn fuel — they use a little electricity to move existing warmth from the outside air or ground into your home. Because they transfer heat instead of making it, they reach efficiencies fossil heaters can't touch."
+    },
+    "source": "https://www.iea.org/energy-system/buildings/heat-pumps",
+    "sourceName": "IEA"
+  },
+  {
+    "id": "ebikes",
+    "category": "mobility",
+    "emoji": "🚲",
+    "en": {
+      "hook": "Germans now buy more e-bikes than petrol cars",
+      "fact": "Battery-assisted bikes have made long, hilly, sweat-free commutes accessible to everyone — cutting local tailpipe emissions and pushing cities to expand protected cycle lanes."
+    },
+    "source": "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Umwelt/UWR/Produkte/verkehr.html",
+    "sourceName": "Destatis"
+  },
+  {
+    "id": "supergrid",
+    "category": "energy",
+    "emoji": "🔌",
+    "en": {
+      "hook": "Europe's power grids act as giant shock absorbers for clean energy",
+      "fact": "Cross-border transmission cables link the continent into the world's largest synchronous grid, so a sudden surplus of Danish wind can instantly run a factory in southern Germany instead of being wasted."
+    },
+    "source": "https://www.iea.org/energy-system/electricity/electricity-grids",
+    "sourceName": "IEA"
+  },
+  {
+    "id": "repair-cafes",
+    "category": "waste",
+    "emoji": "🔧",
+    "en": {
+      "hook": "German towns fund repair cafés to save your broken toaster",
+      "fact": "Recognising that binning fixable electronics wastes the energy locked inside them, local waste authorities partner with citizen repair networks — sharing tools and skills to keep valuable materials out of landfill."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/abfall-ressourcen/abfallwirtschaft/wiederverwendung",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "timber-buildings",
+    "category": "nature",
+    "emoji": "🏗️",
+    "en": {
+      "hook": "Tall wooden buildings are long-term carbon vaults",
+      "fact": "Engineered timber lets builders raise multi-storey buildings from sustainably grown wood instead of concrete and steel. Since trees absorb CO₂ as they grow, these structures lock away tonnes of carbon for centuries."
+    },
+    "source": "https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Bauen/_inhalt.html",
+    "sourceName": "Destatis"
+  },
+  {
+    "id": "quiet-areas",
+    "category": "nature",
+    "emoji": "🤫",
+    "en": {
+      "hook": "European law protects landscapes purely for their silence",
+      "fact": "EU directives require identifying and preserving designated 'Quiet Areas', recognising that constant human noise stresses both wildlife and people — so deep in some forests the loudest sound is the wind."
+    },
+    "source": "https://www.eea.europa.eu/en/topics/in-depth/noise",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "de-sealing",
+    "category": "water",
+    "emoji": "🌱",
+    "en": {
+      "hook": "European cities are ripping up concrete to let the ground breathe",
+      "fact": "A movement called 'de-sealing' removes unnecessary asphalt to expose bare earth, letting rainwater recharge groundwater aquifers and giving buried tree roots the oxygen they need to thrive."
+    },
+    "source": "https://www.eea.europa.eu/en/topics/in-depth/soil",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "led-bulbs",
+    "category": "energy",
+    "emoji": "💡",
+    "en": {
+      "hook": "Switching the world to LED bulbs was a secret climate victory",
+      "fact": "The global shift from incandescent bulbs to LEDs quietly slashed electricity demand — avoiding the need for hundreds of new power plants and proving efficiency is our most powerful hidden resource."
+    },
+    "source": "https://www.iea.org/energy-system/buildings/lighting",
+    "sourceName": "IEA"
+  },
+  {
+    "id": "turbine-bridges",
+    "category": "waste",
+    "emoji": "🌉",
+    "en": {
+      "hook": "Old wind-turbine blades are being reborn as footbridges",
+      "fact": "As the first generation of wind turbines retires, engineers repurpose their huge fibreglass blades into durable pedestrian bridges, bike shelters and noise barriers instead of landfilling them."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/klima-energie/erneuerbare-energien/windenergie",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "textile-epr",
+    "category": "waste",
+    "emoji": "👕",
+    "en": {
+      "hook": "Fast-fashion brands in Europe must soon pay for their textile waste",
+      "fact": "New EU rules make clothing producers financially responsible for a garment's whole life — nudging brands to design durable, recyclable fabrics instead of flooding shops with cheap synthetic blends."
+    },
+    "source": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A52022DC0141",
+    "sourceName": "EUR-Lex"
+  },
+  {
+    "id": "floodplains",
+    "category": "water",
+    "emoji": "🌊",
+    "en": {
+      "hook": "Germany is giving its rivers their floodplains back to prevent disasters",
+      "fact": "Instead of ever-higher concrete levees, modern water management removes old dikes and reconnects rivers to ancient floodplains. These sponge-like meadows absorb floods, protect downstream towns, and revive aquatic life."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/wasser/fluesse/hochwasser",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "rail",
+    "category": "mobility",
+    "emoji": "🚆",
+    "en": {
+      "hook": "Europe's electric trains beat global benchmarks for clean travel",
+      "fact": "Europe's integrated high-speed electric rail moves millions of people with a fraction of the carbon of short-haul flights — and as the grid greens, every journey gets cleaner too."
+    },
+    "source": "https://www.eea.europa.eu/en/topics/in-depth/transport-and-mobility",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "geothermal-hunsruck",
+    "category": "energy",
+    "emoji": "🌋",
+    "featured": true,
+    "en": {
+      "hook": "The rock beneath the Hunsrück is a hidden radiator",
+      "fact": "The deep subsurface of Rhineland-Palatinate holds steady geothermal heat from its tectonic and volcanic past. Local initiatives — including research near UCB — map these thermal pockets to draw clean, weather-independent heat from the earth."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/klima-energie/erneuerbare-energien/geothermie",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "groundwater-rock",
+    "category": "water",
+    "emoji": "🪨",
+    "en": {
+      "hook": "The groundwater under the Hunsrück is filtered by ancient rock",
+      "fact": "Layers of Devonian slate and quartzite act as a giant natural filter, so local rainfall becomes groundwater that needs almost no treatment before reaching the tap — zero-energy water infrastructure built by geology."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/wasser/grundwasser/grundwassernutzung",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "soil-life",
+    "category": "nature",
+    "emoji": "🦠",
+    "en": {
+      "hook": "A teaspoon of forest soil holds more life than there are people on Earth",
+      "fact": "One healthy teaspoon of soil contains over a billion bacteria, fungi and nematodes, and more than 60% of all life on the planet lives underground — making the dirt under your boots the most crowded habitat known."
+    },
+    "source": "https://www.umweltbundesamt.de/presse/pressemitteilungen/wie-viel-leben-steckt-in-unseren-boeden",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "usb-c",
+    "category": "waste",
+    "emoji": "🔌",
+    "en": {
+      "hook": "The EU effectively outlawed the drawer full of mismatched chargers",
+      "fact": "To cut electronic waste, the EU made USB-C the single charging standard for small electronics — forcing the whole global tech industry to follow and reducing demand for mined copper and plastic."
+    },
+    "source": "https://eur-lex.europa.eu/eli/dir/2022/2380/oj",
+    "sourceName": "EUR-Lex"
+  },
+  {
+    "id": "offshore-wind",
+    "category": "energy",
+    "emoji": "🌬️",
+    "en": {
+      "hook": "The stormy North Sea could power the whole continent several times over",
+      "fact": "Energy assessments show offshore wind in European waters could meet the region's electricity demand many times over — and floating turbines are turning even deep, rough seas into dependable power stations."
+    },
+    "source": "https://www.iea.org/news/offshore-wind-to-become-a-1-trillion-industry",
+    "sourceName": "IEA"
+  },
+  {
+    "id": "battery-passport",
+    "category": "policy",
+    "emoji": "🛂",
+    "en": {
+      "hook": "Every EV battery in Europe is getting its own digital passport",
+      "fact": "EU law now requires large and EV batteries to carry a scannable digital passport logging their origin, carbon footprint and chemistry — so lithium and cobalt can be recovered and recycled instead of landfilled."
+    },
+    "source": "https://eur-lex.europa.eu/eli/reg/2023/1542/oj/eng",
+    "sourceName": "EUR-Lex"
+  },
+  {
+    "id": "seaweed",
+    "category": "nature",
+    "emoji": "🌿",
+    "en": {
+      "hook": "Germany is quietly farming underwater forests to feed the future",
+      "fact": "German aquaculture is scaling up native seaweed and algae — crops that need no fresh water, fertiliser or cleared land, absorb CO₂ as they grow, and provide a nutritious, sustainable food source."
+    },
+    "source": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2024/05/PD24_208_41362.html",
+    "sourceName": "Destatis"
+  },
+  {
+    "id": "dark-skies",
+    "category": "nature",
+    "emoji": "🌌",
+    "en": {
+      "hook": "Satellites are mapping the dark to protect the night",
+      "fact": "Light pollution scrambles the navigation and sleep of nocturnal wildlife, so agencies use satellite imagery to find and protect remaining pockets of true darkness — preserving the starry skies night species need."
+    },
+    "source": "https://www.eea.europa.eu/en/analysis/publications/zero-pollution/ecosystems/signals/biodiversity-signals",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "recycling",
+    "category": "waste",
+    "emoji": "♻️",
+    "en": {
+      "hook": "Germany recycles two-thirds of its household waste",
+      "fact": "Germany recycles over 66% of municipal waste, far above global averages still dominated by landfills — turning everyday trash into a secondary raw-material industry and cutting demand for virgin resources."
+    },
+    "source": "https://www.eea.europa.eu/en/topics/in-depth/waste-and-recycling",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "wind-vs-coal",
+    "category": "energy",
+    "emoji": "🌪️",
+    "en": {
+      "hook": "The wind over Germany now moves more energy than the coal underneath",
+      "fact": "Decades of investment and grid upgrades flipped the country's historic reliance on fossil fuels — wind is now the biggest single source in the German electricity mix, proving an industrial giant can run on an invisible resource."
+    },
+    "source": "https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Energie/Erzeugung/_inhalt.html",
+    "sourceName": "Destatis"
+  },
+  {
+    "id": "sponge-cities",
+    "category": "water",
+    "emoji": "🧽",
+    "en": {
+      "hook": "Rhineland-Palatinate is engineering 'sponge cities' for extreme weather",
+      "fact": "Instead of funnelling rain into overloaded sewers, towns add green roofs, permeable pavements and sunken parks that soak up downpours to stop floods, then slowly release moisture to cool the city in heatwaves."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/klima-energie/klimafolgen-anpassung/anpassung-an-den-klimawandel/anpassung-auf-laenderebene/regionale-anpassung-in-rheinland-pfalz",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "wildcats",
+    "category": "nature",
+    "emoji": "🐾",
+    "en": {
+      "hook": "Europe's wildcats are thriving right in UCB's backyard",
+      "fact": "The Hunsrück-Hochwald National Park near UCB protects one of the continent's most important European wildcat populations, using old-growth beech forest and deadwood to give these elusive felines an undisturbed sanctuary."
+    },
+    "source": "https://www.bfn.de/en",
+    "sourceName": "Bundesamt für Naturschutz"
+  },
+  {
+    "id": "europe-greener",
+    "category": "nature",
+    "emoji": "🌲",
+    "en": {
+      "hook": "Europe is actually greener today than it was a century ago",
+      "fact": "While much of the world fights deforestation, Europe has expanded its forest cover over the last century through natural regrowth and replanting — a living example of ecosystems reclaiming old farmland."
+    },
+    "source": "https://www.eea.europa.eu/en/topics/in-depth/forests",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "phosphorus",
+    "category": "waste",
+    "emoji": "🧪",
+    "en": {
+      "hook": "The sewage plant is quietly becoming our most valuable nutrient mine",
+      "fact": "German wastewater plants must now recover phosphorus from sewage sludge before disposal — turning sanitation into a local, circular supply of a critical fertiliser that otherwise has to be mined overseas and imported."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/wasser/abwasser/klaerschlammentsorgung",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "salmon-rhine",
+    "category": "water",
+    "emoji": "🐟",
+    "en": {
+      "hook": "An international treaty invited salmon back to the Rhine",
+      "fact": "After industrial pollution devastated the Rhine, neighbouring countries agreed strict cross-border water-quality laws. Thanks to habitat restoration and engineered fish passes, Atlantic salmon again swim upstream through Germany to spawn."
+    },
+    "source": "https://www.eea.europa.eu/en/topics/in-depth/water",
+    "sourceName": "European Environment Agency"
+  },
+  {
+    "id": "urban-mining",
+    "category": "waste",
+    "emoji": "📱",
+    "en": {
+      "hook": "Your old phone drawer is mathematically richer than a gold mine",
+      "fact": "Discarded electronics pack a higher concentration of precious metals than natural ore. EU 'urban mining' plants are scaling up to extract these metals and loop them back into new tech, leaving the earth undug."
+    },
+    "source": "https://www.iea.org/topics/critical-minerals",
+    "sourceName": "IEA"
+  },
+  {
+    "id": "floating-solar",
+    "category": "energy",
+    "emoji": "🛟",
+    "en": {
+      "hook": "Solar panels float on reservoirs to protect our drinking water",
+      "fact": "Floating solar arrays generate clean power while shading the water below — cutting evaporation in hot summers and suppressing algae growth, so drinking-water reserves stay fuller and cleaner."
+    },
+    "source": "https://www.iea.org/energy-system/renewables/solar-pv",
+    "sourceName": "IEA"
+  },
+  {
+    "id": "peatlands",
+    "category": "nature",
+    "emoji": "🟤",
+    "en": {
+      "hook": "Restored bogs trap more atmospheric carbon than any forest could",
+      "fact": "Peatlands cover a tiny fraction of Earth's surface yet store more carbon than all other vegetation combined. Germany and the EU are rewetting drained moors, reviving moss ecosystems that act as permanent carbon vaults."
+    },
+    "source": "https://www.umweltbundesamt.de/themen/boden-flaeche/moorschutz",
+    "sourceName": "Umweltbundesamt"
+  },
+  {
+    "id": "ecodesign-repair",
+    "category": "waste",
+    "emoji": "🛠️",
+    "en": {
+      "hook": "European washing machines are legally required to be easy to take apart",
+      "fact": "EU Ecodesign rules require appliances to be dismantled and repaired with standard tools, with spare parts and manuals guaranteed for years — shifting the industry away from disposable electronics toward repairability."
+    },
+    "source": "https://eur-lex.europa.eu/eli/reg/2019/2023/oj",
+    "sourceName": "EUR-Lex"
+  }
+]

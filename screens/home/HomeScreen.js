@@ -11,7 +11,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
-import { trackScreen } from '../../services/analytics';
+import { trackScreen, trackEvent } from '../../services/analytics';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
 import { getNewsIdentity } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
@@ -19,7 +19,8 @@ import EventRow from '../../components/EventRow';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, DARK, INACTIVE, SURFACE, BG, ACCENT, CATEGORY_COLORS } from '../../constants/colors';
+import { PRIMARY, DARK, INACTIVE, SURFACE, BG, ACCENT, CATEGORY_COLORS, FACT_CATEGORY_COLORS } from '../../constants/colors';
+import { getDailyFact, getFactCopy } from '../../services/facts';
 import { isSameCalendarDay, toMillis, getGreeting, getTimeUntil, formatShortDate } from '../../utils/datetime';
 import {
   getSportsForDate,
@@ -102,6 +103,7 @@ export default function HomeScreen({ navigation }) {
   const openSidebar = useStore((s) => s.openSidebar);
   const goingEventIds = useStore((s) => s.goingEventIds);
   const goingSportIds = useStore((s) => s.goingSportIds);
+  const language = useStore((s) => s.language);
   const setGoingEventIds = useStore((s) => s.setGoingEventIds);
   const setGoingSportIds = useStore((s) => s.setGoingSportIds);
   const [loading, setLoading] = useState(
@@ -220,6 +222,9 @@ export default function HomeScreen({ navigation }) {
   const todayCampusEvents = useMemo(() => getTodayCampusEvents(campusEvents), [campusEvents]);
   const upcomingCampusEvents = useMemo(() => getUpcomingCampusEvents(campusEvents, 3), [campusEvents]);
   const todaySports = useMemo(() => getSportsForDate(sportsSchedule), [sportsSchedule]);
+  const dailyFact = useMemo(() => getDailyFact(), []);
+  const dailyFactCopy = getFactCopy(dailyFact, language);
+  const dailyFactColor = FACT_CATEGORY_COLORS[dailyFact.category] ?? PRIMARY;
   const campusPreview = todayCampusEvents.length > 0 ? todayCampusEvents.slice(0, 3) : upcomingCampusEvents;
   const hasTodayHighlights = todayCampusEvents.length > 0 || todaySports.length > 0;
   const showCampusSection = contentReady && (campusPreview.length > 0 || todaySports.length > 0);
@@ -282,6 +287,22 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.inlineWarningText}>{t('home_error_loading')}</Text>
         </View>
       )}
+
+      {/* Did you know? — fact of the day teaser */}
+      <TouchableOpacity
+        style={[styles.factCard, { borderLeftColor: dailyFactColor }]}
+        onPress={() => { trackEvent('feature_use', 'fact_opened', { fact_id: dailyFact.id }); openRootScreen('FactOfTheDay'); }}
+        activeOpacity={0.85}
+      >
+        <View style={[styles.factIcon, { backgroundColor: `${dailyFactColor}1A` }]}>
+          <Text style={styles.factEmoji}>{dailyFact.emoji}</Text>
+        </View>
+        <View style={styles.factCopy}>
+          <Text style={[styles.factLabel, { color: dailyFactColor }]}>{t('fact_home_title')}</Text>
+          <Text style={styles.factHook} numberOfLines={3}>{dailyFactCopy.hook}</Text>
+          <Text style={styles.factCta}>{t('fact_home_cta')} →</Text>
+        </View>
+      </TouchableOpacity>
 
       {/* Next class */}
       {nextEvent && (
@@ -493,6 +514,39 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
   },
+  factCard: {
+    backgroundColor: BG,
+    marginHorizontal: 16,
+    marginTop: 14,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  factIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  factEmoji: { fontSize: 26 },
+  factCopy: { flex: 1 },
+  factLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+  factHook: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', lineHeight: 20, marginTop: 3 },
+  factCta: { fontSize: 12.5, fontWeight: '700', color: INACTIVE, marginTop: 6 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
   cardTitle: { fontSize: 13, fontWeight: '700', color: INACTIVE, textTransform: 'uppercase', letterSpacing: 0.6 },
   nextClassBar: { height: 3, borderRadius: 2, marginBottom: 8, width: 36 },

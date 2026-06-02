@@ -454,4 +454,21 @@ export default {
   // --- Calendar extras ---
   calendar_view_all: 'View all →',
   calendar_done: 'Done',
+
+  // --- Fact of the Day ---
+  fact_screen_title: 'Did you know?',
+  fact_home_title: 'Did you know?',
+  fact_home_cta: 'Tap to discover',
+  fact_next: 'Next fact',
+  fact_source: 'Source',
+  fact_reveals_left: '{{count}} of {{max}} left today',
+  fact_reveals_left_one: '1 fact left today',
+  fact_locked_title: "That's your facts for today! 🌱",
+  fact_locked_msg: 'Come back in {{time}} for fresh facts.',
+  fact_cat_energy: 'Energy',
+  fact_cat_nature: 'Nature',
+  fact_cat_water: 'Water',
+  fact_cat_waste: 'Waste & Circular',
+  fact_cat_mobility: 'Mobility',
+  fact_cat_policy: 'Policy',
 };
