@@ -2,6 +2,15 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-06-02 — Fact of the Day (sustainability trivia)
+- data/facts.json: Claude Opus 4.8 — New bundled dataset of 37 curated, deduped sustainability facts (hook + fact + normalised official source URL + category + emoji); bilingual-ready (`en` now, `de` later)
+- services/facts.js: Claude Opus 4.8 — Deterministic daily-fact pick + daily-limit logic (3 reveals/day, calendar-midnight reset, seen-tracking) persisted to `ucb_fact_state`
+- screens/facts/FactScreen.js: Claude Opus 4.8 — Single card-style screen cycling all facts; built-in Animated entrance per card, expo-haptics on reveal/lock, category-coloured gradient, source out-links via expo-web-browser, reveals-left dots + locked countdown
+- screens/home/HomeScreen.js: Claude Opus 4.8 — "Did you know?" teaser card (category-tinted) that opens the Fact screen
+- navigation/RootNavigator.js: Claude Opus 4.8 — Registered `FactOfTheDay` screen
+- constants/colors.js + translations + storageKeys.js + services/cache.js: Claude Opus 4.8 — `FACT_CATEGORY_COLORS` palette (student colour psychology), EN/DE strings, `FACT_STATE` key protected in `NON_CACHE_KEYS`
+- deps/environment: Claude Opus 4.8 — Added expo-haptics only. Trialled Moti + react-native-reanimated but removed them: Expo Go bundles react-native-worklets 0.5.1 while npm pulled 0.8.3 (NativeWorklets HostFunction crash), and Moti added a duplicate React. Switched Fact animations to built-in Animated. Also bumped expo→54.0.35 and expo-updates→29.0.18, added the standard metro.config.js (extends expo/metro-config). `expo-doctor` now passes 18/18 and `expo install --check` is clean; verified dev + prod bundles via `expo export`
+
 ## 2026-06-02 — Map: external maps only, main buildings only
 - screens/map/MapScreen.js: Claude Opus 4.8 — Removed the "View campus plan" button + its modal (kept "Open campus in maps" external-maps link); filtered the building list to main campus buildings via `searchBuildings(search).filter(isMainCampusBuilding)`; removed now-unused plan styles
 - screens/map/CampusPlanView.js: Claude Opus 4.8 — Deleted (the schematic campus plan; its only entry point was the removed plan button)

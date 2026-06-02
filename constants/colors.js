@@ -24,6 +24,18 @@ export const CATEGORY_COLORS = {
   recurring: '#6FAE3E', // PRIMARY — cannot reference PRIMARY here (defined below)
 };
 
+// Fact-of-the-day category palette — chosen for student color psychology:
+// greens/blues lower stress and aid focus; warm amber sparks curiosity (the "hook").
+// Each color drives the card gradient, the category chip, and the source link.
+export const FACT_CATEGORY_COLORS = {
+  energy:   '#F5A623', // amber — optimism, energising curiosity
+  nature:   '#388E3C', // forest green — restorative, calm focus
+  water:    '#2D9CDB', // teal blue — trust, clarity, serenity
+  waste:    '#7E57C2', // violet — creativity, transformation
+  mobility: '#0277BD', // blue — movement, dependability
+  policy:   '#455A64', // slate indigo — stability, seriousness
+};
+
 // 12 distinct colors for course color-coding (assigned by index % 12)
 export const COURSE_COLORS = [
   '#6FAE3E',

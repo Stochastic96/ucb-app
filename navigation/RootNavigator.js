@@ -13,6 +13,7 @@ import CoursesScreen from '../screens/courses/CoursesScreen';
 import EventsStack from './EventsStack';
 import ImpressumScreen from '../screens/legal/ImpressumScreen';
 import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
+import FactScreen from '../screens/facts/FactScreen';
 import { PRIMARY } from '../constants/colors';
 import { t } from '../services/i18n';
 
@@ -90,6 +91,16 @@ export default function RootNavigator() {
             name="EventsList"
             component={EventsStack}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="FactOfTheDay"
+            component={FactScreen}
+            options={{
+              headerShown: true,
+              title: t('fact_screen_title'),
+              headerTintColor: PRIMARY,
+              headerRight: () => <MenuButton />,
+            }}
           />
           <Stack.Screen
             name="Impressum"

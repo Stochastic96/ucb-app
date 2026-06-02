@@ -12,6 +12,7 @@ const NON_CACHE_KEYS = new Set([
   STORAGE_KEYS.EXAM_REGISTRATIONS, // user-set exam registration status
   STORAGE_KEYS.EXAM_PLANS,         // user-created exam detail plans
   STORAGE_KEYS.GOING_STATE,        // user RSVP state for events and sports
+  STORAGE_KEYS.FACT_STATE,         // daily fact-of-the-day reveal counter + seen list
 ]);
 
 export async function setCache(key, data) {
