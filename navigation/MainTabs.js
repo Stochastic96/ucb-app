@@ -36,13 +36,13 @@ export default function MainTabs() {
     <View style={{ flex: 1 }}>
       <OfflineBanner />
       <Tab.Navigator
-        // Pre-render all tabs so nested stacks are initialised before any
-        // programmatic navigation reaches them. Without this, navigating to
-        // a nested screen (e.g. Tools → Timetable) on a tab that hasn't been
-        // visited yet drops the initial screen (ToolsHome) from the back stack,
-        // leaving the user with no back button.
-        lazy={false}
         screenOptions={({ route }) => ({
+          // Pre-render all tabs so nested stacks are initialised before any
+          // programmatic navigation reaches them. Without this, navigating to
+          // a nested screen (e.g. Tools → Timetable) on a tab that hasn't been
+          // visited yet drops the initial screen (ToolsHome) from the back stack,
+          // leaving the user with no back button.
+          lazy: false,
           tabBarIcon: ({ color, size, focused }) => {
             const [active, inactive] = ICONS[route.name] ?? ['ellipse', 'ellipse-outline'];
             return <Ionicons name={focused ? active : inactive} size={size} color={color} />;
