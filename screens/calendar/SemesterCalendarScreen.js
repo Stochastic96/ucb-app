@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import calendarData from '../../data/semester_calendar.json';
+import { trackScreen } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, ERROR } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
@@ -55,6 +57,10 @@ export default function SemesterCalendarScreen({ navigation }) {
   const semester = calendarData.semesters.find((s) => s.id === calendarData.current) ?? calendarData.semesters[0];
   const courses = useStore((s) => s.courses);
   const [activeTab, setActiveTab] = useState(TAB_KEYS[0]);
+
+  useFocusEffect(useCallback(() => {
+    trackScreen('SemesterCalendarScreen');
+  }, []));
 
   const progress = useMemo(() => semesterProgress(semester), [semester]);
   const progressPct = Math.round(progress * 100);

@@ -2,6 +2,20 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-06-03 — Critical bug fixes: blank screen crash on standalone Android builds
+- **Issue**: Standalone Android APK showed blank screen before login; worked in Expo Go due to different native initialization timing
+- **Root cause**: Three compounding issues:
+  1. `AnalyticsConsentModal.js` called `useNavigation()` at top-level (crashed when navigation context not ready on device)
+  2. `services/logger.js` imported analytics at module load, triggering side-effects before app initialized
+  3. Dependencies were downgraded from correct Expo 54 versions, causing SDK 50/54 JSI bridge mismatch
+- components/AnalyticsConsentModal.js: Claude Haiku 4.5 — Remove useNavigation() hook; accept onLearnMore callback prop instead (uses navigationRef from parent, safe outside nav context)
+- App.js: Claude Haiku 4.5 — Pass onLearnMore callback to AnalyticsConsentModal using navigationRef.current?.navigate('PrivacyPolicy')
+- services/logger.js: Claude Haiku 4.5 — Lazy-load analytics via require() in getTrackEvent() instead of top-level import; prevents module initialization side-effects
+- package.json: Claude Haiku 4.5 — Restore all dependencies to correct Expo 54 versions (react@19.1.0, react-native@0.81.5, all expo-* to original SDK 54 package versions); verified with `npx expo install --check`
+- Deleted 12 excess .md files from repo root (documentation clutter from troubleshooting)
+- CLAUDE.md: Claude Haiku 4.5 — Added "Navigation Patterns" section explaining useNavigation() vs navigationRef distinction; added "Logging" section documenting services/logger.js usage
+- Deployed fixes in commit: 871c63b "fix: fix blank screen crash and clean up codebase"
+
 ## 2026-06-02 — Fact of the Day (sustainability trivia)
 - data/facts.json: Claude Opus 4.8 — New bundled dataset of 37 curated, deduped sustainability facts (hook + fact + normalised official source URL + category + emoji); bilingual-ready (`en` now, `de` later)
 - services/facts.js: Claude Opus 4.8 — Deterministic daily-fact pick + daily-limit logic (3 reveals/day, calendar-midnight reset, seen-tracking) persisted to `ucb_fact_state`

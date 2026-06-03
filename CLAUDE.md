@@ -95,6 +95,19 @@ RootNavigator (NativeStack)
 
 `navigation/navigationRef.js` exports a `navigationRef` that is passed to `NavigationContainer` in `App.js`, enabling programmatic navigation outside React components. Currently used by the `pendingMapBuilding` deep-link flow (Timetable → Map).
 
+**Navigation Patterns — useNavigation() vs navigationRef**:
+- **Never call `useNavigation()` in overlays or components rendered outside the navigator tree** (e.g., modals in `App.js`). The hook throws `"Couldn't find a navigation object"` when the navigation context has not fully initialized, causing the app to crash on cold start (especially in standalone builds where context initialization is slower than in Expo Go).
+- For components like `AnalyticsConsentModal` rendered at the root level, accept a callback prop and use `navigationRef.current?.navigate(...)` from the parent. Example:
+  ```jsx
+  // In App.js
+  <AnalyticsConsentModal onLearnMore={() => navigationRef.current?.navigate('PrivacyPolicy')} />
+  
+  // In AnalyticsConsentModal.js
+  export default function AnalyticsConsentModal({ onLearnMore }) {
+    const handleLearnMore = () => onLearnMore?.();
+  }
+  ```
+
 ### Data Layer
 
 **Stud.IP (LMS)** — `services/api.js`
@@ -172,6 +185,18 @@ All data-fetching screens follow this standard shape:
 - Pull-to-refresh: `RefreshControl` calls the load function with a `force=true` flag to bypass cache
 
 Example: `screens/home/HomeScreen.js` uses `Promise.allSettled([bootstrapSessionData(force), loadDashboardContent()])` to refresh both store and dashboard content in parallel.
+
+### Logging
+
+`services/logger.js` — centralized logging service, **do not use raw `console.log()`**:
+- Exports `info(source, message, data?)`, `debug(source, message, data?)`, `warn(source, message, data?)`, `error(source, message, errorOrData?, data?)`
+- All logs are stored in memory (capped at 50 entries) and persisted to AsyncStorage (`ucb_logs`)
+- Console output includes timestamp, emoji icon, source module, and structured data
+- **Error-level logs automatically track to analytics** (via `trackEvent`) in production, helping identify app crashes
+- Error logs are queryable via `getLogsByLevel()`, `getLogsBySource()`, `getRecentLogs()`, `getStats()` for debugging
+- Example usage: `logger.error('Bootstrap', 'Failed to load courses', bootstrapError, { courseCount: 5 })`
+
+**Avoid logging sensitive data** (credentials, personal identifiers, PII) — the logs persist to device storage and are exposed in dev screens.
 
 ### Notifications
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { SectionList, FlatList, View, Text, StyleSheet, RefreshControl, Animated } from 'react-native';
 import { bootstrapSessionData } from '../../services/bootstrap';
+import { trackScreen, trackEvent } from '../../services/analytics';
 import CourseCard from '../../components/CourseCard';
 import SearchBar from '../../components/SearchBar';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -61,6 +63,10 @@ export default function CoursesScreen({ navigation }) {
     }
   }, [loading]);
 
+  useFocusEffect(useCallback(() => {
+    trackScreen('CoursesList');
+  }, []));
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -88,13 +94,14 @@ export default function CoursesScreen({ navigation }) {
   const renderCourseItem = ({ item }) => (
     <CourseCard
       course={item}
-      onPress={() =>
+      onPress={() => {
+        trackEvent('feature_use', 'course_detail_opened', { course_id: item.id });
         navigation.push('CourseDetail', {
           courseId: item.id,
           title: item.title,
           color: item.color,
-        })
-      }
+        });
+      }}
     />
   );
 

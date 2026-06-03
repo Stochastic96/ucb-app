@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
+import { trackEvent } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
@@ -53,7 +54,8 @@ export default function CampusPlatformsScreen() {
   const [tipsExpanded, setTipsExpanded] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
-  const openPlatform = async (url) => {
+  const openPlatform = async (platformId, url) => {
+    trackEvent('feature_use', 'external_platform_opened', { platform: platformId });
     await WebBrowser.openBrowserAsync(url, {
       toolbarColor: PRIMARY,
       dismissButtonStyle: 'close',
@@ -83,7 +85,7 @@ export default function CampusPlatformsScreen() {
             </View>
             <TouchableOpacity
               style={styles.openBtn}
-              onPress={() => openPlatform(p.url)}
+              onPress={() => openPlatform(p.id, p.url)}
               accessibilityLabel={`Open ${p.name}`}
               accessibilityRole="button"
             >

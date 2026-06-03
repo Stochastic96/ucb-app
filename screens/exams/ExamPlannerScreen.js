@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { searchBuildings } from '../../services/buildings';
+import { trackEvent } from '../../services/analytics';
 import {
   scheduleExamReminders,
   cancelExamReminders,
@@ -121,6 +122,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
       const { plans } = await loadExamData();
       await saveExamPlans({ ...plans, [courseId]: plan });
       setExamPlan(courseId, plan);
+      trackEvent('feature_use', 'exam_plan_saved', { course_id: courseId, reminders_enabled: remindersEnabled });
       navigation.goBack();
     } catch {
       Alert.alert(t('common_error'), t('exam_planner_error_msg'));

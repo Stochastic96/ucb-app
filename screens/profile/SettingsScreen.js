@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { clearAllCache } from '../../services/cache';
 import { logout } from '../../services/auth';
+import { trackEvent } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { PRIMARY, INACTIVE, BG, BORDER, SURFACE } from '../../constants/colors';
 import { useNavigation } from '@react-navigation/native';
@@ -48,8 +49,14 @@ export default function SettingsScreen() {
     updateSettings(patch);
   };
 
-  const handleToggleNotifications = (val) => persistSettings({ notificationsEnabled: val });
-  const handleToggleBiometric = (val) => persistSettings({ biometricLockEnabled: val });
+  const handleToggleNotifications = (val) => {
+    trackEvent('feature_use', 'setting_changed', { setting: 'notificationsEnabled', value: val });
+    persistSettings({ notificationsEnabled: val });
+  };
+  const handleToggleBiometric = (val) => {
+    trackEvent('feature_use', 'setting_changed', { setting: 'biometricLockEnabled', value: val });
+    persistSettings({ biometricLockEnabled: val });
+  };
 
   const handleLanguagePress = (lang) => {
     if (lang === currentLang) return;
@@ -59,6 +66,7 @@ export default function SettingsScreen() {
 
   const handleLangConfirm = async () => {
     setShowLangConfirm(false);
+    trackEvent('feature_use', 'setting_changed', { setting: 'language', value: pendingLang });
     await saveLanguage(pendingLang);
     // Soft remount: updating the store language re-keys the app tree in App.js
     // so every screen re-reads translations immediately — no app restart.

@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadExamData, saveExamRegistrations } from '../../services/reminders';
+import { trackEvent } from '../../services/analytics';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, ERROR, BORDER } from '../../constants/colors';
 import calendarData from '../../data/semester_calendar.json';
 import { useTranslation } from '../../services/i18n';
@@ -71,6 +72,7 @@ export default function ExamTrackerScreen({ navigation }) {
       registered: !current?.registered,
       registeredAt: !current?.registered ? new Date().toISOString() : null,
     };
+    trackEvent('feature_use', 'exam_registration_toggled', { course_id: course.id, registered: next.registered });
     setExamRegistration(course.id, next);
     const updated = { ...examRegistrations, [course.id]: next };
     await saveExamRegistrations(updated);

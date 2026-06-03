@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
+import { trackEvent } from '../../services/analytics';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
 
@@ -71,6 +72,13 @@ export default function PlannerScreen({ navigation }) {
   const courses = useStore((s) => s.courses);
   const [filter, setFilter] = useState('all');
 
+  const handleFilterChange = (newFilter) => {
+    if (newFilter !== filter) {
+      trackEvent('feature_use', 'deadline_filter_applied', { filter: newFilter });
+      setFilter(newFilter);
+    }
+  };
+
   const CATEGORY_META = {
     academic:     { labelKey: 'deadline_cat_academic',     color: PRIMARY,    icon: 'school-outline' },
     bureaucratic: { labelKey: 'deadline_cat_bureaucratic', color: '#E65100',  icon: 'document-text-outline' },
@@ -115,6 +123,7 @@ export default function PlannerScreen({ navigation }) {
         text: t('common_delete'),
         style: 'destructive',
         onPress: async () => {
+          trackEvent('feature_use', 'deadline_deleted', { deadline_id: id });
           await cancelDeadlineReminders(id);
           removeDeadline(id);
           const next = deadlines.filter((d) => d.id !== id);
@@ -161,7 +170,7 @@ export default function PlannerScreen({ navigation }) {
             <TouchableOpacity
               key={f.key}
               style={[styles.filterChip, active && { backgroundColor: activeColor, borderColor: activeColor }]}
-              onPress={() => setFilter(f.key)}
+              onPress={() => handleFilterChange(f.key)}
               activeOpacity={0.75}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}

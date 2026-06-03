@@ -16,6 +16,7 @@ import { createApiClient, classifyError, setCachedCredentials } from '../service
 import { saveCredentials } from '../services/auth';
 import { normalizeProfile } from '../services/profile';
 import { bootstrapSessionData } from '../services/bootstrap';
+import { trackEvent } from '../services/analytics';
 import { PRIMARY, INACTIVE, BG, BORDER } from '../constants/colors';
 import { useTranslation } from '../services/i18n';
 
@@ -83,6 +84,7 @@ export default function LoginScreen() {
       setOffline(false);
       setUser(user);
       didAuthenticate = true;
+      trackEvent('feature_use', 'login_success');
       await bootstrapSessionData(true);
     } catch (error) {
       if (didAuthenticate) {
@@ -91,6 +93,7 @@ export default function LoginScreen() {
       }
 
       const type = error?.type ?? classifyError(error).type;
+      trackEvent('feature_use', 'login_failed', { error_type: type });
 
       // Increment fail counter on auth failures and impose lockout after MAX_ATTEMPTS
       if (type === 'AUTH_FAILED') {
