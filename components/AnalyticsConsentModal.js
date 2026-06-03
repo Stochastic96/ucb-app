@@ -9,15 +9,13 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import useStore from '../store/useStore';
 import { PRIMARY, INACTIVE, BG, BORDER } from '../constants/colors';
 import { useTranslation } from '../services/i18n';
 
-export default function AnalyticsConsentModal() {
+export default function AnalyticsConsentModal({ onLearnMore }) {
   const t = useTranslation();
-  const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
   const timeoutRef = useRef(null);
 
@@ -46,7 +44,7 @@ export default function AnalyticsConsentModal() {
     setVisible(false);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      navigation.navigate('PrivacyPolicy');
+      onLearnMore?.();
     }, 300);
   };
 

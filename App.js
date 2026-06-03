@@ -195,7 +195,12 @@ export default function App() {
           <RootNavigator />
           {/* Sidebar and modals inside NavigationContainer to access useNavigation() */}
           <Sidebar key={`sidebar-${language}`} />
-          {isLoggedIn && <AnalyticsConsentModal key={`consent-${language}`} />}
+          {isLoggedIn && (
+            <AnalyticsConsentModal
+              key={`consent-${language}`}
+              onLearnMore={() => navigationRef.current?.navigate('PrivacyPolicy')}
+            />
+          )}
           {isLocked && (
             <BiometricLockScreen onUnlock={handleUnlock} />
           )}

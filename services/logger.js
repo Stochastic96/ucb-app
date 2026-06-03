@@ -1,6 +1,5 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { trackEvent } from './analytics';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Centralized Logging Service
@@ -67,6 +66,14 @@ async function restoreLogs() {
   }
 }
 
+function getTrackEvent() {
+  try {
+    return require('./analytics').trackEvent;
+  } catch {
+    return null;
+  }
+}
+
 function log(level, source, message, data = null, error = null) {
   const entry = createLogEntry(level, source, message, data, error);
   _logs.push(entry);
@@ -105,14 +112,17 @@ function log(level, source, message, data = null, error = null) {
     logFn(msg);
   }
 
-  // Track errors to analytics
+  // Track errors to analytics (lazy load to avoid circular dependency)
   if (level === LogLevel.ERROR && !__DEV__) {
-    trackEvent('error', `${source}_error`, {
-      message,
-      errorType: entry.errorType,
-      errorMessage: entry.errorMessage,
-      ...data,
-    });
+    const trackEvent = getTrackEvent();
+    if (trackEvent) {
+      trackEvent('error', `${source}_error`, {
+        message,
+        errorType: entry.errorType,
+        errorMessage: entry.errorMessage,
+        ...data,
+      });
+    }
   }
 }
 
