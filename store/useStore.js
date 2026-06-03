@@ -16,6 +16,7 @@ const useStore = create((set, get) => ({
       news: [],
       unreadNewsCount: 0,
       isOffline: false,
+      offlineQueueSize: 0,
       pendingMapBuilding: null,
       isHydrating: false,
       dataReady: false,
@@ -59,6 +60,8 @@ const useStore = create((set, get) => ({
   // Offline
   isOffline: false,
   setOffline: (v) => set({ isOffline: v }),
+  offlineQueueSize: 0,
+  setOfflineQueueSize: (n) => set({ offlineQueueSize: n }),
 
   // Session hydration
   isHydrating: false,

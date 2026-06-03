@@ -55,6 +55,7 @@ export default {
 
   // --- Offline banner ---
   offline_banner: 'Kein Internet — zeige gespeicherte Daten',
+  offline_banner_pending: '{{count}} Änderung(en) ausstehend',
 
   // --- Login ---
   login_username_placeholder: 'Stud.IP-Benutzername (z. B. prsh4078)',

@@ -14,6 +14,7 @@ import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { searchBuildings } from '../../services/buildings';
 import { trackEvent } from '../../services/analytics';
+import { enqueueOfflineOp } from '../../services/offlineQueue';
 import {
   scheduleExamReminders,
   cancelExamReminders,
@@ -103,7 +104,13 @@ export default function ExamPlannerScreen({ navigation, route }) {
         savedAt: new Date().toISOString(),
       };
 
-      await cancelExamReminders(courseId);
+      const { isOffline } = useStore.getState();
+
+      if (isOffline) {
+        enqueueOfflineOp('CANCEL_EXAM_REMINDERS', { courseId });
+      } else {
+        await cancelExamReminders(courseId);
+      }
 
       if (remindersEnabled && timeStr) {
         // Check if notifications are enabled in app settings
@@ -114,6 +121,8 @@ export default function ExamPlannerScreen({ navigation, route }) {
             t('exam_notif_disabled_msg')
           );
           // Still save plan, just no reminders scheduled
+        } else if (isOffline) {
+          enqueueOfflineOp('SCHEDULE_EXAM_REMINDERS', { plan });
         } else {
           await scheduleExamReminders(plan);
         }

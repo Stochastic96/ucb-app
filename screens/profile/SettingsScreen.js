@@ -20,6 +20,7 @@ const USER_DATA_KEYS = [
   'ucb_exam_reg',
   'ucb_exam_plans',
   'ucb_going_state',
+  'ucb_offline_q',
 ];
 
 export default function SettingsScreen() {

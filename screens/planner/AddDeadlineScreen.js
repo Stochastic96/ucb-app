@@ -12,6 +12,7 @@ import { SimpleDatePicker, SimpleTimePicker } from '../../components/SimpleDateP
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
 import { trackEvent } from '../../services/analytics';
+import { enqueueOfflineOp } from '../../services/offlineQueue';
 import {
   scheduleDeadlineReminders,
   cancelDeadlineReminders,
@@ -122,8 +123,14 @@ export default function AddDeadlineScreen({ navigation, route }) {
         createdAt: existing?.createdAt ?? new Date().toISOString(),
       };
 
+      const { isOffline } = useStore.getState();
+
       if (existing) {
-        await cancelDeadlineReminders(existing.id);
+        if (isOffline) {
+          enqueueOfflineOp('CANCEL_DEADLINE_REMINDERS', { deadlineId: existing.id });
+        } else {
+          await cancelDeadlineReminders(existing.id);
+        }
       }
 
       if (!deadline.completed) {
@@ -135,6 +142,8 @@ export default function AddDeadlineScreen({ navigation, route }) {
             t('deadline_notif_disabled_msg')
           );
           // Still save deadline, just no reminders scheduled
+        } else if (isOffline) {
+          enqueueOfflineOp('SCHEDULE_DEADLINE_REMINDERS', { deadline });
         } else {
           await scheduleDeadlineReminders(deadline);
         }

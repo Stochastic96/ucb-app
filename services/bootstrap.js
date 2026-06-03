@@ -6,6 +6,7 @@ import { fetchAllEvents } from './events';
 import { fetchNews } from './news';
 import { syncUnreadNewsCount } from './newsState';
 import { loadGoingState } from './reminders';
+import { drainOfflineQueue } from './offlineQueue';
 import { toMillis } from '../utils/datetime';
 
 // 30 days back → 180 days ahead: covers the active semester plus next one
@@ -94,6 +95,11 @@ async function _runBootstrap(force) {
     store.setLastSyncAt(lastUpdated);
     store.setDataReady(true);
     store.setOffline(false);
+
+    // Drain any queued offline operations (notification side-effects).
+    // Fire-and-forget — drain failures must not abort bootstrap.
+    drainOfflineQueue().catch(() => {});
+
     console.log('[Bootstrap] Complete. Courses:', courses.length, 'Events:', events.length);
     trackEvent('session_start', 'bootstrap_success', { course_count: courses.length });
 

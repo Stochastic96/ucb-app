@@ -14,6 +14,7 @@ import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
 import { trackEvent } from '../../services/analytics';
+import { enqueueOfflineOp } from '../../services/offlineQueue';
 import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
 
@@ -110,10 +111,17 @@ export default function PlannerScreen({ navigation }) {
   }, []));
 
   const toggleDone = useCallback(async (id, current) => {
+    const { isOffline } = useStore.getState();
     updateDeadline(id, { completed: !current });
     const next = deadlines.map((d) => d.id === id ? { ...d, completed: !current } : d);
     await saveDeadlines(next);
-    if (!current) await cancelDeadlineReminders(id);
+    if (!current) {
+      if (isOffline) {
+        enqueueOfflineOp('CANCEL_DEADLINE_REMINDERS', { deadlineId: id });
+      } else {
+        await cancelDeadlineReminders(id);
+      }
+    }
   }, [deadlines]);
 
   const confirmDelete = (id, title) => {
@@ -123,8 +131,13 @@ export default function PlannerScreen({ navigation }) {
         text: t('common_delete'),
         style: 'destructive',
         onPress: async () => {
+          const { isOffline } = useStore.getState();
           trackEvent('feature_use', 'deadline_deleted', { deadline_id: id });
-          await cancelDeadlineReminders(id);
+          if (isOffline) {
+            enqueueOfflineOp('CANCEL_DEADLINE_REMINDERS', { deadlineId: id });
+          } else {
+            await cancelDeadlineReminders(id);
+          }
           removeDeadline(id);
           const next = deadlines.filter((d) => d.id !== id);
           await saveDeadlines(next);

@@ -14,6 +14,7 @@ const NON_CACHE_KEYS = new Set([
   STORAGE_KEYS.GOING_STATE,        // user RSVP state for events and sports
   STORAGE_KEYS.FACT_STATE,         // daily fact-of-the-day reveal counter + seen list
   STORAGE_KEYS.ANALYTICS_CONSENT,  // user's analytics consent decision — must survive cache clear
+  STORAGE_KEYS.OFFLINE_QUEUE,      // pending notification side-effects — user-intent data
 ]);
 
 export async function setCache(key, data) {

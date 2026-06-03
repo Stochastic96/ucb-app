@@ -20,6 +20,7 @@ import { bootstrapSessionData } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
 import { startSession, endSession, resumeSession } from './services/analytics';
 import { initLanguage, getLanguage } from './services/i18n';
+import { initOfflineQueue } from './services/offlineQueue';
 import * as logger from './services/logger';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
@@ -95,6 +96,7 @@ export default function App() {
       logger.info('App', 'Language initialized', { language: getLanguage() });
     });
     startSession();
+    initOfflineQueue();
     initializeApp();
   }, []);
 

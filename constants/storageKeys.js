@@ -9,4 +9,5 @@ export const STORAGE_KEYS = {
   GOING_STATE: 'ucb_going_state',
   FACT_STATE: 'ucb_fact_state',
   ANALYTICS_CONSENT: 'ucb_analytics_consent_shown',
+  OFFLINE_QUEUE: 'ucb_offline_q',
 };
