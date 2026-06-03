@@ -46,6 +46,7 @@ async function requestJson(path, { username, password, method = 'GET' }) {
   const fullUrl = `${BASE_URL}${path}`;
 
   try {
+    console.log(`[API] ${method} ${path}`);
     const response = await fetch(fullUrl, {
       method,
       headers: {
@@ -54,6 +55,7 @@ async function requestJson(path, { username, password, method = 'GET' }) {
       },
       signal: controller.signal,
     });
+    console.log(`[API] Response ${response.status} for ${path}`);
 
     const contentType = response.headers.get('content-type') ?? '';
     let data = null;
@@ -75,6 +77,9 @@ async function requestJson(path, { username, password, method = 'GET' }) {
   } catch (error) {
     if (error.name === 'AbortError') {
       error.code = 'ECONNABORTED';
+      console.error(`[API] Request timeout for ${path}`);
+    } else {
+      console.error(`[API] Request failed for ${path}:`, error.message);
     }
     throw error;
   } finally {

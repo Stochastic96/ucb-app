@@ -52,7 +52,9 @@ async function _runBootstrap(force) {
   store.setBootstrapError(null);
 
   try {
+    console.log('[Bootstrap] Starting...');
     const profileResult = await fetchProfile(force);
+    console.log('[Bootstrap] Profile loaded');
     const userId = profileResult?.data?.id ?? store.userId;
     if (!userId) {
       throw { type: 'NO_CREDENTIALS', message: 'No logged-in user was found.' };
@@ -92,6 +94,7 @@ async function _runBootstrap(force) {
     store.setLastSyncAt(lastUpdated);
     store.setDataReady(true);
     store.setOffline(false);
+    console.log('[Bootstrap] Complete. Courses:', courses.length, 'Events:', events.length);
     trackEvent('session_start', 'bootstrap_success', { course_count: courses.length });
 
     return {
@@ -106,6 +109,7 @@ async function _runBootstrap(force) {
       type: error?.type ?? 'UNKNOWN',
       message: error?.message ?? 'Unable to load your Stud.IP data.',
     };
+    console.error('[Bootstrap] Failed:', normalized);
     // On a first-load failure, clear any partial state so the UI shows a clean error
     if (!store.dataReady) {
       store.setCourses([]);

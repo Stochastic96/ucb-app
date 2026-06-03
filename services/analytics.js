@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from './supabase';
 import { getLanguage } from './i18n';
+import useStore from '../store/useStore';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Anonymous engagement analytics → Supabase `engagement_events`.
@@ -77,8 +78,16 @@ async function flush() {
  * @param {string} name
  * @param {object} [properties]
  */
+function isAnalyticsEnabled() {
+  // __DEV__ guard is checked at call sites too, but being explicit here makes
+  // the intent clear: never track in dev, and respect the user's opt-out.
+  if (__DEV__) return false;
+  const { settings } = useStore.getState();
+  return settings.analyticsEnabled !== false; // default true for existing users
+}
+
 export function trackEvent(type, name, properties = {}) {
-  if (__DEV__) return;
+  if (!isAnalyticsEnabled()) return;
   _eventCount += 1;
   const enriched = {
     ...properties,
@@ -119,6 +128,7 @@ export async function startSession() {
   _eventCount = 0;
   _ended = false;
   _screensViewed.clear();
+  if (!isAnalyticsEnabled()) return;
   try {
     const persisted = await AsyncStorage.getItem(QUEUE_KEY);
     if (persisted) {
@@ -140,7 +150,7 @@ export async function startSession() {
  * actively the user engaged, then flush. Call when the app goes to background.
  */
 export function endSession() {
-  if (_ended) { flushNow(); return; }
+  if (_ended) { if (isAnalyticsEnabled()) flushNow(); return; }
   _ended = true;
   trackEvent('session_end', 'app_close', {
     duration_ms: Date.now() - _sessionStart,
@@ -158,6 +168,7 @@ export function resumeSession() {
   if (!_ended) return; // never backgrounded since last start — nothing to resume
   _ended = false;
   _sessionStart = Date.now();
+  if (!isAnalyticsEnabled()) return;
   trackEvent('session_start', 'app_foreground');
 }
 

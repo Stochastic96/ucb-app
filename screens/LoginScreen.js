@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import useStore from '../store/useStore';
 import { createApiClient, classifyError, setCachedCredentials } from '../services/api';
 import { saveCredentials } from '../services/auth';
@@ -23,6 +24,7 @@ const LOCKOUT_MS = 30_000; // 30 seconds
 
 export default function LoginScreen() {
   const t = useTranslation();
+  const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -177,6 +179,16 @@ export default function LoginScreen() {
         <Text style={styles.hint}>{t('login_hint')}</Text>
 
         <Text style={styles.disclaimer}>{t('login_disclaimer')}</Text>
+
+        <View style={styles.legalLinks}>
+          <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
+            <Text style={styles.legalLink}>{t('settings_privacy_policy')}</Text>
+          </TouchableOpacity>
+          <Text style={styles.legalSep}>·</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('LegalNotice')}>
+            <Text style={styles.legalLink}>{t('settings_legal_notice')}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -241,5 +253,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#aaa',
     fontSize: 11,
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 6,
+  },
+  legalLink: {
+    fontSize: 11,
+    color: PRIMARY,
+    textDecorationLine: 'underline',
+  },
+  legalSep: {
+    fontSize: 11,
+    color: '#ccc',
   },
 });

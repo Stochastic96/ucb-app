@@ -9,6 +9,8 @@ import * as Notifications from 'expo-notifications';
 import RootNavigator from './navigation/RootNavigator';
 import Sidebar from './components/Sidebar';
 import BiometricLockScreen from './components/BiometricLockScreen';
+import AnalyticsConsentModal from './components/AnalyticsConsentModal';
+import ErrorOverlay from './components/ErrorOverlay';
 import { navigationRef } from './navigation/navigationRef';
 import useStore from './store/useStore';
 import { PRIMARY, DARK } from './constants/colors';
@@ -18,6 +20,7 @@ import { bootstrapSessionData } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
 import { startSession, endSession, resumeSession } from './services/analytics';
 import { initLanguage, getLanguage } from './services/i18n';
+import * as logger from './services/logger';
 
 // Navigate to the relevant screen based on the notification identifier prefix.
 // Only uses the identifier (not notification content) to avoid handling personal data.
@@ -46,37 +49,15 @@ const ucbTheme = {
 export default function App() {
   const { updateSettings, setUser } = useStore();
   const language = useStore((s) => s.language);
+  const isLoggedIn = useStore((s) => s.isLoggedIn);
+  const bootstrapError = useStore((s) => s.bootstrapError);
   const [languageReady, setLanguageReady] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
+  const [initError, setInitError] = useState(null);
   const backgroundedAt = useRef(null);
   const appState = useRef(AppState.currentState);
   // Set when cold-start biometric gate is active — session restore runs after unlock
   const pendingSessionRestoreRef = useRef(false);
-
-  useEffect(() => {
-    initLanguage().then(() => {
-      // Mirror the persisted language into the store so a later change can
-      // trigger a soft remount (see key={language} below).
-      useStore.getState().setLanguage(getLanguage());
-      setLanguageReady(true);
-    });
-    startSession();
-    initializeApp();
-  }, []);
-
-  // Handle notification taps while the app is running or backgrounded
-  useEffect(() => {
-    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
-      navigateFromNotification(response.notification.request.identifier);
-    });
-    return () => sub.remove();
-  }, []);
-
-  // Single AppState listener — reads current settings from store to avoid closure stale value
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
-  }, []);
 
   const handleAppStateChange = (nextState) => {
     appState.current = nextState;
@@ -102,6 +83,35 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    logger.initLogger().then(() => {
+      logger.info('App', 'Application starting');
+    });
+    initLanguage().then(() => {
+      // Mirror the persisted language into the store so a later change can
+      // trigger a soft remount (see key={language} below).
+      useStore.getState().setLanguage(getLanguage());
+      setLanguageReady(true);
+      logger.info('App', 'Language initialized', { language: getLanguage() });
+    });
+    startSession();
+    initializeApp();
+  }, []);
+
+  // Handle notification taps while the app is running or backgrounded
+  useEffect(() => {
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      navigateFromNotification(response.notification.request.identifier);
+    });
+    return () => sub.remove();
+  }, []);
+
+  // Single AppState listener — reads current settings from store to avoid closure stale value
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription.remove();
+  }, []);
+
   const handleUnlock = useCallback(async () => {
     setIsLocked(false);
     if (pendingSessionRestoreRef.current) {
@@ -119,22 +129,31 @@ export default function App() {
   };
 
   const initializeApp = async () => {
-    await loadSettings();
+    try {
+      console.log('[App] Starting initialization...');
+      await loadSettings();
 
-    // Cold-start biometric gate: if biometric lock is enabled and credentials exist,
-    // show the lock screen before restoring the session.
-    const { settings } = useStore.getState();
-    if (settings.biometricLockEnabled) {
-      const storedUsername = await SecureStore.getItemAsync(SECURE_KEYS.USERNAME);
-      if (storedUsername) {
-        pendingSessionRestoreRef.current = true;
-        setIsLocked(true);
-        return;
+      // Cold-start biometric gate: if biometric lock is enabled and credentials exist,
+      // show the lock screen before restoring the session.
+      const { settings } = useStore.getState();
+      if (settings.biometricLockEnabled) {
+        const storedUsername = await SecureStore.getItemAsync(SECURE_KEYS.USERNAME);
+        if (storedUsername) {
+          console.log('[App] Biometric lock enabled, showing lock screen');
+          pendingSessionRestoreRef.current = true;
+          setIsLocked(true);
+          return;
+        }
       }
-    }
 
-    await checkExistingSession();
-    await finishAppInit();
+      console.log('[App] Checking for existing session...');
+      await checkExistingSession();
+      await finishAppInit();
+      console.log('[App] Initialization complete');
+    } catch (err) {
+      console.error('[App] Initialization failed:', err);
+      setInitError(err?.message || 'Failed to initialize app');
+    }
   };
 
   const loadSettings = async () => {
@@ -154,27 +173,47 @@ export default function App() {
         setUser(result.user);
         try {
           await bootstrapSessionData();
-        } catch {}
+        } catch (bootstrapError) {
+          console.error('[Bootstrap] Failed:', bootstrapError);
+          useStore.getState().setBootstrapError(bootstrapError?.message || 'Failed to load data');
+        }
       }
-    } catch {}
+    } catch (authError) {
+      console.error('[Auth] Restore session failed:', authError);
+      // Silent failure on login restore is OK — user will see login screen
+    }
   };
 
   if (!languageReady) return null;
 
+  const displayError = initError || bootstrapError;
+
   return (
     <SafeAreaProvider>
       <PaperProvider theme={ucbTheme}>
-        {/* key={language} → changing language soft-remounts the whole tree so
-            every t() re-reads the new strings, with no hard app restart. */}
-        <React.Fragment key={language}>
-          <NavContainer ref={navigationRef}>
-            <RootNavigator />
-          </NavContainer>
-          <Sidebar />
+        <NavContainer ref={navigationRef}>
+          <RootNavigator />
+          {/* Sidebar and modals inside NavigationContainer to access useNavigation() */}
+          <Sidebar key={`sidebar-${language}`} />
+          {isLoggedIn && <AnalyticsConsentModal key={`consent-${language}`} />}
           {isLocked && (
             <BiometricLockScreen onUnlock={handleUnlock} />
           )}
-        </React.Fragment>
+          {displayError && (
+            <ErrorOverlay
+              error={displayError}
+              onDismiss={() => {
+                setInitError(null);
+                useStore.getState().setBootstrapError(null);
+              }}
+              onRetry={() => {
+                setInitError(null);
+                useStore.getState().setBootstrapError(null);
+                initializeApp();
+              }}
+            />
+          )}
+        </NavContainer>
       </PaperProvider>
     </SafeAreaProvider>
   );

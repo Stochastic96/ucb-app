@@ -358,6 +358,17 @@ export default function EventsScreen() {
       const next = goingEventIds.filter((x) => x !== ev.id);
       await saveGoingState(next, goingSportIds);
     } else {
+      // Check if notifications are enabled in app settings
+      const { settings } = useStore.getState();
+      if (!settings.notificationsEnabled) {
+        Alert.alert(
+          t('events_notif_disabled_title'),
+          t('events_notif_disabled_in_settings'),
+          [{ text: t('common_ok') }]
+        );
+        return;
+      }
+
       const ok = await scheduleEventReminder(ev);
       if (ok === false && !isCampusEventPast(ev)) {
         Alert.alert(
@@ -384,6 +395,17 @@ export default function EventsScreen() {
       const next = goingSportIds.filter((x) => x !== sport.id);
       await saveGoingState(goingEventIds, next);
     } else {
+      // Check if notifications are enabled in app settings
+      const { settings } = useStore.getState();
+      if (!settings.notificationsEnabled) {
+        Alert.alert(
+          t('events_notif_disabled_title'),
+          t('events_notif_disabled_in_settings'),
+          [{ text: t('common_ok') }]
+        );
+        return;
+      }
+
       const ok = await scheduleSportReminder(sport);
       if (ok === false) {
         Alert.alert(

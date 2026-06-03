@@ -8,4 +8,5 @@ export const STORAGE_KEYS = {
   EXAM_PLANS: 'ucb_exam_plans',
   GOING_STATE: 'ucb_going_state',
   FACT_STATE: 'ucb_fact_state',
+  ANALYTICS_CONSENT: 'ucb_analytics_consent_shown',
 };

@@ -5,10 +5,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { PRIMARY, INACTIVE, BG } from '../constants/colors';
 import { logout } from '../services/auth';
 import useStore from '../store/useStore';
+import { useTranslation } from '../services/i18n';
 
 const MAX_FAILS = 3;
 
 export default function BiometricLockScreen({ onUnlock }) {
+  const t = useTranslation();
   const [failCount, setFailCount] = useState(0);
   const [error, setError] = useState('');
   const [loggingOut, setLoggingOut] = useState(false);
@@ -24,9 +26,9 @@ export default function BiometricLockScreen({ onUnlock }) {
     setError('');
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Unlock UCB Navigator',
-        fallbackLabel: 'Use Passcode',
-        cancelLabel: 'Cancel',
+        promptMessage: t('biometric_prompt_message'),
+        fallbackLabel: t('biometric_fallback_label'),
+        cancelLabel: t('biometric_cancel_label'),
       });
       if (result.success) {
         onUnlock();
@@ -35,17 +37,17 @@ export default function BiometricLockScreen({ onUnlock }) {
         failCountRef.current = next;
         setFailCount(next);
         if (next >= MAX_FAILS) {
-          setError('Too many failed attempts.');
+          setError(t('biometric_error_too_many'));
         } else {
-          setError(`Authentication failed. ${MAX_FAILS - next} attempt${MAX_FAILS - next === 1 ? '' : 's'} remaining.`);
+          setError(t('biometric_error_failed', { attempts: MAX_FAILS - next }));
         }
       }
     } catch {
-      setError('Biometric authentication unavailable.');
+      setError(t('biometric_error_unavailable'));
     } finally {
       authenticatingRef.current = false;
     }
-  }, [onUnlock]);
+  }, [onUnlock, t]);
 
   useEffect(() => {
     handleAuthenticate();
@@ -68,7 +70,7 @@ export default function BiometricLockScreen({ onUnlock }) {
         <Ionicons name="lock-closed" size={48} color={PRIMARY} />
       </View>
       <Text style={styles.title}>UCB Navigator</Text>
-      <Text style={styles.subtitle}>Authentication required</Text>
+      <Text style={styles.subtitle}>{t('biometric_locked_subtitle')}</Text>
 
       {!!error && <Text style={styles.error}>{error}</Text>}
 
@@ -76,22 +78,22 @@ export default function BiometricLockScreen({ onUnlock }) {
         <TouchableOpacity
           style={styles.unlockBtn}
           onPress={handleAuthenticate}
-          accessibilityLabel="Unlock with biometrics"
+          accessibilityLabel={t('biometric_unlock_label')}
           accessibilityRole="button"
         >
           <Ionicons name="finger-print-outline" size={20} color="#fff" />
-          <Text style={styles.unlockBtnText}>Unlock</Text>
+          <Text style={styles.unlockBtnText}>{t('biometric_unlock_button')}</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={[styles.unlockBtn, styles.logoutBtn]}
           onPress={handleLogout}
           disabled={loggingOut}
-          accessibilityLabel="Log out and sign in again"
+          accessibilityLabel={t('biometric_logout_label')}
           accessibilityRole="button"
         >
           <Ionicons name="log-out-outline" size={20} color="#fff" />
-          <Text style={styles.unlockBtnText}>{loggingOut ? 'Logging out…' : 'Log out & sign in again'}</Text>
+          <Text style={styles.unlockBtnText}>{loggingOut ? t('biometric_logging_out') : t('biometric_logout_button')}</Text>
         </TouchableOpacity>
       )}
     </View>

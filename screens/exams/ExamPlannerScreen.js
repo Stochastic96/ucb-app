@@ -105,7 +105,17 @@ export default function ExamPlannerScreen({ navigation, route }) {
       await cancelExamReminders(courseId);
 
       if (remindersEnabled && timeStr) {
-        await scheduleExamReminders(plan);
+        // Check if notifications are enabled in app settings
+        const { settings } = useStore.getState();
+        if (!settings.notificationsEnabled) {
+          Alert.alert(
+            t('exam_notif_permission_title'),
+            t('exam_notif_disabled_msg')
+          );
+          // Still save plan, just no reminders scheduled
+        } else {
+          await scheduleExamReminders(plan);
+        }
       }
 
       const { plans } = await loadExamData();

@@ -13,6 +13,8 @@ import CoursesScreen from '../screens/courses/CoursesScreen';
 import EventsStack from './EventsStack';
 import ImpressumScreen from '../screens/legal/ImpressumScreen';
 import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
+import PrivacyPolicyScreen from '../screens/legal/PrivacyPolicyScreen';
+import LegalScreen from '../screens/legal/LegalScreen';
 import FactScreen from '../screens/facts/FactScreen';
 import { PRIMARY } from '../constants/colors';
 import { t } from '../services/i18n';
@@ -111,6 +113,16 @@ export default function RootNavigator() {
             name="Datenschutz"
             component={DatenschutzScreen}
             options={{ headerShown: true, title: t('screen_datenschutz'), headerTintColor: PRIMARY }}
+          />
+          <Stack.Screen
+            name="PrivacyPolicy"
+            component={PrivacyPolicyScreen}
+            options={{ headerShown: true, title: t('settings_privacy_policy'), headerTintColor: PRIMARY }}
+          />
+          <Stack.Screen
+            name="LegalNotice"
+            component={LegalScreen}
+            options={{ headerShown: true, title: t('settings_legal_notice'), headerTintColor: PRIMARY }}
           />
         </>
       ) : (

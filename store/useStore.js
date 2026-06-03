@@ -46,7 +46,7 @@ const useStore = create((set, get) => ({
     set({ unreadNewsCount: 0, lastNewsSeenAt: timestamp }),
 
   // Settings (persisted to AsyncStorage 'ucb_settings')
-  settings: { notificationsEnabled: false, biometricLockEnabled: false },
+  settings: { notificationsEnabled: false, biometricLockEnabled: false, analyticsEnabled: true },
   updateSettings: (partial) =>
     set((s) => ({ settings: { ...s.settings, ...partial } })),
 
