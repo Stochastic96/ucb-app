@@ -31,6 +31,17 @@ eas build --platform android --profile production
 
 There is no test suite or linter configured. The codebase is plain JavaScript (`.js` files throughout); `tsconfig.json` and TypeScript dev dependencies are present but only for editor type-checking support — do not create `.ts`/`.tsx` files.
 
+## Local Development Setup
+
+1. Clone the repo and run `npm install`
+2. Create a `.env` file in the project root (see Environment Variables section below)
+3. Run `npm start` to launch Expo Go
+4. Scan the QR code with Expo Go on your device (iOS/Android)
+
+**Expo Go limitations**: WebView (Mensa screen), and navigation-heavy features work in Expo Go, but standalone builds require the Dev Client APK installed on the device. The app uses `newArchEnabled: true` (React Native New Architecture) — ensure your Expo CLI version matches `expo@~54.0.35` or higher.
+
+**Debugging**: Enable remote debugging in Expo Go settings, or check logs via `npm start` terminal. Error logs are persisted to AsyncStorage (`ucb_logs`) and queryable via the logger service; device logs are accessible via `adb logcat` (Android) or Xcode (iOS).
+
 ## Environment Variables
 
 All env vars are prefixed `EXPO_PUBLIC_` and embedded at EAS build time via `eas.json`. For local dev, create a `.env` file:
@@ -213,6 +224,16 @@ Notification-tap navigation is handled in `App.js` in two places:
 
 Both route via `navigateFromNotification(identifier)`, which uses the notification identifier prefix (`deadline_`, `exam_`, `event_`, `sport_`) to navigate without touching notification content.
 
+### Smart Offline Queue
+
+`services/offlineQueue.js` — deferred side-effect queue for notification scheduling when offline or immediately after state changes.
+
+- **Enqueueing**: When adding/updating deadlines or exam plans, calls `enqueueOfflineOp(type, payload)` to queue reminder operations (`SCHEDULE_DEADLINE_REMINDERS`, `SCHEDULE_EXAM_REMINDERS`, `CANCEL_DEADLINE_REMINDERS`, `CANCEL_EXAM_REMINDERS`) instead of executing them immediately. This guards against race conditions when the reminders service is not yet initialized.
+- **Persistence**: Queue is persisted to AsyncStorage (`ucb_offline_queue`) up to 50 items; survives app kills.
+- **Draining**: `drainOfflineQueue()` (called on bootstrap completion + when coming online) processes queued operations sequentially. Failed ops are re-queued; queue size is written to the store for UI visibility.
+- **Initialization**: `initOfflineQueue()` called in `App.js` on mount restores the queue from AsyncStorage and drains immediately if the app starts with connectivity.
+- Used by: `screens/planner/AddDeadlineScreen.js`, `screens/planner/PlannerScreen.js`, `screens/exams/ExamPlannerScreen.js` — they enqueue instead of calling reminders directly, decoupling state changes from notification initialization order.
+
 ### Biometric Lock
 
 `components/BiometricLockScreen.js` uses `expo-local-authentication`. Rendered as a full-screen overlay in `App.js` above the `NavigationContainer` when `isLocked && isLoggedIn`. Lock triggers when the app returns to the foreground after being backgrounded for more than 30 s (`LOCK_GRACE_MS`) and `settings.biometricLockEnabled` is true. `onUnlock` callback clears `isLocked`.
@@ -279,6 +300,38 @@ From `app.json`:
 ### Archive
 
 `_archive/admin/` — the admin panel (AdminStack, AdminDashboardScreen, and per-table admin screens for mensa, events, sports, resources, guide, calendar) was removed from the active app and moved here. It is not registered in any navigator. Do not import from or add back these files without re-evaluating the full admin auth flow.
+
+## Common Pitfalls & Development Patterns
+
+### Navigation Hazards
+- **useNavigation() in root-level components**: Never call `useNavigation()` in components rendered outside the navigator tree (e.g., modals in `App.js`). It throws when the navigation context hasn't initialized, crashing the app on cold start, especially in standalone builds. Use `navigationRef.current?.navigate()` from parent instead (pass callbacks down).
+- **Tab press listeners**: Always reset to root screen (via `listeners` prop on tabs) so users never get stranded in a nested screen when tapping their current tab.
+- **Deep navigation depth**: When nesting stacks (RootNavigator → MainTabs → ToolsStack → TimetableScreen), use `navigation.getParent()?.getParent()?.navigate()` to reach the right level. Pre-render all tabs with `lazy={false}` on MainTabs so nested stacks initialize before programmatic navigation.
+
+### State & Async Patterns
+- **Concurrent bootstrap guard**: Use `_inflightBootstrap` deduplication to ensure only one bootstrap runs at a time, even if multiple screens call `bootstrapSessionData()` simultaneously.
+- **Offline queue before notifications**: Always enqueue reminder side-effects via `enqueueOfflineOp()` instead of calling reminders directly. This prevents race conditions when the reminders service hasn't initialized yet.
+- **Atomic writes**: For critical user data (deadlines, exam plans, settings), write to AsyncStorage **first**, then Zustand. Reverse the read order to handle crashes mid-write.
+- **Pull-to-refresh**: Use `force=true` flag to bypass cache when calling services from RefreshControl. Always have a `.catch()` on Promise chains to prevent loading spinners hanging on error.
+
+### Expo Go Limitations
+- **WebView**: `react-native-webview` is not bundled in Expo Go. `MensaScreen` wraps the require in a try/catch and shows an "Open in Browser" fallback when unavailable. To test WebView, build with EAS or the Dev Client.
+- **New Architecture**: Ensure `expo@~54.0.35` or later is installed. SDK 50 and SDK 54 have incompatible JSI bridges — mixing them breaks native modules.
+- **Animation libraries**: `Moti + react-native-reanimated` couple to specific native versions in Expo Go and added a duplicate React, causing runtime crashes. Stick to React Native's built-in `Animated` API for now.
+
+### Storage & Persistence
+- **Never raw `ucb_*` literals**: Use `STORAGE_KEYS` constants from `constants/storageKeys.js`. This is the single source of truth.
+- **Non-cache keys**: Settings, deadlines, exam plans, RSVP state, and news timestamps must never be cleared by `clearAllCache()` — they're in the `NON_CACHE_KEYS` set (DSGVO Art. 5(1)(f) compliance).
+- **Secure store**: Credentials use `WHEN_UNLOCKED_THIS_DEVICE_ONLY` to prevent iCloud sync to other devices. Session age is tracked via the `ucb_session_created` key — enforce a 7-day max age.
+
+### Logging & Errors
+- **No console.log()**: Use `services/logger.js` — all logs are persisted to AsyncStorage and queryable. Error-level logs auto-track to analytics in production.
+- **Avoid sensitive data**: Never log credentials, personal identifiers, or PII — logs are device-local but still a security risk if the device is compromised.
+
+### Analytics & Privacy
+- **Durable queue**: Analytics events are queued to AsyncStorage and survive app kills. Failed inserts are re-queued (capped at MAX_QUEUE). Failures are swallowed — analytics never breaks the app.
+- **No personal data**: SESSION_ID is a random UUID per cold start, never persisted or linked to identity. All metrics are anonymous.
+- **Dev no-op**: Analytics is entirely no-op in `__DEV__` mode, so local testing never pollutes production data.
 
 ### AI Usage Tracking
 
