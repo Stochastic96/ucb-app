@@ -83,7 +83,10 @@ function isAnalyticsEnabled() {
   // the intent clear: never track in dev, and respect the user's opt-out.
   if (__DEV__) return false;
   const { settings } = useStore.getState();
-  return settings.analyticsEnabled !== false; // default true for existing users
+  // DSGVO compliance: if settings not yet loaded, default to FALSE for safety.
+  // Only track if user has explicitly consented (settings.analyticsEnabled === true).
+  if (!settings) return false;
+  return settings.analyticsEnabled === true;
 }
 
 export function trackEvent(type, name, properties = {}) {

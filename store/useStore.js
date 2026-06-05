@@ -62,6 +62,8 @@ const useStore = create((set, get) => ({
   setOffline: (v) => set({ isOffline: v }),
   offlineQueueSize: 0,
   setOfflineQueueSize: (n) => set({ offlineQueueSize: n }),
+  offlineQueueDrainError: null,
+  setOfflineQueueDrainError: (error) => set({ offlineQueueDrainError: error }),
 
   // Session hydration
   isHydrating: false,

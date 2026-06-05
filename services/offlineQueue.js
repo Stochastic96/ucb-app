@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useStore from '../store/useStore';
 import { STORAGE_KEYS } from '../constants/storageKeys';
+import * as logger from './logger';
 import {
   scheduleDeadlineReminders,
   scheduleExamReminders,
@@ -12,6 +13,7 @@ const MAX_QUEUE = 50;
 
 let _queue = [];
 let _draining = false;
+let _lastDrainError = null;
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -50,24 +52,43 @@ export function enqueueOfflineOp(type, payload) {
 export async function drainOfflineQueue() {
   if (_draining || _queue.length === 0) return;
   _draining = true;
-  const batch = [..._queue];
-  _queue = [];
-  persistQueue();
 
-  const failed = [];
-  for (const op of batch) {
-    try {
-      await _executeOp(op);
-    } catch {
-      failed.push(op);
-    }
-  }
-
-  if (failed.length > 0) {
-    _queue = [...failed, ..._queue].slice(0, MAX_QUEUE);
+  try {
+    const batch = [..._queue];
+    _queue = [];
     persistQueue();
+
+    const failed = [];
+    for (const op of batch) {
+      try {
+        await _executeOp(op);
+      } catch (err) {
+        logger.warn('OfflineQueue', 'Operation failed, re-queuing', { opId: op.id, error: err?.message });
+        failed.push(op);
+      }
+    }
+
+    if (failed.length > 0) {
+      _queue = [...failed, ..._queue].slice(0, MAX_QUEUE);
+      persistQueue();
+      const msg = `${failed.length}/${batch.length} operations failed`;
+      logger.warn('OfflineQueue', 'Drain incomplete', { failedCount: failed.length });
+      _lastDrainError = msg;
+      useStore.getState().setOfflineQueueDrainError(msg);
+    } else {
+      _lastDrainError = null;
+      useStore.getState().setOfflineQueueDrainError(null);
+      logger.info('OfflineQueue', 'Drain complete', { operationCount: batch.length });
+    }
+  } catch (err) {
+    logger.error('OfflineQueue', 'Drain failed with error', err);
+    _lastDrainError = err?.message || 'Unknown drain error';
+    useStore.getState().setOfflineQueueDrainError(_lastDrainError);
+    // Re-queue the batch since we failed before even starting
+    throw err;
+  } finally {
+    _draining = false;
   }
-  _draining = false;
 }
 
 async function _executeOp(op) {

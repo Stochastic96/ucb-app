@@ -8,12 +8,14 @@ import { syncUnreadNewsCount } from './newsState';
 import { loadGoingState } from './reminders';
 import { drainOfflineQueue } from './offlineQueue';
 import { toMillis } from '../utils/datetime';
+import * as logger from './logger';
 
 // 30 days back → 180 days ahead: covers the active semester plus next one
 const WINDOW_PAST_MS = 30 * 24 * 60 * 60 * 1000;
 const WINDOW_FUTURE_MS = 180 * 24 * 60 * 60 * 1000;
 
 // Deduplication guard — concurrent callers share one in-flight bootstrap
+// Protects against concurrent _runBootstrap calls that would race to write the store
 let _inflightBootstrap = null;
 
 function deriveActiveCourseIds(events) {
@@ -29,18 +31,24 @@ function deriveActiveCourseIds(events) {
 }
 
 export function bootstrapSessionData(force = false) {
-  if (_inflightBootstrap && !force) return _inflightBootstrap;
+  // If not forcing, return in-flight promise or start new one
+  if (_inflightBootstrap && !force) {
+    logger.debug('Bootstrap', 'Returning in-flight bootstrap');
+    return _inflightBootstrap;
+  }
 
+  // If forcing and already in-flight, queue this as the next run (sequential, not parallel)
   if (_inflightBootstrap && force) {
-    // Chain forced refresh after the current run completes — prevents two concurrent
-    // _runBootstrap calls from racing to write conflicting state to the store.
+    logger.debug('Bootstrap', 'Queueing forced refresh after current bootstrap');
     _inflightBootstrap = _inflightBootstrap
-      .catch(() => {})
+      .catch(() => {}) // ignore any previous error
       .then(() => _runBootstrap(true))
       .finally(() => { _inflightBootstrap = null; });
     return _inflightBootstrap;
   }
 
+  // Start new bootstrap — atomically set the guard
+  logger.debug('Bootstrap', `Starting new bootstrap (force=${force})`);
   _inflightBootstrap = _runBootstrap(force).finally(() => {
     _inflightBootstrap = null;
   });
@@ -53,9 +61,9 @@ async function _runBootstrap(force) {
   store.setBootstrapError(null);
 
   try {
-    console.log('[Bootstrap] Starting...');
+    logger.info('Bootstrap', 'Starting');
     const profileResult = await fetchProfile(force);
-    console.log('[Bootstrap] Profile loaded');
+    logger.info('Bootstrap', 'Profile loaded');
     const userId = profileResult?.data?.id ?? store.userId;
     if (!userId) {
       throw { type: 'NO_CREDENTIALS', message: 'No logged-in user was found.' };
@@ -98,9 +106,11 @@ async function _runBootstrap(force) {
 
     // Drain any queued offline operations (notification side-effects).
     // Fire-and-forget — drain failures must not abort bootstrap.
-    drainOfflineQueue().catch(() => {});
+    drainOfflineQueue().catch((err) => {
+      logger.warn('Bootstrap', 'Offline queue drain failed', { error: err?.message });
+    });
 
-    console.log('[Bootstrap] Complete. Courses:', courses.length, 'Events:', events.length);
+    logger.info('Bootstrap', 'Complete', { course_count: courses.length, event_count: events.length });
     trackEvent('session_start', 'bootstrap_success', { course_count: courses.length });
 
     return {
@@ -115,7 +125,7 @@ async function _runBootstrap(force) {
       type: error?.type ?? 'UNKNOWN',
       message: error?.message ?? 'Unable to load your Stud.IP data.',
     };
-    console.error('[Bootstrap] Failed:', normalized);
+    logger.error('Bootstrap', 'Failed', normalized);
     // On a first-load failure, clear any partial state so the UI shows a clean error
     if (!store.dataReady) {
       store.setCourses([]);

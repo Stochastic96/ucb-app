@@ -132,7 +132,7 @@ export default function App() {
 
   const initializeApp = async () => {
     try {
-      console.log('[App] Starting initialization...');
+      logger.info('App', 'Starting initialization');
       await loadSettings();
 
       // Cold-start biometric gate: if biometric lock is enabled and credentials exist,
@@ -141,19 +141,19 @@ export default function App() {
       if (settings.biometricLockEnabled) {
         const storedUsername = await SecureStore.getItemAsync(SECURE_KEYS.USERNAME);
         if (storedUsername) {
-          console.log('[App] Biometric lock enabled, showing lock screen');
+          logger.info('App', 'Biometric lock enabled, showing lock screen');
           pendingSessionRestoreRef.current = true;
           setIsLocked(true);
           return;
         }
       }
 
-      console.log('[App] Checking for existing session...');
+      logger.info('App', 'Checking for existing session');
       await checkExistingSession();
       await finishAppInit();
-      console.log('[App] Initialization complete');
+      logger.info('App', 'Initialization complete');
     } catch (err) {
-      console.error('[App] Initialization failed:', err);
+      logger.error('App', 'Initialization failed', err);
       setInitError(err?.message || 'Failed to initialize app');
     }
   };
@@ -175,13 +175,21 @@ export default function App() {
         setUser(result.user);
         try {
           await bootstrapSessionData();
+          logger.info('Auth', 'Session restored and data bootstrapped');
         } catch (bootstrapError) {
-          console.error('[Bootstrap] Failed:', bootstrapError);
-          useStore.getState().setBootstrapError(bootstrapError?.message || 'Failed to load data');
+          // Bootstrap failure after successful auth is critical — ensure error is visible
+          const errorMsg = bootstrapError?.message || bootstrapError?.type || 'Failed to load your course data';
+          logger.error('Bootstrap', 'Failed during session restore', { error: errorMsg, type: bootstrapError?.type });
+          // The store already has bootstrapError set by bootstrap.js, but ensure it's properly persisted
+          useStore.getState().setBootstrapError({
+            message: errorMsg,
+            type: bootstrapError?.type ?? 'UNKNOWN',
+          });
+          // Don't rethrow — user is logged in but with incomplete data. Error overlay will show.
         }
       }
     } catch (authError) {
-      console.error('[Auth] Restore session failed:', authError);
+      logger.warn('Auth', 'Restore session failed', { error: authError?.message });
       // Silent failure on login restore is OK — user will see login screen
     }
   };
