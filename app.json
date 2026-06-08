@@ -24,10 +24,13 @@
       },
       "edgeToEdgeEnabled": true,
       "allowBackup": false,
-      "package": "app.ucbnavigator"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "package": "app.ucbnavigator",
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "usesCleartextTraffic": false
     },
     "plugins": [
       "expo-secure-store",

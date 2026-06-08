@@ -52,8 +52,8 @@ export default function AddDeadlineScreen({ navigation, route }) {
     d.setHours(23, 59, 0, 0);
     return d;
   })());
-  const [remind24h, setRemind24h] = useState(existing?.remind24h ?? true);
-  const [remind2h, setRemind2h] = useState(existing?.remind2h ?? false);
+  const [remind2h, setRemind2h] = useState(existing?.remind2h ?? true);
+  const [remindOnTime, setRemindOnTime] = useState(existing?.remindOnTime ?? false);
   const [subjectFocused, setSubjectFocused] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -117,8 +117,8 @@ export default function AddDeadlineScreen({ navigation, route }) {
         note: note.trim(),
         category,
         dueDate: dueDate.toISOString(),
-        remind24h,
         remind2h,
+        remindOnTime,
         completed: existing?.completed ?? false,
         createdAt: existing?.createdAt ?? new Date().toISOString(),
       };
@@ -321,16 +321,16 @@ export default function AddDeadlineScreen({ navigation, route }) {
       {/* Reminders */}
       <FormSection label={t('deadline_reminders')}>
         <ToggleRow
-          label={t('deadline_reminder_24h')}
-          icon="notifications-outline"
-          value={remind24h}
-          onToggle={() => setRemind24h((v) => !v)}
-        />
-        <ToggleRow
           label={t('deadline_reminder_2h')}
           icon="alarm-outline"
           value={remind2h}
           onToggle={() => setRemind2h((v) => !v)}
+        />
+        <ToggleRow
+          label={t('deadline_reminder_ontime')}
+          icon="notifications-outline"
+          value={remindOnTime}
+          onToggle={() => setRemindOnTime((v) => !v)}
           last
         />
       </FormSection>

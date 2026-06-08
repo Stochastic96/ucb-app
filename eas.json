@@ -28,7 +28,11 @@
     },
     "production": {
       "autoIncrement": true,
+      "distribution": "internal",
       "channel": "production",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://vrnhkwhwoxhcjssqhdat.supabase.co",
         "EXPO_PUBLIC_SUPABASE_KEY": "sb_publishable_M15oPdD_Rg75_80UVcA80Q_r051Uhvg",

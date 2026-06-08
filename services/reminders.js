@@ -22,7 +22,18 @@ Notifications.setNotificationHandler({
 
 export async function requestNotificationPermission() {
   const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
+  const granted = status === 'granted';
+
+  // Auto-sync permission grant to app settings
+  if (granted) {
+    useStore.getState().updateSettings({ notificationsEnabled: true });
+    try {
+      const settings = useStore.getState().settings;
+      await AsyncStorage.setItem('ucb_settings', JSON.stringify({ ...settings, notificationsEnabled: true }));
+    } catch {}
+  }
+
+  return granted;
 }
 
 // Subtract 30 min from HH:MM string, return { hour, minute } or null if result is before midnight
@@ -110,22 +121,6 @@ export async function scheduleDeadlineReminders(deadline) {
   const dueMs = new Date(deadline.dueDate).getTime();
   const ids = {};
 
-  if (deadline.remind24h) {
-    const t = new Date(dueMs - 24 * 60 * 60 * 1000);
-    if (t > new Date()) {
-      await Notifications.scheduleNotificationAsync({
-        identifier: `deadline_24h_${deadline.id}`,
-        content: {
-          title: `Due tomorrow: ${deadline.title}`,
-          body: deadline.subject ? `${deadline.subject}${deadline.note ? ' — ' + deadline.note : ''}` : (deadline.note || ''),
-          sound: true,
-        },
-        trigger: t,
-      });
-      ids['24h'] = `deadline_24h_${deadline.id}`;
-    }
-  }
-
   if (deadline.remind2h) {
     const t = new Date(dueMs - 2 * 60 * 60 * 1000);
     if (t > new Date()) {
@@ -142,6 +137,22 @@ export async function scheduleDeadlineReminders(deadline) {
     }
   }
 
+  if (deadline.remindOnTime) {
+    const t = new Date(dueMs);
+    if (t > new Date()) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: `deadline_ontime_${deadline.id}`,
+        content: {
+          title: `Due now: ${deadline.title}`,
+          body: deadline.subject ? `${deadline.subject}${deadline.note ? ' — ' + deadline.note : ''}` : (deadline.note || ''),
+          sound: true,
+        },
+        trigger: t,
+      });
+      ids['ontime'] = `deadline_ontime_${deadline.id}`;
+    }
+  }
+
   if (Object.keys(ids).length > 0) {
     trackEvent('feature_use', 'notification_scheduled', { type: 'deadline' });
   }
@@ -149,8 +160,10 @@ export async function scheduleDeadlineReminders(deadline) {
 }
 
 export async function cancelDeadlineReminders(deadlineId) {
-  try { await Notifications.cancelScheduledNotificationAsync(`deadline_24h_${deadlineId}`); } catch {}
   try { await Notifications.cancelScheduledNotificationAsync(`deadline_2h_${deadlineId}`); } catch {}
+  try { await Notifications.cancelScheduledNotificationAsync(`deadline_ontime_${deadlineId}`); } catch {}
+  // Legacy: cancel 24h reminders from old deadlines
+  try { await Notifications.cancelScheduledNotificationAsync(`deadline_24h_${deadlineId}`); } catch {}
 }
 
 // --- Exam reminders ---
