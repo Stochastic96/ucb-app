@@ -52,8 +52,9 @@ export default function AddDeadlineScreen({ navigation, route }) {
     d.setHours(23, 59, 0, 0);
     return d;
   })());
+  // Handle backward compatibility: old deadlines have remind24h, map to remindOnTime
   const [remind2h, setRemind2h] = useState(existing?.remind2h ?? true);
-  const [remindOnTime, setRemindOnTime] = useState(existing?.remindOnTime ?? false);
+  const [remindOnTime, setRemindOnTime] = useState(existing?.remindOnTime ?? existing?.remind24h ?? false);
   const [subjectFocused, setSubjectFocused] = useState(false);
   const [saving, setSaving] = useState(false);
 
