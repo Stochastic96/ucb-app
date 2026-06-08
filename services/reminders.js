@@ -45,10 +45,6 @@ function thirtyMinBefore(timeStr) {
 }
 
 export async function scheduleEventReminder(ev) {
-  // Check app-level notification setting first
-  const { settings } = useStore.getState();
-  if (!settings.notificationsEnabled) return false;
-
   const granted = await requestNotificationPermission();
   if (!granted) return false;
 
@@ -70,10 +66,6 @@ export async function scheduleEventReminder(ev) {
 }
 
 export async function scheduleSportReminder(sport) {
-  // Check app-level notification setting first
-  const { settings } = useStore.getState();
-  if (!settings.notificationsEnabled) return false;
-
   const granted = await requestNotificationPermission();
   if (!granted) return false;
 
@@ -111,10 +103,7 @@ export async function cancelReminder(identifier) {
 // --- Deadline reminders ---
 
 export async function scheduleDeadlineReminders(deadline) {
-  // Check app-level notification setting first
-  const { settings } = useStore.getState();
-  if (!settings.notificationsEnabled) return {};
-
+  // Request permission first — if granted, settings will auto-update
   const granted = await requestNotificationPermission();
   if (!granted) return {};
 
@@ -169,10 +158,6 @@ export async function cancelDeadlineReminders(deadlineId) {
 // --- Exam reminders ---
 
 export async function scheduleExamReminders(exam) {
-  // Check app-level notification setting first
-  const { settings } = useStore.getState();
-  if (!settings.notificationsEnabled) return {};
-
   const granted = await requestNotificationPermission();
   if (!granted) return {};
   if (!exam.examDate || !exam.examTime) return {};

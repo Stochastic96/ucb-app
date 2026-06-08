@@ -135,15 +135,8 @@ export default function AddDeadlineScreen({ navigation, route }) {
       }
 
       if (!deadline.completed) {
-        // Check if notifications are enabled in app settings
-        const { settings } = useStore.getState();
-        if (!settings.notificationsEnabled) {
-          Alert.alert(
-            t('deadline_notif_permission_title'),
-            t('deadline_notif_disabled_msg')
-          );
-          // Still save deadline, just no reminders scheduled
-        } else if (isOffline) {
+        const { isOffline } = useStore.getState();
+        if (isOffline) {
           enqueueOfflineOp('SCHEDULE_DEADLINE_REMINDERS', { deadline });
         } else {
           await scheduleDeadlineReminders(deadline);
