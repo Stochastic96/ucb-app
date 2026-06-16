@@ -57,6 +57,17 @@ export default {
   offline_banner: 'Kein Internet — zeige gespeicherte Daten',
   offline_banner_pending: '{{count}} Änderung(en) ausstehend',
 
+  // --- Error states (components/ErrorState.js) ---
+  errorstate_no_internet_title: 'Stud.IP nicht erreichbar',
+  errorstate_no_internet_sub: 'Die App konnte Stud.IP nicht erreichen. Überprüfe deine Verbindung oder teste die Anmeldung im Browser.',
+  errorstate_server_title: 'Server nicht verfügbar',
+  errorstate_server_sub: 'Stud.IP ist derzeit nicht erreichbar. Versuche es später erneut.',
+  errorstate_auth_title: 'Sitzung abgelaufen',
+  errorstate_auth_sub: 'Bitte melde dich erneut an.',
+  errorstate_unknown_title: 'Etwas ist schiefgelaufen',
+  errorstate_unknown_sub: 'Ein unerwarteter Fehler ist aufgetreten.',
+  errorstate_retry: 'Erneut versuchen',
+
   // --- Login ---
   login_username_placeholder: 'Stud.IP-Benutzername (z. B. prsh4078)',
   login_password_placeholder: 'Passwort',
@@ -86,6 +97,7 @@ export default {
   home_sports_today: 'Sport heute',
   home_quick_links: 'Schnellzugriff',
   home_error_loading: 'Einige Campusdaten konnten nicht geladen werden. Zum Aktualisieren nach unten ziehen.',
+  home_news_a11y: 'Neuigkeiten und Benachrichtigungen',
   home_quick_courses: 'Kurse',
   home_quick_timetable: 'Stundenplan',
   home_quick_map: 'Karte',
@@ -135,9 +147,11 @@ export default {
   // --- Settings ---
   settings_section_language: 'Sprache',
   settings_section_notifications: 'Benachrichtigungen & Erinnerungen',
-  settings_notifications_title: 'Push-Benachrichtigungen',
-  settings_notifications_desc: 'Erhalte Benachrichtigungen für Events, Fristen, Prüfungen und Sport, an denen du teilnimmst',
+  settings_notifications_title: 'Lokale Erinnerungen',
+  settings_notifications_desc: 'Erhalte lokale Hinweise für Events, Fristen, Prüfungen und Sport, an denen du teilnimmst',
   settings_notifications_help: 'Tippe auf die Glocke neben Events oder Fristen, um Erinnerungen zu setzen.',
+  notifications_permission_denied_title: 'Berechtigung verweigert',
+  notifications_permission_denied_msg: 'Bitte aktiviere die Benachrichtigungen in deinen Geräteeinstellungen, um Erinnerungen zu erhalten.',
 
   settings_section_security: 'Sicherheit & Biometrie',
   settings_biometric_title: 'Biometrisches Sperren',
@@ -163,6 +177,13 @@ export default {
   settings_lang_confirm_msg: 'Sprache auf {{language}} umstellen? Deine Daten bleiben erhalten.',
   settings_lang_confirm_restart: 'Wechseln',
   settings_lang_dev_note: 'Sprache übernommen.',
+  settings_section_appearance: 'Darstellung',
+  settings_theme_label: 'Design',
+  settings_theme_note: 'Lege fest, wie die App aussieht.',
+  theme_light: 'Hell',
+  theme_dark: 'Dunkel',
+  theme_system: 'System',
+  theme_soon: 'Bald',
   settings_clear_cache: 'Cache leeren',
   settings_clear_cache_sub: 'Entfernt Stud.IP-Daten. Persönliche Daten bleiben erhalten.',
   settings_delete_all: 'Alle meine Daten löschen',

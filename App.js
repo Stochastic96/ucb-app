@@ -1,8 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { AppState } from 'react-native';
+import { AppState, useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer as NavContainer } from '@react-navigation/native';
-import { PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ThemeProvider, resolveThemeMode } from './theme/ThemeProvider';
+import { MotionProvider } from './theme/MotionProvider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useAppFonts } from './theme/fonts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
@@ -16,7 +21,7 @@ import useStore from './store/useStore';
 import { PRIMARY, DARK } from './constants/colors';
 import { STORAGE_KEYS } from './constants/storageKeys';
 import { SECURE_KEYS } from './constants/secureKeys';
-import { bootstrapSessionData } from './services/bootstrap';
+import { bootstrapSessionData, hydrateStoreFromCache } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
 import { startSession, endSession, resumeSession } from './services/analytics';
 import { initLanguage, getLanguage } from './services/i18n';
@@ -47,12 +52,26 @@ const ucbTheme = {
   },
 };
 
+const ucbDarkTheme = {
+  ...MD3DarkTheme,
+  colors: {
+    ...MD3DarkTheme.colors,
+    primary: '#7FBF4D',
+    secondary: PRIMARY,
+  },
+};
+
 export default function App() {
   const { updateSettings, setUser } = useStore();
   const language = useStore((s) => s.language);
   const isLoggedIn = useStore((s) => s.isLoggedIn);
   const bootstrapError = useStore((s) => s.bootstrapError);
+  const themePreference = useStore((s) => s.settings?.themePreference ?? 'light');
+  const systemScheme = useColorScheme();
+  const resolvedMode = resolveThemeMode(themePreference, systemScheme);
+  const paperTheme = resolvedMode === 'dark' ? ucbDarkTheme : ucbTheme;
   const [languageReady, setLanguageReady] = useState(false);
+  const fontsReady = useAppFonts();
   const [isLocked, setIsLocked] = useState(false);
   const [initError, setInitError] = useState(null);
   const backgroundedAt = useRef(null);
@@ -135,10 +154,10 @@ export default function App() {
       logger.info('App', 'Starting initialization');
       await loadSettings();
 
-      // Cold-start biometric gate: if biometric lock is enabled and credentials exist,
-      // show the lock screen before restoring the session.
-      const { settings } = useStore.getState();
-      if (settings.biometricLockEnabled) {
+      // Cold-start biometric gate: check SecureStore instead of AsyncStorage settings
+      // to prevent bypass tampering.
+      const secureBiometricEnabled = await SecureStore.getItemAsync(SECURE_KEYS.BIOMETRIC_ENABLED);
+      if (secureBiometricEnabled === 'true') {
         const storedUsername = await SecureStore.getItemAsync(SECURE_KEYS.USERNAME);
         if (storedUsername) {
           logger.info('App', 'Biometric lock enabled, showing lock screen');
@@ -172,20 +191,39 @@ export default function App() {
       const { checkExistingSession: restoreSession } = await import('./services/auth');
       const result = await restoreSession();
       if (result.valid && result.user) {
-        setUser(result.user);
-        try {
-          await bootstrapSessionData();
-          logger.info('Auth', 'Session restored and data bootstrapped');
-        } catch (bootstrapError) {
-          // Bootstrap failure after successful auth is critical — ensure error is visible
-          const errorMsg = bootstrapError?.message || bootstrapError?.type || 'Failed to load your course data';
-          logger.error('Bootstrap', 'Failed during session restore', { error: errorMsg, type: bootstrapError?.type });
-          // The store already has bootstrapError set by bootstrap.js, but ensure it's properly persisted
-          useStore.getState().setBootstrapError({
-            message: errorMsg,
-            type: bootstrapError?.type ?? 'UNKNOWN',
+        useStore.setState({ user: result.user, userId: result.user.id });
+        if (result.isOffline) {
+          useStore.getState().setOffline(true);
+        }
+
+        // Eagerly hydrate from cache so user sees their data immediately
+        const hasCache = await hydrateStoreFromCache();
+
+        if (hasCache) {
+          // Transition user to Main screen instantly with cached data
+          setUser(result.user);
+          logger.info('Auth', 'Session restored, transitioned user immediately');
+
+          // Run bootstrap in background to fetch fresh data
+          bootstrapSessionData().catch((bootstrapError) => {
+            logger.warn('Bootstrap', 'Background sync failed', bootstrapError);
           });
-          // Don't rethrow — user is logged in but with incomplete data. Error overlay will show.
+        } else {
+          // No cache available, we must await the bootstrap to load data before transitioning
+          logger.info('Auth', 'No cache available, awaiting bootstrap sync');
+          try {
+            await bootstrapSessionData();
+            setUser(result.user);
+            logger.info('Auth', 'Session restored and data bootstrapped (no cache)');
+          } catch (bootstrapError) {
+            const errorMsg = bootstrapError?.message || bootstrapError?.type || 'Failed to load your course data';
+            logger.error('Bootstrap', 'Failed during session restore (no cache)', { error: errorMsg, type: bootstrapError?.type });
+            useStore.getState().setBootstrapError({
+              message: errorMsg,
+              type: bootstrapError?.type ?? 'UNKNOWN',
+            });
+            setUser(result.user); // still transition so the error overlay is shown
+          }
         }
       }
     } catch (authError) {
@@ -194,14 +232,18 @@ export default function App() {
     }
   };
 
-  if (!languageReady) return null;
+  if (!languageReady || !fontsReady) return null;
 
   const displayError = initError || bootstrapError;
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
-      <PaperProvider theme={ucbTheme}>
-        <NavContainer ref={navigationRef}>
+      <ThemeProvider>
+        <MotionProvider>
+        <StatusBar style={resolvedMode === 'dark' ? 'light' : 'dark'} />
+        <PaperProvider theme={paperTheme}>
+          <NavContainer ref={navigationRef}>
           <RootNavigator />
           {/* Sidebar and modals inside NavigationContainer to access useNavigation() */}
           <Sidebar key={`sidebar-${language}`} />
@@ -228,8 +270,11 @@ export default function App() {
               }}
             />
           )}
-        </NavContainer>
-      </PaperProvider>
+          </NavContainer>
+        </PaperProvider>
+        </MotionProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

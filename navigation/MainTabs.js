@@ -8,7 +8,7 @@ import GuideStack from './GuideStack';
 import ToolsStack from './ToolsStack';
 import OfflineBanner from '../components/OfflineBanner';
 import useStore from '../store/useStore';
-import { PRIMARY, INACTIVE } from '../constants/colors';
+import { useTheme } from '../theme/ThemeProvider';
 import { t } from '../services/i18n';
 
 const Tab = createBottomTabNavigator();
@@ -21,15 +21,17 @@ const ICONS = {
 };
 
 function MenuButton() {
+  const c = useTheme();
   const openSidebar = useStore((s) => s.openSidebar);
   return (
     <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 8 }} accessibilityLabel={t('nav_open_menu')} accessibilityRole="button">
-      <Ionicons name="menu" size={24} color={PRIMARY} />
+      <Ionicons name="menu" size={24} color={c.primary} />
     </TouchableOpacity>
   );
 }
 
 export default function MainTabs() {
+  const c = useTheme();
   const unreadNewsCount = useStore((s) => s.unreadNewsCount);
 
   return (
@@ -47,12 +49,13 @@ export default function MainTabs() {
             const [active, inactive] = ICONS[route.name] ?? ['ellipse', 'ellipse-outline'];
             return <Ionicons name={focused ? active : inactive} size={size} color={color} />;
           },
-          tabBarActiveTintColor: PRIMARY,
-          tabBarInactiveTintColor: INACTIVE,
+          tabBarActiveTintColor: c.primary,
+          tabBarInactiveTintColor: c.textMuted,
+          tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border },
           headerShown: route.name !== 'Home',
           headerRight: () => <MenuButton />,
-          headerTintColor: PRIMARY,
-          headerStyle: { backgroundColor: '#fff' },
+          headerTintColor: c.primary,
+          headerStyle: { backgroundColor: c.surface },
           headerShadowVisible: true,
         })}
       >

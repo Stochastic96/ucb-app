@@ -55,9 +55,6 @@ export async function drainOfflineQueue() {
 
   try {
     const batch = [..._queue];
-    _queue = [];
-    persistQueue();
-
     const failed = [];
     for (const op of batch) {
       try {
@@ -68,11 +65,13 @@ export async function drainOfflineQueue() {
       }
     }
 
+    // Keep failed operations + any new operations that were added concurrently during execution
+    const concurrentOps = _queue.filter(qOp => !batch.some(bOp => bOp.id === qOp.id));
+    _queue = [...failed, ...concurrentOps].slice(0, MAX_QUEUE);
+    persistQueue();
+
     if (failed.length > 0) {
-      _queue = [...failed, ..._queue].slice(0, MAX_QUEUE);
-      persistQueue();
       const msg = `${failed.length}/${batch.length} operations failed`;
-      logger.warn('OfflineQueue', 'Drain incomplete', { failedCount: failed.length });
       _lastDrainError = msg;
       useStore.getState().setOfflineQueueDrainError(msg);
     } else {
@@ -84,7 +83,6 @@ export async function drainOfflineQueue() {
     logger.error('OfflineQueue', 'Drain failed with error', err);
     _lastDrainError = err?.message || 'Unknown drain error';
     useStore.getState().setOfflineQueueDrainError(_lastDrainError);
-    // Re-queue the batch since we failed before even starting
     throw err;
   } finally {
     _draining = false;

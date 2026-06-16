@@ -16,25 +16,33 @@ import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
 import PrivacyPolicyScreen from '../screens/legal/PrivacyPolicyScreen';
 import LegalScreen from '../screens/legal/LegalScreen';
 import FactScreen from '../screens/facts/FactScreen';
-import { PRIMARY } from '../constants/colors';
+import { useTheme } from '../theme/ThemeProvider';
 import { t } from '../services/i18n';
 
 const Stack = createNativeStackNavigator();
 
 function MenuButton() {
+  const c = useTheme();
   const openSidebar = useStore((s) => s.openSidebar);
   return (
     <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 8 }}>
-      <Ionicons name="menu" size={24} color={PRIMARY} />
+      <Ionicons name="menu" size={24} color={c.primary} />
     </TouchableOpacity>
   );
 }
 
 export default function RootNavigator() {
+  const c = useTheme();
   const isLoggedIn = useStore((s) => s.isLoggedIn);
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        headerStyle: { backgroundColor: c.surface },
+        headerTintColor: c.primary,
+      }}
+    >
       {isLoggedIn ? (
         <>
           <Stack.Screen name="Main" component={MainTabs} />
@@ -44,7 +52,7 @@ export default function RootNavigator() {
             options={{
               headerShown: true,
               title: t('screen_profile'),
-              headerTintColor: PRIMARY,
+              headerTintColor: c.primary,
               headerRight: () => <MenuButton />,
             }}
           />
@@ -54,7 +62,7 @@ export default function RootNavigator() {
             options={{
               headerShown: true,
               title: t('screen_settings'),
-              headerTintColor: PRIMARY,
+              headerTintColor: c.primary,
               headerRight: () => <MenuButton />,
             }}
           />
@@ -64,7 +72,7 @@ export default function RootNavigator() {
             options={{
               headerShown: true,
               title: t('screen_news'),
-              headerTintColor: PRIMARY,
+              headerTintColor: c.primary,
               headerRight: () => <MenuButton />,
             }}
           />
@@ -74,7 +82,7 @@ export default function RootNavigator() {
             options={{
               headerShown: true,
               title: t('screen_courses'),
-              headerTintColor: PRIMARY,
+              headerTintColor: c.primary,
               headerRight: () => <MenuButton />,
             }}
           />
@@ -84,7 +92,7 @@ export default function RootNavigator() {
             options={({ route }) => ({
               headerShown: true,
               title: route.params?.title ?? t('screen_course'),
-              headerTintColor: PRIMARY,
+              headerTintColor: c.primary,
               headerBackTitle: '',
               headerRight: () => <MenuButton />,
             })}
@@ -100,29 +108,29 @@ export default function RootNavigator() {
             options={{
               headerShown: true,
               title: t('fact_screen_title'),
-              headerTintColor: PRIMARY,
+              headerTintColor: c.primary,
               headerRight: () => <MenuButton />,
             }}
           />
           <Stack.Screen
             name="Impressum"
             component={ImpressumScreen}
-            options={{ headerShown: true, title: t('screen_impressum'), headerTintColor: PRIMARY }}
+            options={{ headerShown: true, title: t('screen_impressum'), headerTintColor: c.primary }}
           />
           <Stack.Screen
             name="Datenschutz"
             component={DatenschutzScreen}
-            options={{ headerShown: true, title: t('screen_datenschutz'), headerTintColor: PRIMARY }}
+            options={{ headerShown: true, title: t('screen_datenschutz'), headerTintColor: c.primary }}
           />
           <Stack.Screen
             name="PrivacyPolicy"
             component={PrivacyPolicyScreen}
-            options={{ headerShown: true, title: t('settings_privacy_policy'), headerTintColor: PRIMARY }}
+            options={{ headerShown: true, title: t('settings_privacy_policy'), headerTintColor: c.primary }}
           />
           <Stack.Screen
             name="LegalNotice"
             component={LegalScreen}
-            options={{ headerShown: true, title: t('settings_legal_notice'), headerTintColor: PRIMARY }}
+            options={{ headerShown: true, title: t('settings_legal_notice'), headerTintColor: c.primary }}
           />
         </>
       ) : (

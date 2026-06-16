@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SimpleDatePicker, SimpleTimePicker } from '../../components/SimpleDatePicker';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import useStore from '../../store/useStore';
 import { trackEvent } from '../../services/analytics';
 import { enqueueOfflineOp } from '../../services/offlineQueue';
@@ -18,7 +19,7 @@ import {
   cancelDeadlineReminders,
   saveDeadlines,
 } from '../../services/reminders';
-import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, BORDER, ACCENT } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 function uid() {
@@ -35,6 +36,8 @@ function getCurrentSemesterCourses(courses) {
 
 export default function AddDeadlineScreen({ navigation, route }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const existing = route.params?.deadline;
   const courses = useStore((s) => s.courses);
   const addDeadline = useStore((s) => s.addDeadline);
@@ -59,7 +62,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
   const [saving, setSaving] = useState(false);
 
   const CATEGORIES = [
-    { key: 'academic',     labelKey: 'deadline_cat_academic',     color: PRIMARY,   icon: 'school-outline' },
+    { key: 'academic',     labelKey: 'deadline_cat_academic',     color: c.primary, icon: 'school-outline' },
     { key: 'bureaucratic', labelKey: 'deadline_cat_bureaucratic', color: '#E65100', icon: 'document-text-outline' },
     { key: 'personal',     labelKey: 'deadline_cat_personal',     color: '#7B1FA2', icon: 'person-outline' },
   ];
@@ -153,6 +156,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         trackEvent('feature_use', 'deadline_added');
       }
 
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       navigation.goBack();
     } catch {
       Alert.alert(t('common_error'), t('deadline_error_msg'));
@@ -173,7 +177,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         <TextInput
           style={styles.input}
           placeholder={t('deadline_title_placeholder')}
-          placeholderTextColor={INACTIVE}
+          placeholderTextColor={c.textMuted}
           value={title}
           onChangeText={setTitle}
           maxLength={80}
@@ -195,7 +199,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
               >
-                <Ionicons name={cat.icon} size={14} color={active ? '#fff' : INACTIVE} />
+                <Ionicons name={cat.icon} size={14} color={active ? '#fff' : c.textMuted} />
                 <Text style={[styles.categoryChipText, active && { color: '#fff' }]}>{t(cat.labelKey)}</Text>
               </TouchableOpacity>
             );
@@ -206,21 +210,21 @@ export default function AddDeadlineScreen({ navigation, route }) {
       {/* Subject / Course picker */}
       <FormSection label={subjectLabel}>
         {linkedCourse && (
-          <View style={[styles.linkedBadge, { borderLeftColor: linkedCourse.color ?? PRIMARY }]}>
-            <View style={[styles.linkedDot, { backgroundColor: linkedCourse.color ?? PRIMARY }]} />
+          <View style={[styles.linkedBadge, { borderLeftColor: linkedCourse.color ?? c.primary }]}>
+            <View style={[styles.linkedDot, { backgroundColor: linkedCourse.color ?? c.primary }]} />
             <Text style={styles.linkedText} numberOfLines={1}>{linkedCourse.title}</Text>
             <TouchableOpacity
               onPress={() => { setLinkedCourseId(null); setSubject(''); }}
               hitSlop={8}
             >
-              <Ionicons name="close-circle" size={16} color={INACTIVE} />
+              <Ionicons name="close-circle" size={16} color={c.textMuted} />
             </TouchableOpacity>
           </View>
         )}
         <TextInput
           style={styles.input}
           placeholder={subjectPlaceholder}
-          placeholderTextColor={INACTIVE}
+          placeholderTextColor={c.textMuted}
           value={subject}
           onChangeText={handleSubjectChange}
           onFocus={() => setSubjectFocused(true)}
@@ -231,7 +235,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         {academicMatches.length > 0 && (
           <View style={styles.suggestions}>
             <View style={styles.pickerHeader}>
-              <Ionicons name="school-outline" size={12} color={PRIMARY} />
+              <Ionicons name="school-outline" size={12} color={c.brandIcon} />
               <Text style={styles.pickerHeaderText}>{t('deadline_semester_courses')}</Text>
             </View>
             {academicMatches.map((course) => {
@@ -244,11 +248,11 @@ export default function AddDeadlineScreen({ navigation, route }) {
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
                 >
-                  <View style={[styles.courseDot, { backgroundColor: course.color ?? PRIMARY }]} />
-                  <Text style={[styles.courseRowText, selected && { color: PRIMARY, fontWeight: '700' }]} numberOfLines={2}>
+                  <View style={[styles.courseDot, { backgroundColor: course.color ?? c.primary }]} />
+                  <Text style={[styles.courseRowText, selected && { color: c.primary, fontWeight: '700' }]} numberOfLines={2}>
                     {course.title}
                   </Text>
-                  {selected && <Ionicons name="checkmark-circle" size={16} color={PRIMARY} />}
+                  {selected && <Ionicons name="checkmark-circle" size={16} color={c.primary} />}
                 </TouchableOpacity>
               );
             })}
@@ -269,7 +273,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
                 onPress={() => { setSubject(name); setSubjectFocused(false); }}
                 accessibilityRole="button"
               >
-                <Ionicons name="book-outline" size={14} color={PRIMARY} />
+                <Ionicons name="book-outline" size={14} color={c.brandIcon} />
                 <Text style={styles.suggestionText} numberOfLines={1}>{name}</Text>
               </TouchableOpacity>
             ))}
@@ -280,7 +284,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
       {/* Due date & time */}
       <FormSection label={t('deadline_due_datetime')}>
         <View style={styles.dateRow}>
-          <View style={{ flex: 1, borderRightWidth: 1, borderRightColor: '#ECECEC' }}>
+          <View style={{ flex: 1, borderRightWidth: 1, borderRightColor: c.border }}>
             <SimpleDatePicker
               value={dueDate}
               onChange={(d) => setDueDate((prev) => { const n = new Date(d); n.setHours(prev.getHours(), prev.getMinutes()); return n; })}
@@ -303,7 +307,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         <TextInput
           style={[styles.input, styles.noteInput]}
           placeholder={t('deadline_note_placeholder')}
-          placeholderTextColor={INACTIVE}
+          placeholderTextColor={c.textMuted}
           value={note}
           onChangeText={setNote}
           maxLength={200}
@@ -337,7 +341,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
         activeOpacity={0.85}
         accessibilityRole="button"
       >
-        <Ionicons name={existing ? 'checkmark-circle' : 'add-circle'} size={20} color="#fff" />
+        <Ionicons name={existing ? 'checkmark-circle' : 'add-circle'} size={20} color={c.onPrimary} />
         <Text style={styles.saveBtnText}>{existing ? t('deadline_save_changes') : t('deadline_add')}</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -345,6 +349,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
 }
 
 function FormSection({ label, children }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.section}>
       <Text style={styles.sectionLabel}>{label}</Text>
@@ -354,13 +359,15 @@ function FormSection({ label, children }) {
 }
 
 function ToggleRow({ icon, label, value, onToggle, last }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <TouchableOpacity
       style={[styles.toggleRow, !last && styles.toggleRowBorder]}
       onPress={onToggle}
       activeOpacity={0.7}
     >
-      <Ionicons name={icon} size={18} color={PRIMARY} />
+      <Ionicons name={icon} size={18} color={c.primary} />
       <Text style={styles.toggleLabel}>{label}</Text>
       <View style={[styles.toggle, value && styles.toggleOn]}>
         <View style={[styles.toggleThumb, value && styles.toggleThumbOn]} />
@@ -369,23 +376,23 @@ function ToggleRow({ icon, label, value, onToggle, last }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   content: { padding: 16, paddingBottom: 40 },
   section: { marginBottom: 20 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: INACTIVE,
+    color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 6,
     marginLeft: 4,
   },
-  sectionCard: { backgroundColor: BG, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: '#ECECEC' },
-  input: { paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: '#1A1A1A' },
+  sectionCard: { backgroundColor: c.surface, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: c.border },
+  input: { paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: c.text },
   noteInput: { minHeight: 80, textAlignVertical: 'top' },
-  charCount: { fontSize: 11, color: INACTIVE, textAlign: 'right', paddingRight: 14, paddingBottom: 8 },
+  charCount: { fontSize: 11, color: c.textMuted, textAlign: 'right', paddingRight: 14, paddingBottom: 8 },
   linkedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -393,22 +400,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ECECEC',
+    borderBottomColor: c.border,
     borderLeftWidth: 4,
-    backgroundColor: ACCENT,
+    backgroundColor: c.accent,
   },
   linkedDot: { width: 10, height: 10, borderRadius: 5 },
-  linkedText: { flex: 1, fontSize: 13, fontWeight: '600', color: DARK },
-  suggestions: { borderTopWidth: 1, borderTopColor: '#ECECEC' },
+  linkedText: { flex: 1, fontSize: 13, fontWeight: '600', color: c.brandIcon },
+  suggestions: { borderTopWidth: 1, borderTopColor: c.border },
   pickerHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: ACCENT,
+    backgroundColor: c.accent,
   },
-  pickerHeaderText: { fontSize: 11, fontWeight: '700', color: PRIMARY, textTransform: 'uppercase', letterSpacing: 0.5 },
+  pickerHeaderText: { fontSize: 11, fontWeight: '700', color: c.brandIcon, textTransform: 'uppercase', letterSpacing: 0.5 },
   courseRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -416,13 +423,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 13,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: c.border,
   },
-  courseRowSelected: { backgroundColor: ACCENT },
+  courseRowSelected: { backgroundColor: c.accent },
   courseDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
-  courseRowText: { flex: 1, fontSize: 14, color: '#1A1A1A' },
+  courseRowText: { flex: 1, fontSize: 14, color: c.text },
   noMatch: { padding: 14 },
-  noMatchText: { fontSize: 13, color: INACTIVE },
+  noMatchText: { fontSize: 13, color: c.textMuted },
   suggestionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -430,9 +437,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 11,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: c.border,
   },
-  suggestionText: { fontSize: 14, color: '#1A1A1A', flex: 1 },
+  suggestionText: { fontSize: 14, color: c.text, flex: 1 },
   categoryRow: { flexDirection: 'row', padding: 12, gap: 8 },
   categoryChip: {
     flex: 1,
@@ -443,16 +450,16 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#ECECEC',
-    backgroundColor: BG,
+    borderColor: c.border,
+    backgroundColor: c.surface,
   },
-  categoryChipText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
+  categoryChipText: { fontSize: 12, fontWeight: '600', color: c.textMuted },
   dateRow: { flexDirection: 'row' },
   toggleRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
-  toggleRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F2F2F2' },
-  toggleLabel: { flex: 1, fontSize: 15, color: '#1A1A1A' },
-  toggle: { width: 44, height: 26, borderRadius: 13, backgroundColor: BORDER, padding: 2 },
-  toggleOn: { backgroundColor: PRIMARY },
+  toggleRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
+  toggleLabel: { flex: 1, fontSize: 15, color: c.text },
+  toggle: { width: 44, height: 26, borderRadius: 13, backgroundColor: c.border, padding: 2 },
+  toggleOn: { backgroundColor: c.primary },
   toggleThumb: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' },
   toggleThumbOn: { transform: [{ translateX: 18 }] },
   saveBtn: {
@@ -460,11 +467,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     padding: 16,
     borderRadius: 14,
     marginTop: 4,
   },
   saveBtnDisabled: { opacity: 0.6 },
-  saveBtnText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  saveBtnText: { fontSize: 16, fontWeight: '700', color: c.onPrimary },
 });

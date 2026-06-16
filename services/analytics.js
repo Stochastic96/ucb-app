@@ -34,6 +34,7 @@ function makeSessionId() {
 const SESSION_ID = makeSessionId();
 let _queue = [];
 let _flushTimer = null;
+let _persistPromise = Promise.resolve();
 
 // Session-scoped engagement counters (reset by startSession)
 let _sessionStart = Date.now();
@@ -44,7 +45,7 @@ let _ended = false; // guards against duplicate session_end on inactive/backgrou
 function persistQueue() {
   // Fire-and-forget: keep pending events durable so an app kill before flush
   // doesn't lose engagement data.
-  AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(_queue)).catch(() => {});
+  _persistPromise = AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(_queue)).catch(() => {});
 }
 
 function scheduleFlush() {
@@ -160,6 +161,7 @@ export function endSession() {
     screens_viewed: _screensViewed.size,
     events: _eventCount,
   });
+  // Flush immediately so session_end is sent before the OS suspends background threads
   flushNow();
 }
 

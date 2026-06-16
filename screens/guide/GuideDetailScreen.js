@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import guideChecklist from '../../data/guide_checklist.json';
 import guideOffices from '../../data/guide_offices.json';
@@ -11,7 +10,6 @@ import guideFaq from '../../data/guide_faq.json';
 import guideContacts from '../../data/guide_contacts.json';
 import guideEmergency from '../../data/guide_emergency.json';
 import { Linking } from 'react-native';
-import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
 import SearchBar from '../../components/SearchBar';
 import { useTranslation } from '../../services/i18n';
 import { getAllBuildings } from '../../services/buildings';
@@ -22,6 +20,9 @@ import guideAccommodation from '../../data/guide_accommodation.json';
 import guideBureaucracy from '../../data/guide_bureaucracy.json';
 import guideLanguage from '../../data/guide_language.json';
 import guideRights from '../../data/guide_rights.json';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import AsyncStorageInstance from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '../../constants/storageKeys';
 
 const INFO_SECTIONS = {
   work: guideWork,
@@ -45,19 +46,22 @@ const CATEGORIES = {
 
 function EmptyState({ message }) {
   const t = useTranslation();
+  const c = useTheme();
   return (
-    <View style={styles.emptyState}>
-      <Ionicons name="search-outline" size={36} color={INACTIVE} />
-      <Text style={styles.emptyText}>{message ?? t('guide_detail_no_results')}</Text>
+    <View style={{ alignItems: 'center', marginTop: 60, opacity: 0.5 }}>
+      <Ionicons name="search-outline" size={36} color={c.textMuted} />
+      <Text style={{ fontSize: 14, color: c.textMuted, marginTop: 8 }}>{message ?? t('guide_detail_no_results')}</Text>
     </View>
   );
 }
 
-const CHECKLIST_STORAGE_KEY = 'ucb_guide_checklist_checked';
+const CHECKLIST_STORAGE_KEY = STORAGE_KEYS.GUIDE_CHECKLIST;
 
 export default function GuideDetailScreen({ route }) {
   const { category } = route.params ?? {};
   const data = CATEGORIES[category] ?? [];
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState({});
   // Checklist state — hoisted here to obey Rules of Hooks
@@ -71,7 +75,7 @@ export default function GuideDetailScreen({ route }) {
   // Load persisted checklist state on mount
   useEffect(() => {
     if (category !== 'checklist') return;
-    AsyncStorage.getItem(CHECKLIST_STORAGE_KEY).then((raw) => {
+    AsyncStorageInstance.getItem(CHECKLIST_STORAGE_KEY).then((raw) => {
       if (raw) {
         try { setChecked(JSON.parse(raw)); } catch {}
       }
@@ -81,7 +85,7 @@ export default function GuideDetailScreen({ route }) {
   const toggleChecked = (id) => {
     setChecked((s) => {
       const next = { ...s, [id]: !s[id] };
-      AsyncStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+      AsyncStorageInstance.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(next)).catch(() => {});
       return next;
     });
   };
@@ -118,26 +122,26 @@ export default function GuideDetailScreen({ route }) {
             <Text style={styles.emergencyDesc}>{item.description}</Text>
             {item.phone && (
               <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`)} style={styles.linkRow}>
-                <Ionicons name="call-outline" size={16} color={PRIMARY} style={{ marginRight: 4 }} />
+                <Ionicons name="call-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                 <Text style={styles.emergencyPhone}>{item.phone}</Text>
               </TouchableOpacity>
             )}
             {item.email && (
               <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`)} style={styles.linkRow}>
-                <Ionicons name="mail-outline" size={16} color={PRIMARY} style={{ marginRight: 4 }} />
+                <Ionicons name="mail-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                 <Text style={styles.emergencyEmail}>{item.email}</Text>
               </TouchableOpacity>
             )}
           </View>
         )}
-        style={{ backgroundColor: SURFACE }}
+        style={styles.container}
       />
     );
   }
 
   if (category === 'contacts') {
     return (
-      <View style={{ flex: 1, backgroundColor: SURFACE }}>
+      <View style={styles.container}>
         <View style={styles.searchWrapper}>
           <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_contacts')} />
         </View>
@@ -154,19 +158,19 @@ export default function GuideDetailScreen({ route }) {
               {item.office && <Text style={styles.contactOffice}>🏢 {item.office}</Text>}
               {item.phone && (
                 <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`)} style={styles.linkRow}>
-                  <Ionicons name="call-outline" size={16} color={PRIMARY} style={{ marginRight: 4 }} />
+                  <Ionicons name="call-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                   <Text style={styles.contactEmail}>{item.phone}</Text>
                 </TouchableOpacity>
               )}
               {item.email && (
                 <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`)} style={styles.linkRow}>
-                  <Ionicons name="mail-outline" size={16} color={PRIMARY} style={{ marginRight: 4 }} />
+                  <Ionicons name="mail-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                   <Text style={styles.contactEmail}>{item.email}</Text>
                 </TouchableOpacity>
               )}
             </View>
           )}
-          style={{ backgroundColor: SURFACE }}
+          style={styles.container}
         />
       </View>
     );
@@ -182,17 +186,18 @@ export default function GuideDetailScreen({ route }) {
     const checkedCount = allTasks.filter(task => checked[task.id]).length;
     const progress = allTasks.length > 0 ? checkedCount / allTasks.length : 0;
     const done = allTasks.length > 0 && checkedCount === allTasks.length;
+    const activeDoneColor = c.mode === 'dark' ? '#81C784' : '#2E7D32';
 
     return (
-      <View style={{ flex: 1, backgroundColor: SURFACE }}>
+      <View style={styles.container}>
         <View style={{ margin: 16, marginBottom: 8 }}>
           {done ? (
-            <Text style={[styles.progressLabel, { color: '#2E7D32' }]}>{t('guide_all_done')}</Text>
+            <Text style={[styles.progressLabel, { color: activeDoneColor }]}>{t('guide_all_done')}</Text>
           ) : (
             <Text style={styles.progressLabel}>{t('guide_progress', { checked: checkedCount, total: allTasks.length })}</Text>
           )}
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: done ? '#2E7D32' : PRIMARY }]} />
+            <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: done ? activeDoneColor : c.primary }]} />
           </View>
         </View>
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
@@ -209,16 +214,26 @@ export default function GuideDetailScreen({ route }) {
                   <Ionicons
                     name={checked[item.id] ? 'checkbox' : 'square-outline'}
                     size={24}
-                    color={checked[item.id] ? PRIMARY : INACTIVE}
+                    color={checked[item.id] ? c.primary : c.textMuted}
                     style={{ marginRight: 12, marginTop: 2 }}
                   />
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.checklistTask, checked[item.id] && { textDecorationLine: 'line-through', color: INACTIVE }]}>
+                    <Text style={[styles.checklistTask, checked[item.id] && { textDecorationLine: 'line-through', color: c.textMuted }]}>
                       {item.task}
                     </Text>
                     <Text style={styles.checklistDetails}>{item.details}</Text>
-                    {item.office && <Text style={styles.checklistOffice}>📍 {item.office}</Text>}
-                    {item.deadline && <Text style={styles.checklistDeadline}>⏰ {item.deadline}</Text>}
+                    {item.office && (
+                      <View style={styles.checklistMetaRow}>
+                        <Ionicons name="location-outline" size={12} color={c.textMuted} />
+                        <Text style={[styles.checklistOffice, { marginTop: 0 }]}>{item.office}</Text>
+                      </View>
+                    )}
+                    {item.deadline && (
+                      <View style={styles.checklistMetaRow}>
+                        <Ionicons name="time-outline" size={12} color={c.warning} />
+                        <Text style={[styles.checklistDeadline, { marginTop: 0 }]}>{item.deadline}</Text>
+                      </View>
+                    )}
                   </View>
                 </TouchableOpacity>
               ))}
@@ -247,20 +262,20 @@ export default function GuideDetailScreen({ route }) {
                 <Text style={styles.officeName}>{item.name}</Text>
                 <Text style={styles.officeSubtitle}>{t('guide_office_location', { building: item.building, room: item.room })}</Text>
               </View>
-              <Ionicons name={expanded[item.id] ? 'chevron-up' : 'chevron-down'} size={20} color={PRIMARY} />
+              <Ionicons name={expanded[item.id] ? 'chevron-up' : 'chevron-down'} size={20} color={c.primary} />
             </View>
             {expanded[item.id] && (
               <View style={styles.officeExpanded}>
                 <Text style={styles.officeHours}>🕐 {item.hours}</Text>
                 {item.phone && (
                   <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`)} style={styles.linkRow}>
-                    <Ionicons name="call-outline" size={14} color={PRIMARY} style={{ marginRight: 4 }} />
+                    <Ionicons name="call-outline" size={14} color={c.primary} style={{ marginRight: 4 }} />
                     <Text style={styles.officeLinkText}>{item.phone}</Text>
                   </TouchableOpacity>
                 )}
                 {item.email && (
                   <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`)} style={styles.linkRow}>
-                    <Ionicons name="mail-outline" size={14} color={PRIMARY} style={{ marginRight: 4 }} />
+                    <Ionicons name="mail-outline" size={14} color={c.primary} style={{ marginRight: 4 }} />
                     <Text style={styles.officeLinkText}>{item.email}</Text>
                   </TouchableOpacity>
                 )}
@@ -276,14 +291,14 @@ export default function GuideDetailScreen({ route }) {
             )}
           </TouchableOpacity>
         )}
-        style={{ backgroundColor: SURFACE }}
+        style={styles.container}
       />
     );
   }
 
   if (category === 'glossary') {
     return (
-      <View style={{ flex: 1, backgroundColor: SURFACE }}>
+      <View style={styles.container}>
         <View style={styles.searchWrapper}>
           <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_terms')} />
         </View>
@@ -299,6 +314,7 @@ export default function GuideDetailScreen({ route }) {
               <Text style={styles.glossaryDef}>{item.definition}</Text>
             </View>
           )}
+          style={styles.container}
         />
       </View>
     );
@@ -311,8 +327,10 @@ export default function GuideDetailScreen({ route }) {
       return acc;
     }, {});
 
+    const copiedBadgeColor = c.mode === 'dark' ? '#81C784' : '#2E7D32';
+
     return (
-      <ScrollView style={{ backgroundColor: SURFACE }}>
+      <ScrollView style={styles.container}>
         {Object.entries(grouped).map(([cat, items]) => (
           <View key={cat} style={{ padding: 16 }}>
             <Text style={styles.phraseCat}>{cat.toUpperCase()}</Text>
@@ -329,7 +347,7 @@ export default function GuideDetailScreen({ route }) {
                   <Text style={styles.phrasePhonetic}>{p.phonetic}</Text>
                 </View>
                 <View style={styles.copyBadge}>
-                  <Ionicons name={copiedId === p.id ? 'checkmark' : 'copy-outline'} size={16} color={copiedId === p.id ? '#2E7D32' : INACTIVE} />
+                  <Ionicons name={copiedId === p.id ? 'checkmark' : 'copy-outline'} size={16} color={copiedId === p.id ? copiedBadgeColor : c.textMuted} />
                   {copiedId === p.id && <Text style={styles.copiedText}>{t('guide_copied')}</Text>}
                 </View>
               </TouchableOpacity>
@@ -346,7 +364,7 @@ export default function GuideDetailScreen({ route }) {
     const categoryFiltered = selectedFaqCat === 'all' ? filtered : filtered.filter(f => f.category === selectedFaqCat);
 
     return (
-      <View style={{ flex: 1, backgroundColor: SURFACE }}>
+      <View style={styles.container}>
         <View style={styles.searchWrapper}>
           <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_faq')} />
         </View>
@@ -384,12 +402,12 @@ export default function GuideDetailScreen({ route }) {
                 <Text style={styles.faqQuestion} numberOfLines={expanded[item.id] ? undefined : 1}>
                   {item.question}
                 </Text>
-                <Ionicons name={expanded[item.id] ? 'chevron-up' : 'chevron-down'} size={20} color={PRIMARY} />
+                <Ionicons name={expanded[item.id] ? 'chevron-up' : 'chevron-down'} size={20} color={c.primary} />
               </View>
               {expanded[item.id] && <Text style={styles.faqAnswer}>{item.answer}</Text>}
             </TouchableOpacity>
           )}
-          style={{ backgroundColor: SURFACE }}
+          style={styles.container}
         />
       </View>
     );
@@ -397,7 +415,7 @@ export default function GuideDetailScreen({ route }) {
 
   // buildings (default)
   return (
-    <View style={{ flex: 1, backgroundColor: SURFACE }}>
+    <View style={styles.container}>
       <View style={styles.searchWrapper}>
         <SearchBar value={search} onChangeText={setSearch} placeholder={t('guide_search_buildings')} />
       </View>
@@ -421,71 +439,71 @@ export default function GuideDetailScreen({ route }) {
             )}
           </View>
         )}
-        style={{ backgroundColor: SURFACE }}
+        style={styles.container}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  emptyState: { alignItems: 'center', marginTop: 60, opacity: 0.5 },
-  emptyText: { fontSize: 14, color: INACTIVE, marginTop: 8 },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   searchWrapper: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 },
   linkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
-  emergencyCard: { backgroundColor: BG, padding: 14, borderRadius: 10, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: '#D32F2F' },
-  emergencyName: { fontSize: 16, fontWeight: '700', color: '#D32F2F' },
-  emergencyDesc: { fontSize: 13, color: '#555', marginTop: 4 },
-  emergencyPhone: { fontSize: 13, color: PRIMARY, textDecorationLine: 'underline' },
-  emergencyEmail: { fontSize: 13, color: PRIMARY, textDecorationLine: 'underline' },
-  progressLabel: { fontWeight: '700', fontSize: 15, marginBottom: 8, color: '#1A1A1A' },
-  progressTrack: { height: 8, backgroundColor: BORDER, borderRadius: 4, overflow: 'hidden' },
+  emergencyCard: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: c.error },
+  emergencyName: { fontSize: 16, fontWeight: '700', color: c.error },
+  emergencyDesc: { fontSize: 13, color: c.textSecondary, marginTop: 4 },
+  emergencyPhone: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
+  emergencyEmail: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
+  progressLabel: { fontWeight: '700', fontSize: 15, marginBottom: 8, color: c.text },
+  progressTrack: { height: 8, backgroundColor: c.border, borderRadius: 4, overflow: 'hidden' },
   progressFill: { height: 8, borderRadius: 4 },
-  checklistWeekHeader: { fontSize: 13, fontWeight: '700', color: PRIMARY, marginBottom: 8, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
-  checklistDeadline: { fontSize: 12, color: '#F57C00', marginTop: 4 },
-  contactCard: { backgroundColor: BG, padding: 14, borderRadius: 10, marginBottom: 10 },
-  contactName: { fontSize: 16, fontWeight: '700', color: PRIMARY },
-  contactRole: { fontSize: 14, color: '#1A1A1A', marginTop: 2 },
-  contactOrg: { fontSize: 12, color: INACTIVE, marginTop: 2 },
-  contactOffice: { fontSize: 12, color: INACTIVE, marginTop: 4 },
-  contactEmail: { fontSize: 13, color: PRIMARY, textDecorationLine: 'underline' },
-  checklistItem: { backgroundColor: BG, padding: 14, borderRadius: 10, marginBottom: 10 },
-  checklistTask: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', marginTop: 2 },
-  checklistDetails: { fontSize: 13, color: '#555', marginTop: 6, lineHeight: 20 },
-  checklistOffice: { fontSize: 12, color: INACTIVE, marginTop: 6 },
-  officeCard: { backgroundColor: BG, borderRadius: 10, marginBottom: 10, overflow: 'hidden' },
+  checklistWeekHeader: { fontSize: 13, fontWeight: '700', color: c.primary, marginBottom: 8, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  checklistDeadline: { fontSize: 12, color: c.warning, marginTop: 4 },
+  contactCard: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
+  contactName: { fontSize: 16, fontWeight: '700', color: c.primary },
+  contactRole: { fontSize: 14, color: c.text, marginTop: 2 },
+  contactOrg: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  contactOffice: { fontSize: 12, color: c.textMuted, marginTop: 4 },
+  contactEmail: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
+  checklistItem: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
+  checklistTask: { fontSize: 15, fontWeight: '700', color: c.text, marginTop: 2 },
+  checklistDetails: { fontSize: 13, color: c.textSecondary, marginTop: 6, lineHeight: 20 },
+  checklistOffice: { fontSize: 12, color: c.textMuted, marginTop: 6 },
+  checklistMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  officeCard: { backgroundColor: c.surface, borderRadius: 10, marginBottom: 10, overflow: 'hidden' },
   officeHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14 },
-  officeName: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
-  officeSubtitle: { fontSize: 12, color: INACTIVE, marginTop: 2 },
-  officeExpanded: { backgroundColor: SURFACE, borderTopWidth: 1, borderTopColor: BORDER, padding: 14 },
-  officeHours: { fontSize: 12, color: '#555', marginBottom: 6 },
-  officeLinkText: { fontSize: 13, color: PRIMARY, textDecorationLine: 'underline' },
-  taskLabel: { fontSize: 11, fontWeight: '700', color: INACTIVE, marginTop: 10, marginBottom: 4, textTransform: 'uppercase' },
-  taskItem: { fontSize: 12, color: '#555', marginTop: 3 },
-  glossaryItem: { backgroundColor: BG, padding: 14, borderRadius: 10, marginBottom: 10 },
-  glossaryTerm: { fontSize: 16, fontWeight: '700', color: PRIMARY },
-  glossaryTranslation: { fontSize: 14, fontWeight: '600', color: '#1A1A1A', marginTop: 4 },
-  glossaryDef: { fontSize: 13, color: '#555', marginTop: 6, lineHeight: 20 },
-  phraseCat: { fontSize: 12, fontWeight: '700', color: INACTIVE, marginBottom: 8, letterSpacing: 0.6 },
-  phraseCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: BG, padding: 12, borderRadius: 10, marginBottom: 8 },
-  phraseCardCopied: { backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#A5D6A7' },
+  officeName: { fontSize: 15, fontWeight: '700', color: c.text },
+  officeSubtitle: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  officeExpanded: { backgroundColor: c.surfaceAlt, borderTopWidth: 1, borderTopColor: c.border, padding: 14 },
+  officeHours: { fontSize: 12, color: c.textSecondary, marginBottom: 6 },
+  officeLinkText: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
+  taskLabel: { fontSize: 11, fontWeight: '700', color: c.textMuted, marginTop: 10, marginBottom: 4, textTransform: 'uppercase' },
+  taskItem: { fontSize: 12, color: c.textSecondary, marginTop: 3 },
+  glossaryItem: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
+  glossaryTerm: { fontSize: 16, fontWeight: '700', color: c.primary },
+  glossaryTranslation: { fontSize: 14, fontWeight: '600', color: c.text, marginTop: 4 },
+  glossaryDef: { fontSize: 13, color: c.textSecondary, marginTop: 6, lineHeight: 20 },
+  phraseCat: { fontSize: 12, fontWeight: '700', color: c.textMuted, marginBottom: 8, letterSpacing: 0.6 },
+  phraseCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: c.surface, padding: 12, borderRadius: 10, marginBottom: 8 },
+  phraseCardCopied: { backgroundColor: c.mode === 'dark' ? '#1B5E2030' : '#E8F5E9', borderWidth: 1, borderColor: c.mode === 'dark' ? '#2E7D3260' : '#A5D6A7' },
   copyBadge: { alignItems: 'center', minWidth: 44 },
-  copiedText: { fontSize: 10, color: '#2E7D32', marginTop: 2, fontWeight: '600' },
-  phraseGerman: { fontSize: 14, fontWeight: '700', color: PRIMARY },
-  phraseEnglish: { fontSize: 13, color: '#1A1A1A', marginTop: 2 },
-  phrasePhonetic: { fontSize: 11, color: INACTIVE, marginTop: 2, fontStyle: 'italic' },
+  copiedText: { fontSize: 10, color: c.mode === 'dark' ? '#81C784' : '#2E7D32', marginTop: 2, fontWeight: '600' },
+  phraseGerman: { fontSize: 14, fontWeight: '700', color: c.primary },
+  phraseEnglish: { fontSize: 13, color: c.text, marginTop: 2 },
+  phrasePhonetic: { fontSize: 11, color: c.textMuted, marginTop: 2, fontStyle: 'italic' },
   faqTabRow: { paddingHorizontal: 12, marginBottom: 4, flexGrow: 0 },
-  faqCatTab: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 16, backgroundColor: BORDER, marginRight: 8, marginTop: 8 },
-  faqCatTabActive: { backgroundColor: PRIMARY },
-  faqCatTabText: { color: INACTIVE, fontWeight: '600', fontSize: 13 },
-  faqCatTabTextActive: { color: '#fff' },
-  faqCard: { backgroundColor: BG, borderRadius: 10, marginBottom: 10, overflow: 'hidden' },
+  faqCatTab: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 16, backgroundColor: c.surfaceSunken, marginRight: 8, marginTop: 8 },
+  faqCatTabActive: { backgroundColor: c.primary },
+  faqCatTabText: { color: c.textMuted, fontWeight: '600', fontSize: 13 },
+  faqCatTabTextActive: { color: c.onPrimary },
+  faqCard: { backgroundColor: c.surface, borderRadius: 10, marginBottom: 10, overflow: 'hidden' },
   faqHeader: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 8 },
-  faqQuestion: { fontSize: 14, fontWeight: '700', color: '#1A1A1A', flex: 1 },
-  faqAnswer: { backgroundColor: SURFACE, padding: 14, borderTopWidth: 1, borderTopColor: BORDER, fontSize: 13, color: '#555', lineHeight: 20 },
-  buildingCard: { backgroundColor: BG, padding: 14, borderRadius: 10, marginBottom: 10 },
-  buildingNum: { fontSize: 11, color: PRIMARY, fontWeight: '700', textTransform: 'uppercase' },
-  buildingName: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', marginTop: 4 },
-  buildingDesc: { fontSize: 13, color: '#555', marginTop: 4 },
-  servicesLabel: { fontSize: 11, fontWeight: '700', color: INACTIVE, marginTop: 8, textTransform: 'uppercase' },
-  service: { fontSize: 12, color: '#555', marginTop: 3 },
+  faqQuestion: { fontSize: 14, fontWeight: '700', color: c.text, flex: 1 },
+  faqAnswer: { backgroundColor: c.surfaceAlt, padding: 14, borderTopWidth: 1, borderTopColor: c.border, fontSize: 13, color: c.textSecondary, lineHeight: 20 },
+  buildingCard: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
+  buildingNum: { fontSize: 11, color: c.primary, fontWeight: '700', textTransform: 'uppercase' },
+  buildingName: { fontSize: 15, fontWeight: '700', color: c.text, marginTop: 4 },
+  buildingDesc: { fontSize: 13, color: c.textSecondary, marginTop: 4 },
+  servicesLabel: { fontSize: 11, fontWeight: '700', color: c.textMuted, marginTop: 8, textTransform: 'uppercase' },
+  service: { fontSize: 12, color: c.textSecondary, marginTop: 3 },
 });

@@ -15,7 +15,7 @@ import useStore from '../../store/useStore';
 import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
 import { trackEvent } from '../../services/analytics';
 import { enqueueOfflineOp } from '../../services/offlineQueue';
-import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, ACCENT, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 function daysUntil(dateStr) {
@@ -31,40 +31,45 @@ function formatDueDate(dateStr) {
 }
 
 function UrgencyBadge({ days, done, t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const dark = c.mode === 'dark';
   if (done) return (
-    <View style={[styles.badge, { backgroundColor: '#F5F5F5' }]}>
-      <Text style={[styles.badgeText, { color: INACTIVE }]}>{t('planner_badge_done')}</Text>
+    <View style={[styles.badge, { backgroundColor: c.surfaceSunken }]}>
+      <Text style={[styles.badgeText, { color: c.textMuted }]}>{t('planner_badge_done')}</Text>
     </View>
   );
   if (days < 0) return (
-    <View style={[styles.badge, { backgroundColor: '#FFEBEE' }]}>
-      <Text style={[styles.badgeText, { color: ERROR }]}>{t('planner_badge_overdue')}</Text>
+    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(239,83,80,0.18)' : '#FFEBEE' }]}>
+      <Text style={[styles.badgeText, { color: c.error }]}>{t('planner_badge_overdue')}</Text>
     </View>
   );
   if (days === 0) return (
-    <View style={[styles.badge, { backgroundColor: '#FFF3E0' }]}>
-      <Text style={[styles.badgeText, { color: '#E65100', fontWeight: '800' }]}>{t('planner_badge_today')}</Text>
+    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(255,152,0,0.18)' : '#FFF3E0' }]}>
+      <Text style={[styles.badgeText, { color: dark ? '#FFB74D' : '#E65100', fontWeight: '800' }]}>{t('planner_badge_today')}</Text>
     </View>
   );
   if (days <= 2) return (
-    <View style={[styles.badge, { backgroundColor: '#FBE9E7' }]}>
-      <Text style={[styles.badgeText, { color: '#BF360C', fontWeight: '700' }]}>{days}d</Text>
+    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(255,87,34,0.18)' : '#FBE9E7' }]}>
+      <Text style={[styles.badgeText, { color: dark ? '#FF8A65' : '#BF360C', fontWeight: '700' }]}>{days}d</Text>
     </View>
   );
   if (days <= 7) return (
-    <View style={[styles.badge, { backgroundColor: '#FFF8E1' }]}>
-      <Text style={[styles.badgeText, { color: '#F57F17' }]}>{days}d</Text>
+    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(245,127,23,0.18)' : '#FFF8E1' }]}>
+      <Text style={[styles.badgeText, { color: dark ? '#FFD54F' : '#F57F17' }]}>{days}d</Text>
     </View>
   );
   return (
-    <View style={[styles.badge, { backgroundColor: ACCENT }]}>
-      <Text style={[styles.badgeText, { color: DARK }]}>{days}d</Text>
+    <View style={[styles.badge, { backgroundColor: c.accent }]}>
+      <Text style={[styles.badgeText, { color: c.brandIcon }]}>{days}d</Text>
     </View>
   );
 }
 
 export default function PlannerScreen({ navigation }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const deadlines = useStore((s) => s.deadlines);
   const setDeadlines = useStore((s) => s.setDeadlines);
   const updateDeadline = useStore((s) => s.updateDeadline);
@@ -81,7 +86,7 @@ export default function PlannerScreen({ navigation }) {
   };
 
   const CATEGORY_META = {
-    academic:     { labelKey: 'deadline_cat_academic',     color: PRIMARY,    icon: 'school-outline' },
+    academic:     { labelKey: 'deadline_cat_academic',     color: c.primary,  icon: 'school-outline' },
     bureaucratic: { labelKey: 'deadline_cat_bureaucratic', color: '#E65100',  icon: 'document-text-outline' },
     personal:     { labelKey: 'deadline_cat_personal',     color: '#7B1FA2',  icon: 'person-outline' },
   };
@@ -99,7 +104,7 @@ export default function PlannerScreen({ navigation }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 4 }}>
           <Tooltip text={t('planner_tooltip')} />
           <TouchableOpacity onPress={openSidebar} hitSlop={12}>
-            <Ionicons name="menu" size={24} color={PRIMARY} />
+            <Ionicons name="menu" size={24} color={c.primary} />
           </TouchableOpacity>
         </View>
       ),
@@ -156,11 +161,11 @@ export default function PlannerScreen({ navigation }) {
   if (deadlines.length === 0) {
     return (
       <View style={styles.empty}>
-        <Ionicons name="checkmark-circle-outline" size={56} color={BORDER} />
+        <Ionicons name="checkmark-circle-outline" size={56} color={c.border} />
         <Text style={styles.emptyTitle}>{t('planner_empty_title')}</Text>
         <Text style={styles.emptySub}>{t('planner_empty_sub')}</Text>
         <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddDeadline')} accessibilityRole="button">
-          <Ionicons name="add" size={20} color="#fff" />
+          <Ionicons name="add" size={20} color={c.onPrimary} />
           <Text style={styles.addBtnText}>{t('planner_add')}</Text>
         </TouchableOpacity>
       </View>
@@ -178,7 +183,7 @@ export default function PlannerScreen({ navigation }) {
         {FILTERS.map((f) => {
           const active = filter === f.key;
           const meta = CATEGORY_META[f.key];
-          const activeColor = meta ? meta.color : PRIMARY;
+          const activeColor = meta ? meta.color : c.primary;
           return (
             <TouchableOpacity
               key={f.key}
@@ -221,7 +226,7 @@ export default function PlannerScreen({ navigation }) {
                 <Ionicons
                   name={d.completed ? 'checkmark-circle' : 'ellipse-outline'}
                   size={26}
-                  color={d.completed ? PRIMARY : BORDER}
+                  color={d.completed ? c.primary : c.border}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -246,7 +251,7 @@ export default function PlannerScreen({ navigation }) {
                   {d.subject ? (
                     <View style={styles.subjectRow}>
                       {linkedCourse && (
-                        <View style={[styles.subjectDot, { backgroundColor: linkedCourse.color ?? PRIMARY }]} />
+                        <View style={[styles.subjectDot, { backgroundColor: linkedCourse.color ?? c.primary }]} />
                       )}
                       <Text style={styles.subject} numberOfLines={1}>{d.subject}</Text>
                     </View>
@@ -265,7 +270,7 @@ export default function PlannerScreen({ navigation }) {
                 hitSlop={8}
                 accessibilityRole="button"
               >
-                <Ionicons name="trash-outline" size={18} color={INACTIVE} />
+                <Ionicons name="trash-outline" size={18} color={c.textMuted} />
               </TouchableOpacity>
             </View>
           );
@@ -277,24 +282,26 @@ export default function PlannerScreen({ navigation }) {
         activeOpacity={0.85}
         accessibilityRole="button"
       >
-        <Ionicons name="add" size={28} color="#fff" />
+        <Ionicons name="add" size={28} color={c.onPrimary} />
       </TouchableOpacity>
     </View>
   );
 }
 
 function ReminderPill({ label }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.reminderPill}>
-      <Ionicons name="notifications-outline" size={10} color={PRIMARY} />
+      <Ionicons name="notifications-outline" size={10} color={c.primary} />
       <Text style={styles.reminderPillText}>{label}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
-  filterBar: { flexGrow: 0, backgroundColor: BG, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
+  filterBar: { flexGrow: 0, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border },
   filterBarContent: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
   filterChip: {
     flexDirection: 'row',
@@ -304,28 +311,28 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: '#E0E0E0',
-    backgroundColor: BG,
+    borderColor: c.border,
+    backgroundColor: c.surface,
   },
   filterDot: { width: 7, height: 7, borderRadius: 4 },
-  filterChipText: { fontSize: 13, fontWeight: '600', color: INACTIVE },
+  filterChipText: { fontSize: 13, fontWeight: '600', color: c.textMuted },
   list: { padding: 12, paddingBottom: 100 },
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: SURFACE, padding: 32, gap: 12 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A' },
-  emptySub: { fontSize: 14, color: INACTIVE, textAlign: 'center', lineHeight: 20 },
-  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: PRIMARY, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24, marginTop: 8 },
-  addBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg, padding: 32, gap: 12 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: c.text },
+  emptySub: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
+  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24, marginTop: 8 },
+  addBtnText: { fontSize: 15, fontWeight: '700', color: c.onPrimary },
   emptyFilter: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60 },
-  emptyFilterText: { fontSize: 15, color: INACTIVE },
+  emptyFilterText: { fontSize: 15, color: c.textMuted },
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 12,
     marginBottom: 10,
     gap: 10,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
@@ -335,8 +342,8 @@ const styles = StyleSheet.create({
   checkBtn: { paddingTop: 2 },
   cardBody: { flex: 1 },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 4 },
-  cardTitle: { flex: 1, fontSize: 16, fontWeight: '700', color: '#1A1A1A', lineHeight: 22 },
-  strikethrough: { textDecorationLine: 'line-through', color: INACTIVE },
+  cardTitle: { flex: 1, fontSize: 16, fontWeight: '700', color: c.text, lineHeight: 22 },
+  strikethrough: { textDecorationLine: 'line-through', color: c.textMuted },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' },
   categoryPill: {
     flexDirection: 'row',
@@ -351,15 +358,15 @@ const styles = StyleSheet.create({
   categoryPillText: { fontSize: 11, fontWeight: '700' },
   subjectRow: { flexDirection: 'row', alignItems: 'center', gap: 5, flexShrink: 1 },
   subjectDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  subject: { fontSize: 13, color: PRIMARY, fontWeight: '600', flexShrink: 1 },
-  dueDate: { fontSize: 12, color: INACTIVE, marginBottom: 4 },
-  note: { fontSize: 13, color: '#555', lineHeight: 18, marginBottom: 6 },
+  subject: { fontSize: 13, color: c.brandIcon, fontWeight: '600', flexShrink: 1 },
+  dueDate: { fontSize: 12, color: c.textMuted, marginBottom: 4 },
+  note: { fontSize: 13, color: c.textSecondary, lineHeight: 18, marginBottom: 6 },
   reminders: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  reminderPill: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: ACCENT, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6 },
-  reminderPillText: { fontSize: 11, color: DARK, fontWeight: '500' },
+  reminderPill: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: c.accent, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6 },
+  reminderPillText: { fontSize: 11, color: c.brandIcon, fontWeight: '500' },
   deleteBtn: { paddingTop: 4 },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, minWidth: 44, alignItems: 'center' },
-  badgeText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
+  badgeText: { fontSize: 12, fontWeight: '600', color: c.textMuted },
   fab: {
     position: 'absolute',
     bottom: 24,
@@ -367,10 +374,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.2,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },

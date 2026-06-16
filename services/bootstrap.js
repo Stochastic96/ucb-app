@@ -130,11 +130,62 @@ async function _runBootstrap(force) {
     if (!store.dataReady) {
       store.setCourses([]);
       store.setEvents([]);
+      store.setBootstrapError(normalized);
     }
     trackEvent('error', 'bootstrap_error', { error_type: normalized.type });
-    store.setBootstrapError(normalized);
     throw normalized;
   } finally {
     store.setHydrating(false);
+  }
+}
+
+// Hydrates the Zustand store from stale AsyncStorage cache on cold starts.
+// This allows the UI to render cached data instantly before background sync starts.
+export async function hydrateStoreFromCache() {
+  const store = useStore.getState();
+  try {
+    const { getStaleCacheData } = await import('./cache');
+
+
+    // Load current semester
+    const sem = await getStaleCacheData('current_semester');
+    if (sem?.data) {
+      store.setCurrentSemester(sem.data);
+    }
+
+    // Load courses
+    const courses = await getStaleCacheData('courses');
+    if (courses?.data) {
+      const { getCurrentSemesterCourses } = await import('./courses');
+      const semCourses = getCurrentSemesterCourses(courses.data);
+      store.setCourses(semCourses);
+    }
+
+    // Load events
+    const events = await getStaleCacheData('events');
+    if (events?.data) {
+      store.setEvents(events.data);
+    }
+
+    // Load news
+    const news = await getStaleCacheData('news');
+    if (news?.data) {
+      store.setNews(news.data);
+    }
+
+    // Only mark as ready if we actually have some cached data to render
+    const hasCache =
+      (courses?.data && courses.data.length > 0) ||
+      (events?.data && events.data.length > 0) ||
+      (news?.data && news.data.length > 0);
+
+    if (hasCache) {
+      store.setDataReady(true);
+      return true;
+    }
+    return false;
+  } catch (err) {
+    logger.warn('Bootstrap', 'Failed to hydrate store from cache', err);
+    return false;
   }
 }

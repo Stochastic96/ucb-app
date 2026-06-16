@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Buffer } from 'buffer';
 import { BASE_URL } from '../constants/config';
 import { SECURE_KEYS } from '../constants/secureKeys';
+import * as logger from './logger';
 
 // In-memory credential cache — avoids concurrent SecureStore races
 let _cachedUsername = null;
@@ -46,7 +47,7 @@ async function requestJson(path, { username, password, method = 'GET' }) {
   const fullUrl = `${BASE_URL}${path}`;
 
   try {
-    console.log(`[API] ${method} ${path}`);
+    logger.debug('API', `${method} ${path}`);
     const response = await fetch(fullUrl, {
       method,
       headers: {
@@ -55,7 +56,7 @@ async function requestJson(path, { username, password, method = 'GET' }) {
       },
       signal: controller.signal,
     });
-    console.log(`[API] Response ${response.status} for ${path}`);
+    logger.debug('API', `Response ${response.status} for ${path}`);
 
     const contentType = response.headers.get('content-type') ?? '';
     let data = null;
@@ -77,9 +78,9 @@ async function requestJson(path, { username, password, method = 'GET' }) {
   } catch (error) {
     if (error.name === 'AbortError') {
       error.code = 'ECONNABORTED';
-      console.error(`[API] Request timeout for ${path}`);
+      logger.error('API', `Request timeout for ${path}`);
     } else {
-      console.error(`[API] Request failed for ${path}:`, error.message);
+      logger.error('API', `Request failed for ${path}`, error);
     }
     throw error;
   } finally {

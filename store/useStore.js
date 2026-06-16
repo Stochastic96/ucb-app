@@ -23,6 +23,11 @@ const useStore = create((set, get) => ({
       bootstrapError: null,
       lastSyncAt: null,
       currentSemester: null,
+      deadlines: [],
+      examRegistrations: {},
+      examPlans: {},
+      goingEventIds: [],
+      goingSportIds: [],
     }),
 
   // Current semester (set from Stud.IP /semesters at bootstrap)
@@ -47,7 +52,7 @@ const useStore = create((set, get) => ({
     set({ unreadNewsCount: 0, lastNewsSeenAt: timestamp }),
 
   // Settings (persisted to AsyncStorage 'ucb_settings')
-  settings: { notificationsEnabled: false, biometricLockEnabled: false, analyticsEnabled: true },
+  settings: { notificationsEnabled: false, biometricLockEnabled: false, analyticsEnabled: false, themePreference: 'light' },
   updateSettings: (partial) =>
     set((s) => ({ settings: { ...s.settings, ...partial } })),
 

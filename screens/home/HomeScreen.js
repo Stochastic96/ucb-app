@@ -8,6 +8,7 @@ import {
   Animated,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
@@ -19,7 +20,8 @@ import EventRow from '../../components/EventRow';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, DARK, INACTIVE, SURFACE, BG, ACCENT, CATEGORY_COLORS, FACT_CATEGORY_COLORS } from '../../constants/colors';
+import { DARK, CATEGORY_COLORS, FACT_CATEGORY_COLORS } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { getDailyFact, getFactCopy } from '../../services/facts';
 import { isSameCalendarDay, toMillis, getGreeting, getTimeUntil, formatShortDate } from '../../utils/datetime';
 import {
@@ -29,6 +31,7 @@ import {
   isCampusEventActiveOnDate,
 } from '../../utils/campusContent';
 import { useTranslation } from '../../services/i18n';
+import useReducedMotion from '../../hooks/useReducedMotion';
 
 function getTodayEvents(events) {
   const today = new Date();
@@ -65,13 +68,20 @@ const QUICK_LINKS = [
 ];
 
 function QuickLinkButton({ link, label, onPress }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const reducedMotion = useReducedMotion();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const onPressIn = () =>
+  const onPressIn = () => {
+    if (reducedMotion) return;
     Animated.spring(scaleAnim, { toValue: 0.93, useNativeDriver: true, speed: 50, bounciness: 0 }).start();
+  };
 
-  const onPressOut = () =>
+  const onPressOut = () => {
+    if (reducedMotion) return;
     Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 5 }).start();
+  };
 
   return (
     <Animated.View style={[styles.quickLinkWrap, { transform: [{ scale: scaleAnim }] }]}>
@@ -81,8 +91,10 @@ function QuickLinkButton({ link, label, onPress }) {
         onPressIn={onPressIn}
         onPressOut={onPressOut}
         activeOpacity={1}
+        accessibilityRole="button"
+        accessibilityLabel={label}
       >
-        <Ionicons name={link.icon} size={28} color={DARK} />
+        <Ionicons name={link.icon} size={28} color={c.brandIcon} />
         <Text style={styles.quickLabel}>{label}</Text>
       </TouchableOpacity>
     </Animated.View>
@@ -91,6 +103,9 @@ function QuickLinkButton({ link, label, onPress }) {
 
 export default function HomeScreen({ navigation }) {
   const t = useTranslation();
+  const insets = useSafeAreaInsets();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const user = useStore((s) => s.user);
   const events = useStore((s) => s.events);
   const courses = useStore((s) => s.courses);
@@ -114,6 +129,7 @@ export default function HomeScreen({ navigation }) {
   const [sportsSchedule, setSportsSchedule] = useState([]);
   const [contentReady, setContentReady] = useState(false);
 
+  const reducedMotion = useReducedMotion();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
 
@@ -196,12 +212,18 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     if (!loading) {
+      // Respect Reduce Motion: snap to the final position instead of sliding/fading in.
+      if (reducedMotion) {
+        fadeAnim.setValue(1);
+        slideAnim.setValue(0);
+        return;
+      }
       Animated.parallel([
         Animated.timing(fadeAnim, { toValue: 1, duration: 380, useNativeDriver: true }),
         Animated.timing(slideAnim, { toValue: 0, duration: 380, useNativeDriver: true }),
       ]).start();
     }
-  }, [loading]);
+  }, [loading, reducedMotion]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -224,7 +246,7 @@ export default function HomeScreen({ navigation }) {
   const todaySports = useMemo(() => getSportsForDate(sportsSchedule), [sportsSchedule]);
   const dailyFact = useMemo(() => getDailyFact(), []);
   const dailyFactCopy = getFactCopy(dailyFact, language);
-  const dailyFactColor = FACT_CATEGORY_COLORS[dailyFact.category] ?? PRIMARY;
+  const dailyFactColor = FACT_CATEGORY_COLORS[dailyFact.category] ?? c.primary;
   const campusPreview = todayCampusEvents.length > 0 ? todayCampusEvents.slice(0, 3) : upcomingCampusEvents;
   const hasTodayHighlights = todayCampusEvents.length > 0 || todaySports.length > 0;
   const showCampusSection = contentReady && (campusPreview.length > 0 || todaySports.length > 0);
@@ -232,7 +254,7 @@ export default function HomeScreen({ navigation }) {
   if (loading || (isHydrating && !dataReady && courses.length === 0 && news.length === 0)) {
     return (
       <View style={styles.container}>
-        <LinearGradient colors={['#3D6B22', '#6FAE3E']} style={styles.headerGradient}>
+        <LinearGradient colors={['#3D6B22', '#6FAE3E']} style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}>
           <View style={styles.headerPlaceholder} />
         </LinearGradient>
         <View style={styles.loadingWrap}>
@@ -250,10 +272,10 @@ export default function HomeScreen({ navigation }) {
     <Animated.ScrollView
       style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
       contentContainerStyle={{ paddingBottom: 32 }}
-      refreshControl={<RefreshControl onRefresh={onRefresh} tintColor={PRIMARY} refreshing={refreshing} />}
+      refreshControl={<RefreshControl onRefresh={onRefresh} tintColor={c.primary} refreshing={refreshing} />}
     >
       {/* Gradient header */}
-      <LinearGradient colors={['#3D6B22', '#6FAE3E']} style={styles.header}>
+      <LinearGradient colors={['#3D6B22', '#6FAE3E']} style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View>
           <Text style={styles.greeting}>{getGreeting()},</Text>
           <Text style={styles.name}>{user?.firstName ?? 'Student'}</Text>
@@ -263,6 +285,8 @@ export default function HomeScreen({ navigation }) {
             style={styles.newsBell}
             onPress={() => openRootScreen('NewsFeed')}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={t('home_news_a11y')}
           >
             <Ionicons name="notifications-outline" size={22} color="#fff" />
             {unreadNewsCount > 0 ? (
@@ -275,6 +299,8 @@ export default function HomeScreen({ navigation }) {
             style={styles.newsBell}
             onPress={openSidebar}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={t('nav_open_menu')}
           >
             <Ionicons name="menu" size={22} color="#fff" />
           </TouchableOpacity>
@@ -283,7 +309,7 @@ export default function HomeScreen({ navigation }) {
 
       {bootstrapError && (
         <View style={styles.inlineWarning}>
-          <Ionicons name="alert-circle-outline" size={18} color="#B26A00" />
+          <Ionicons name="alert-circle-outline" size={18} color={c.onWarning} />
           <Text style={styles.inlineWarningText}>{t('home_error_loading')}</Text>
         </View>
       )}
@@ -293,6 +319,8 @@ export default function HomeScreen({ navigation }) {
         style={[styles.factCard, { borderLeftColor: dailyFactColor }]}
         onPress={() => { trackEvent('feature_use', 'fact_opened', { fact_id: dailyFact.id }); openRootScreen('FactOfTheDay'); }}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel={`${t('fact_home_title')}: ${dailyFactCopy.hook}`}
       >
         <View style={[styles.factIcon, { backgroundColor: `${dailyFactColor}1A` }]}>
           <Text style={styles.factEmoji}>{dailyFact.emoji}</Text>
@@ -310,9 +338,11 @@ export default function HomeScreen({ navigation }) {
           style={styles.card}
           onPress={() => navigation.navigate('Tools', { screen: 'ToolsHome', params: { openTimetable: true } })}
           activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel={`${t('home_next_class')}: ${nextEvent.courseTitle}`}
         >
           <View style={styles.cardHeader}>
-            <Ionicons name="time-outline" size={18} color={DARK} />
+            <Ionicons name="time-outline" size={18} color={c.brandIcon} />
             <Text style={styles.cardTitle}>{t('home_next_class')}</Text>
           </View>
           <View style={[styles.nextClassBar, { backgroundColor: nextEvent.courseColor }]} />
@@ -332,7 +362,7 @@ export default function HomeScreen({ navigation }) {
       {todayEvents.length > 0 && (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Ionicons name="calendar-outline" size={18} color={DARK} />
+            <Ionicons name="calendar-outline" size={18} color={c.brandIcon} />
             <Text style={styles.cardTitle}>{t('home_today')}</Text>
           </View>
           {todayEvents.slice(0, 4).map((e) => (
@@ -366,7 +396,7 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.section}>
           <View style={styles.sectionRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name="calendar-outline" size={18} color={DARK} />
+              <Ionicons name="calendar-outline" size={18} color={c.brandIcon} />
               <Text style={styles.sectionTitle}>{hasTodayHighlights ? t('home_whats_on') : t('home_campus_events')}</Text>
             </View>
             <TouchableOpacity onPress={() => openRootScreen('EventsList')}>
@@ -375,7 +405,7 @@ export default function HomeScreen({ navigation }) {
           </View>
           <View style={styles.eventsCard}>
             {campusPreview.map((ev) => {
-              const color = CATEGORY_COLORS[ev.category] ?? PRIMARY;
+              const color = CATEGORY_COLORS[ev.category] ?? c.primary;
               const isGoing = goingEventIds.includes(ev.id);
               return (
                 <TouchableOpacity
@@ -388,7 +418,7 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.eventRowDate}>{getCampusEventRowLabel(ev)}</Text>
                   <Text style={styles.eventRowTitle} numberOfLines={1}>{ev.title}</Text>
                   {isGoing && (
-                    <Ionicons name="notifications" size={14} color={PRIMARY} style={{ marginRight: 4 }} />
+                    <Ionicons name="notifications" size={14} color={c.primary} style={{ marginRight: 4 }} />
                   )}
                 </TouchableOpacity>
               );
@@ -415,7 +445,7 @@ export default function HomeScreen({ navigation }) {
                         )}
                       </View>
                       {isGoing && (
-                        <Ionicons name="notifications" size={14} color={PRIMARY} style={{ marginRight: 4 }} />
+                        <Ionicons name="notifications" size={14} color={c.primary} style={{ marginRight: 4 }} />
                       )}
                     </TouchableOpacity>
                   );
@@ -448,8 +478,8 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   loadingWrap: { padding: 24 },
   headerGradient: { paddingHorizontal: 24, paddingTop: 56, paddingBottom: 20 },
   headerPlaceholder: { height: 52 },
@@ -469,9 +499,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   newsBell: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -492,8 +522,8 @@ const styles = StyleSheet.create({
   inlineWarning: {
     marginHorizontal: 16,
     marginTop: 14,
-    backgroundColor: '#FFF4DE',
-    borderColor: '#F1D29B',
+    backgroundColor: c.warningSurface,
+    borderColor: c.warningBorder,
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
@@ -501,21 +531,21 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: 'flex-start',
   },
-  inlineWarningText: { flex: 1, color: '#8C5A00', fontSize: 13, lineHeight: 18 },
+  inlineWarningText: { flex: 1, color: c.onWarning, fontSize: 13, lineHeight: 18 },
   card: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginHorizontal: 16,
     marginTop: 14,
     borderRadius: 12,
     padding: 16,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.08,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
   },
   factCard: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginHorizontal: 16,
     marginTop: 14,
     borderRadius: 12,
@@ -525,7 +555,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.08,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
@@ -545,35 +575,35 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.7,
   },
-  factHook: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', lineHeight: 20, marginTop: 3 },
-  factCta: { fontSize: 12.5, fontWeight: '700', color: INACTIVE, marginTop: 6 },
+  factHook: { fontSize: 15, fontWeight: '700', color: c.text, lineHeight: 20, marginTop: 3 },
+  factCta: { fontSize: 12.5, fontWeight: '700', color: c.textMuted, marginTop: 6 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
-  cardTitle: { fontSize: 13, fontWeight: '700', color: INACTIVE, textTransform: 'uppercase', letterSpacing: 0.6 },
+  cardTitle: { fontSize: 13, fontWeight: '700', color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
   nextClassBar: { height: 3, borderRadius: 2, marginBottom: 8, width: 36 },
-  nextClassTime: { fontSize: 20, fontWeight: '800', color: DARK },
-  nextClassCourse: { fontSize: 16, fontWeight: '600', color: '#1A1A1A', marginTop: 4 },
-  nextClassRoom: { fontSize: 13, color: INACTIVE, marginTop: 3 },
+  nextClassTime: { fontSize: 20, fontWeight: '800', color: c.brandIcon },
+  nextClassCourse: { fontSize: 16, fontWeight: '600', color: c.text, marginTop: 4 },
+  nextClassRoom: { fontSize: 13, color: c.textMuted, marginTop: 3 },
   section: { marginTop: 20 },
   sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 8 },
-  sectionTitle: { fontSize: 17, fontWeight: '700', color: '#1A1A1A' },
-  seeAll: { fontSize: 13, color: DARK, fontWeight: '600' },
+  sectionTitle: { fontSize: 17, fontWeight: '700', color: c.text },
+  seeAll: { fontSize: 13, color: c.brandIcon, fontWeight: '600' },
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8 },
   quickLinkWrap: { width: '50%', padding: 4 },
   quickLink: {
     paddingVertical: 16,
     paddingHorizontal: 8,
     alignItems: 'center',
-    backgroundColor: ACCENT,
+    backgroundColor: c.accent,
     borderRadius: 12,
   },
-  quickLabel: { marginTop: 6, fontSize: 13, fontWeight: '600', color: DARK },
+  quickLabel: { marginTop: 6, fontSize: 13, fontWeight: '600', color: c.brandIcon },
   eventsCard: {
     marginHorizontal: 16,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 12,
     overflow: 'hidden',
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.06,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -584,21 +614,21 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: c.surfaceSunken,
     gap: 10,
   },
   eventStripe: { width: 4, height: 18, borderRadius: 2 },
-  eventRowDate: { fontSize: 12, fontWeight: '700', color: INACTIVE, minWidth: 38 },
+  eventRowDate: { fontSize: 12, fontWeight: '700', color: c.textMuted, minWidth: 38 },
   eventRowCopy: { flex: 1 },
-  eventRowTitle: { flex: 1, fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
-  eventRowMeta: { fontSize: 12, color: INACTIVE, marginTop: 2 },
-  sportsTodayBlock: { backgroundColor: ACCENT },
+  eventRowTitle: { flex: 1, fontSize: 14, fontWeight: '600', color: c.text },
+  eventRowMeta: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  sportsTodayBlock: { backgroundColor: c.accent },
   sportsTodayTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: DARK,
+    color: c.brandIcon,
     paddingHorizontal: 14,
     paddingTop: 12,
   },
-  sectionDivider: { height: 1, backgroundColor: '#F0F0F0' },
+  sectionDivider: { height: 1, backgroundColor: c.surfaceSunken },
 });

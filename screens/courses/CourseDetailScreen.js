@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { fetchCourseDetail, fetchCourseFiles, fetchCourseAnnouncements } from '../../services/courses';
 import SkeletonLoader from '../../components/SkeletonLoader';
-import { PRIMARY, INACTIVE, SURFACE, BG, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 const TAB_KEYS = ['course_tab_info', 'course_tab_files', 'course_tab_announcements'];
@@ -47,6 +47,8 @@ function formatFileSize(bytes) {
 
 export default function CourseDetailScreen({ route }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { courseId, color } = route.params ?? {};
   const [activeTab, setActiveTab] = useState(TAB_KEYS[0]);
   const [detail, setDetail] = useState(null);
@@ -70,7 +72,7 @@ export default function CourseDetailScreen({ route }) {
   return (
     <View style={styles.container}>
       {/* Color accent bar */}
-      <View style={[styles.colorBar, { backgroundColor: color ?? PRIMARY }]} />
+      <View style={[styles.colorBar, { backgroundColor: color ?? c.primary }]} />
 
       {/* Tabs */}
       <View style={styles.tabRow}>
@@ -99,6 +101,7 @@ export default function CourseDetailScreen({ route }) {
 }
 
 function InfoTab({ detail, t }) {
+  const styles = useThemedStyles(makeStyles);
   const attrs = detail?.attributes ?? {};
   const description = attrs.description ?? t('course_no_description');
   return (
@@ -110,6 +113,7 @@ function InfoTab({ detail, t }) {
 }
 
 function FilesTab({ files, t }) {
+  const styles = useThemedStyles(makeStyles);
   if (!files.length) {
     return <EmptyTab message={t('course_no_files')} />;
   }
@@ -132,6 +136,7 @@ function FilesTab({ files, t }) {
 }
 
 function AnnouncementsTab({ items, t }) {
+  const styles = useThemedStyles(makeStyles);
   if (!items.length) {
     return <EmptyTab message={t('course_no_announcements')} />;
   }
@@ -152,6 +157,7 @@ function AnnouncementsTab({ items, t }) {
 }
 
 function EmptyTab({ message }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyText}>{message}</Text>
@@ -159,34 +165,34 @@ function EmptyTab({ message }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.surface },
   colorBar: { height: 4 },
-  tabRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: BORDER },
+  tabRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: c.border },
   tab: { flex: 1, paddingVertical: 12, alignItems: 'center' },
-  tabActive: { borderBottomWidth: 2, borderBottomColor: PRIMARY },
-  tabText: { fontSize: 14, color: INACTIVE },
-  tabTextActive: { color: PRIMARY, fontWeight: '700' },
-  sectionLabel: { fontSize: 11, color: INACTIVE, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 8 },
-  bodyText: { fontSize: 14, color: '#1A1A1A', lineHeight: 22 },
+  tabActive: { borderBottomWidth: 2, borderBottomColor: c.primary },
+  tabText: { fontSize: 14, color: c.textMuted },
+  tabTextActive: { color: c.primary, fontWeight: '700' },
+  sectionLabel: { fontSize: 11, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 8 },
+  bodyText: { fontSize: 14, color: c.text, lineHeight: 22 },
   fileRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: c.border,
   },
-  fileName: { flex: 1, fontSize: 14, color: PRIMARY },
-  fileSize: { fontSize: 12, color: INACTIVE, marginLeft: 8 },
+  fileName: { flex: 1, fontSize: 14, color: c.brandIcon },
+  fileSize: { fontSize: 12, color: c.textMuted, marginLeft: 8 },
   announceCard: {
-    backgroundColor: SURFACE,
+    backgroundColor: c.surfaceAlt,
     borderRadius: 8,
     padding: 14,
     marginBottom: 10,
   },
-  announceDate: { fontSize: 11, color: INACTIVE, marginBottom: 4 },
-  announceTitle: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', marginBottom: 6 },
-  announceBody: { fontSize: 13, color: '#444', lineHeight: 20 },
+  announceDate: { fontSize: 11, color: c.textMuted, marginBottom: 4 },
+  announceTitle: { fontSize: 15, fontWeight: '600', color: c.text, marginBottom: 6 },
+  announceBody: { fontSize: 13, color: c.textSecondary, lineHeight: 20 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
-  emptyText: { color: INACTIVE, fontSize: 14, textAlign: 'center' },
+  emptyText: { color: c.textMuted, fontSize: 14, textAlign: 'center' },
 });

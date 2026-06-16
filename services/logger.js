@@ -19,6 +19,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const LOG_STORAGE_KEY = 'ucb_logs';
 const MAX_STORED_LOGS = 50;
 let _logs = [];
+let _isInitialized = false;
+let _pendingLogs = [];
 
 export const LogLevel = {
   INFO: 'INFO',
@@ -59,10 +61,16 @@ async function restoreLogs() {
   try {
     const stored = await AsyncStorage.getItem(LOG_STORAGE_KEY);
     if (stored) {
-      _logs = JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      _logs = [...parsed, ..._pendingLogs].slice(-MAX_STORED_LOGS);
+    } else {
+      _logs = [..._pendingLogs].slice(-MAX_STORED_LOGS);
     }
   } catch {
-    _logs = [];
+    _logs = [..._pendingLogs].slice(-MAX_STORED_LOGS);
+  } finally {
+    _isInitialized = true;
+    _pendingLogs = [];
   }
 }
 
@@ -76,15 +84,16 @@ function getTrackEvent() {
 
 function log(level, source, message, data = null, error = null) {
   const entry = createLogEntry(level, source, message, data, error);
-  _logs.push(entry);
-
-  // Keep in-memory logs capped
-  if (_logs.length > MAX_STORED_LOGS) {
-    _logs = _logs.slice(-MAX_STORED_LOGS);
+  
+  if (!_isInitialized) {
+    _pendingLogs.push(entry);
+  } else {
+    _logs.push(entry);
+    if (_logs.length > MAX_STORED_LOGS) {
+      _logs = _logs.slice(-MAX_STORED_LOGS);
+    }
+    persistLogs();
   }
-
-  // Persist to storage
-  persistLogs();
 
   // Console output with color coding (for dev tools)
   const icon = {
@@ -173,10 +182,10 @@ export function error(source, message, errorOrData = null, data = null) {
   let err = null;
   let ctx = null;
 
-  if (errorOrData instanceof Error || (typeof errorOrData === 'object' && (errorOrData.type || errorOrData.code || errorOrData.message))) {
+  if (errorOrData instanceof Error || (errorOrData && typeof errorOrData === 'object' && (errorOrData.type || errorOrData.code || errorOrData.message))) {
     err = errorOrData;
     ctx = data;
-  } else if (typeof errorOrData === 'object') {
+  } else if (errorOrData && typeof errorOrData === 'object') {
     ctx = errorOrData;
   }
 

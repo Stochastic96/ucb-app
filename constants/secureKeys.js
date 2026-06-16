@@ -4,4 +4,5 @@ export const SECURE_KEYS = {
   USERNAME: 'username',
   PASSWORD: 'password',
   SESSION_CREATED: 'ucb_session_created',
+  BIOMETRIC_ENABLED: 'ucb_secure_biometric_enabled',
 };

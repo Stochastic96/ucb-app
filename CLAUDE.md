@@ -19,6 +19,13 @@ npm run web           # expo start --web
 npm run android       # expo run:android
 npm run ios           # expo run:ios
 
+# Tests (Jest + jest-expo)
+npm test              # run the whole suite once
+npm run test:watch    # watch mode
+npm run test:coverage # with coverage report
+npx jest __tests__/services/news.test.js        # a single test file
+npx jest -t "syncUnreadNewsCount"               # tests matching a name
+
 # CORS proxy for Stud.IP in local dev (if needed)
 npm run proxy         # node scripts/studip-proxy.js  (port 3001)
 
@@ -29,7 +36,9 @@ eas build --platform android --profile production
 
 `production` profile uses `autoIncrement: true`. Both profiles share the same three `EXPO_PUBLIC_*` env vars defined in `eas.json` (Stud.IP base URL + Supabase URL/key).
 
-There is no test suite or linter configured. The codebase is plain JavaScript (`.js` files throughout); `tsconfig.json` and TypeScript dev dependencies are present but only for editor type-checking support — do not create `.ts`/`.tsx` files.
+There is a Jest test suite (config inline in `package.json`, `preset: jest-expo`, global setup in `jest.setup.js`) covering `utils/`, `services/`, `theme/`, `components/`, and `constants/colors.js` — see the `__tests__/` tree (mirrors the source layout). No linter is configured. `jest.setup.js` mocks AsyncStorage (in-memory), stubs `@expo/vector-icons` with Text-based icons (it's bundler-provided and unresolvable under Jest), and silences `console`. When adding modules, prefer pure/testable helpers and add a matching test under `__tests__/`.
+
+The codebase is plain JavaScript (`.js` files throughout); `tsconfig.json` and TypeScript dev dependencies are present but only for editor type-checking support — do not create `.ts`/`.tsx` files.
 
 ## Local Development Setup
 
@@ -61,7 +70,7 @@ The Stud.IP base URL can also be swapped to `http://localhost:3001` when running
 ### Auth & Session Flow
 
 1. `App.js` → on mount, loads persisted settings from AsyncStorage (`ucb_settings`) and calls `services/auth.checkExistingSession()`.
-2. `checkExistingSession` reads credentials from `expo-secure-store`, calls Stud.IP `/users/me`, and returns the user profile. Sessions older than `SESSION_MAX_AGE` (7 days, `constants/config.js`) require re-login.
+2. `checkExistingSession` reads credentials from `expo-secure-store`, calls Stud.IP `/users/me`, and returns the user profile. Sessions older than `SESSION_MAX_AGE` (7 days, `constants/config.js`) require re-login. On `AUTH_FAILED` it deletes credentials and returns `{ valid: false }`; on `NO_INTERNET`/`SERVER_DOWN` it falls back to a stale cached `profile` (via `getStaleCacheData`) and returns `{ valid: true, isOffline: true }` so the user stays logged in offline.
 3. On success, `bootstrapSessionData()` (`services/bootstrap.js`) runs a filtering pipeline: fetch profile → fetch all courses → fetch all events for those courses → derive `activeCourseIds` (events within 30 days past / 180 days future) → filter both courses and events to active only → fetch news. Stores results in the Zustand store and sets `isOffline: false`. Concurrent callers share one in-flight bootstrap via a `_inflightBootstrap` deduplication guard — only one `_runBootstrap` runs at a time regardless of how many callers invoke `bootstrapSessionData()` simultaneously.
 4. `RootNavigator` gates on `useStore.isLoggedIn` — renders `LoginScreen` or `MainTabs`.
 
@@ -79,12 +88,12 @@ Single Zustand store in `store/useStore.js`. Key slices:
 - **Sidebar**: `sidebarOpen` (global overlay `<Sidebar />` rendered in `App.js`)
 - **Offline**: `isOffline` — set to `false` on successful bootstrap, read by `<OfflineBanner />` (shown globally when `true`)
 - **Current semester**: `currentSemester` — set from Stud.IP `/semesters` during bootstrap; `null` until hydrated.
-- **Settings**: `settings: { notificationsEnabled, biometricLockEnabled }` — persisted to AsyncStorage `ucb_settings` on change in `SettingsScreen.js`; loaded back in `App.js` on mount.
+- **Settings**: `settings: { notificationsEnabled, biometricLockEnabled, analyticsEnabled, themePreference }` — booleans default `false` (opt-in); `themePreference` defaults `'light'`. Persisted to AsyncStorage `ucb_settings` on change in `SettingsScreen.js`; loaded back in `App.js` on mount. `analyticsEnabled` is the consent gate read by `services/analytics.js` (`shouldTrack()` requires `=== true`) and toggled by `components/AnalyticsConsentModal.js`. `clearUser()` resets the data slices (`deadlines`, `examRegistrations`, `examPlans`, `goingEventIds`, `goingSportIds`) along with auth/session state.
 
 ### Navigation Structure
 
 ```
-RootNavigator (NativeStack)
+RootNavigator (NativeStack — navigation/RootNavigator.js)
 ├── Login (unauthenticated)
 └── Main → MainTabs (BottomTabs, lazy=false)
     ├── Home
@@ -99,8 +108,11 @@ RootNavigator (NativeStack)
     + RootNavigator also owns: Profile, Settings, NewsFeed,
       CoursesList, CourseDetail (registered directly — no separate stack),
       EventsList → EventsStack (navigation/EventsStack.js),
-      FactOfTheDay (screens/facts/FactScreen.js), Impressum, Datenschutz
+      FactOfTheDay (screens/facts/FactScreen.js), Impressum, Datenschutz,
+      PrivacyPolicy (screens/legal/PrivacyPolicyScreen.js), Legal (screens/legal/LegalScreen.js)
 ```
+
+`screens/debug/DebugScreen.js` exists for log/cache inspection but is **not** wired into any navigator — reach it only by temporarily registering a route or via a dev shortcut.
 
 **Important**: `lazy={false}` on `MainTabs` pre-renders all tabs so nested stacks are initialised before programmatic navigation. Tab press listeners always reset to the root screen of each stack (`ToolsHome`, `GuideHome`) so users can never get stranded.
 
@@ -135,7 +147,7 @@ RootNavigator (NativeStack)
 **Caching** — `services/cache.js`
 - AsyncStorage with `ucb_` prefix, TTL-based (`constants/config.js` `CACHE_TTL`).
 - `getStaleCacheData()` returns expired data for offline fallback (ignores TTL).
-- `clearAllCache()` wipes all `ucb_*` keys **except** the `NON_CACHE_KEYS` set: `ucb_settings`, `ucb_news_last_seen_at`, `ucb_deadlines`, `ucb_exam_reg`, `ucb_exam_plans`, `ucb_going_state`. These are user-owned data that must not be silently deleted (DSGVO Art. 5(1)(f)).
+- `clearAllCache()` wipes all `ucb_*` keys **except** the `NON_CACHE_KEYS` set: `ucb_settings`, `ucb_news_last_seen_at`, `ucb_deadlines`, `ucb_exam_reg`, `ucb_exam_plans`, `ucb_going_state`, `ucb_fact_state` (`FACT_STATE`), `ucb_analytics_consent` (`ANALYTICS_CONSENT`), `ucb_offline_queue` (`OFFLINE_QUEUE`), and `ucb_logs`. These are user-owned/diagnostic data that must not be silently deleted (DSGVO Art. 5(1)(f)). Note `ucb_logs` is referenced as a raw literal in `cache.js`, not via `STORAGE_KEYS`.
 
 **Supabase** — `services/supabase.js` + `services/contentService.js`
 - Used for admin-managed content: Mensa menu, campus events, sports schedule, campus resources, semester calendar, guide content.
@@ -175,6 +187,14 @@ A daily sustainability-trivia feature (fits the Umwelt-Campus identity).
 - The active language is a **module-level variable** (`_language`, default `'en'`) so `t()` works in non-component modules too (e.g. `services/reminders.js`). `initLanguage()` (called in `App.js` on mount, gated by `languageReady`) loads the persisted choice from AsyncStorage key `ucb_language`.
 - It is mirrored into the Zustand store (`language` / `setLanguage`). **Changing language does a soft remount, not a hard app restart**: `App.js` wraps the tree in `<React.Fragment key={language}>`, so updating `store.language` (from `SettingsScreen`) remounts everything and every `t()` re-reads. `expo-updates`' `reloadAsync` is **not** used for this.
 
+### Theming (Light/Dark Mode)
+
+`theme/ThemeProvider.js` + the `lightTheme`/`darkTheme` palettes in `constants/colors.js`:
+- The driver is `settings.themePreference` (`'light' | 'dark' | 'system'`, default `'light'`). `resolveThemeMode(preference, systemScheme)` resolves `'system'` against `useColorScheme()`; everything else maps directly to light/dark.
+- **`<ThemeProvider>` wraps the app in `App.js`, inside `<SafeAreaProvider>` and around `<PaperProvider>`.** `App.js` also picks a matching Paper theme (`ucbTheme` / `ucbDarkTheme`, built from `MD3LightTheme`/`MD3DarkTheme`) for the same resolved mode.
+- Screens consume the active palette via hooks: `useTheme()` (palette object), `useThemeMode()` (`'light'|'dark'`), and `useThemedStyles(factory)` — a `makeStyles(theme)` → memoised `StyleSheet` helper. **Keep the `makeStyles` factory at module level** so its identity is stable across renders.
+- **`lightTheme` maps every token to the app's pre-existing hard-coded color values**, so light mode is pixel-identical to before theming. The static color exports in `constants/colors.js` remain for backward compatibility — screens not yet converted to `useTheme()` keep working and simply stay light. Palette tokens: `primary`, `primaryDark`, `brandIcon`, `onPrimary`, `bg`, `surface`, `surfaceAlt`, `surfaceSunken`, `text`, `textSecondary`, `textMuted`, `textFaint`, `border`, `accent`, `error`, `warning`, `shadow`, `mode`.
+
 ### Analytics
 
 `services/analytics.js` — anonymous engagement metrics written to the Supabase `engagement_events` table. **No personal data**; entirely no-op in `__DEV__` so local testing never pollutes production data.
@@ -213,8 +233,11 @@ Example: `screens/home/HomeScreen.js` uses `Promise.allSettled([bootstrapSession
 
 `services/reminders.js` — three scheduled notification types, all gated by `requestNotificationPermission()`:
 - **Event**: one-time, fires at 9 AM on the event date
-- **Sports**: weekly recurring, 30 min before the scheduled time
-- **Deadline**: two-tier — 24 h and 2 h before the deadline
+- **Sports**: weekly recurring, 30 min before the scheduled time (skipped if the start is before 00:30)
+- **Deadline**: per-flag — `remind2h` schedules 2 h before, `remindOnTime` schedules at the due time (`deadline_2h_*` / `deadline_ontime_*`). The legacy 24 h tier is no longer scheduled but is still cancelled (`deadline_24h_*`) for backward compatibility with old saved deadlines.
+- **Exam**: two-tier — 24 h and 2 h before (`exam_*` identifiers).
+
+`requestNotificationPermission()` requests the OS permission first and auto-updates `settings.notificationsEnabled` when granted.
 
 Notification handler is set at module load via `Notifications.setNotificationHandler()`. The on/off toggle lives in `screens/profile/SettingsScreen.js`.
 
@@ -290,12 +313,14 @@ From `app.json`:
 - `toMillis(value)` normalises any timestamp input (unix seconds, unix ms, ISO string, `Date`) to milliseconds; returns `null` for invalid values.
 - `formatTime24(value)`, `isSameCalendarDay(left, right)`, `formatRelativeFromNow(value)`, `getWeekMonday(date)`.
 
+`hooks/useReducedMotion.js` — returns `true` when the OS "Reduce Motion" accessibility setting is on (subscribes to live changes). Use it to skip/short-circuit entrance, looping, and press animations so the app honours prefers-reduced-motion. Reach for this in any new animated component.
+
 ### Constants
 
 - `constants/colors.js` — all colour tokens; `PRIMARY = '#6FAE3E'` (green), `COURSE_COLORS` array (12 colours, assigned by `index % 12`).
 - `constants/config.js` — `BASE_URL`, `STUDIP_WEB_URL`, `CACHE_TTL` map.
 - `constants/storageKeys.js` — single source of truth for all AsyncStorage key strings exported as `STORAGE_KEYS`. `cache.js`'s `NON_CACHE_KEYS` references these constants. Never use raw `ucb_*` string literals elsewhere in the codebase.
-- `constants/secureKeys.js` — single source of truth for all `expo-secure-store` key strings exported as `SECURE_KEYS` (`USERNAME`, `PASSWORD`, `SESSION_CREATED`). Used in `services/auth.js`, `services/api.js`, and `App.js`. Never use raw string literals for these keys.
+- `constants/secureKeys.js` — single source of truth for all `expo-secure-store` key strings exported as `SECURE_KEYS` (`USERNAME`, `PASSWORD`, `SESSION_CREATED`, `BIOMETRIC_ENABLED`). Used in `services/auth.js`, `services/api.js`, `App.js`, and `SettingsScreen.js`. Never use raw string literals for these keys. `BIOMETRIC_ENABLED` (`ucb_secure_biometric_enabled`) is the tamper-resistant cold-start biometric gate — set in `SettingsScreen.js`, read in `App.js`, deleted in `auth.js` `_deleteCredentials`.
 
 ### Archive
 

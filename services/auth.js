@@ -41,6 +41,17 @@ export async function checkExistingSession() {
     if (classified.type === 'AUTH_FAILED') {
       await _deleteCredentials();
       clearCachedCredentials();
+      return { valid: false, user: null, error: classified };
+    }
+    // Support offline session restoration: load cached profile from AsyncStorage if offline
+    if (classified.type === 'NO_INTERNET' || classified.type === 'SERVER_DOWN') {
+      try {
+        const { getStaleCacheData } = await import('./cache');
+        const cachedProfile = await getStaleCacheData('profile');
+        if (cachedProfile && cachedProfile.data) {
+          return { valid: true, user: cachedProfile.data, error: null, isOffline: true };
+        }
+      } catch {}
     }
     return { valid: false, user: null, error: classified };
   }
@@ -50,6 +61,7 @@ async function _deleteCredentials() {
   await SecureStore.deleteItemAsync(SECURE_KEYS.USERNAME);
   await SecureStore.deleteItemAsync(SECURE_KEYS.PASSWORD);
   await SecureStore.deleteItemAsync(SECURE_KEYS.SESSION_CREATED);
+  await SecureStore.deleteItemAsync(SECURE_KEYS.BIOMETRIC_ENABLED);
 }
 
 export async function logout() {

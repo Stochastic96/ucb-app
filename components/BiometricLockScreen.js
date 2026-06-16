@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Ionicons } from '@expo/vector-icons';
-import { PRIMARY, INACTIVE, BG } from '../constants/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
 import { logout } from '../services/auth';
 import useStore from '../store/useStore';
 import { useTranslation } from '../services/i18n';
@@ -11,6 +11,8 @@ const MAX_FAILS = 3;
 
 export default function BiometricLockScreen({ onUnlock }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [failCount, setFailCount] = useState(0);
   const [error, setError] = useState('');
   const [loggingOut, setLoggingOut] = useState(false);
@@ -65,9 +67,9 @@ export default function BiometricLockScreen({ onUnlock }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle={c.mode === 'dark' ? 'light-content' : 'dark-content'} />
       <View style={styles.iconWrap}>
-        <Ionicons name="lock-closed" size={48} color={PRIMARY} />
+        <Ionicons name="lock-closed" size={48} color={c.brandIcon} />
       </View>
       <Text style={styles.title}>UCB Navigator</Text>
       <Text style={styles.subtitle}>{t('biometric_locked_subtitle')}</Text>
@@ -81,7 +83,7 @@ export default function BiometricLockScreen({ onUnlock }) {
           accessibilityLabel={t('biometric_unlock_label')}
           accessibilityRole="button"
         >
-          <Ionicons name="finger-print-outline" size={20} color="#fff" />
+          <Ionicons name="finger-print-outline" size={20} color={c.onPrimary} />
           <Text style={styles.unlockBtnText}>{t('biometric_unlock_button')}</Text>
         </TouchableOpacity>
       ) : (
@@ -92,7 +94,7 @@ export default function BiometricLockScreen({ onUnlock }) {
           accessibilityLabel={t('biometric_logout_label')}
           accessibilityRole="button"
         >
-          <Ionicons name="log-out-outline" size={20} color="#fff" />
+          <Ionicons name="log-out-outline" size={20} color={c.onPrimary} />
           <Text style={styles.unlockBtnText}>{loggingOut ? t('biometric_logging_out') : t('biometric_logout_button')}</Text>
         </TouchableOpacity>
       )}
@@ -100,35 +102,41 @@ export default function BiometricLockScreen({ onUnlock }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: c.bg,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 32,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999,
   },
   iconWrap: {
     width: 90,
     height: 90,
     borderRadius: 22,
-    backgroundColor: '#EDF6E5',
+    backgroundColor: c.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
-  title: { fontSize: 26, fontWeight: '800', color: '#1A1A1A', marginBottom: 6 },
-  subtitle: { fontSize: 15, color: INACTIVE, marginBottom: 32 },
-  error: { fontSize: 14, color: '#D32F2F', textAlign: 'center', marginBottom: 20 },
+  title: { fontSize: 26, fontWeight: '800', color: c.text, marginBottom: 6 },
+  subtitle: { fontSize: 15, color: c.textMuted, marginBottom: 32 },
+  error: { fontSize: 14, color: c.error, textAlign: 'center', marginBottom: 20 },
   unlockBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 14,
   },
-  logoutBtn: { backgroundColor: '#D32F2F' },
-  unlockBtnText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  logoutBtn: { backgroundColor: c.error },
+  unlockBtnText: { fontSize: 16, fontWeight: '700', color: c.onPrimary },
 });

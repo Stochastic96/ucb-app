@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, BG, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import {
   buildFallbackBuilding,
   buildNativeMapsLabel,
@@ -27,6 +27,8 @@ import { useTranslation } from '../../services/i18n';
 
 export default function MapScreen() {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const searchTrackedRef = React.useRef(false);
@@ -79,28 +81,28 @@ export default function MapScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.heroCard}>
           <View style={styles.heroIcon}>
-            <Ionicons name="map-outline" size={24} color={PRIMARY} />
+            <Ionicons name="map-outline" size={24} color={c.brandIcon} />
           </View>
           <Text style={styles.heroTitle}>{t('map_title')}</Text>
           <Text style={styles.heroText}>{t('map_subtitle')}</Text>
           <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85}>
-            <Ionicons name="navigate-outline" size={18} color="#fff" />
+            <Ionicons name="navigate-outline" size={18} color={c.onPrimary} />
             <Text style={styles.campusButtonText}>{t('map_open_campus')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={18} color={INACTIVE} style={styles.searchIcon} />
+          <Ionicons name="search-outline" size={18} color={c.textMuted} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('map_search_placeholder')}
-            placeholderTextColor={INACTIVE}
+            placeholderTextColor={c.textMuted}
             value={search}
             onChangeText={handleSearchChange}
           />
           {search ? (
             <TouchableOpacity onPress={() => { searchTrackedRef.current = false; setSearch(''); }}>
-              <Ionicons name="close-circle" size={18} color={INACTIVE} />
+              <Ionicons name="close-circle" size={18} color={c.textMuted} />
             </TouchableOpacity>
           ) : null}
         </View>
@@ -129,12 +131,12 @@ export default function MapScreen() {
                   </Text>
                 )}
               </View>
-              <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
+              <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
             </TouchableOpacity>
           ))
         ) : (
           <View style={styles.emptyContainer}>
-            <Ionicons name="search-outline" size={42} color={INACTIVE} />
+            <Ionicons name="search-outline" size={42} color={c.textMuted} />
             <Text style={styles.emptyTitle}>{t('map_no_results_title')}</Text>
             <Text style={styles.emptyText}>{t('map_no_results_msg')}</Text>
           </View>
@@ -169,7 +171,7 @@ export default function MapScreen() {
                   style={styles.navBtn}
                   onPress={() => handleNavigate(selected)}
                 >
-                  <Ionicons name="navigate" size={18} color="#fff" />
+                  <Ionicons name="navigate" size={18} color={c.onPrimary} />
                   <Text style={styles.navBtnText}>{t('map_navigate')}</Text>
                 </TouchableOpacity>
               </>
@@ -181,31 +183,31 @@ export default function MapScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   content: { padding: 12, paddingBottom: 32 },
   heroCard: {
-    backgroundColor: '#F4F7FB',
+    backgroundColor: c.mode === 'dark' ? c.surfaceAlt : '#F4F7FB',
     borderRadius: 18,
     padding: 18,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#D9E3F0',
+    borderColor: c.mode === 'dark' ? c.border : '#D9E3F0',
   },
   heroIcon: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#E2ECF8',
+    backgroundColor: c.mode === 'dark' ? c.surfaceSunken : '#E2ECF8',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
-  heroText: { fontSize: 14, color: '#506070', marginTop: 6, lineHeight: 20 },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
+  heroText: { fontSize: 14, color: c.textSecondary, marginTop: 6, lineHeight: 20 },
   campusButton: {
     marginTop: 14,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -214,27 +216,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  campusButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  campusButtonText: { color: c.onPrimary, fontWeight: '700', fontSize: 15 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A', marginTop: 12 },
-  emptyText: { fontSize: 14, color: INACTIVE, marginTop: 6, textAlign: 'center' },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: c.text, marginTop: 12 },
+  emptyText: { fontSize: 14, color: c.textMuted, marginTop: 6, textAlign: 'center' },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: BORDER,
+    borderColor: c.border,
     height: 40,
   },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#1A1A1A' },
-  countText: { marginTop: 12, marginBottom: 8, color: INACTIVE, fontSize: 13, fontWeight: '600' },
+  searchInput: { flex: 1, fontSize: 14, color: c.text },
+  countText: { marginTop: 12, marginBottom: 8, color: c.textMuted, fontSize: 13, fontWeight: '600' },
   buildingCard: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: BORDER,
+    borderColor: c.border,
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
@@ -246,28 +248,28 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   buildingBadgeText: { color: '#fff', fontWeight: '800', fontSize: 15 },
   buildingInfo: { flex: 1 },
-  buildingName: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
-  buildingMeta: { fontSize: 12, color: INACTIVE, marginTop: 3 },
-  buildingDesc: { fontSize: 13, color: '#4A5560', marginTop: 6, lineHeight: 18 },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: BG, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 40 },
-  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: BORDER, alignSelf: 'center', marginBottom: 12 },
-  sheetNumber: { fontSize: 28, fontWeight: '800', color: PRIMARY },
-  sheetName: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginTop: 2 },
-  sheetDesc: { fontSize: 14, color: '#555', marginTop: 10, lineHeight: 20 },
-  servicesLabel: { fontSize: 12, color: INACTIVE, fontWeight: '700', textTransform: 'uppercase', marginTop: 12, marginBottom: 6 },
-  service: { fontSize: 13, color: '#444', marginBottom: 4 },
-  fallbackNote: { fontSize: 13, color: INACTIVE, marginTop: 12, lineHeight: 18 },
+  buildingName: { fontSize: 16, fontWeight: '700', color: c.text },
+  buildingMeta: { fontSize: 12, color: c.textMuted, marginTop: 3 },
+  buildingDesc: { fontSize: 13, color: c.textSecondary, marginTop: 6, lineHeight: 18 },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: c.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 40 },
+  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: c.border, alignSelf: 'center', marginBottom: 12 },
+  sheetNumber: { fontSize: 28, fontWeight: '800', color: c.brandIcon },
+  sheetName: { fontSize: 20, fontWeight: '700', color: c.text, marginTop: 2 },
+  sheetDesc: { fontSize: 14, color: c.textSecondary, marginTop: 10, lineHeight: 20 },
+  servicesLabel: { fontSize: 12, color: c.textMuted, fontWeight: '700', textTransform: 'uppercase', marginTop: 12, marginBottom: 6 },
+  service: { fontSize: 13, color: c.textSecondary, marginBottom: 4 },
+  fallbackNote: { fontSize: 13, color: c.textMuted, marginTop: 12, lineHeight: 18 },
   navBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 10,
@@ -275,5 +277,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  navBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  navBtnText: { color: c.onPrimary, fontWeight: '700', fontSize: 16 },
 });

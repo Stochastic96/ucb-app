@@ -14,8 +14,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import SearchBar from '../../components/SearchBar';
-import { PRIMARY, INACTIVE, BG, SURFACE, BORDER, CATEGORY_COLORS } from '../../constants/colors';
+import { CATEGORY_COLORS } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import useStore from '../../store/useStore';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
 import {
@@ -52,7 +54,9 @@ const SPORT_EMOJI = {
 
 
 function EventCard({ ev, isGoing, onToggle, t }) {
-  const color = CATEGORY_COLORS[ev.category] ?? PRIMARY;
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const color = CATEGORY_COLORS[ev.category] ?? c.primary;
   const past = isCampusEventPast(ev);
   const today = isCampusEventActiveOnDate(ev);
   const days = ev.date ? daysUntil(ev.date) : null;
@@ -73,7 +77,7 @@ function EventCard({ ev, isGoing, onToggle, t }) {
       </View>
       <View style={styles.eventRight}>
         {today && (
-          <View style={[styles.badge, { backgroundColor: PRIMARY }]}>
+          <View style={[styles.badge, { backgroundColor: c.primary }]}>
             <Text style={styles.badgeText}>{t('events_today')}</Text>
           </View>
         )}
@@ -93,7 +97,7 @@ function EventCard({ ev, isGoing, onToggle, t }) {
             <Ionicons
               name={isGoing ? 'notifications' : 'notifications-outline'}
               size={20}
-              color={isGoing ? PRIMARY : INACTIVE}
+              color={isGoing ? c.primary : c.textMuted}
             />
           </TouchableOpacity>
         )}
@@ -103,6 +107,7 @@ function EventCard({ ev, isGoing, onToggle, t }) {
 }
 
 function RecurringBanner({ campusEvents, t }) {
+  const styles = useThemedStyles(makeStyles);
   const rec = campusEvents.find((event) => isCampusEventRecurring(event));
   if (!rec) return null;
   return (
@@ -117,6 +122,8 @@ function RecurringBanner({ campusEvents, t }) {
 }
 
 function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh, refreshing, t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -168,7 +175,7 @@ function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh
         />
       )}
       stickySectionHeadersEnabled={false}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
       ListEmptyComponent={<Text style={styles.emptyText}>{t('events_no_campus')}</Text>}
       ListFooterComponent={
         <Text style={styles.footerNote}>{t('events_kadu_note')}</Text>
@@ -178,6 +185,8 @@ function CampusEventsTab({ campusEvents, goingEventIds, onToggleEvent, onRefresh
 }
 
 function SportCard({ item, isGoing, onToggle }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const emoji = SPORT_EMOJI[item.sport] ?? '🏃';
   return (
     <View style={[styles.sportCard, isGoing && styles.sportCardGoing]}>
@@ -204,7 +213,7 @@ function SportCard({ item, isGoing, onToggle }) {
           <Ionicons
             name={isGoing ? 'notifications' : 'notifications-outline'}
             size={20}
-            color={isGoing ? PRIMARY : INACTIVE}
+            color={isGoing ? c.primary : c.textMuted}
           />
         </TouchableOpacity>
       </View>
@@ -213,6 +222,8 @@ function SportCard({ item, isGoing, onToggle }) {
 }
 
 function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refreshing, t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [selectedDay, setSelectedDay] = useState(null);
   const availableDays = useMemo(
     () => DAY_ORDER.filter((day) => sportsData.some((entry) => normalizeDayName(entry.day) === day)),
@@ -253,10 +264,10 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refres
   return (
     <ScrollView
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
     >
       <View style={styles.infoBanner}>
-        <Ionicons name="information-circle-outline" size={16} color="#1565C0" />
+        <Ionicons name="information-circle-outline" size={16} color={c.mode === 'dark' ? '#90CAF9' : '#1565C0'} />
         <Text style={styles.infoText}>{t('events_sports_info')}</Text>
       </View>
 
@@ -306,6 +317,8 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refres
 
 export default function EventsScreen() {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   useEffect(() => { trackScreen('EventsScreen'); }, []);
   const navigation = useNavigation();
   const canGoBack = navigation.canGoBack();
@@ -353,6 +366,7 @@ export default function EventsScreen() {
   const handleToggleEvent = useCallback(async (ev) => {
     const going = goingEventIds.includes(ev.id);
     if (going) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
       removeGoingEvent(ev.id);
       await cancelReminder(`event_${ev.id}`);
       const next = goingEventIds.filter((x) => x !== ev.id);
@@ -378,6 +392,7 @@ export default function EventsScreen() {
         );
         return;
       }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       addGoingEvent(ev.id);
       const next = [...goingEventIds, ev.id];
       await saveGoingState(next, goingSportIds);
@@ -390,6 +405,7 @@ export default function EventsScreen() {
   const handleToggleSport = useCallback(async (sport) => {
     const going = goingSportIds.includes(sport.id);
     if (going) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
       removeGoingSport(sport.id);
       await cancelReminder(`sport_${sport.id}`);
       const next = goingSportIds.filter((x) => x !== sport.id);
@@ -415,6 +431,7 @@ export default function EventsScreen() {
         );
         return;
       }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       addGoingSport(sport.id);
       const next = [...goingSportIds, sport.id];
       await saveGoingState(goingEventIds, next);
@@ -438,14 +455,14 @@ export default function EventsScreen() {
               style={styles.backBtn}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="chevron-back" size={26} color="#1A1A1A" />
+              <Ionicons name="chevron-back" size={26} color={c.text} />
             </TouchableOpacity>
           )}
           <Text style={styles.screenTitle}>{t('screen_events')}</Text>
         </View>
         {goingCount > 0 && (
           <View style={styles.goingPill}>
-            <Ionicons name="notifications" size={13} color="#fff" />
+            <Ionicons name="notifications" size={13} color={c.onPrimary} />
             <Text style={styles.goingPillText}>
               {goingCount === 1 ? t('events_reminders_count_one') : t('events_reminders_count', { count: goingCount })}
             </Text>
@@ -458,7 +475,7 @@ export default function EventsScreen() {
           style={[styles.tabBtn, activeTab === 'events' && styles.tabBtnActive]}
           onPress={() => setActiveTab('events')}
         >
-          <Ionicons name="calendar-outline" size={16} color={activeTab === 'events' ? PRIMARY : INACTIVE} />
+          <Ionicons name="calendar-outline" size={16} color={activeTab === 'events' ? c.primary : c.textMuted} />
           <Text style={[styles.tabBtnText, activeTab === 'events' && styles.tabBtnTextActive]}>
             {t('events_tab_campus')}
           </Text>
@@ -467,7 +484,7 @@ export default function EventsScreen() {
           style={[styles.tabBtn, activeTab === 'sports' && styles.tabBtnActive]}
           onPress={() => setActiveTab('sports')}
         >
-          <Ionicons name="basketball-outline" size={16} color={activeTab === 'sports' ? PRIMARY : INACTIVE} />
+          <Ionicons name="basketball-outline" size={16} color={activeTab === 'sports' ? c.primary : c.textMuted} />
           <Text style={[styles.tabBtnText, activeTab === 'sports' && styles.tabBtnTextActive]}>
             {t('events_tab_sports')}
           </Text>
@@ -479,24 +496,24 @@ export default function EventsScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={{ flex: 1, backgroundColor: SURFACE }}>
+      <View style={{ flex: 1, backgroundColor: c.bg }}>
         {loadingContent ? (
           <View style={styles.loadingState}>
-            <ActivityIndicator color={PRIMARY} />
+            <ActivityIndicator color={c.primary} />
             <Text style={styles.loadingText}>{t('events_loading')}</Text>
           </View>
         ) : contentError ? (
           <ScrollView
             contentContainerStyle={styles.errorState}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={() => loadContent(true)} tintColor={PRIMARY} />
+              <RefreshControl refreshing={refreshing} onRefresh={() => loadContent(true)} tintColor={c.primary} />
             }
           >
-            <Ionicons name="cloud-offline-outline" size={48} color="#CCC" />
+            <Ionicons name="cloud-offline-outline" size={48} color={c.border} />
             <Text style={styles.errorTitle}>{t('events_error_title')}</Text>
             <Text style={styles.errorSub}>{t('events_error_msg')}</Text>
             <TouchableOpacity style={styles.retryBtn} onPress={() => loadContent()}>
-              <Ionicons name="refresh" size={16} color="#fff" />
+              <Ionicons name="refresh" size={16} color={c.onPrimary} />
               <Text style={styles.retryBtnText}>{t('common_retry')}</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -524,42 +541,42 @@ export default function EventsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   eventsSearchWrapper: { paddingVertical: 10 },
   headerBar: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: c.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   backBtn: { padding: 2 },
-  screenTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
+  screenTitle: { fontSize: 22, fontWeight: '800', color: c.text },
   goingPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
-  goingPillText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  goingPillText: { color: c.onPrimary, fontSize: 12, fontWeight: '700' },
 
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     paddingHorizontal: 16,
     paddingBottom: 12,
     gap: 8,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: c.border,
   },
   tabBtn: {
     flex: 1,
@@ -569,13 +586,13 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: SURFACE,
+    backgroundColor: c.surfaceSunken,
   },
-  tabBtnActive: { backgroundColor: PRIMARY + '18' },
-  tabBtnText: { fontSize: 14, fontWeight: '600', color: INACTIVE },
-  tabBtnTextActive: { color: PRIMARY },
+  tabBtnActive: { backgroundColor: c.primary + '18' },
+  tabBtnText: { fontSize: 14, fontWeight: '600', color: c.textMuted },
+  tabBtnTextActive: { color: c.primary },
   tabCountDot: {
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     borderRadius: 8,
     minWidth: 16,
     height: 16,
@@ -583,13 +600,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  tabCountDotText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+  tabCountDotText: { color: c.onPrimary, fontSize: 10, fontWeight: '700' },
 
   // Event cards
   monthHeader: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: c.text,
     marginTop: 20,
     marginBottom: 8,
   },
@@ -599,22 +616,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
-  loadingText: { fontSize: 14, color: INACTIVE, fontWeight: '500' },
+  loadingText: { fontSize: 14, color: c.textMuted, fontWeight: '500' },
   errorState: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', gap: 10, paddingHorizontal: 32, paddingTop: 80 },
-  errorTitle: { fontSize: 17, fontWeight: '700', color: '#1A1A1A' },
-  errorSub: { fontSize: 14, color: INACTIVE, textAlign: 'center', lineHeight: 20 },
-  retryBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: PRIMARY, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, marginTop: 8 },
-  retryBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
-  emptyText: { color: INACTIVE, fontSize: 14, marginTop: 24, marginBottom: 8 },
+  errorTitle: { fontSize: 17, fontWeight: '700', color: c.text },
+  errorSub: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
+  retryBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.primary, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, marginTop: 8 },
+  retryBtnText: { color: c.onPrimary, fontWeight: '700', fontSize: 14 },
+  emptyText: { color: c.textMuted, fontSize: 14, marginTop: 24, marginBottom: 8 },
   eventCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 10,
     marginBottom: 8,
     overflow: 'hidden',
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.05,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
@@ -622,11 +639,11 @@ const styles = StyleSheet.create({
   eventCardPast: { opacity: 0.45 },
   eventBorder: { width: 4, alignSelf: 'stretch' },
   eventDateBox: { paddingHorizontal: 12, paddingVertical: 14, minWidth: 64 },
-  eventDate: { fontSize: 13, fontWeight: '700', color: '#1A1A1A' },
+  eventDate: { fontSize: 13, fontWeight: '700', color: c.text },
   eventBody: { flex: 1, paddingVertical: 12, paddingRight: 4 },
-  eventTitle: { fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
-  eventOrganizer: { fontSize: 12, color: INACTIVE, marginTop: 2 },
-  dimText: { color: '#999' },
+  eventTitle: { fontSize: 14, fontWeight: '600', color: c.text },
+  eventOrganizer: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  dimText: { color: c.textFaint },
   eventRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 10 },
   badge: {
     borderRadius: 6,
@@ -640,68 +657,68 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: SURFACE,
+    backgroundColor: c.surfaceSunken,
   },
-  bellBtnActive: { backgroundColor: PRIMARY + '18' },
+  bellBtnActive: { backgroundColor: c.primary + '18' },
 
   // Recurring banner
   recurringBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: PRIMARY + '14',
+    backgroundColor: c.primary + '14',
     borderRadius: 10,
     padding: 12,
     marginTop: 16,
     marginBottom: 4,
     borderWidth: 1,
-    borderColor: PRIMARY + '30',
+    borderColor: c.primary + '30',
   },
   recurringEmoji: { fontSize: 20 },
-  recurringTitle: { fontSize: 13, fontWeight: '700', color: '#1A1A1A' },
-  recurringDesc: { fontSize: 12, color: INACTIVE, marginTop: 2 },
+  recurringTitle: { fontSize: 13, fontWeight: '700', color: c.text },
+  recurringDesc: { fontSize: 12, color: c.textMuted, marginTop: 2 },
 
   // Sports
   infoBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: c.mode === 'dark' ? 'rgba(33,150,243,0.15)' : '#E3F2FD',
     borderRadius: 10,
     padding: 12,
     marginTop: 14,
     marginBottom: 4,
   },
-  infoText: { flex: 1, fontSize: 13, color: '#1565C0' },
+  infoText: { flex: 1, fontSize: 13, color: c.mode === 'dark' ? '#90CAF9' : '#1565C0' },
   chipRow: { marginTop: 12, marginBottom: 4 },
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: BORDER,
+    borderColor: c.border,
   },
-  chipActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
-  chipText: { fontSize: 13, fontWeight: '600', color: INACTIVE },
-  chipTextActive: { color: '#fff' },
+  chipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  chipText: { fontSize: 13, fontWeight: '600', color: c.textMuted },
+  chipTextActive: { color: c.onPrimary },
   dayHeader: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: c.text,
     marginTop: 16,
     marginBottom: 8,
   },
   sportCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 10,
     padding: 12,
     marginBottom: 8,
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.05,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
@@ -709,36 +726,36 @@ const styles = StyleSheet.create({
   },
   sportCardGoing: {
     borderWidth: 1.5,
-    borderColor: PRIMARY + '50',
-    backgroundColor: PRIMARY + '06',
+    borderColor: c.primary + '50',
+    backgroundColor: c.primary + '06',
   },
   sportEmoji: { fontSize: 28 },
   sportBody: { flex: 1 },
-  sportName: { fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
-  sportInstructor: { fontSize: 12, color: INACTIVE, marginTop: 2 },
-  sportNote: { fontSize: 11, color: '#F57C00', marginTop: 2 },
+  sportName: { fontSize: 15, fontWeight: '600', color: c.text },
+  sportInstructor: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  sportNote: { fontSize: 11, color: c.warning, marginTop: 2 },
   sportRight: { alignItems: 'flex-end', gap: 6 },
   timePill: {
-    backgroundColor: SURFACE,
+    backgroundColor: c.surfaceSunken,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  timeText: { fontSize: 11, fontWeight: '700', color: '#1A1A1A' },
+  timeText: { fontSize: 11, fontWeight: '700', color: c.text },
   locationBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: c.mode === 'dark' ? 'rgba(76,175,80,0.18)' : '#E8F5E9',
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  pitchBadge: { backgroundColor: '#FFF3E0' },
-  locationText: { fontSize: 11, fontWeight: '600', color: '#2E7D32' },
-  pitchText: { color: '#E65100' },
+  pitchBadge: { backgroundColor: c.mode === 'dark' ? 'rgba(255,152,0,0.18)' : '#FFF3E0' },
+  locationText: { fontSize: 11, fontWeight: '600', color: c.mode === 'dark' ? '#A5D6A7' : '#2E7D32' },
+  pitchText: { color: c.mode === 'dark' ? '#FFB74D' : '#E65100' },
 
   footerNote: {
     textAlign: 'center',
     fontSize: 12,
-    color: INACTIVE,
+    color: c.textMuted,
     marginTop: 20,
     fontStyle: 'italic',
   },

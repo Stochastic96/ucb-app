@@ -11,21 +11,23 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../../components/SearchBar';
 import resources from '../../data/campus_resources.json';
-import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, BORDER } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 
 const CATEGORIES = [
-  { id: 'all',          labelKey: 'common_all' },
-  { id: 'mobility',     label: '🚲 Mobility' },
-  { id: 'food',         label: '🍽 Food' },
-  { id: 'sports',       label: '⚽ Sports' },
-  { id: 'study',        label: '📚 Study' },
-  { id: 'sustainability', label: '🌱 Green' },
-  { id: 'community',   label: '👥 Community' },
+  { id: 'all',            labelKey: 'common_all' },
+  { id: 'mobility',       label: 'Mobility',  icon: 'bicycle-outline' },
+  { id: 'food',           label: 'Food',      icon: 'restaurant-outline' },
+  { id: 'sports',         label: 'Sports',    icon: 'football-outline' },
+  { id: 'study',          label: 'Study',     icon: 'book-outline' },
+  { id: 'sustainability', label: 'Green',     icon: 'leaf-outline' },
+  { id: 'community',      label: 'Community', icon: 'people-outline' },
 ];
 
 export default function CampusResourcesScreen() {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   useEffect(() => { trackScreen('CampusResourcesScreen'); }, []);
   const [activeCategory, setActiveCategory] = useState('all');
   const [expanded, setExpanded] = useState(null);
@@ -69,7 +71,17 @@ export default function CampusResourcesScreen() {
             key={cat.id}
             style={[styles.filterChip, activeCategory === cat.id && styles.filterChipActive]}
             onPress={() => setActiveCategory(cat.id)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: activeCategory === cat.id }}
           >
+            {cat.icon && (
+              <Ionicons
+                name={cat.icon}
+                size={14}
+                color={activeCategory === cat.id ? c.onPrimary : c.textMuted}
+                style={styles.filterChipIcon}
+              />
+            )}
             <Text style={[styles.filterChipText, activeCategory === cat.id && styles.filterChipTextActive]}>
               {cat.labelKey ? t(cat.labelKey) : cat.label}
             </Text>
@@ -80,7 +92,7 @@ export default function CampusResourcesScreen() {
       {/* Resource cards */}
       {filtered.length === 0 ? (
         <View style={styles.empty}>
-          <Ionicons name="search-outline" size={36} color={BORDER} />
+          <Ionicons name="search-outline" size={36} color={c.border} />
           <Text style={styles.emptyText}>{t('resources_no_results')}</Text>
         </View>
       ) : (
@@ -98,6 +110,8 @@ export default function CampusResourcesScreen() {
 }
 
 function ResourceCard({ resource, expanded, onToggle }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <TouchableOpacity
       style={styles.card}
@@ -106,7 +120,7 @@ function ResourceCard({ resource, expanded, onToggle }) {
     >
       <View style={styles.cardTop}>
         <View style={styles.iconWrap}>
-          <Ionicons name={resource.icon} size={22} color={DARK} />
+          <Ionicons name={resource.icon} size={22} color={c.brandIcon} />
         </View>
         <View style={styles.cardText}>
           <Text style={styles.cardTitle}>{resource.title}</Text>
@@ -117,7 +131,7 @@ function ResourceCard({ resource, expanded, onToggle }) {
         <Ionicons
           name={expanded ? 'chevron-up' : 'chevron-down'}
           size={16}
-          color={INACTIVE}
+          color={c.textMuted}
           style={{ marginLeft: 8, alignSelf: 'flex-start', marginTop: 2 }}
         />
       </View>
@@ -128,7 +142,7 @@ function ResourceCard({ resource, expanded, onToggle }) {
 
           {resource.tip && (
             <View style={styles.tipBox}>
-              <Ionicons name="bulb-outline" size={14} color='#F57F17' />
+              <Ionicons name="bulb-outline" size={14} color={c.mode === 'dark' ? c.warning : '#F57F17'} />
               <Text style={styles.tipText}>{resource.tip}</Text>
             </View>
           )}
@@ -165,9 +179,11 @@ function ResourceCard({ resource, expanded, onToggle }) {
 }
 
 function MetaRow({ icon, text, onPress }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const Inner = (
     <View style={styles.metaRow}>
-      <Ionicons name={icon} size={14} color={DARK} />
+      <Ionicons name={icon} size={14} color={c.brandIcon} />
       <Text style={[styles.metaText, onPress && styles.metaLink]}>{text}</Text>
     </View>
   );
@@ -175,41 +191,45 @@ function MetaRow({ icon, text, onPress }) {
   return Inner;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   content: { paddingBottom: 40 },
   hero: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#ECECEC',
+    borderBottomColor: c.border,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
-  heroSub: { fontSize: 13, color: INACTIVE, marginTop: 3 },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
+  heroSub: { fontSize: 13, color: c.textMuted, marginTop: 3 },
   searchWrapper: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 },
   empty: { alignItems: 'center', paddingVertical: 48, gap: 10 },
-  emptyText: { fontSize: 14, color: INACTIVE },
+  emptyText: { fontSize: 14, color: c.textMuted },
   filterRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
   filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 20,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: '#DCDCDC',
+    borderColor: c.border,
   },
-  filterChipActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
-  filterChipText: { fontSize: 13, color: INACTIVE, fontWeight: '500' },
-  filterChipTextActive: { color: '#fff' },
+  filterChipIcon: { marginLeft: -2 },
+  filterChipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  filterChipText: { fontSize: 13, color: c.textMuted, fontWeight: '500' },
+  filterChipTextActive: { color: c.onPrimary },
   card: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginHorizontal: 12,
     marginBottom: 8,
     borderRadius: 14,
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.04,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -220,27 +240,27 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 11,
-    backgroundColor: ACCENT,
+    backgroundColor: c.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardText: { flex: 1 },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
-  cardDesc: { fontSize: 13, color: INACTIVE, marginTop: 3, lineHeight: 18 },
-  expanded: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F0F0F0' },
-  expandedDesc: { fontSize: 14, color: '#333', lineHeight: 20, marginBottom: 12 },
+  cardTitle: { fontSize: 15, fontWeight: '700', color: c.text },
+  cardDesc: { fontSize: 13, color: c.textMuted, marginTop: 3, lineHeight: 18 },
+  expanded: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: c.border },
+  expandedDesc: { fontSize: 14, color: c.textSecondary, lineHeight: 20, marginBottom: 12 },
   tipBox: {
     flexDirection: 'row',
     gap: 6,
-    backgroundColor: '#FFF8E1',
+    backgroundColor: c.mode === 'dark' ? c.warning + '15' : '#FFF8E1',
     padding: 10,
     borderRadius: 8,
     marginBottom: 12,
     alignItems: 'flex-start',
   },
-  tipText: { fontSize: 13, color: '#5D4037', flex: 1, lineHeight: 18 },
+  tipText: { fontSize: 13, color: c.mode === 'dark' ? c.textSecondary : '#5D4037', flex: 1, lineHeight: 18 },
   metaGrid: { gap: 8 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontSize: 13, color: '#444', flex: 1 },
-  metaLink: { color: PRIMARY, textDecorationLine: 'underline' },
+  metaText: { fontSize: 13, color: c.textSecondary, flex: 1 },
+  metaLink: { color: c.primary, textDecorationLine: 'underline' },
 });

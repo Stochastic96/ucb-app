@@ -15,6 +15,8 @@ const NON_CACHE_KEYS = new Set([
   STORAGE_KEYS.FACT_STATE,         // daily fact-of-the-day reveal counter + seen list
   STORAGE_KEYS.ANALYTICS_CONSENT,  // user's analytics consent decision — must survive cache clear
   STORAGE_KEYS.OFFLINE_QUEUE,      // pending notification side-effects — user-intent data
+  STORAGE_KEYS.GUIDE_CHECKLIST,    // user's ticked guide-checklist items — must survive cache clear
+  'ucb_logs',                      // centralized diagnostic logs — must survive cache clear to enable log tracking
 ]);
 
 export async function setCache(key, data) {

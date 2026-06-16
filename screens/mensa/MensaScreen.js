@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, ActivityIndicator, Text, Linking } 
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
 import { trackScreen } from '../../services/analytics';
-import { PRIMARY, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 // react-native-webview is not bundled in Expo Go — graceful fallback below
@@ -16,6 +16,8 @@ const MENSA_URL = 'https://mensa.campus-company.eu/';
 
 export default function MensaScreen({ navigation }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const webViewRef = useRef(null);
   const openSidebar = useStore((s) => s.openSidebar);
   const [loading, setLoading] = useState(true);
@@ -35,10 +37,10 @@ export default function MensaScreen({ navigation }) {
             hitSlop={12}
             accessibilityLabel={t('mensa_reload')}
           >
-            <Ionicons name="refresh" size={22} color={PRIMARY} />
+            <Ionicons name="refresh" size={22} color={c.primary} />
           </TouchableOpacity>
           <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 4 }}>
-            <Ionicons name="menu" size={24} color={PRIMARY} />
+            <Ionicons name="menu" size={24} color={c.primary} />
           </TouchableOpacity>
         </View>
       ),
@@ -49,7 +51,7 @@ export default function MensaScreen({ navigation }) {
   if (!WebView) {
     return (
       <View style={styles.expoGoFallback}>
-        <Ionicons name="restaurant-outline" size={56} color={BORDER} />
+        <Ionicons name="restaurant-outline" size={56} color={c.border} />
         <Text style={styles.errorTitle}>{t('screen_mensa')}</Text>
         <Text style={styles.errorSub}>{t('mensa_expo_go_msg')}</Text>
         <TouchableOpacity
@@ -57,7 +59,7 @@ export default function MensaScreen({ navigation }) {
           onPress={() => Linking.openURL(MENSA_URL).catch(() => {})}
           activeOpacity={0.8}
         >
-          <Ionicons name="open-outline" size={17} color="#fff" />
+          <Ionicons name="open-outline" size={17} color={c.onPrimary} />
           <Text style={styles.retryText}>{t('mensa_open_website')}</Text>
         </TouchableOpacity>
       </View>
@@ -99,7 +101,7 @@ export default function MensaScreen({ navigation }) {
       {/* Loading overlay — sits above WebView until first paint */}
       {loading && !loadError && (
         <View style={styles.loadingOverlay} pointerEvents="none">
-          <ActivityIndicator size="large" color={PRIMARY} />
+          <ActivityIndicator size="large" color={c.primary} />
           <Text style={styles.loadingText}>{t('mensa_loading')}</Text>
         </View>
       )}
@@ -107,7 +109,7 @@ export default function MensaScreen({ navigation }) {
       {/* Error state */}
       {loadError && (
         <View style={styles.errorOverlay}>
-          <Ionicons name="restaurant-outline" size={52} color={BORDER} />
+          <Ionicons name="restaurant-outline" size={52} color={c.border} />
           <Text style={styles.errorTitle}>{t('mensa_error_title')}</Text>
           <Text style={styles.errorSub}>{t('mensa_error_msg')}</Text>
           <TouchableOpacity
@@ -115,7 +117,7 @@ export default function MensaScreen({ navigation }) {
             onPress={() => { setLoadError(false); setLoading(true); webViewRef.current?.reload(); }}
             activeOpacity={0.8}
           >
-            <Ionicons name="refresh" size={17} color="#fff" />
+            <Ionicons name="refresh" size={17} color={c.onPrimary} />
             <Text style={styles.retryText}>{t('common_retry')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -131,8 +133,8 @@ export default function MensaScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.surface },
 
   headerButtons: {
     flexDirection: 'row',
@@ -142,31 +144,31 @@ const styles = StyleSheet.create({
 
   progressTrack: {
     height: 3,
-    backgroundColor: SURFACE,
+    backgroundColor: c.surfaceSunken,
     overflow: 'hidden',
   },
   progressFill: {
     height: 3,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
   },
 
   webview: { flex: 1 },
 
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 14,
   },
   loadingText: {
     fontSize: 14,
-    color: INACTIVE,
+    color: c.textMuted,
   },
 
   expoGoFallback: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: c.bg,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
 
   errorOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: BG,
+    backgroundColor: c.bg,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
@@ -184,12 +186,12 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: c.text,
     marginTop: 8,
   },
   errorSub: {
     fontSize: 14,
-    color: INACTIVE,
+    color: c.textMuted,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -198,13 +200,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginTop: 16,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 24,
   },
   retryText: {
-    color: '#fff',
+    color: c.onPrimary,
     fontWeight: '700',
     fontSize: 15,
   },
@@ -214,7 +216,7 @@ const styles = StyleSheet.create({
   },
   openExternalText: {
     fontSize: 14,
-    color: PRIMARY,
+    color: c.brandIcon,
     fontWeight: '600',
   },
 });

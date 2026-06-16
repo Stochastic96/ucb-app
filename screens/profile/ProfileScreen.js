@@ -15,7 +15,7 @@ import { logout } from '../../services/auth';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, SURFACE, BG, ERROR, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 function formatLastUpdated(date) {
@@ -47,6 +47,8 @@ const PORTAL_LINKS = [
 
 export default function ProfileScreen({ navigation }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   useEffect(() => { trackScreen('ProfileScreen'); }, []);
   const profile = useStore((s) => s.user);
   const courseCount = useStore((s) => s.courses.length);
@@ -114,7 +116,7 @@ export default function ProfileScreen({ navigation }) {
     <View style={styles.screen}>
       <ScrollView
         style={{ flex: 1 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
       >
         <View style={styles.header}>
           <View style={styles.avatar}>
@@ -149,13 +151,13 @@ export default function ProfileScreen({ navigation }) {
               activeOpacity={0.7}
             >
               <View style={styles.portalIconWrap}>
-                <Ionicons name={link.icon} size={20} color={PRIMARY} />
+                <Ionicons name={link.icon} size={20} color={c.brandIcon} />
               </View>
               <View style={styles.portalText}>
                 <Text style={styles.portalLabel}>{t(link.labelKey)}</Text>
                 <Text style={styles.portalDesc}>{t(link.descKey)}</Text>
               </View>
-              <Ionicons name="open-outline" size={16} color={INACTIVE} />
+              <Ionicons name="open-outline" size={16} color={c.textMuted} />
             </TouchableOpacity>
           ))}
         </View>
@@ -167,9 +169,11 @@ export default function ProfileScreen({ navigation }) {
 }
 
 function InfoRow({ icon, label, value, last }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={[styles.infoRow, !last && styles.infoRowBorder]}>
-      <Ionicons name={icon} size={20} color={PRIMARY} style={styles.rowIcon} />
+      <Ionicons name={icon} size={20} color={c.brandIcon} style={styles.rowIcon} />
       <View>
         <Text style={styles.rowLabel}>{label}</Text>
         <Text style={styles.rowValue}>{value}</Text>
@@ -179,58 +183,60 @@ function InfoRow({ icon, label, value, last }) {
 }
 
 function LinkRow({ icon, label, onPress, last }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <TouchableOpacity style={[styles.linkRow, !last && styles.linkRowBorder]} onPress={onPress}>
-      <Ionicons name={icon} size={20} color={PRIMARY} style={styles.rowIcon} />
+      <Ionicons name={icon} size={20} color={c.brandIcon} style={styles.rowIcon} />
       <Text style={styles.linkLabel}>{label}</Text>
-      <Ionicons name="chevron-forward" size={18} color={INACTIVE} style={{ marginLeft: 'auto' }} />
+      <Ionicons name="chevron-forward" size={18} color={c.textMuted} style={{ marginLeft: 'auto' }} />
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SURFACE },
-  header: { alignItems: 'center', paddingVertical: 32, backgroundColor: BG },
-  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: PRIMARY, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  initials: { fontSize: 28, fontWeight: '700', color: '#fff' },
-  name: { fontSize: 22, fontWeight: '700', color: '#1A1A1A' },
-  username: { fontSize: 14, color: INACTIVE, marginTop: 2 },
-  cacheNote: { fontSize: 11, color: INACTIVE, marginTop: 6 },
+const makeStyles = (c) => StyleSheet.create({
+  screen: { flex: 1, backgroundColor: c.bg },
+  header: { alignItems: 'center', paddingVertical: 32, backgroundColor: c.surface },
+  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: c.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  initials: { fontSize: 28, fontWeight: '700', color: c.onPrimary },
+  name: { fontSize: 22, fontWeight: '700', color: c.text },
+  username: { fontSize: 14, color: c.textMuted, marginTop: 2 },
+  cacheNote: { fontSize: 11, color: c.textMuted, marginTop: 6 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: INACTIVE,
+    color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginHorizontal: 20,
     marginTop: 20,
     marginBottom: 8,
   },
-  card: { backgroundColor: BG, marginHorizontal: 16, marginTop: 16, borderRadius: 12, overflow: 'hidden' },
+  card: { backgroundColor: c.surface, marginHorizontal: 16, marginTop: 16, borderRadius: 12, overflow: 'hidden' },
   infoRow: { flexDirection: 'row', alignItems: 'center', padding: 16 },
-  infoRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  infoRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
   rowIcon: { marginRight: 14 },
-  rowLabel: { fontSize: 11, color: INACTIVE, textTransform: 'uppercase', letterSpacing: 0.5 },
-  rowValue: { fontSize: 15, color: '#1A1A1A', marginTop: 2 },
+  rowLabel: { fontSize: 11, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
+  rowValue: { fontSize: 15, color: c.text, marginTop: 2 },
   linkRow: { flexDirection: 'row', alignItems: 'center', padding: 16 },
-  linkRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  linkLabel: { fontSize: 15, color: '#1A1A1A' },
+  linkRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
+  linkLabel: { fontSize: 15, color: c.text },
   portalRow: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
     gap: 12,
   },
-  portalRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  portalRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
   portalIconWrap: {
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: '#EDF6E5',
+    backgroundColor: c.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   portalText: { flex: 1 },
-  portalLabel: { fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
-  portalDesc: { fontSize: 12, color: INACTIVE, marginTop: 2 },
+  portalLabel: { fontSize: 14, fontWeight: '600', color: c.text },
+  portalDesc: { fontSize: 12, color: c.textMuted, marginTop: 2 },
 });

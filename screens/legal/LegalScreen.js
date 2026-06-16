@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { SURFACE, BG, INACTIVE, DARK, BORDER } from '../../constants/colors';
+import { useThemedStyles } from '../../theme/ThemeProvider';
 
 function Section({ title, children }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -12,6 +13,7 @@ function Section({ title, children }) {
 }
 
 function Row({ label, value }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.row}>
       <Text style={styles.label}>{label}</Text>
@@ -21,6 +23,7 @@ function Row({ label, value }) {
 }
 
 export default function LegalScreen() {
+  const styles = useThemedStyles(makeStyles);
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <View style={styles.disclaimerBanner}>
@@ -75,32 +78,32 @@ export default function LegalScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   disclaimerBanner: {
     margin: 16,
-    backgroundColor: '#FFF8E1',
-    borderColor: '#FFD54F',
+    backgroundColor: c.warningSurface,
+    borderColor: c.warningBorder,
     borderWidth: 1,
     borderRadius: 10,
     padding: 14,
   },
-  disclaimerText: { fontSize: 13, color: '#7A5800', lineHeight: 19 },
+  disclaimerText: { fontSize: 13, color: c.onWarning, lineHeight: 19 },
   section: { marginHorizontal: 16, marginTop: 20 },
   sectionTitle: {
     fontSize: 11,
     fontWeight: '700',
-    color: INACTIVE,
+    color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 8,
   },
   card: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 10,
     padding: 14,
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.04,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -110,9 +113,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: c.border,
   },
-  label: { fontSize: 14, color: INACTIVE },
-  value: { fontSize: 14, fontWeight: '500', color: '#1A1A1A', textAlign: 'right', flex: 1, marginLeft: 12 },
-  body: { fontSize: 14, color: '#333', lineHeight: 21 },
+  label: { fontSize: 14, color: c.textMuted },
+  value: { fontSize: 14, fontWeight: '500', color: c.text, textAlign: 'right', flex: 1, marginLeft: 12 },
+  body: { fontSize: 14, color: c.textSecondary, lineHeight: 21 },
 });

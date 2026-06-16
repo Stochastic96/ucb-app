@@ -9,8 +9,8 @@ import {
   Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 
 // Active tools — fully functional
 const TOOLS = [
@@ -27,10 +27,11 @@ const TOOLS = [
   { id: 'library-booking', labelKey: 'tool_library', descKey: 'tool_library_desc', icon: 'library-outline', iconColor: '#5C6BC0', iconBg: '#E8EAF6', externalUrl: 'https://www.supersaas.co.uk/schedule/UCBib/UCBib-Arbeitsraum?lang=uk' },
 ];
 
-const COMING_SOON = [];
-
 export default function ToolsScreen({ navigation, route }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
   useEffect(() => { trackScreen('ToolsScreen'); }, []);
   useEffect(() => {
     if (route.params?.openTimetable) {
@@ -67,47 +68,49 @@ export default function ToolsScreen({ navigation, route }) {
           accessibilityLabel={`${t(tool.labelKey)}: ${t(tool.descKey)}`}
           accessibilityRole="button"
         >
-          <View style={[styles.toolIcon, { backgroundColor: tool.iconBg }]}>
-            <Ionicons name={tool.icon} size={24} color={tool.iconColor} />
+          <View style={[
+            styles.toolIcon, 
+            { backgroundColor: c.mode === 'dark' ? tool.iconColor + '20' : tool.iconBg }
+          ]}>
+            <Ionicons name={tool.icon} size={24} color={c.mode === 'dark' ? tool.iconColor + 'DF' : tool.iconColor} />
           </View>
           <View style={styles.toolText}>
             <Text style={styles.toolLabel}>{t(tool.labelKey)}</Text>
             <Text style={styles.toolDesc}>{t(tool.descKey)}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
+          <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
         </TouchableOpacity>
       ))}
-
 
       <View style={{ height: 20 }} />
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   content: { paddingBottom: 40 },
   hero: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#ECECEC',
+    borderBottomColor: c.border,
     marginBottom: 14,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
-  heroSub: { fontSize: 13, color: INACTIVE, marginTop: 3 },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
+  heroSub: { fontSize: 13, color: c.textMuted, marginTop: 3 },
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginHorizontal: 12,
     marginBottom: 8,
     padding: 14,
     borderRadius: 14,
     gap: 14,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
@@ -121,30 +124,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   toolText: { flex: 1 },
-  toolLabel: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
-  toolDesc: { fontSize: 13, color: INACTIVE, marginTop: 2 },
-  comingSoonCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: BG,
-    marginHorizontal: 12,
-    marginBottom: 8,
-    padding: 14,
-    borderRadius: 14,
-    gap: 14,
-    borderWidth: 1,
-    borderColor: '#ECECEC',
-    borderStyle: 'dashed',
-    opacity: 0.75,
-  },
-  comingSoonTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
-  comingSoonLabel: { fontSize: 16, fontWeight: '700', color: INACTIVE },
-  comingSoonDesc: { fontSize: 13, color: '#BBB', marginTop: 1 },
-  soonBadge: {
-    backgroundColor: ACCENT,
-    borderRadius: 6,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-  },
-  soonBadgeText: { fontSize: 11, fontWeight: '700', color: DARK },
+  toolLabel: { fontSize: 16, fontWeight: '700', color: c.text },
+  toolDesc: { fontSize: 13, color: c.textMuted, marginTop: 2 },
 });

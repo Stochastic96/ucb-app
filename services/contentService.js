@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from './supabase';
+import * as logger from './logger';
 
 // ── ISO week helper ─────────────────────────────────────────────
 export function getISOWeekString(date = new Date()) {
@@ -13,6 +14,7 @@ export function getISOWeekString(date = new Date()) {
 
 // ── Generic offline-first fetch ─────────────────────────────────
 async function withFallback(cacheKey, fetcher, localFallback) {
+  let fetchError = null;
   try {
     const data = await fetcher();
     // Don't cache empty arrays — Supabase table may simply be unpopulated yet
@@ -21,7 +23,21 @@ async function withFallback(cacheKey, fetcher, localFallback) {
       return { data, isOffline: false };
     }
   } catch (err) {
-    console.warn(`[contentService] fetch failed for "${cacheKey}":`, err?.message ?? err);
+    fetchError = err;
+    logger.warn('ContentService', `fetch failed for "${cacheKey}"`, { error: err?.message ?? err });
+
+    // Propagate server/database/RLS errors, but fall back to cache for network/connection errors
+    const isNetworkError =
+      err.code === 'ECONNABORTED' ||
+      err.code === 'ERR_NETWORK' ||
+      err.name === 'AbortError' ||
+      err.message === 'Network request failed' ||
+      err.message === 'Network Error' ||
+      (err.message?.toLowerCase().includes('network') && !err.response);
+
+    if (!isNetworkError) {
+      throw err;
+    }
   }
 
   const cached = await AsyncStorage.getItem(`ucb_remote_${cacheKey}`);
@@ -29,14 +45,14 @@ async function withFallback(cacheKey, fetcher, localFallback) {
     try {
       const parsed = JSON.parse(cached);
       if (!Array.isArray(parsed) || parsed.length > 0) {
-        return { data: parsed, isOffline: true };
+        return { data: parsed, isOffline: true, error: fetchError };
       }
     } catch {}
   }
   try {
-    return { data: localFallback(), isOffline: true };
+    return { data: localFallback(), isOffline: true, error: fetchError };
   } catch {
-    return { data: [], isOffline: true };
+    return { data: [], isOffline: true, error: fetchError };
   }
 }
 

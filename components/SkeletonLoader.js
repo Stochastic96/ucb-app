@@ -1,10 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
+import { useTheme } from '../theme/ThemeProvider';
+import useReducedMotion from '../hooks/useReducedMotion';
 
 export default function SkeletonLoader({ lines = 3, avatar = false }) {
+  const c = useTheme();
+  const reducedMotion = useReducedMotion();
   const opacity = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
+    // Respect Reduce Motion: hold a static mid-opacity instead of pulsing.
+    if (reducedMotion) {
+      opacity.setValue(0.6);
+      return;
+    }
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
@@ -13,15 +22,15 @@ export default function SkeletonLoader({ lines = 3, avatar = false }) {
     );
     pulse.start();
     return () => pulse.stop();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <Animated.View style={{ opacity }}>
-      {avatar && <View style={styles.avatar} />}
+      {avatar && <View style={[styles.avatar, { backgroundColor: c.border }]} />}
       {Array.from({ length: lines }).map((_, i) => (
         <View
           key={i}
-          style={[styles.line, i === lines - 1 && { width: '60%' }]}
+          style={[styles.line, { backgroundColor: c.border }, i === lines - 1 && { width: '60%' }]}
         />
       ))}
     </Animated.View>

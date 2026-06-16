@@ -10,9 +10,11 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import { PRIMARY, INACTIVE, BG } from '../constants/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
 
 export function SimpleDatePicker({ value, onChange, minimumDate, label }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [visible, setVisible] = useState(false);
   const [draft, setDraft] = useState(value ?? new Date());
 
@@ -38,7 +40,7 @@ export function SimpleDatePicker({ value, onChange, minimumDate, label }) {
   return (
     <>
       <TouchableOpacity style={styles.trigger} onPress={open}>
-        <Ionicons name="calendar-outline" size={18} color={PRIMARY} />
+        <Ionicons name="calendar-outline" size={18} color={c.primary} />
         <Text style={[styles.triggerText, !value && styles.placeholder]}>{display}</Text>
       </TouchableOpacity>
 
@@ -64,6 +66,8 @@ export function SimpleDatePicker({ value, onChange, minimumDate, label }) {
               minimumDate={minimumDate}
               onChange={(_, selected) => selected && setDraft(selected)}
               style={styles.picker}
+              themeVariant={c.mode}
+              textColor={c.text}
             />
           </View>
         </Modal>
@@ -83,6 +87,8 @@ export function SimpleDatePicker({ value, onChange, minimumDate, label }) {
 }
 
 export function SimpleTimePicker({ value, onChange, label }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [visible, setVisible] = useState(false);
   const [draft, setDraft] = useState(value ?? new Date());
 
@@ -108,7 +114,7 @@ export function SimpleTimePicker({ value, onChange, label }) {
   return (
     <>
       <TouchableOpacity style={styles.trigger} onPress={open}>
-        <Ionicons name="time-outline" size={18} color={PRIMARY} />
+        <Ionicons name="time-outline" size={18} color={c.primary} />
         <Text style={[styles.triggerText, !value && styles.placeholder]}>{display}</Text>
       </TouchableOpacity>
 
@@ -134,6 +140,8 @@ export function SimpleTimePicker({ value, onChange, label }) {
               is24Hour
               onChange={(_, selected) => selected && setDraft(selected)}
               style={styles.picker}
+              themeVariant={c.mode}
+              textColor={c.text}
             />
           </View>
         </Modal>
@@ -152,13 +160,13 @@ export function SimpleTimePicker({ value, onChange, label }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   trigger: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
-  triggerText: { fontSize: 15, color: '#1A1A1A', fontWeight: '500' },
-  placeholder: { color: INACTIVE },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' },
+  triggerText: { fontSize: 15, color: c.text, fontWeight: '500' },
+  placeholder: { color: c.textMuted },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 34,
@@ -170,10 +178,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: c.border,
   },
-  sheetTitle: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
-  cancel: { fontSize: 15, color: INACTIVE },
-  done: { fontSize: 15, fontWeight: '700', color: PRIMARY },
+  sheetTitle: { fontSize: 16, fontWeight: '700', color: c.text },
+  cancel: { fontSize: 15, color: c.textMuted },
+  done: { fontSize: 15, fontWeight: '700', color: c.primary },
   picker: { marginHorizontal: 16 },
 });

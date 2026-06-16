@@ -6,7 +6,9 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect } from '@react-navigation/native';
 import useStore from '../../store/useStore';
-import { BG, INACTIVE, BORDER, FACT_CATEGORY_COLORS } from '../../constants/colors';
+import { FACT_CATEGORY_COLORS } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import useReducedMotion from '../../hooks/useReducedMotion';
 import { useTranslation } from '../../services/i18n';
 import { trackScreen, trackEvent } from '../../services/analytics';
 import {
@@ -33,6 +35,9 @@ function darken(hex, factor = 0.78) {
 
 export default function FactScreen() {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const reducedMotion = useReducedMotion();
   const lang = useStore((s) => s.language);
 
   const [factState, setFactState] = useState(null);
@@ -62,6 +67,11 @@ export default function FactScreen() {
 
   // Animate the card in whenever the displayed fact changes.
   useEffect(() => {
+    // Respect Reduce Motion: show the card immediately without the entrance animation.
+    if (reducedMotion) {
+      anim.setValue(1);
+      return;
+    }
     anim.setValue(0);
     Animated.timing(anim, {
       toValue: 1,
@@ -69,7 +79,7 @@ export default function FactScreen() {
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  }, [currentFact.id, anim]);
+  }, [currentFact.id, anim, reducedMotion]);
 
   // Keep the lock countdown fresh (updates every 30s while mounted).
   useEffect(() => {
@@ -152,7 +162,7 @@ export default function FactScreen() {
                   key={i}
                   style={[
                     styles.dot,
-                    { backgroundColor: i < remaining ? accent : BORDER },
+                    { backgroundColor: i < remaining ? accent : c.border },
                   ]}
                 />
               ))}
@@ -184,14 +194,14 @@ export default function FactScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   content: { padding: 16, paddingBottom: 24 },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
@@ -217,8 +227,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   cardBody: { padding: 20 },
-  hook: { fontSize: 22, fontWeight: '800', color: '#1A1A1A', lineHeight: 29 },
-  factText: { fontSize: 15.5, color: '#42505C', lineHeight: 23, marginTop: 12 },
+  hook: { fontSize: 22, fontWeight: '800', color: c.text, lineHeight: 29 },
+  factText: { fontSize: 15.5, color: c.textSecondary, lineHeight: 23, marginTop: 12 },
   sourceRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -226,7 +236,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#EFEFEF',
+    borderTopColor: c.border,
   },
   sourceText: { fontSize: 13, fontWeight: '700', flexShrink: 1 },
   footer: {
@@ -234,12 +244,12 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 24,
     borderTopWidth: 1,
-    borderTopColor: BORDER,
-    backgroundColor: BG,
+    borderTopColor: c.border,
+    backgroundColor: c.bg,
   },
   dotsRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 12 },
   dot: { width: 9, height: 9, borderRadius: 5 },
-  dotsLabel: { marginLeft: 6, fontSize: 13, color: INACTIVE, fontWeight: '600' },
+  dotsLabel: { marginLeft: 6, fontSize: 13, color: c.textMuted, fontWeight: '600' },
   nextBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -250,12 +260,12 @@ const styles = StyleSheet.create({
   },
   nextBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
   lockedCard: {
-    backgroundColor: '#F4F7FB',
+    backgroundColor: c.mode === 'dark' ? c.surfaceAlt : '#F4F7FB',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#D9E3F0',
+    borderColor: c.mode === 'dark' ? c.border : '#D9E3F0',
   },
-  lockedTitle: { fontSize: 16, fontWeight: '800', color: '#1A1A1A' },
-  lockedMsg: { fontSize: 14, color: '#506070', marginTop: 5, lineHeight: 20 },
+  lockedTitle: { fontSize: 16, fontWeight: '800', color: c.text },
+  lockedMsg: { fontSize: 14, color: c.textSecondary, marginTop: 5, lineHeight: 20 },
 });

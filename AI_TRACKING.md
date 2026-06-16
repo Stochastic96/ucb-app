@@ -2,6 +2,43 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-06-16 — Dark mode completed app-wide (screen-by-screen theming)
+- theme/ThemeProvider.js: Claude (Opus 4.8) — Flipped `DARK_MODE_ENABLED` to `true`; `resolveThemeMode` now resolves light/dark/system normally. Re-enabled Dark/System options in SettingsScreen and restored `settings_theme_note` (en/de).
+- navigation/MainTabs.js, RootNavigator.js, ToolsStack.js, GuideStack.js: Claude (Opus 4.8) — Themed the tab bar (`tabBarStyle`/active/inactive) and all stack headers (`headerStyle`/`headerTintColor`) + MenuButtons via `useTheme`.
+- constants/colors.js: Claude (Opus 4.8) — Added `warningSurface`/`warningBorder`/`onWarning` tokens to both palettes (used by legal/Home/exam/planner warning banners).
+- Converted ~20 screens to `useThemedStyles(makeStyles)`: legal (Privacy/Datenschutz/Legal/Impressum), Profile, NewsFeed, Courses, CourseDetail, Events, SemesterCalendar, Planner, AddDeadline, ExamTracker, ExamPlanner, Mensa, Map, CampusPlatforms, Timetable, Fact. Semantic accent colors (info-blue, category chips, urgency badges) made mode-aware via `c.mode` checks. — Claude (Opus 4.8)
+- Themed global overlays: components/Sidebar.js, BiometricLockScreen.js, AnalyticsConsentModal.js, ErrorOverlay.js, Tooltip.js, SimpleDatePicker.js (+ `themeVariant`/`textColor` on native pickers). ErrorState.js icon colors now resolve from theme by tone. — Claude (Opus 4.8)
+- screens/facts/FactScreen.js: Claude (Opus 4.8) — Themed + gated the card entrance animation behind `useReducedMotion`.
+- Note: OfflineBanner (solid-orange status bar) and DebugScreen (not wired into any navigator) intentionally left unthemed.
+
+## 2026-06-16 — UI/UX review fast wins (a11y + dark-mode gating + icon cleanup)
+- hooks/useReducedMotion.js: Claude (Opus 4.8) — New hook reading `AccessibilityInfo.isReduceMotionEnabled()` (with live subscription) so animations honor the OS Reduce Motion setting.
+- components/SkeletonLoader.js, components/NewsCard.js, components/CourseCard.js, screens/home/HomeScreen.js: Claude (Opus 4.8) — Gate the looping skeleton pulse, card press-scale springs, and Home entrance fade/slide behind `useReducedMotion` (snap to final state when enabled).
+- theme/ThemeProvider.js: Claude (Opus 4.8) — Added `DARK_MODE_ENABLED` master switch (currently `false`); `resolveThemeMode` forces light app-wide until dark mode is fully wired, neutralizing any stale `dark`/`system` preference.
+- screens/profile/SettingsScreen.js: Claude (Opus 4.8) — Show Dark/System theme options as disabled "Soon" while `DARK_MODE_ENABLED` is false; reordered to Light/Dark/System.
+- constants/translations/en.js, de.js: Claude (Opus 4.8) — Added `theme_soon` key and updated `settings_theme_note` for the "coming soon" state.
+- constants/colors.js: Claude (Opus 4.8) — Fixed `textFaint` contrast to meet WCAG AA (light `#767676`, dark `#8A8A8A`).
+- screens/home/HomeScreen.js: Claude (Opus 4.8) — Bumped header bell/menu touch targets from 42→44pt.
+- screens/resources/CampusResourcesScreen.js, screens/guide/GuideDetailScreen.js, screens/legal/PrivacyPolicyScreen.js, screens/legal/DatenschutzScreen.js: Claude (Opus 4.8) — Replaced emoji used as structural/content icons with Ionicons.
+
+## 2026-06-16 — Test suite bootstrap (jest-expo) + logger null-guard fix
+- Test framework: Claude (Opus 4.8) — Added jest-expo preset, `babel.config.js`, `jest.setup.js` (AsyncStorage + `@expo/vector-icons` mocks), and `test`/`test:coverage` scripts. Authored 115 tests across utils (datetime, concurrentMap, campusContent), services (facts, news, logger, contentService, offlineQueue, reminders) and components (EventRow, EmptyState).
+- services/logger.js: Claude (Opus 4.8) — Fixed `error(source, message)` crashing when called with no error/data argument (`typeof null === 'object'` dereferenced `.type`); added null guards on both branches. Discovered via the logger test suite.
+
+## 2026-06-14 — Critical bug fixes: offline-first launch, cache isolation, database error propagation
+- **Issue #10 (Partial news fetch hides course announcements)**: Fixed news merging bug where cached announcements for inactive or failed courses were dropped from the feed.
+  - services/news.js: Antigravity — Preserve cached announcements for courses that were not attempted or failed to fetch.
+- **Issue #11 (Session analytics may not flush before app kill)**: Fixed background flush delay by removing async promise chaining in endSession.
+  - services/analytics.js: Antigravity — Trigger flushNow() immediately during endSession to ensure it executes before app suspension.
+- **Issue #12 (Supabase errors silently fail with stale data)**: Fixed silent swallowing of database and RLS policy errors.
+  - services/contentService.js: Antigravity — Differentiate network/connection errors from database/API/RLS errors in withFallback, throwing database errors so screens display error states.
+- **Issue #13 (Cache clear not atomic)**: Fixed race condition during logout/deletion and ensured in-memory data isolation.
+  - store/useStore.js: Antigravity — Extend clearUser to completely wipe all user-created personal data (deadlines, exam plans, registrations, RSVP state) from store memory.
+  - screens/profile/SettingsScreen.js: Antigravity — Reorder handleClearCache and handleDeleteAllData to delete personal data from AsyncStorage before executing logout.
+- **Issue #14 (Bootstrap error shown too late / Empty cache blank screen / Startup race condition)**: Fixed app startup blockage on network sync, fixed blank screen bug when cache is empty, and resolved a startup race condition.
+  - services/bootstrap.js: Antigravity — Implement hydrateStoreFromCache to load cache into store on startup. Returns a boolean indicating if cached data is present, only setting dataReady to true if cache exists. Removed premature store.setUser call which triggered early navigation before hydration completed.
+  - App.js: Antigravity — Eagerly hydrate store from cache. If cache exists, transition user to Main tabs instantly and run sync in background; if no cache, show spinner and await bootstrap sync.
+
 ## 2026-06-03 — Critical bug fixes: blank screen crash on standalone Android builds
 - **Issue**: Standalone Android APK showed blank screen before login; worked in Expo Go due to different native initialization timing
 - **Root cause**: Three compounding issues:

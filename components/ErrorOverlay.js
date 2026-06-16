@@ -1,15 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { DARK, BG, PRIMARY } from '../constants/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
 
 export default function ErrorOverlay({ error, onDismiss, onRetry }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   if (!error) return null;
 
   return (
     <View style={styles.overlay}>
       <View style={styles.card}>
-        <Ionicons name="alert-circle" size={48} color={DARK} style={{ marginBottom: 16 }} />
+        <Ionicons name="alert-circle" size={48} color={c.error} style={{ marginBottom: 16 }} />
         <Text style={styles.title}>Initialization Error</Text>
         <Text style={styles.message}>{error}</Text>
         <View style={styles.buttons}>
@@ -29,7 +31,7 @@ export default function ErrorOverlay({ error, onDismiss, onRetry }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -38,7 +40,7 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   card: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 24,
     marginHorizontal: 20,
@@ -47,12 +49,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: DARK,
+    color: c.text,
     marginBottom: 12,
   },
   message: {
     fontSize: 14,
-    color: '#666',
+    color: c.textSecondary,
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 20,
@@ -64,25 +66,25 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     flex: 1,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   retryText: {
-    color: '#fff',
+    color: c.onPrimary,
     fontWeight: '600',
     fontSize: 14,
   },
   dismissButton: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: c.surfaceSunken,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   dismissText: {
-    color: DARK,
+    color: c.text,
     fontWeight: '600',
     fontSize: 14,
   },

@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import calendarData from '../../data/semester_calendar.json';
 import { trackScreen } from '../../services/analytics';
 import useStore from '../../store/useStore';
-import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ACCENT, ERROR } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 const QIS_URL = 'https://qis.hochschule-trier.de/';
@@ -54,6 +54,7 @@ function getCurrentSemesterCourses(courses) {
 
 export default function SemesterCalendarScreen({ navigation }) {
   const t = useTranslation();
+  const styles = useThemedStyles(makeStyles);
   const semester = calendarData.semesters.find((s) => s.id === calendarData.current) ?? calendarData.semesters[0];
   const courses = useStore((s) => s.courses);
   const [activeTab, setActiveTab] = useState(TAB_KEYS[0]);
@@ -137,7 +138,10 @@ export default function SemesterCalendarScreen({ navigation }) {
 }
 
 function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPeriod, reenrollment, navigation, t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const examRegDays = examRegDeadline ? daysUntil(examRegDeadline.date) : null;
+  const infoBlue = c.mode === 'dark' ? '#90CAF9' : '#1565C0';
 
   return (
     <>
@@ -145,9 +149,9 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
       {examRegDeadline && examRegDays !== null && examRegDays >= 0 && examRegDays <= 30 && (
         <View style={[styles.alertBox, examRegDays <= 7 && styles.alertBoxUrgent]}>
           <Ionicons name={examRegDays <= 7 ? 'alert-circle' : 'information-circle-outline'} size={20}
-            color={examRegDays <= 7 ? ERROR : '#1565C0'} />
+            color={examRegDays <= 7 ? c.error : infoBlue} />
           <View style={{ flex: 1 }}>
-            <Text style={[styles.alertTitle, examRegDays <= 7 && { color: ERROR }]}>
+            <Text style={[styles.alertTitle, examRegDays <= 7 && { color: c.error }]}>
               {t('calendar_exam_reg')}{examRegDays === 0 ? ` ${t('calendar_exam_reg_today')}` : ` ${t('calendar_exam_reg_days', { days: examRegDays })}`}
             </Text>
             <Text style={styles.alertSub}>{t('calendar_register_before', { date: examRegDeadline.date })}</Text>
@@ -215,30 +219,31 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
         onPress={() => Linking.openURL(QIS_URL).catch(() => {})}
         activeOpacity={0.8}
       >
-        <View style={styles.qaIcon}><Ionicons name="school-outline" size={20} color={PRIMARY} /></View>
+        <View style={styles.qaIcon}><Ionicons name="school-outline" size={20} color={c.brandIcon} /></View>
         <View style={{ flex: 1 }}>
           <Text style={styles.qaLabel}>{t('calendar_qis_label')}</Text>
           <Text style={styles.qaSub}>{t('calendar_qis_desc')}</Text>
         </View>
-        <Ionicons name="open-outline" size={16} color={INACTIVE} />
+        <Ionicons name="open-outline" size={16} color={c.textMuted} />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.quickAction}
         onPress={() => Linking.openURL('https://idp.fh-trier.de/idp/profile/SAML2/Redirect/SSO?execution=e5s1&lang=en').catch(() => {})}
         activeOpacity={0.8}
       >
-        <View style={styles.qaIcon}><Ionicons name="document-outline" size={20} color={PRIMARY} /></View>
+        <View style={styles.qaIcon}><Ionicons name="document-outline" size={20} color={c.brandIcon} /></View>
         <View style={{ flex: 1 }}>
           <Text style={styles.qaLabel}>{t('calendar_portal_label')}</Text>
           <Text style={styles.qaSub}>{t('calendar_portal_desc')}</Text>
         </View>
-        <Ionicons name="open-outline" size={16} color={INACTIVE} />
+        <Ionicons name="open-outline" size={16} color={c.textMuted} />
       </TouchableOpacity>
     </>
   );
 }
 
 function MilestoneCard({ icon, label, dates, color, urgent, t }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={[styles.milestoneCard, urgent && styles.milestoneCardUrgent]}>
       <View style={[styles.milestoneIcon, { backgroundColor: color + '20' }]}>
@@ -256,7 +261,10 @@ function MilestoneCard({ icon, label, dates, color, urgent, t }) {
 }
 
 function CompactEventRow({ event, t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const cfg = CATEGORY_CONFIG[event.category] ?? CATEGORY_CONFIG.academic;
+  const chipBg = c.mode === 'dark' ? cfg.color + '26' : cfg.bg;
   const days = daysUntil(event.date);
   return (
     <View style={styles.compactRow}>
@@ -265,7 +273,7 @@ function CompactEventRow({ event, t }) {
         <Text style={styles.compactTitle} numberOfLines={1}>{event.title}</Text>
         <Text style={styles.compactDate}>{formatDate(event.date)}</Text>
       </View>
-      <View style={[styles.chip, { backgroundColor: cfg.bg }]}>
+      <View style={[styles.chip, { backgroundColor: chipBg }]}>
         <Text style={[styles.chipText, { color: cfg.color }]}>
           {days === 0 ? t('calendar_today') : days === 1 ? t('calendar_tomorrow') : t('calendar_days', { days })}
         </Text>
@@ -275,6 +283,7 @@ function CompactEventRow({ event, t }) {
 }
 
 function KeyDatesTab({ events, t }) {
+  const styles = useThemedStyles(makeStyles);
   const [filter, setFilter] = useState('all');
   const sorted = useMemo(() =>
     events
@@ -316,7 +325,7 @@ function KeyDatesTab({ events, t }) {
       )}
       {past.length > 0 && (
         <>
-          <Text style={[styles.groupLabel, { color: INACTIVE }]}>{t('calendar_filter_past')}</Text>
+          <Text style={[styles.groupLabel, styles.groupLabelMuted]}>{t('calendar_filter_past')}</Text>
           {[...past].reverse().map((ev) => <FullEventRow key={ev.id} event={ev} past t={t} />)}
         </>
       )}
@@ -325,8 +334,11 @@ function KeyDatesTab({ events, t }) {
 }
 
 function FullEventRow({ event, past, t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [expanded, setExpanded] = useState(false);
   const cfg = CATEGORY_CONFIG[event.category] ?? CATEGORY_CONFIG.academic;
+  const cfgBg = c.mode === 'dark' ? cfg.color + '26' : cfg.bg;
   const days = daysUntil(event.date);
   return (
     <TouchableOpacity
@@ -334,7 +346,7 @@ function FullEventRow({ event, past, t }) {
       onPress={() => setExpanded((v) => !v)}
       activeOpacity={0.8}
     >
-      <View style={[styles.compactStripe, { backgroundColor: past ? INACTIVE : cfg.color, height: '100%' }]} />
+      <View style={[styles.compactStripe, { backgroundColor: past ? c.textMuted : cfg.color, height: '100%' }]} />
       <View style={styles.compactBody}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           {event.important && !past && <Ionicons name="alert-circle" size={14} color={cfg.color} />}
@@ -346,12 +358,12 @@ function FullEventRow({ event, past, t }) {
         {expanded && event.description ? (
           <Text style={styles.expandedDesc}>{event.description}</Text>
         ) : null}
-        <View style={[styles.catChip, { backgroundColor: past ? '#F5F5F5' : cfg.bg }]}>
-          <Text style={[styles.catChipText, { color: past ? INACTIVE : cfg.color }]}>{t(cfg.labelKey)}</Text>
+        <View style={[styles.catChip, { backgroundColor: past ? c.surfaceSunken : cfgBg }]}>
+          <Text style={[styles.catChipText, { color: past ? c.textMuted : cfg.color }]}>{t(cfg.labelKey)}</Text>
         </View>
       </View>
-      <View style={[styles.chip, { backgroundColor: past ? '#F5F5F5' : cfg.bg, marginLeft: 4 }]}>
-        <Text style={[styles.chipText, { color: past ? INACTIVE : cfg.color }]}>
+      <View style={[styles.chip, { backgroundColor: past ? c.surfaceSunken : cfgBg, marginLeft: 4 }]}>
+        <Text style={[styles.chipText, { color: past ? c.textMuted : cfg.color }]}>
           {past ? t('calendar_done') : days === 0 ? t('calendar_today') : t('calendar_days', { days })}
         </Text>
       </View>
@@ -360,10 +372,12 @@ function FullEventRow({ event, past, t }) {
 }
 
 function MyCoursesTab({ semCourses, semester, navigation, t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   if (!semCourses.length) {
     return (
       <View style={styles.empty}>
-        <Ionicons name="albums-outline" size={44} color="#DDD" />
+        <Ionicons name="albums-outline" size={44} color={c.border} />
         <Text style={styles.emptyTitle}>{t('calendar_no_courses')}</Text>
         <Text style={styles.emptySub}>{t('calendar_no_courses_hint')}</Text>
       </View>
@@ -390,134 +404,135 @@ function MyCoursesTab({ semCourses, semester, navigation, t }) {
           })}
           activeOpacity={0.75}
         >
-          <View style={[styles.courseStripe, { backgroundColor: course.color ?? PRIMARY }]} />
+          <View style={[styles.courseStripe, { backgroundColor: course.color ?? c.primary }]} />
           <View style={styles.courseBody}>
             <Text style={styles.courseTitle} numberOfLines={2}>{course.title}</Text>
             {course.lecturer ? <Text style={styles.courseMeta}>{course.lecturer}</Text> : null}
             {course.semester ? <Text style={styles.courseSem}>{course.semester}</Text> : null}
           </View>
-          <Ionicons name="chevron-forward" size={16} color={INACTIVE} />
+          <Ionicons name="chevron-forward" size={16} color={c.textMuted} />
         </TouchableOpacity>
       ))}
 
       <View style={styles.examReminderBox}>
-        <Ionicons name="bulb-outline" size={18} color={DARK} />
+        <Ionicons name="bulb-outline" size={18} color={c.brandIcon} />
         <Text style={styles.examReminderText}>{t('calendar_exam_tracker_hint')}</Text>
       </View>
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   content: { paddingBottom: 40 },
   semHeader: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#ECECEC',
+    borderBottomColor: c.border,
   },
   semHeaderTop: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   semBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   semBadgeText: { fontSize: 12, fontWeight: '800', color: '#fff' },
-  semName: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
+  semName: { fontSize: 15, fontWeight: '700', color: c.text },
   progressRow: { gap: 5 },
-  progressTrack: { height: 5, backgroundColor: SURFACE, borderRadius: 3, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: PRIMARY, borderRadius: 3 },
-  progressLabel: { fontSize: 11, color: INACTIVE },
+  progressTrack: { height: 5, backgroundColor: c.surfaceSunken, borderRadius: 3, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: c.primary, borderRadius: 3 },
+  progressLabel: { fontSize: 11, color: c.textMuted },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#ECECEC',
+    borderBottomColor: c.border,
   },
   tab: { flex: 1, paddingVertical: 12, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
-  tabActive: { borderBottomColor: PRIMARY },
-  tabText: { fontSize: 13, fontWeight: '600', color: INACTIVE },
-  tabTextActive: { color: PRIMARY },
+  tabActive: { borderBottomColor: c.primary },
+  tabText: { fontSize: 13, fontWeight: '600', color: c.textMuted },
+  tabTextActive: { color: c.primary },
   groupLabel: {
-    fontSize: 11, fontWeight: '700', color: DARK,
+    fontSize: 11, fontWeight: '700', color: c.brandIcon,
     textTransform: 'uppercase', letterSpacing: 0.8,
     marginHorizontal: 16, marginTop: 16, marginBottom: 8,
   },
+  groupLabelMuted: { color: c.textMuted },
   alertBox: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    margin: 12, padding: 14, backgroundColor: '#E3F2FD',
-    borderRadius: 12, borderLeftWidth: 4, borderLeftColor: '#1565C0',
+    margin: 12, padding: 14, backgroundColor: c.mode === 'dark' ? 'rgba(33,150,243,0.15)' : '#E3F2FD',
+    borderRadius: 12, borderLeftWidth: 4, borderLeftColor: c.mode === 'dark' ? '#90CAF9' : '#1565C0',
   },
-  alertBoxUrgent: { backgroundColor: '#FFEBEE', borderLeftColor: ERROR },
-  alertTitle: { fontSize: 14, fontWeight: '700', color: '#1565C0' },
-  alertSub: { fontSize: 12, color: '#444', marginTop: 2 },
-  alertBtn: { backgroundColor: PRIMARY, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8 },
-  alertBtnText: { fontSize: 12, fontWeight: '700', color: '#fff' },
+  alertBoxUrgent: { backgroundColor: c.mode === 'dark' ? 'rgba(239,83,80,0.15)' : '#FFEBEE', borderLeftColor: c.error },
+  alertTitle: { fontSize: 14, fontWeight: '700', color: c.mode === 'dark' ? '#90CAF9' : '#1565C0' },
+  alertSub: { fontSize: 12, color: c.textSecondary, marginTop: 2 },
+  alertBtn: { backgroundColor: c.primary, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8 },
+  alertBtnText: { fontSize: 12, fontWeight: '700', color: c.onPrimary },
   milestonesRow: { paddingHorizontal: 12, gap: 10, paddingBottom: 4 },
   milestoneCard: {
-    width: 150, backgroundColor: BG, borderRadius: 14, padding: 14,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    width: 150, backgroundColor: c.surface, borderRadius: 14, padding: 14,
+    shadowColor: c.shadow, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
   },
   milestoneCardUrgent: { borderWidth: 1.5, borderColor: '#E65100' },
   milestoneIcon: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  milestoneLabel: { fontSize: 12, fontWeight: '700', color: '#1A1A1A', marginBottom: 6 },
-  milestoneDates: { fontSize: 11, color: INACTIVE, lineHeight: 16 },
-  urgentBadge: { marginTop: 8, alignSelf: 'flex-start', backgroundColor: '#FBE9E7', borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 },
-  urgentBadgeText: { fontSize: 10, fontWeight: '700', color: '#E65100' },
+  milestoneLabel: { fontSize: 12, fontWeight: '700', color: c.text, marginBottom: 6 },
+  milestoneDates: { fontSize: 11, color: c.textMuted, lineHeight: 16 },
+  urgentBadge: { marginTop: 8, alignSelf: 'flex-start', backgroundColor: c.mode === 'dark' ? 'rgba(230,81,0,0.2)' : '#FBE9E7', borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 },
+  urgentBadgeText: { fontSize: 10, fontWeight: '700', color: c.mode === 'dark' ? '#FFB74D' : '#E65100' },
   compactRow: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: BG, marginHorizontal: 12, marginBottom: 6,
+    backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 6,
     borderRadius: 10, overflow: 'hidden', paddingRight: 12,
-    shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 3, elevation: 1,
+    shadowColor: c.shadow, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1,
   },
   fullRow: {
     flexDirection: 'row', alignItems: 'flex-start',
-    backgroundColor: BG, marginHorizontal: 12, marginBottom: 6,
+    backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 6,
     borderRadius: 10, overflow: 'hidden', paddingRight: 12, paddingVertical: 2,
-    shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 3, elevation: 1,
+    shadowColor: c.shadow, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1,
   },
   compactStripe: { width: 4, alignSelf: 'stretch' },
   compactBody: { flex: 1, paddingVertical: 10, paddingHorizontal: 10, gap: 3 },
-  compactTitle: { fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
-  compactDate: { fontSize: 12, color: INACTIVE },
-  expandedDesc: { fontSize: 13, color: '#444', lineHeight: 18, marginTop: 6 },
+  compactTitle: { fontSize: 14, fontWeight: '600', color: c.text },
+  compactDate: { fontSize: 12, color: c.textMuted },
+  expandedDesc: { fontSize: 13, color: c.textSecondary, lineHeight: 18, marginTop: 6 },
   catChip: { alignSelf: 'flex-start', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 5, marginTop: 6 },
   catChipText: { fontSize: 10, fontWeight: '700' },
   chip: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignItems: 'center', alignSelf: 'center' },
   chipText: { fontSize: 12, fontWeight: '700' },
   filterRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
-  filterChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: BG, borderWidth: 1, borderColor: '#DCDCDC' },
-  filterChipActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
-  filterChipText: { fontSize: 13, color: INACTIVE, fontWeight: '500' },
+  filterChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border },
+  filterChipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  filterChipText: { fontSize: 13, color: c.textMuted, fontWeight: '500' },
   quickAction: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: BG, marginHorizontal: 12, marginBottom: 8,
+    backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 8,
     padding: 14, borderRadius: 12,
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    shadowColor: c.shadow, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
-  qaIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: ACCENT, alignItems: 'center', justifyContent: 'center' },
-  qaLabel: { fontSize: 14, fontWeight: '600', color: '#1A1A1A' },
-  qaSub: { fontSize: 12, color: INACTIVE, marginTop: 2 },
+  qaIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' },
+  qaLabel: { fontSize: 14, fontWeight: '600', color: c.text },
+  qaSub: { fontSize: 12, color: c.textMuted, marginTop: 2 },
   empty: { alignItems: 'center', padding: 48, gap: 10 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: INACTIVE },
-  emptySub: { fontSize: 13, color: INACTIVE, textAlign: 'center', lineHeight: 19 },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textMuted },
+  emptySub: { fontSize: 13, color: c.textMuted, textAlign: 'center', lineHeight: 19 },
   coursesHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 14, marginBottom: 8 },
-  coursesCount: { fontSize: 13, color: INACTIVE, fontWeight: '600' },
-  coursesLink: { fontSize: 13, color: PRIMARY, fontWeight: '600' },
+  coursesCount: { fontSize: 13, color: c.textMuted, fontWeight: '600' },
+  coursesLink: { fontSize: 13, color: c.brandIcon, fontWeight: '600' },
   courseCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: BG, marginHorizontal: 12, marginBottom: 8,
+    backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 8,
     borderRadius: 12, overflow: 'hidden', paddingRight: 12,
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    shadowColor: c.shadow, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
   courseStripe: { width: 5, alignSelf: 'stretch' },
   courseBody: { flex: 1, padding: 12 },
-  courseTitle: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
-  courseMeta: { fontSize: 13, color: INACTIVE, marginTop: 3 },
-  courseSem: { fontSize: 11, color: INACTIVE, marginTop: 4, fontStyle: 'italic' },
+  courseTitle: { fontSize: 15, fontWeight: '700', color: c.text },
+  courseMeta: { fontSize: 13, color: c.textMuted, marginTop: 3 },
+  courseSem: { fontSize: 11, color: c.textMuted, marginTop: 4, fontStyle: 'italic' },
   examReminderBox: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,
     margin: 12, marginTop: 16, padding: 14,
-    backgroundColor: ACCENT, borderRadius: 12,
+    backgroundColor: c.accent, borderRadius: 12,
   },
-  examReminderText: { flex: 1, fontSize: 13, color: DARK, lineHeight: 19 },
+  examReminderText: { flex: 1, fontSize: 13, color: c.brandIcon, lineHeight: 19 },
 });

@@ -13,25 +13,28 @@ import ExamTrackerScreen from '../screens/exams/ExamTrackerScreen';
 import ExamPlannerScreen from '../screens/exams/ExamPlannerScreen';
 import CampusPlatformsScreen from '../screens/collaboration/CampusPlatformsScreen';
 import useStore from '../store/useStore';
-import { PRIMARY } from '../constants/colors';
+import { useTheme } from '../theme/ThemeProvider';
 import { t } from '../services/i18n';
 
 const Stack = createNativeStackNavigator();
 
 function MenuButton() {
+  const c = useTheme();
   const openSidebar = useStore((s) => s.openSidebar);
   return (
     <TouchableOpacity onPress={openSidebar} hitSlop={12} style={{ marginRight: 4 }}>
-      <Ionicons name="menu" size={24} color={PRIMARY} />
+      <Ionicons name="menu" size={24} color={c.primary} />
     </TouchableOpacity>
   );
 }
 
 export default function ToolsStack() {
+  const c = useTheme();
   return (
     <Stack.Navigator
       screenOptions={{
-        headerTintColor: PRIMARY,
+        headerTintColor: c.primary,
+        headerStyle: { backgroundColor: c.surface },
         headerBackTitle: '',
       }}
     >

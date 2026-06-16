@@ -8,7 +8,7 @@ import SearchBar from '../../components/SearchBar';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, SURFACE, BG, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 function groupBySemester(courses) {
@@ -25,6 +25,8 @@ function groupBySemester(courses) {
 
 export default function CoursesScreen({ navigation }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const courses = useStore((s) => s.courses);
   const dataReady = useStore((s) => s.dataReady);
   const isHydrating = useStore((s) => s.isHydrating);
@@ -140,7 +142,7 @@ export default function CoursesScreen({ navigation }) {
             </View>
           )}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />
           }
           contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
           ListEmptyComponent={
@@ -154,22 +156,22 @@ export default function CoursesScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   searchWrapper: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: SURFACE,
+    backgroundColor: c.bg,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: c.border,
   },
   sectionHeader: {
-    backgroundColor: SURFACE,
+    backgroundColor: c.bg,
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 6,
   },
-  sectionTitle: { fontSize: 13, fontWeight: '700', color: INACTIVE, textTransform: 'uppercase', letterSpacing: 0.6 },
+  sectionTitle: { fontSize: 13, fontWeight: '700', color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
   empty: { flex: 1, alignItems: 'center', paddingTop: 60 },
-  emptyText: { color: INACTIVE, fontSize: 15 },
+  emptyText: { color: c.textMuted, fontSize: 15 },
 });

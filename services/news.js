@@ -101,9 +101,16 @@ export async function fetchNews(userId, courses = []) {
       if (!firstError) firstError = result.reason;
     });
 
-    const cachedFallbackItems = failedSourceKeys.size > 0
-      ? (cachedNews ?? []).filter((item) => failedSourceKeys.has(getSourceKey(item)))
-      : [];
+    const attemptedSourceKeys = new Set([
+      'personal',
+      'global',
+      ...courses.map((c) => `course:${c.id}`),
+    ]);
+
+    const cachedFallbackItems = (cachedNews ?? []).filter((item) => {
+      const sKey = getSourceKey(item);
+      return !attemptedSourceKeys.has(sKey) || failedSourceKeys.has(sKey);
+    });
 
     const hadSuccess = sources.some(({ result }) => result.status === 'fulfilled');
     const merged = normalizeNewsItems([...freshItems, ...cachedFallbackItems]);

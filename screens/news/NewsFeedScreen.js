@@ -8,7 +8,7 @@ import { fetchNews } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, SURFACE, BG } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { markNewsSeen, syncUnreadNewsCount } from '../../services/newsState';
 import { getNewsIdentity } from '../../services/news';
 import { toMillis } from '../../utils/datetime';
@@ -26,6 +26,8 @@ function formatFullDate(raw) {
 
 export default function NewsFeedScreen({ navigation, route }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const news = useStore((s) => s.news);
   const userId = useStore((s) => s.userId);
   const courses = useStore((s) => s.courses);
@@ -176,7 +178,7 @@ export default function NewsFeedScreen({ navigation, route }) {
         renderItem={({ item }) => (
           <NewsCard item={item} unread={isUnread(item)} onPress={() => { trackEvent('feature_use', 'news_item_opened'); setSelected(item); }} />
         )}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
         contentContainerStyle={{ paddingVertical: 8, paddingBottom: 24 }}
         ListEmptyComponent={
           <View style={styles.empty}>
@@ -201,7 +203,7 @@ export default function NewsFeedScreen({ navigation, route }) {
                 onPress={() => setSelected(null)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Ionicons name="close" size={22} color={INACTIVE} />
+                <Ionicons name="close" size={22} color={c.textMuted} />
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -221,40 +223,40 @@ export default function NewsFeedScreen({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   searchWrapper: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: c.border,
   },
-  chipsScroll: { backgroundColor: BG, flexGrow: 0 },
+  chipsScroll: { backgroundColor: c.surface, flexGrow: 0 },
   chipsContent: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     gap: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: c.border,
   },
   chip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: SURFACE,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: c.border,
     maxWidth: 180,
   },
-  chipActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
-  chipText: { fontSize: 13, color: INACTIVE, fontWeight: '500' },
-  chipTextActive: { color: '#fff' },
+  chipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  chipText: { fontSize: 13, color: c.textMuted, fontWeight: '500' },
+  chipTextActive: { color: c.onPrimary },
   empty: { alignItems: 'center', paddingTop: 60 },
-  emptyText: { color: INACTIVE, fontSize: 15 },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  emptyText: { color: c.textMuted, fontSize: 15 },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 24,
@@ -268,10 +270,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
   },
-  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: INACTIVE + '40' },
+  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: c.textMuted + '40' },
   sheetCloseBtn: { position: 'absolute', right: 0 },
-  sheetSource: { fontSize: 12, color: PRIMARY, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
-  sheetDate: { fontSize: 12, color: INACTIVE, marginTop: 2, marginBottom: 12 },
-  sheetTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginBottom: 14 },
-  sheetBody: { fontSize: 15, color: '#333', lineHeight: 24 },
+  sheetSource: { fontSize: 12, color: c.brandIcon, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
+  sheetDate: { fontSize: 12, color: c.textMuted, marginTop: 2, marginBottom: 12 },
+  sheetTitle: { fontSize: 20, fontWeight: '700', color: c.text, marginBottom: 14 },
+  sheetBody: { fontSize: 15, color: c.textSecondary, lineHeight: 24 },
 });

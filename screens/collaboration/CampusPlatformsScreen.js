@@ -11,7 +11,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 import { trackEvent } from '../../services/analytics';
 import useStore from '../../store/useStore';
-import { PRIMARY, DARK, INACTIVE, BG, SURFACE, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
 const PLATFORMS = [
@@ -49,6 +49,8 @@ const PLATFORMS = [
 
 export default function CampusPlatformsScreen() {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const courses = useStore((s) => s.courses);
   const [coursesExpanded, setCoursesExpanded] = useState(false);
   const [tipsExpanded, setTipsExpanded] = useState(false);
@@ -57,7 +59,7 @@ export default function CampusPlatformsScreen() {
   const openPlatform = async (platformId, url) => {
     trackEvent('feature_use', 'external_platform_opened', { platform: platformId });
     await WebBrowser.openBrowserAsync(url, {
-      toolbarColor: PRIMARY,
+      toolbarColor: c.primary,
       dismissButtonStyle: 'close',
     });
   };
@@ -76,7 +78,7 @@ export default function CampusPlatformsScreen() {
       {PLATFORMS.map((p) => (
         <View key={p.id} style={styles.card}>
           <View style={styles.cardRow}>
-            <View style={[styles.iconBox, { backgroundColor: p.iconBg }]}>
+            <View style={[styles.iconBox, { backgroundColor: c.mode === 'dark' ? p.iconColor + '26' : p.iconBg }]}>
               <Ionicons name={p.iconName} size={24} color={p.iconColor} />
             </View>
             <View style={styles.cardText}>
@@ -108,7 +110,7 @@ export default function CampusPlatformsScreen() {
             <Ionicons
               name={coursesExpanded ? 'chevron-up' : 'chevron-down'}
               size={16}
-              color={INACTIVE}
+              color={c.textMuted}
             />
           </TouchableOpacity>
 
@@ -129,7 +131,7 @@ export default function CampusPlatformsScreen() {
                     <Ionicons
                       name={copiedId === course.id ? 'checkmark-outline' : 'copy-outline'}
                       size={18}
-                      color={copiedId === course.id ? PRIMARY : INACTIVE}
+                      color={copiedId === course.id ? c.primary : c.textMuted}
                     />
                   </TouchableOpacity>
                 </View>
@@ -150,7 +152,7 @@ export default function CampusPlatformsScreen() {
         <Ionicons
           name={tipsExpanded ? 'chevron-up' : 'chevron-down'}
           size={16}
-          color={INACTIVE}
+          color={c.textMuted}
         />
       </TouchableOpacity>
 
@@ -173,23 +175,23 @@ export default function CampusPlatformsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   content: { paddingBottom: 40 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: INACTIVE,
+    color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   card: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginHorizontal: 12,
     marginBottom: 8,
     borderRadius: 14,
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
@@ -204,15 +206,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardText: { flex: 1 },
-  cardName: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
-  cardTagline: { fontSize: 13, color: INACTIVE, marginTop: 2 },
+  cardName: { fontSize: 16, fontWeight: '700', color: c.text },
+  cardTagline: { fontSize: 13, color: c.textMuted, marginTop: 2 },
   openBtn: {
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  openBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  openBtnText: { fontSize: 14, fontWeight: '700', color: c.onPrimary },
   accordionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -222,27 +224,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   accordionBody: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginHorizontal: 12,
     borderRadius: 14,
     padding: 14,
     marginBottom: 4,
     borderWidth: 1,
-    borderColor: BORDER,
+    borderColor: c.border,
   },
-  accordionHint: { fontSize: 13, color: INACTIVE, marginBottom: 10 },
+  accordionHint: { fontSize: 13, color: c.textMuted, marginBottom: 10 },
   courseRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 9,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: c.border,
   },
-  courseName: { flex: 1, fontSize: 14, color: '#1A1A1A', marginRight: 12 },
+  courseName: { flex: 1, fontSize: 14, color: c.text, marginRight: 12 },
   tipBlock: { marginBottom: 14 },
   tipHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   tipDot: { width: 8, height: 8, borderRadius: 4 },
-  tipTitle: { fontSize: 14, fontWeight: '700', color: '#1A1A1A' },
-  tipText: { fontSize: 13, color: '#555', lineHeight: 19, paddingLeft: 16 },
+  tipTitle: { fontSize: 14, fontWeight: '700', color: c.text },
+  tipText: { fontSize: 13, color: c.textSecondary, lineHeight: 19, paddingLeft: 16 },
 });

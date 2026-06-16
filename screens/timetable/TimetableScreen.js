@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
 import { trackScreen } from '../../services/analytics';
 import useStore from '../../store/useStore';
-import { PRIMARY, INACTIVE, BG, BORDER } from '../../constants/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { formatTime24, getWeekMonday, isSameCalendarDay, toDate } from '../../utils/datetime';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
@@ -48,6 +48,8 @@ function formatDayHeader(date) {
 
 export default function TimetableScreen({ navigation }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const events = useStore((s) => s.events);
   const courses = useStore((s) => s.courses);
   const userId = useStore((s) => s.userId);
@@ -122,7 +124,7 @@ export default function TimetableScreen({ navigation }) {
       {/* Week navigation header */}
       <View style={styles.weekNav}>
         <TouchableOpacity onPress={() => setWeekStart(addDays(weekStart, -7))} style={styles.navBtn}>
-          <Ionicons name="chevron-back" size={22} color={PRIMARY} />
+          <Ionicons name="chevron-back" size={22} color={c.primary} />
         </TouchableOpacity>
         <Text style={styles.weekLabel}>
           {weekStart.toLocaleDateString('en-DE', { day: 'numeric', month: 'short' })}
@@ -138,7 +140,7 @@ export default function TimetableScreen({ navigation }) {
           </TouchableOpacity>
         )}
         <TouchableOpacity onPress={() => setWeekStart(addDays(weekStart, 7))} style={styles.navBtn}>
-          <Ionicons name="chevron-forward" size={22} color={PRIMARY} />
+          <Ionicons name="chevron-forward" size={22} color={c.primary} />
         </TouchableOpacity>
       </View>
 
@@ -159,7 +161,7 @@ export default function TimetableScreen({ navigation }) {
 
       {/* Time grid */}
       <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={PRIMARY} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
       >
         <View style={styles.grid}>
           {/* Hour labels */}
@@ -224,7 +226,7 @@ export default function TimetableScreen({ navigation }) {
                 </Text>
                 {!!selected.room && (
                   <Text style={styles.sheetDetail}>
-                    <Ionicons name="location-outline" size={14} color={INACTIVE} />{' '}
+                    <Ionicons name="location-outline" size={14} color={c.textMuted} />{' '}
                     {selected.building
                       ? `${t('timetable_room', { number: selected.room })}, ${t('timetable_building', { number: selected.building })}`
                       : t('timetable_room', { number: selected.room })}
@@ -232,7 +234,7 @@ export default function TimetableScreen({ navigation }) {
                 )}
                 {!!selected.professorName && (
                   <Text style={styles.sheetDetail}>
-                    <Ionicons name="person-outline" size={14} color={INACTIVE} /> {selected.professorName}
+                    <Ionicons name="person-outline" size={14} color={c.textMuted} /> {selected.professorName}
                   </Text>
                 )}
                 {!!selected.buildingId && (
@@ -240,7 +242,7 @@ export default function TimetableScreen({ navigation }) {
                     style={styles.navigateBtn}
                     onPress={() => navigateToBuilding(selected.buildingId)}
                   >
-                    <Ionicons name="navigate-outline" size={16} color="#fff" />
+                    <Ionicons name="navigate-outline" size={16} color={c.onPrimary} />
                     <Text style={styles.navigateBtnText}>{t('timetable_navigate')}</Text>
                   </TouchableOpacity>
                 )}
@@ -249,7 +251,7 @@ export default function TimetableScreen({ navigation }) {
                     style={styles.secondaryBtn}
                     onPress={() => openCourseDetail(selected)}
                   >
-                    <Ionicons name="book-outline" size={16} color={PRIMARY} />
+                    <Ionicons name="book-outline" size={16} color={c.primary} />
                     <Text style={styles.secondaryBtnText}>{t('timetable_view_course')}</Text>
                   </TouchableOpacity>
                 )}
@@ -262,8 +264,8 @@ export default function TimetableScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.surface },
   weekNav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -271,28 +273,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: c.border,
   },
   navBtn: { padding: 8 },
-  weekLabel: { fontSize: 14, fontWeight: '600', color: '#1A1A1A', flex: 1, textAlign: 'center' },
+  weekLabel: { fontSize: 14, fontWeight: '600', color: c.text, flex: 1, textAlign: 'center' },
   todayBtn: {
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 4,
     marginRight: 2,
   },
-  todayBtnText: { fontSize: 12, fontWeight: '700', color: '#fff' },
-  dayHeaders: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: BORDER },
+  todayBtnText: { fontSize: 12, fontWeight: '700', color: c.onPrimary },
+  dayHeaders: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: c.border },
   timeGutter: { width: 44 },
   dayHeaderCell: { paddingVertical: 8, alignItems: 'center' },
-  dayHeaderText: { fontSize: 11, color: INACTIVE },
-  dayHeaderToday: { color: PRIMARY, fontWeight: '700' },
+  dayHeaderText: { fontSize: 11, color: c.textMuted },
+  dayHeaderToday: { color: c.primary, fontWeight: '700' },
   grid: { flexDirection: 'row' },
   hourLabel: { justifyContent: 'flex-start', paddingTop: 2, paddingRight: 4, alignItems: 'flex-end' },
-  hourText: { fontSize: 10, color: INACTIVE },
-  dayColumn: { borderLeftWidth: 1, borderLeftColor: BORDER, position: 'relative' },
-  hourCell: { borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
+  hourText: { fontSize: 10, color: c.textMuted },
+  dayColumn: { borderLeftWidth: 1, borderLeftColor: c.border, position: 'relative' },
+  hourCell: { borderBottomWidth: 1, borderBottomColor: c.surfaceSunken },
   eventBlock: {
     position: 'absolute',
     left: 1,
@@ -304,22 +306,22 @@ const styles = StyleSheet.create({
   },
   eventTitle: { fontSize: 9, fontWeight: '700', color: '#fff' },
   eventRoom: { fontSize: 8, color: 'rgba(255,255,255,0.85)' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
     paddingBottom: 40,
   },
   sheetAccent: { height: 4, borderRadius: 2, marginBottom: 16, width: 48, alignSelf: 'center' },
-  sheetCourse: { fontSize: 18, fontWeight: '700', color: '#1A1A1A', marginBottom: 6 },
-  sheetTime: { fontSize: 15, color: PRIMARY, fontWeight: '600', marginBottom: 12 },
-  sheetDetail: { fontSize: 14, color: '#444', marginBottom: 8, lineHeight: 22 },
+  sheetCourse: { fontSize: 18, fontWeight: '700', color: c.text, marginBottom: 6 },
+  sheetTime: { fontSize: 15, color: c.brandIcon, fontWeight: '600', marginBottom: 12 },
+  sheetDetail: { fontSize: 14, color: c.textSecondary, marginBottom: 8, lineHeight: 22 },
   navigateBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 10,
@@ -327,7 +329,7 @@ const styles = StyleSheet.create({
     gap: 8,
     justifyContent: 'center',
   },
-  navigateBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  navigateBtnText: { color: c.onPrimary, fontWeight: '700', fontSize: 15 },
   secondaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -338,9 +340,9 @@ const styles = StyleSheet.create({
     gap: 8,
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: PRIMARY,
+    borderColor: c.primary,
   },
-  secondaryBtnText: { color: PRIMARY, fontWeight: '700', fontSize: 15 },
+  secondaryBtnText: { color: c.brandIcon, fontWeight: '700', fontSize: 15 },
   emptyWrap: {
     position: 'absolute',
     inset: 0,
@@ -348,5 +350,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     pointerEvents: 'none',
   },
-  emptyText: { fontSize: 15, color: INACTIVE, backgroundColor: 'rgba(255,255,255,0.9)', padding: 12, borderRadius: 10 },
+  emptyText: { fontSize: 15, color: c.textMuted, backgroundColor: c.surface, padding: 12, borderRadius: 10 },
 });

@@ -17,14 +17,18 @@ import { saveCredentials } from '../services/auth';
 import { normalizeProfile } from '../services/profile';
 import { bootstrapSessionData } from '../services/bootstrap';
 import { trackEvent } from '../services/analytics';
+import * as Haptics from 'expo-haptics';
 import { PRIMARY, INACTIVE, BG, BORDER } from '../constants/colors';
-import { useTranslation } from '../services/i18n';
+import { useTranslation, saveLanguage } from '../services/i18n';
+import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MS = 30_000; // 30 seconds
 
 export default function LoginScreen() {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -35,6 +39,14 @@ export default function LoginScreen() {
   const tickRef = useRef(null);
   const setUser = useStore((s) => s.setUser);
   const setOffline = useStore((s) => s.setOffline);
+  // Subscribe to language so toggling re-renders the screen (useTranslation is not reactive)
+  const language = useStore((s) => s.language);
+
+  const switchLanguage = async (lang) => {
+    if (lang === language) return;
+    await saveLanguage(lang);
+    useStore.getState().setLanguage(lang);
+  };
 
   // Countdown ticker while locked out
   useEffect(() => {
@@ -74,18 +86,26 @@ export default function LoginScreen() {
       const response = await client.get('/users/me');
       const user = normalizeProfile(response.data.data);
 
-      // Persist credentials with device-only SecureStore options + session timestamp
-      await saveCredentials(trimmedUsername, password);
-      // Cache in memory so concurrent service calls don't race SecureStore
+      // Cache in memory so bootstrap fetches can authenticate
       setCachedCredentials(trimmedUsername, password);
+
+      // Pre-set user info in store without triggering navigation transition
+      useStore.setState({ user, userId: user.id });
+
+      // Run bootstrap. If this fails (e.g. network timeout or API error), it throws
+      // and we stay on the LoginScreen instead of showing broken empty tabs.
+      await bootstrapSessionData(true);
+
+      // Bootstrap succeeded! Persist credentials securely
+      await saveCredentials(trimmedUsername, password);
 
       setFailCount(0);
       setLockoutEnd(null);
       setOffline(false);
-      setUser(user);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      setUser(user); // Triggers main navigator transition
       didAuthenticate = true;
       trackEvent('feature_use', 'login_success');
-      await bootstrapSessionData(true);
     } catch (error) {
       if (didAuthenticate) {
         Alert.alert(t('login_success_title'), t('login_success_msg'));
@@ -138,10 +158,31 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>Umwelt-Campus Birkenfeld</Text>
         </View>
 
+        <View style={styles.langToggle}>
+          <TouchableOpacity
+            style={[styles.langBtn, language === 'en' && styles.langBtnActive]}
+            onPress={() => switchLanguage('en')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: language === 'en' }}
+            accessibilityLabel="English"
+          >
+            <Text style={[styles.langBtnText, language === 'en' && styles.langBtnTextActive]}>EN</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.langBtn, language === 'de' && styles.langBtnActive]}
+            onPress={() => switchLanguage('de')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: language === 'de' }}
+            accessibilityLabel="Deutsch"
+          >
+            <Text style={[styles.langBtnText, language === 'de' && styles.langBtnTextActive]}>DE</Text>
+          </TouchableOpacity>
+        </View>
+
         <TextInput
           style={styles.input}
           placeholder={t('login_username_placeholder')}
-          placeholderTextColor={INACTIVE}
+          placeholderTextColor={c.textMuted}
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
@@ -153,7 +194,7 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder={t('login_password_placeholder')}
-          placeholderTextColor={INACTIVE}
+          placeholderTextColor={c.textMuted}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -197,40 +238,66 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
-    backgroundColor: BG,
+    backgroundColor: c.bg,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginBottom: 24,
+  },
+  langToggle: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    gap: 8,
+    marginBottom: 28,
+  },
+  langBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: c.border,
+    backgroundColor: c.surfaceAlt,
+  },
+  langBtnActive: {
+    borderColor: c.primary,
+    backgroundColor: c.primary + '15',
+  },
+  langBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: c.textMuted,
+  },
+  langBtnTextActive: {
+    color: c.primary,
   },
   logoText: {
     fontSize: 56,
     fontWeight: '800',
-    color: PRIMARY,
+    color: c.primary,
     letterSpacing: 4,
   },
   subtitle: {
     fontSize: 15,
-    color: INACTIVE,
+    color: c.textMuted,
     marginTop: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: BORDER,
-    backgroundColor: '#FAFAFA',
+    borderColor: c.border,
+    backgroundColor: c.surfaceAlt,
     padding: 15,
     borderRadius: 10,
     marginBottom: 14,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: c.text,
   },
   button: {
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',
@@ -240,21 +307,21 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: c.onPrimary,
     fontSize: 17,
     fontWeight: '700',
   },
   hint: {
     marginTop: 20,
     textAlign: 'center',
-    color: INACTIVE,
+    color: c.textMuted,
     fontSize: 13,
     lineHeight: 18,
   },
   disclaimer: {
     marginTop: 32,
     textAlign: 'center',
-    color: '#aaa',
+    color: c.textFaint,
     fontSize: 11,
   },
   legalLinks: {
@@ -266,11 +333,11 @@ const styles = StyleSheet.create({
   },
   legalLink: {
     fontSize: 11,
-    color: PRIMARY,
+    color: c.primary,
     textDecorationLine: 'underline',
   },
   legalSep: {
     fontSize: 11,
-    color: '#ccc',
+    color: c.border,
   },
 });

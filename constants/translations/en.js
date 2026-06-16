@@ -57,6 +57,17 @@ export default {
   offline_banner: 'No internet — showing cached data',
   offline_banner_pending: '{{count}} change(s) pending',
 
+  // --- Error states (components/ErrorState.js) ---
+  errorstate_no_internet_title: 'Stud.IP Unreachable',
+  errorstate_no_internet_sub: 'The app could not reach Stud.IP. Check your connection or test the login in the browser.',
+  errorstate_server_title: 'Server Unavailable',
+  errorstate_server_sub: 'Stud.IP is currently down. Try again later.',
+  errorstate_auth_title: 'Session Expired',
+  errorstate_auth_sub: 'Please log in again.',
+  errorstate_unknown_title: 'Something Went Wrong',
+  errorstate_unknown_sub: 'An unexpected error occurred.',
+  errorstate_retry: 'Try Again',
+
   // --- Login ---
   login_username_placeholder: 'Stud.IP username (e.g. prsh4078)',
   login_password_placeholder: 'Password',
@@ -86,6 +97,7 @@ export default {
   home_sports_today: 'Sports Today',
   home_quick_links: 'Quick Links',
   home_error_loading: 'Some campus data could not be loaded. Pull to refresh and try again.',
+  home_news_a11y: 'News and notifications',
   home_quick_courses: 'Courses',
   home_quick_timetable: 'Timetable',
   home_quick_map: 'Map',
@@ -135,9 +147,11 @@ export default {
   // --- Settings ---
   settings_section_language: 'Language',
   settings_section_notifications: 'Notifications & Reminders',
-  settings_notifications_title: 'Push Notifications',
-  settings_notifications_desc: 'Get alerts for events, deadlines, exams & sports you\'re attending',
+  settings_notifications_title: 'Local Reminders',
+  settings_notifications_desc: 'Get local alerts for events, deadlines, exams & sports you\'re attending',
   settings_notifications_help: 'Tap the bell icon next to events or deadlines to set reminders.',
+  notifications_permission_denied_title: 'Permission Denied',
+  notifications_permission_denied_msg: 'Please enable notifications in your device settings to receive reminders.',
 
   settings_section_security: 'Security & Biometrics',
   settings_biometric_title: 'Biometric Lock',
@@ -163,6 +177,13 @@ export default {
   settings_lang_confirm_msg: 'Switch the app language to {{language}}? Your data is not affected.',
   settings_lang_confirm_restart: 'Switch',
   settings_lang_dev_note: 'Language applied.',
+  settings_section_appearance: 'Appearance',
+  settings_theme_label: 'Theme',
+  settings_theme_note: 'Choose how the app looks.',
+  theme_light: 'Light',
+  theme_dark: 'Dark',
+  theme_system: 'System',
+  theme_soon: 'Soon',
   settings_clear_cache: 'Clear cached data',
   settings_clear_cache_sub: 'Removes Stud.IP data. Personal data kept.',
   settings_delete_all: 'Delete all my data',

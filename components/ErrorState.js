@@ -1,35 +1,43 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { PRIMARY, ERROR, INACTIVE } from '../constants/colors';
+import { useTranslation } from '../services/i18n';
+import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
 
+// Non-text presentation (icon + tone) stays here; the title/sub copy is resolved
+// from i18n by type so error screens are localized (EN/DE). `tone` maps to a
+// theme color in the component so the icon adapts to light/dark mode.
 const CONFIG = {
-  NO_INTERNET: { icon: 'wifi-outline', color: '#F57C00', title: 'Stud.IP Unreachable', sub: 'The app could not reach Stud.IP. Check your connection or test the login in the browser.' },
-  SERVER_DOWN: { icon: 'server-outline', color: ERROR, title: 'Server Unavailable', sub: 'Stud.IP is currently down. Try again later.' },
-  AUTH_FAILED: { icon: 'lock-closed-outline', color: ERROR, title: 'Session Expired', sub: 'Please log in again.' },
-  UNKNOWN: { icon: 'alert-circle-outline', color: INACTIVE, title: 'Something Went Wrong', sub: 'An unexpected error occurred.' },
+  NO_INTERNET: { icon: 'wifi-outline', tone: 'warning', titleKey: 'errorstate_no_internet_title', subKey: 'errorstate_no_internet_sub' },
+  SERVER_DOWN: { icon: 'server-outline', tone: 'error', titleKey: 'errorstate_server_title', subKey: 'errorstate_server_sub' },
+  AUTH_FAILED: { icon: 'lock-closed-outline', tone: 'error', titleKey: 'errorstate_auth_title', subKey: 'errorstate_auth_sub' },
+  UNKNOWN: { icon: 'alert-circle-outline', tone: 'muted', titleKey: 'errorstate_unknown_title', subKey: 'errorstate_unknown_sub' },
 };
 
 export default function ErrorState({ type = 'UNKNOWN', onRetry }) {
-  const { icon, color, title, sub } = CONFIG[type] ?? CONFIG.UNKNOWN;
+  const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const { icon, tone, titleKey, subKey } = CONFIG[type] ?? CONFIG.UNKNOWN;
+  const iconColor = tone === 'error' ? c.error : tone === 'warning' ? c.warning : c.textMuted;
   return (
     <View style={styles.container}>
-      <Ionicons name={icon} size={56} color={color} />
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.sub}>{sub}</Text>
+      <Ionicons name={icon} size={56} color={iconColor} />
+      <Text style={styles.title}>{t(titleKey)}</Text>
+      <Text style={styles.sub}>{t(subKey)}</Text>
       {onRetry && (
-        <TouchableOpacity style={styles.button} onPress={onRetry}>
-          <Text style={styles.buttonText}>Try Again</Text>
+        <TouchableOpacity style={styles.button} onPress={onRetry} accessibilityRole="button" accessibilityLabel={t('errorstate_retry')}>
+          <Text style={styles.buttonText}>{t('errorstate_retry')}</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  title: { fontSize: 18, fontWeight: '700', marginTop: 16, color: '#1A1A1A' },
-  sub: { fontSize: 14, color: INACTIVE, textAlign: 'center', marginTop: 6, lineHeight: 20 },
-  button: { marginTop: 24, backgroundColor: PRIMARY, paddingHorizontal: 28, paddingVertical: 12, borderRadius: 8 },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  title: { fontSize: 18, fontWeight: '700', marginTop: 16, color: c.text },
+  sub: { fontSize: 14, color: c.textMuted, textAlign: 'center', marginTop: 6, lineHeight: 20 },
+  button: { marginTop: 24, backgroundColor: c.primary, paddingHorizontal: 28, paddingVertical: 12, borderRadius: 8 },
+  buttonText: { color: c.onPrimary, fontWeight: '700', fontSize: 15 },
 });

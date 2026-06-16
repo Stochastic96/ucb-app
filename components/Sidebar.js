@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useStore from '../store/useStore';
 import { logout } from '../services/auth';
 import { navigationRef } from '../navigation/navigationRef';
-import { PRIMARY, DARK, INACTIVE, BG, SURFACE, ERROR, BORDER, ACCENT } from '../constants/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
 import { t } from '../services/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -50,6 +50,8 @@ const QUICK_LINKS = [
 ];
 
 export default function Sidebar() {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const sidebarOpen = useStore((s) => s.sidebarOpen);
   const closeSidebar = useStore((s) => s.closeSidebar);
   const user = useStore((s) => s.user);
@@ -159,7 +161,7 @@ export default function Sidebar() {
             </Text>
           </View>
           <TouchableOpacity onPress={closeSidebar} style={styles.closeBtn} hitSlop={12} accessibilityLabel="Close menu" accessibilityRole="button">
-            <Ionicons name="close" size={22} color={INACTIVE} />
+            <Ionicons name="close" size={22} color={c.textMuted} />
           </TouchableOpacity>
         </View>
 
@@ -204,7 +206,7 @@ export default function Sidebar() {
 
         {/* Logout */}
         <TouchableOpacity style={styles.logoutRow} onPress={handleLogout} activeOpacity={0.7} accessibilityLabel={t('sidebar_logout')} accessibilityRole="button">
-          <Ionicons name="log-out-outline" size={20} color={ERROR} />
+          <Ionicons name="log-out-outline" size={20} color={c.error} />
           <Text style={styles.logoutText}>{t('sidebar_logout')}</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -213,6 +215,7 @@ export default function Sidebar() {
 }
 
 function SidebarSection({ label, children }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.section}>
       <Text style={styles.sectionLabel}>{label}</Text>
@@ -222,26 +225,28 @@ function SidebarSection({ label, children }) {
 }
 
 function SidebarRow({ icon, label, onPress, external }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7} accessibilityLabel={label} accessibilityRole="menuitem">
       <View style={styles.rowIconWrap}>
-        <Ionicons name={icon} size={19} color={DARK} />
+        <Ionicons name={icon} size={19} color={c.brandIcon} />
       </View>
       <Text style={styles.rowLabel}>{label}</Text>
       <Ionicons
         name={external ? 'open-outline' : 'chevron-forward'}
         size={16}
-        color={INACTIVE}
+        color={c.textMuted}
         style={{ marginLeft: 'auto' }}
       />
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   panel: {
     position: 'absolute',
@@ -249,8 +254,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     width: SIDEBAR_WIDTH,
-    backgroundColor: SURFACE,
-    shadowColor: '#000',
+    backgroundColor: c.bg,
+    shadowColor: c.shadow,
     shadowOpacity: 0.18,
     shadowRadius: 20,
     shadowOffset: { width: -4, height: 0 },
@@ -261,40 +266,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#ECECEC',
+    borderBottomColor: c.border,
     gap: 12,
   },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  initials: { fontSize: 17, fontWeight: '700', color: '#fff' },
+  initials: { fontSize: 17, fontWeight: '700', color: c.onPrimary },
   userInfo: { flex: 1 },
-  userName: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
-  userSub: { fontSize: 13, color: INACTIVE, marginTop: 1 },
+  userName: { fontSize: 15, fontWeight: '700', color: c.text },
+  userSub: { fontSize: 13, color: c.textMuted, marginTop: 1 },
   closeBtn: { padding: 4 },
   section: { marginTop: 20, paddingHorizontal: 14 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: INACTIVE,
+    color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 6,
     marginLeft: 4,
   },
   sectionCard: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#ECECEC',
+    borderColor: c.border,
   },
   row: {
     flexDirection: 'row',
@@ -302,29 +307,29 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F2',
+    borderBottomColor: c.border,
     gap: 12,
   },
   rowIconWrap: {
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: ACCENT,
+    backgroundColor: c.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rowLabel: { fontSize: 15, color: '#1A1A1A', fontWeight: '500' },
+  rowLabel: { fontSize: 15, color: c.text, fontWeight: '500' },
   logoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 14,
     marginTop: 12,
     padding: 14,
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: c.mode === 'dark' ? 'rgba(239,83,80,0.4)' : '#FECACA',
     gap: 10,
   },
-  logoutText: { fontSize: 15, fontWeight: '600', color: ERROR },
+  logoutText: { fontSize: 15, fontWeight: '600', color: c.error },
 });

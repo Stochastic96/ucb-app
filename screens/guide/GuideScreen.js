@@ -2,7 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../../components/SearchBar';
-import { PRIMARY, INACTIVE, BG, BORDER, SURFACE } from '../../constants/colors';
+import { trackScreen, trackEvent } from '../../services/analytics';
+import { useTranslation } from '../../services/i18n';
+import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import buildings from '../../data/buildings.json';
 import checklist from '../../data/guide_checklist.json';
 import offices from '../../data/guide_offices.json';
@@ -11,8 +13,6 @@ import phrases from '../../data/guide_phrases.json';
 import faq from '../../data/guide_faq.json';
 import contacts from '../../data/guide_contacts.json';
 import emergency from '../../data/guide_emergency.json';
-import { trackScreen, trackEvent } from '../../services/analytics';
-import { useTranslation } from '../../services/i18n';
 
 const CATEGORY_COLORS = {
   emergency: '#D32F2F',
@@ -33,6 +33,8 @@ const CATEGORY_COLORS = {
 
 export default function GuideScreen({ navigation }) {
   const t = useTranslation();
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [query, setQuery] = useState('');
 
   useEffect(() => { trackScreen('GuideScreen'); }, []);
@@ -91,7 +93,7 @@ export default function GuideScreen({ navigation }) {
           </View>
         }
         renderItem={({ item }) => {
-          const color = CATEGORY_COLORS[item.id] ?? PRIMARY;
+          const color = CATEGORY_COLORS[item.id] ?? c.primary;
           return (
             <TouchableOpacity
               style={styles.card}
@@ -103,17 +105,17 @@ export default function GuideScreen({ navigation }) {
               accessibilityLabel={`${item.label}: ${item.desc}`}
               accessibilityRole="button"
             >
-              <View style={[styles.iconBox, { backgroundColor: color + '20' }]}>
-                <Ionicons name={item.icon} size={24} color={color} />
+              <View style={[styles.iconBox, { backgroundColor: c.mode === 'dark' ? color + '25' : color + '15' }]}>
+                <Ionicons name={item.icon} size={24} color={c.mode === 'dark' ? color + 'DF' : color} />
               </View>
-              <View style={styles.content}>
+              <View style={styles.cardContent}>
                 <Text style={styles.label}>{item.label}</Text>
                 <Text style={styles.desc}>{item.desc}</Text>
               </View>
               <View style={styles.countBadge}>
                 <Text style={styles.countText}>{item.count}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={INACTIVE} />
+              <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
             </TouchableOpacity>
           );
         }}
@@ -123,9 +125,11 @@ export default function GuideScreen({ navigation }) {
 }
 
 function DisclaimerBanner({ t }) {
+  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.disclaimer}>
-      <Ionicons name="information-circle-outline" size={18} color="#795548" style={{ marginRight: 6, marginTop: 1 }} />
+      <Ionicons name="information-circle-outline" size={18} color={c.mode === 'dark' ? c.warning : '#795548'} style={{ marginRight: 6, marginTop: 1 }} />
       <View style={{ flex: 1 }}>
         <Text style={styles.disclaimerTitle}>{t('guide_disclaimer_title')}</Text>
         <Text style={styles.disclaimerText}>{t('guide_disclaimer_text')}</Text>
@@ -134,63 +138,63 @@ function DisclaimerBanner({ t }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: SURFACE },
+const makeStyles = (c) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.bg },
   listContent: { paddingBottom: 40 },
   hero: {
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#ECECEC',
+    borderBottomColor: c.border,
     marginBottom: 14,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A1A' },
-  heroSub: { fontSize: 13, color: INACTIVE, marginTop: 3 },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
+  heroSub: { fontSize: 13, color: c.textMuted, marginTop: 3 },
   searchWrapper: { marginHorizontal: 12, marginBottom: 14 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: INACTIVE,
+    color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginHorizontal: 16,
     marginBottom: 8,
   },
   empty: { alignItems: 'center', paddingTop: 40 },
-  emptyText: { color: INACTIVE, fontSize: 14 },
+  emptyText: { color: c.textMuted, fontSize: 14 },
   disclaimer: {
     flexDirection: 'row',
-    backgroundColor: '#FFF8E1',
+    backgroundColor: c.mode === 'dark' ? c.warning + '15' : '#FFF8E1',
     borderRadius: 10,
     padding: 12,
     marginHorizontal: 12,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#FFE082',
+    borderColor: c.mode === 'dark' ? c.warning + '30' : '#FFE082',
   },
-  disclaimerTitle: { fontSize: 12, fontWeight: '700', color: '#795548', marginBottom: 3 },
-  disclaimerText: { fontSize: 11, color: '#795548', lineHeight: 16 },
+  disclaimerTitle: { fontSize: 12, fontWeight: '700', color: c.mode === 'dark' ? c.warning : '#795548', marginBottom: 3 },
+  disclaimerText: { fontSize: 11, color: c.mode === 'dark' ? c.textSecondary : '#795548', lineHeight: 16 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: BG,
+    backgroundColor: c.surface,
     marginHorizontal: 12,
     borderRadius: 14,
     padding: 14,
     marginBottom: 8,
     gap: 14,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
   },
   iconBox: { width: 48, height: 48, borderRadius: 13, justifyContent: 'center', alignItems: 'center' },
-  content: { flex: 1 },
-  label: { fontSize: 16, fontWeight: '700', color: '#1A1A1A' },
-  desc: { fontSize: 13, color: INACTIVE, marginTop: 2 },
-  countBadge: { backgroundColor: '#F0F0F0', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
-  countText: { fontSize: 12, fontWeight: '600', color: INACTIVE },
+  cardContent: { flex: 1 },
+  label: { fontSize: 16, fontWeight: '700', color: c.text },
+  desc: { fontSize: 13, color: c.textMuted, marginTop: 2 },
+  countBadge: { backgroundColor: c.surfaceSunken, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
+  countText: { fontSize: 12, fontWeight: '600', color: c.textMuted },
 });
