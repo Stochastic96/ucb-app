@@ -539,4 +539,22 @@ export default {
   analytics_consent_enable: 'Analytik aktivieren',
   analytics_consent_disable: 'Analytik deaktivieren',
   analytics_consent_learn_more: 'Mehr erfahren',
+
+  // --- Waste Guide ---
+  screen_waste_guide: 'Abfall-Guide',
+  tool_waste: 'Abfall-Guide',
+  tool_waste_desc: 'Welche Tonne? Sofort-Antworten',
+  waste_hero_title: 'Wohin damit?',
+  waste_hero_sub: 'Mülltrennung im Landkreis Birkenfeld — einfach erklärt',
+  waste_search_placeholder: 'Was willst du wegwerfen?',
+  waste_bins_title: 'Die Entsorgungswege',
+  waste_no_results: 'Kein Treffer für „{{query}}“',
+  waste_no_results_hint: 'Versuch ein anderes Wort — oder den englischen Begriff. Produkt statt Verpackung? Dann meist Restabfall.',
+  waste_goes_to: 'Gehört in',
+  waste_bin_details: 'Mehr zu dieser Tonne',
+  waste_belongs: 'Das gehört rein',
+  waste_never: 'Das nie',
+  waste_howto: 'Gut zu wissen',
+  waste_close: 'Schließen',
+  waste_disclaimer: 'Basierend auf den Regeln des Landkreises Birkenfeld (AWB). Ohne Gewähr — im Zweifel awb-bir.de prüfen.',
 };

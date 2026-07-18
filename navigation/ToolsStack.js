@@ -12,6 +12,7 @@ import AddDeadlineScreen from '../screens/planner/AddDeadlineScreen';
 import ExamTrackerScreen from '../screens/exams/ExamTrackerScreen';
 import ExamPlannerScreen from '../screens/exams/ExamPlannerScreen';
 import CampusPlatformsScreen from '../screens/collaboration/CampusPlatformsScreen';
+import WasteGuideScreen from '../screens/waste/WasteGuideScreen';
 import useStore from '../store/useStore';
 import { useTheme } from '../theme/ThemeProvider';
 import { t } from '../services/i18n';
@@ -93,6 +94,11 @@ export default function ToolsStack() {
         name="CampusPlatforms"
         component={CampusPlatformsScreen}
         options={{ title: t('screen_campus_platforms'), headerRight: () => <MenuButton /> }}
+      />
+      <Stack.Screen
+        name="WasteGuide"
+        component={WasteGuideScreen}
+        options={{ title: t('screen_waste_guide'), headerRight: () => <MenuButton /> }}
       />
     </Stack.Navigator>
   );

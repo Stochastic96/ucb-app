@@ -1,0 +1,374 @@
+[
+  {
+    "id": "gelber_sack",
+    "color": "#E8B818",
+    "onColor": "#1C1917",
+    "icon": "bag-outline",
+    "en": {
+      "name": "Yellow Bag",
+      "nativeName": "Gelber Sack",
+      "tagline": "Packaging made of plastic, metal or composite",
+      "belongs": [
+        "Yoghurt cups and plastic food trays",
+        "Milk and juice cartons (Tetra Pak)",
+        "Tin and aluminium cans (no deposit logo)",
+        "Plastic bags, films and bubble wrap",
+        "Shampoo, detergent and toothpaste tubes/bottles",
+        "Styrofoam packaging (small amounts)",
+        "Empty spray cans"
+      ],
+      "never": [
+        "Anything that is not packaging (toys, buckets, toothbrushes → residual waste)",
+        "Deposit (Pfand) bottles and cans — you lose money!",
+        "Electronics, batteries",
+        "Full or half-full containers"
+      ],
+      "howto": "Empty is enough — 'spoon-clean', no rinsing needed. Free yellow bags: local shops, town halls and AWB issuing points in the district. Collected from your address every 2 weeks (dates in the AWB pickup calendar)."
+    },
+    "de": {
+      "name": "Gelber Sack",
+      "nativeName": "Gelber Sack",
+      "tagline": "Verpackungen aus Kunststoff, Metall oder Verbundstoff",
+      "belongs": [
+        "Joghurtbecher und Kunststoffschalen",
+        "Milch- und Safttüten (Tetra Pak)",
+        "Konserven- und Aludosen (ohne Pfandlogo)",
+        "Plastiktüten, Folien und Luftpolsterfolie",
+        "Shampoo-, Spülmittel- und Zahnpastatuben/-flaschen",
+        "Styroporverpackungen (kleine Mengen)",
+        "Leere Spraydosen"
+      ],
+      "never": [
+        "Alles, was keine Verpackung ist (Spielzeug, Eimer, Zahnbürsten → Restabfall)",
+        "Pfandflaschen und -dosen — bares Geld!",
+        "Elektrogeräte, Batterien",
+        "Volle oder halbvolle Behälter"
+      ],
+      "howto": "Restentleert genügt — 'löffelrein', kein Ausspülen nötig. Gelbe Säcke gibt es kostenlos in Geschäften, Gemeindeverwaltungen und AWB-Ausgabestellen. Abholung alle 2 Wochen (Termine im AWB-Abfuhrkalender)."
+    }
+  },
+  {
+    "id": "papier",
+    "color": "#2E6FB8",
+    "onColor": "#FFFFFF",
+    "icon": "newspaper-outline",
+    "en": {
+      "name": "Paper Bin",
+      "nativeName": "Papiertonne (blau)",
+      "tagline": "Clean paper and cardboard",
+      "belongs": [
+        "Cardboard boxes (flattened!)",
+        "Newspapers, magazines, flyers",
+        "Writing paper, envelopes, notebooks",
+        "Paper bags, egg cartons",
+        "Books without plastic covers"
+      ],
+      "never": [
+        "Greasy or food-soiled paper (pizza box bottoms → residual waste)",
+        "Thermal-paper receipts",
+        "Used tissues and paper towels",
+        "Coated paper: drink cartons (→ Yellow Bag), baking paper (→ residual)"
+      ],
+      "howto": "Blue bin at your dorm or house. Flatten boxes — space is shared. Large amounts of cardboard: Wertstoffhof."
+    },
+    "de": {
+      "name": "Papiertonne",
+      "nativeName": "Papiertonne (blau)",
+      "tagline": "Sauberes Papier und Pappe",
+      "belongs": [
+        "Kartons (flach gefaltet!)",
+        "Zeitungen, Zeitschriften, Prospekte",
+        "Schreibpapier, Briefumschläge, Hefte",
+        "Papiertüten, Eierkartons",
+        "Bücher ohne Plastikeinband"
+      ],
+      "never": [
+        "Fettiges oder verschmutztes Papier (Pizzakarton-Boden → Restabfall)",
+        "Thermopapier-Kassenbons",
+        "Benutzte Taschentücher und Küchenpapier",
+        "Beschichtetes Papier: Getränkekartons (→ Gelber Sack), Backpapier (→ Restabfall)"
+      ],
+      "howto": "Blaue Tonne am Wohnheim oder Haus. Kartons falten — der Platz ist geteilt. Große Mengen Pappe: Wertstoffhof."
+    }
+  },
+  {
+    "id": "bio",
+    "color": "#7B4B2A",
+    "onColor": "#FFFFFF",
+    "icon": "leaf-outline",
+    "en": {
+      "name": "Organic Bin",
+      "nativeName": "Biotonne (braun)",
+      "tagline": "Kitchen and garden waste — nature's cycle",
+      "belongs": [
+        "Fruit and vegetable scraps, peels",
+        "Coffee grounds and paper filters, tea bags",
+        "Eggshells",
+        "Bread and baked goods",
+        "Wilted flowers and small plant cuttings"
+      ],
+      "never": [
+        "Any plastic bags — even 'compostable' ones are not allowed",
+        "Cooked leftovers, meat and bones (check local rules — when unsure: residual waste)",
+        "Cat litter, ashes, vacuum bags",
+        "Liquids, oils"
+      ],
+      "howto": "Brown bin. Wrap wet scraps in newspaper — never in plastic. Since 2025, bins with too much plastic contamination can be left unemptied, so the whole house pays for one wrong bag."
+    },
+    "de": {
+      "name": "Biotonne",
+      "nativeName": "Biotonne (braun)",
+      "tagline": "Küchen- und Gartenabfälle — der Kreislauf der Natur",
+      "belongs": [
+        "Obst- und Gemüsereste, Schalen",
+        "Kaffeesatz mit Papierfilter, Teebeutel",
+        "Eierschalen",
+        "Brot und Backwaren",
+        "Verwelkte Blumen und kleiner Grünschnitt"
+      ],
+      "never": [
+        "Keine Plastiktüten — auch 'kompostierbare' Tüten sind nicht erlaubt",
+        "Gekochte Essensreste, Fleisch und Knochen (lokale Regeln prüfen — im Zweifel: Restabfall)",
+        "Katzenstreu, Asche, Staubsaugerbeutel",
+        "Flüssigkeiten, Öle"
+      ],
+      "howto": "Braune Tonne. Feuchte Abfälle in Zeitungspapier einwickeln — nie in Plastik. Seit 2025 können zu stark verunreinigte Tonnen stehen gelassen werden — dann zahlt das ganze Haus für eine falsche Tüte."
+    }
+  },
+  {
+    "id": "restmuell",
+    "color": "#5B6266",
+    "onColor": "#FFFFFF",
+    "icon": "trash-outline",
+    "en": {
+      "name": "Residual Waste",
+      "nativeName": "Restabfall (grau)",
+      "tagline": "What's left when nothing else fits",
+      "belongs": [
+        "Hygiene items: tissues, cotton pads, wet wipes, razors",
+        "Broken drinking glasses, ceramics, mirrors",
+        "Greasy or dirty paper and packaging remains",
+        "Vacuum bags, cigarette butts, ashes (cold)",
+        "Broken everyday items that are not electronic"
+      ],
+      "never": [
+        "Recyclables that have their own bin",
+        "Batteries and electronics — fire hazard in the truck!",
+        "Chemicals, paint, energy-saving lamps"
+      ],
+      "howto": "Grey bin. In the district of Birkenfeld residual waste is collected via official AWB bins/bags — extra waste next to the bin is not taken."
+    },
+    "de": {
+      "name": "Restabfall",
+      "nativeName": "Restabfall (grau)",
+      "tagline": "Was übrig bleibt, wenn nichts anderes passt",
+      "belongs": [
+        "Hygieneartikel: Taschentücher, Wattepads, Feuchttücher, Rasierer",
+        "Zerbrochene Trinkgläser, Keramik, Spiegel",
+        "Fettiges oder verschmutztes Papier und Verpackungsreste",
+        "Staubsaugerbeutel, Zigarettenkippen, (kalte) Asche",
+        "Kaputte Alltagsgegenstände ohne Elektronik"
+      ],
+      "never": [
+        "Wertstoffe, die eine eigene Tonne haben",
+        "Batterien und Elektrogeräte — Brandgefahr im Müllwagen!",
+        "Chemikalien, Farben, Energiesparlampen"
+      ],
+      "howto": "Graue Tonne. Im Landkreis Birkenfeld wird Restabfall über offizielle AWB-Tonnen/-Säcke entsorgt — Müll neben der Tonne wird nicht mitgenommen."
+    }
+  },
+  {
+    "id": "glas",
+    "color": "#2F9E62",
+    "onColor": "#FFFFFF",
+    "icon": "wine-outline",
+    "en": {
+      "name": "Glass Container",
+      "nativeName": "Altglascontainer",
+      "tagline": "Bottle banks, sorted by colour",
+      "belongs": [
+        "Wine and non-deposit beverage bottles",
+        "Jam, sauce and pickle jars",
+        "Perfume and cosmetics glass",
+        "White glass → white slot, brown → brown, green + blue + mixed → green"
+      ],
+      "never": [
+        "Deposit (Pfand) bottles — return them for money instead",
+        "Drinking glasses, ceramics, porcelain (different melting point!)",
+        "Window glass, mirrors, light bulbs"
+      ],
+      "howto": "Lids off (→ Yellow Bag), no rinsing needed. Containers stand at central spots in town. Quiet hours: no throwing at night or on Sundays/holidays."
+    },
+    "de": {
+      "name": "Altglascontainer",
+      "nativeName": "Altglascontainer",
+      "tagline": "Glascontainer, nach Farben getrennt",
+      "belongs": [
+        "Wein- und pfandfreie Getränkeflaschen",
+        "Marmeladen-, Soßen- und Gurkengläser",
+        "Parfüm- und Kosmetikglas",
+        "Weißglas → weiß, Braunglas → braun, Grün + Blau + Bunt → grün"
+      ],
+      "never": [
+        "Pfandflaschen — zurückbringen und Geld mitnehmen",
+        "Trinkgläser, Keramik, Porzellan (anderer Schmelzpunkt!)",
+        "Fensterglas, Spiegel, Glühbirnen"
+      ],
+      "howto": "Deckel ab (→ Gelber Sack), Ausspülen nicht nötig. Container stehen an zentralen Plätzen. Ruhezeiten: kein Einwurf nachts oder an Sonn- und Feiertagen."
+    }
+  },
+  {
+    "id": "pfand",
+    "color": "#14B8A6",
+    "onColor": "#FFFFFF",
+    "icon": "cash-outline",
+    "en": {
+      "name": "Deposit Return",
+      "nativeName": "Pfand",
+      "tagline": "This is money, not waste!",
+      "belongs": [
+        "Single-use plastic bottles and cans with the Pfand logo — €0.25 each",
+        "Reusable beer bottles — €0.08",
+        "Reusable water/juice/soda glass bottles — €0.15",
+        "Bottle crates (deposit on the crate too)"
+      ],
+      "never": [
+        "Wine and spirit bottles (usually no deposit → glass container)",
+        "Milk bottles from some brands (check the label)",
+        "Crushed cans — the machine must read the logo"
+      ],
+      "howto": "Return at the reverse-vending machine (Leergutautomat) in any supermarket that sells that bottle type — Einweg can go to ANY store selling Einweg, even a different chain. The voucher is redeemed at the till."
+    },
+    "de": {
+      "name": "Pfandrückgabe",
+      "nativeName": "Pfand",
+      "tagline": "Das ist Geld, kein Müll!",
+      "belongs": [
+        "Einweg-Plastikflaschen und Dosen mit Pfandlogo — je 0,25 €",
+        "Mehrweg-Bierflaschen — 0,08 €",
+        "Mehrweg-Glasflaschen (Wasser/Saft/Limo) — 0,15 €",
+        "Getränkekisten (Pfand auch auf die Kiste)"
+      ],
+      "never": [
+        "Wein- und Spirituosenflaschen (meist pfandfrei → Altglas)",
+        "Milchflaschen mancher Marken (Etikett prüfen)",
+        "Zerdrückte Dosen — der Automat muss das Logo lesen können"
+      ],
+      "howto": "Rückgabe am Leergutautomaten in jedem Supermarkt, der diese Flaschenart verkauft — Einweg nimmt JEDER Laden mit Einweg-Sortiment an, auch andere Ketten. Den Bon an der Kasse einlösen."
+    }
+  },
+  {
+    "id": "sondermuell",
+    "color": "#D9482B",
+    "onColor": "#FFFFFF",
+    "icon": "warning-outline",
+    "en": {
+      "name": "Hazardous / E-Waste",
+      "nativeName": "Schadstoffe & Elektroschrott",
+      "tagline": "Special drop-off — never in a household bin",
+      "belongs": [
+        "Batteries and power banks → collection box in any supermarket/drugstore",
+        "Electronics, cables, phones, laptops → Wertstoffhof or larger electronics retailers",
+        "Energy-saving lamps, LED and fluorescent tubes → Wertstoffhof/drugstore boxes",
+        "Paint, solvents, chemicals, motor oil → Schadstoffmobil (mobile collection)",
+        "Medicines → residual waste is permitted; some pharmacies take them back voluntarily"
+      ],
+      "never": [
+        "Any of these in the residual or yellow bin — lithium batteries cause truck fires"
+      ],
+      "howto": "The AWB Schadstoffmobil tours the district on scheduled dates (see AWB calendar). The Wertstoffhof takes electronics for free. Shops selling batteries must take them back."
+    },
+    "de": {
+      "name": "Schadstoffe & E-Schrott",
+      "nativeName": "Schadstoffe & Elektroschrott",
+      "tagline": "Sonderabgabe — nie in die Haustonne",
+      "belongs": [
+        "Batterien und Powerbanks → Sammelbox in jedem Supermarkt/Drogeriemarkt",
+        "Elektrogeräte, Kabel, Handys, Laptops → Wertstoffhof oder größere Elektrohändler",
+        "Energiesparlampen, LED- und Leuchtstoffröhren → Wertstoffhof/Drogerie-Boxen",
+        "Farben, Lösungsmittel, Chemikalien, Motoröl → Schadstoffmobil",
+        "Medikamente → Restabfall ist erlaubt; manche Apotheken nehmen sie freiwillig zurück"
+      ],
+      "never": [
+        "Nichts davon in Restmüll oder Gelben Sack — Lithium-Batterien verursachen Brände im Müllwagen"
+      ],
+      "howto": "Das AWB-Schadstoffmobil fährt den Landkreis nach Terminplan an (siehe AWB-Kalender). Der Wertstoffhof nimmt Elektrogeräte kostenlos an. Händler, die Batterien verkaufen, müssen sie zurücknehmen."
+    }
+  },
+  {
+    "id": "sperrmuell",
+    "color": "#8E5BA6",
+    "onColor": "#FFFFFF",
+    "icon": "bed-outline",
+    "en": {
+      "name": "Bulky Waste",
+      "nativeName": "Sperrmüll",
+      "tagline": "Furniture and large items — pickup on request",
+      "belongs": [
+        "Furniture: beds, mattresses, shelves, chairs",
+        "Carpets, suitcases, large lamps",
+        "Bulky items that don't fit any bin"
+      ],
+      "never": [
+        "Bags of small residual waste",
+        "Construction/renovation debris",
+        "Electronics (→ Wertstoffhof)"
+      ],
+      "howto": "Register a pickup with AWB Birkenfeld (website or the AWB app) — collected on demand from your address. Putting things on the street without a registered date is illegal dumping. Still usable? Try the campus second-hand route first."
+    },
+    "de": {
+      "name": "Sperrmüll",
+      "nativeName": "Sperrmüll",
+      "tagline": "Möbel und Großes — Abholung auf Abruf",
+      "belongs": [
+        "Möbel: Betten, Matratzen, Regale, Stühle",
+        "Teppiche, Koffer, große Lampen",
+        "Sperrige Dinge, die in keine Tonne passen"
+      ],
+      "never": [
+        "Säcke mit kleinem Restabfall",
+        "Bauschutt und Renovierungsabfälle",
+        "Elektrogeräte (→ Wertstoffhof)"
+      ],
+      "howto": "Abholung bei der AWB Birkenfeld anmelden (Website oder AWB-App) — wird auf Abruf an der Adresse abgeholt. Einfach rausstellen ohne Termin ist illegale Ablagerung. Noch brauchbar? Erst an Campus-Second-Hand denken."
+    }
+  },
+  {
+    "id": "altkleider",
+    "color": "#B0578D",
+    "onColor": "#FFFFFF",
+    "icon": "shirt-outline",
+    "en": {
+      "name": "Clothing Container",
+      "nativeName": "Altkleidercontainer",
+      "tagline": "Wearable textiles get a second life",
+      "belongs": [
+        "Clean, wearable clothes",
+        "Shoes (tied together in pairs)",
+        "Bed linen, towels, curtains",
+        "Bags and belts"
+      ],
+      "never": [
+        "Wet, mouldy or heavily damaged textiles (→ residual waste)",
+        "Cutting scraps, carpets, pillows/duvets"
+      ],
+      "howto": "Bag textiles before dropping them in the container (keeps them dry). Containers stand at supermarkets and central spots. Even better: swap or give away first."
+    },
+    "de": {
+      "name": "Altkleidercontainer",
+      "nativeName": "Altkleidercontainer",
+      "tagline": "Tragbare Textilien bekommen ein zweites Leben",
+      "belongs": [
+        "Saubere, tragbare Kleidung",
+        "Schuhe (paarweise zusammengebunden)",
+        "Bettwäsche, Handtücher, Vorhänge",
+        "Taschen und Gürtel"
+      ],
+      "never": [
+        "Nasse, schimmelige oder stark beschädigte Textilien (→ Restabfall)",
+        "Schnittreste, Teppiche, Kissen/Decken"
+      ],
+      "howto": "Textilien im Beutel einwerfen (hält sie trocken). Container stehen an Supermärkten und zentralen Plätzen. Noch besser: erst tauschen oder verschenken."
+    }
+  }
+]

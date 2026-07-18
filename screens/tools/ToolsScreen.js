@@ -22,6 +22,7 @@ const TOOLS = [
   { id: 'courses', labelKey: 'tool_courses', descKey: 'tool_courses_desc', icon: 'albums-outline', iconColor: '#3F51B5', iconBg: '#E8EAF6', screen: 'CoursesList', rootScreen: true },
   { id: 'news', labelKey: 'tool_news', descKey: 'tool_news_desc', icon: 'newspaper-outline', iconColor: '#FF9800', iconBg: '#FFF3E0', screen: 'NewsFeed', rootScreen: true },
   { id: 'planner', labelKey: 'tool_planner', descKey: 'tool_planner_desc', icon: 'checkmark-circle-outline', iconColor: '#9C27B0', iconBg: '#F3E5F5', screen: 'PlannerList' },
+  { id: 'waste', labelKey: 'tool_waste', descKey: 'tool_waste_desc', icon: 'trash-outline', iconColor: '#0D9488', iconBg: '#CCFBF1', screen: 'WasteGuide' },
   { id: 'resources', labelKey: 'tool_resources', descKey: 'tool_resources_desc', icon: 'bicycle-outline', iconColor: '#00796B', iconBg: '#E0F2F1', screen: 'CampusResources' },
   { id: 'platforms', labelKey: 'tool_platforms', descKey: 'tool_platforms_desc', icon: 'grid-outline', iconColor: '#0369A1', iconBg: '#E0F2FE', screen: 'CampusPlatforms' },
   { id: 'library-booking', labelKey: 'tool_library', descKey: 'tool_library_desc', icon: 'library-outline', iconColor: '#5C6BC0', iconBg: '#E8EAF6', externalUrl: 'https://www.supersaas.co.uk/schedule/UCBib/UCBib-Arbeitsraum?lang=uk' },

@@ -1,0 +1,860 @@
+[
+  {
+    "id": "pizza_box",
+    "bin": "papier",
+    "emoji": "🍕",
+    "variants": [
+      { "bin": "papier", "en": "Clean parts", "de": "Saubere Teile" },
+      { "bin": "restmuell", "en": "Greasy / cheese-stained parts", "de": "Fettige / verschmutzte Teile" }
+    ],
+    "en": { "name": "Pizza box", "aliases": ["pizza carton", "pizza packaging"], "why": "Only clean cardboard can be recycled — grease ruins the paper fibres.", "caution": "Tear off the clean lid for paper, bin the greasy bottom." },
+    "de": { "name": "Pizzakarton", "aliases": ["pizzaschachtel"], "why": "Nur sauberer Karton ist recycelbar — Fett zerstört die Papierfasern.", "caution": "Sauberen Deckel abreißen fürs Papier, fettigen Boden in den Restabfall." }
+  },
+  {
+    "id": "yoghurt_cup",
+    "bin": "gelber_sack",
+    "emoji": "🥛",
+    "en": { "name": "Yoghurt cup", "aliases": ["yogurt pot", "quark cup"], "why": "Plastic packaging — 'spoon-clean' is enough, no rinsing needed.", "caution": "Pull the aluminium lid off and put it in loose — separated materials recycle better." },
+    "de": { "name": "Joghurtbecher", "aliases": ["quarkbecher"], "why": "Kunststoffverpackung — 'löffelrein' genügt, kein Ausspülen nötig.", "caution": "Aludeckel abziehen und lose dazugeben — getrennte Materialien werden besser recycelt." }
+  },
+  {
+    "id": "milk_carton",
+    "bin": "gelber_sack",
+    "emoji": "🥛",
+    "en": { "name": "Milk carton", "aliases": ["tetra pak", "drink carton"], "why": "Composite packaging (cardboard + plastic + aluminium) belongs in the Yellow Bag, not paper.", "caution": null },
+    "de": { "name": "Milchtüte", "aliases": ["tetra pak", "getränkekarton"], "why": "Verbundverpackung (Karton + Kunststoff + Alu) gehört in den Gelben Sack, nicht ins Papier.", "caution": null }
+  },
+  {
+    "id": "juice_carton",
+    "bin": "gelber_sack",
+    "emoji": "🧃",
+    "en": { "name": "Juice carton", "aliases": ["juice box", "tetra pak juice"], "why": "Drink cartons are composite packaging — Yellow Bag, never paper.", "caution": "Plastic juice bottles usually carry a €0.25 deposit — check for the Pfand logo first." },
+    "de": { "name": "Safttüte", "aliases": ["saftkarton"], "why": "Getränkekartons sind Verbundverpackungen — Gelber Sack, nie Papier.", "caution": "Saftflaschen aus Plastik haben meist 0,25 € Pfand — erst aufs Pfandlogo schauen." }
+  },
+  {
+    "id": "tin_can",
+    "bin": "gelber_sack",
+    "emoji": "🥫",
+    "en": { "name": "Tin can", "aliases": ["food can", "conserve can"], "why": "Metal packaging without a deposit logo goes in the Yellow Bag.", "caution": null },
+    "de": { "name": "Konservendose", "aliases": ["blechdose"], "why": "Metallverpackung ohne Pfandlogo gehört in den Gelben Sack.", "caution": null }
+  },
+  {
+    "id": "aluminium_foil",
+    "bin": "gelber_sack",
+    "emoji": "✨",
+    "en": { "name": "Aluminium foil", "aliases": ["alu foil", "tin foil"], "why": "Aluminium is valuable and endlessly recyclable — scrunch it into a ball first.", "caution": "Heavily food-soiled foil goes to residual waste." },
+    "de": { "name": "Alufolie", "aliases": ["aluminiumfolie"], "why": "Aluminium ist wertvoll und endlos recycelbar — vorher zu einer Kugel knüllen.", "caution": "Stark verschmutzte Folie in den Restabfall." }
+  },
+  {
+    "id": "aluminium_tray",
+    "bin": "gelber_sack",
+    "emoji": "🍱",
+    "en": { "name": "Aluminium tray", "aliases": ["takeaway tray", "grill tray"], "why": "Metal packaging — empty it, then Yellow Bag.", "caution": null },
+    "de": { "name": "Aluschale", "aliases": ["grillschale"], "why": "Metallverpackung — entleeren, dann Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "chips_bag",
+    "bin": "gelber_sack",
+    "emoji": "🍟",
+    "en": { "name": "Chips bag", "aliases": ["crisps bag", "snack bag"], "why": "Coated plastic-film packaging belongs in the Yellow Bag.", "caution": null },
+    "de": { "name": "Chipstüte", "aliases": ["knabbertüte"], "why": "Beschichtete Folienverpackung gehört in den Gelben Sack.", "caution": null }
+  },
+  {
+    "id": "candy_wrapper",
+    "bin": "gelber_sack",
+    "emoji": "🍬",
+    "en": { "name": "Candy wrapper", "aliases": ["sweet wrapper", "chocolate wrapper"], "why": "Plastic or foil food wrapping is packaging — Yellow Bag.", "caution": null },
+    "de": { "name": "Bonbonpapier", "aliases": ["schokoladenverpackung", "süßigkeitenverpackung"], "why": "Folien-Lebensmittelverpackung ist Verpackung — Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "cling_film",
+    "bin": "gelber_sack",
+    "emoji": "🎞️",
+    "en": { "name": "Cling film", "aliases": ["plastic wrap", "food wrap"], "why": "Plastic film used as packaging — Yellow Bag.", "caution": "Heavily soiled film goes to residual waste." },
+    "de": { "name": "Frischhaltefolie", "aliases": [], "why": "Kunststofffolie als Verpackung — Gelber Sack.", "caution": "Stark verschmutzte Folie in den Restabfall." }
+  },
+  {
+    "id": "frozen_food_bag",
+    "bin": "gelber_sack",
+    "emoji": "🧊",
+    "en": { "name": "Frozen food bag", "aliases": ["freezer bag packaging"], "why": "Plastic food packaging — Yellow Bag.", "caution": null },
+    "de": { "name": "Tiefkühlbeutel", "aliases": ["tk-verpackung"], "why": "Kunststoff-Lebensmittelverpackung — Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "toothpaste_tube",
+    "bin": "gelber_sack",
+    "emoji": "🪥",
+    "en": { "name": "Toothpaste tube", "aliases": ["cream tube"], "why": "Tubes are packaging — squeeze empty, then Yellow Bag.", "caution": null },
+    "de": { "name": "Zahnpastatube", "aliases": ["cremetube"], "why": "Tuben sind Verpackungen — leer drücken, dann Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "shampoo_bottle",
+    "bin": "gelber_sack",
+    "emoji": "🧴",
+    "en": { "name": "Shampoo bottle", "aliases": ["shower gel bottle", "lotion bottle"], "why": "Plastic packaging from the bathroom counts too — Yellow Bag.", "caution": null },
+    "de": { "name": "Shampooflasche", "aliases": ["duschgelflasche"], "why": "Auch Kunststoffverpackungen aus dem Bad zählen — Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "detergent_bottle",
+    "bin": "gelber_sack",
+    "emoji": "🧺",
+    "en": { "name": "Detergent bottle", "aliases": ["washing liquid bottle", "cleaner bottle"], "why": "Empty cleaning-product packaging goes in the Yellow Bag.", "caution": "With leftover contents: hazardous-waste collection instead." },
+    "de": { "name": "Waschmittelflasche", "aliases": ["putzmittelflasche", "spülmittelflasche"], "why": "Leere Reinigungsmittel-Verpackung gehört in den Gelben Sack.", "caution": "Mit Restinhalt: zur Schadstoffsammlung." }
+  },
+  {
+    "id": "coffee_capsule",
+    "bin": "gelber_sack",
+    "emoji": "☕",
+    "en": { "name": "Coffee capsule", "aliases": ["nespresso capsule", "coffee pod"], "why": "Aluminium/plastic capsules are packaging — Yellow Bag, even with coffee residue inside.", "caution": "Paper coffee pads go in the organic bin." },
+    "de": { "name": "Kaffeekapsel", "aliases": ["nespresso kapsel"], "why": "Alu-/Kunststoffkapseln sind Verpackungen — Gelber Sack, auch mit Kaffeerest.", "caution": "Kaffeepads aus Papier gehören in die Biotonne." }
+  },
+  {
+    "id": "butter_wrapper",
+    "bin": "gelber_sack",
+    "emoji": "🧈",
+    "en": { "name": "Butter wrapper", "aliases": ["margarine tub"], "why": "Coated wrapping and plastic tubs are packaging — Yellow Bag.", "caution": null },
+    "de": { "name": "Butterpapier", "aliases": ["margarinebecher"], "why": "Beschichtetes Einwickelpapier und Kunststoffbecher sind Verpackungen — Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "meat_tray",
+    "bin": "gelber_sack",
+    "emoji": "🥩",
+    "en": { "name": "Meat/cheese tray", "aliases": ["food tray", "plastic tray"], "why": "Plastic food trays are packaging — remove food remains, then Yellow Bag.", "caution": "The absorbent pad under meat goes to residual waste." },
+    "de": { "name": "Fleischschale", "aliases": ["käseverpackung", "plastikschale"], "why": "Kunststoffschalen sind Verpackungen — Essensreste raus, dann Gelber Sack.", "caution": "Das Saugpad unter Fleisch gehört in den Restabfall." }
+  },
+  {
+    "id": "styrofoam",
+    "bin": "gelber_sack",
+    "emoji": "📦",
+    "en": { "name": "Styrofoam packaging", "aliases": ["polystyrene", "foam packaging"], "why": "As product packaging it goes in the Yellow Bag (small amounts).", "caution": "Large amounts or construction styrofoam: Wertstoffhof." },
+    "de": { "name": "Styropor", "aliases": ["styroporverpackung"], "why": "Als Produktverpackung gehört es in den Gelben Sack (kleine Mengen).", "caution": "Große Mengen oder Baustyropor: Wertstoffhof." }
+  },
+  {
+    "id": "bubble_wrap",
+    "bin": "gelber_sack",
+    "emoji": "🫧",
+    "en": { "name": "Bubble wrap", "aliases": ["packaging film"], "why": "Shipping film is packaging — Yellow Bag.", "caution": null },
+    "de": { "name": "Luftpolsterfolie", "aliases": ["verpackungsfolie"], "why": "Versandfolie ist Verpackung — Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "plastic_bag",
+    "bin": "gelber_sack",
+    "emoji": "🛍️",
+    "en": { "name": "Plastic bag", "aliases": ["carrier bag", "shopping bag"], "why": "Plastic bags count as packaging — Yellow Bag.", "caution": null },
+    "de": { "name": "Plastiktüte", "aliases": ["einkaufstüte"], "why": "Plastiktüten zählen als Verpackung — Gelber Sack.", "caution": null }
+  },
+  {
+    "id": "ziplock_bag",
+    "bin": "gelber_sack",
+    "emoji": "🥪",
+    "en": { "name": "Ziplock / freezer bag", "aliases": ["sandwich bag", "zip bag"], "why": "Plastic film bags go in the Yellow Bag.", "caution": null },
+    "de": { "name": "Gefrierbeutel", "aliases": ["zipbeutel", "brotbeutel"], "why": "Folienbeutel gehören in den Gelben Sack.", "caution": null }
+  },
+  {
+    "id": "spray_can_empty",
+    "bin": "gelber_sack",
+    "emoji": "🧯",
+    "en": { "name": "Spray can (empty)", "aliases": ["deodorant can", "aerosol can"], "why": "Completely empty aerosol cans are metal packaging — Yellow Bag.", "caution": "With any contents left: Schadstoffmobil — pressurised cans are dangerous in the truck." },
+    "de": { "name": "Spraydose (leer)", "aliases": ["deodose", "sprühdose"], "why": "Restlos leere Spraydosen sind Metallverpackungen — Gelber Sack.", "caution": "Mit Restinhalt: Schadstoffmobil — Druckdosen sind im Müllwagen gefährlich." }
+  },
+  {
+    "id": "ketchup_bottle",
+    "bin": "gelber_sack",
+    "emoji": "🍅",
+    "en": { "name": "Ketchup bottle (plastic)", "aliases": ["sauce bottle", "mustard tube"], "why": "Squeeze-out plastic bottles are packaging — Yellow Bag, spoon-clean is fine.", "caution": "Glass ketchup bottles go to the glass container." },
+    "de": { "name": "Ketchupflasche (Plastik)", "aliases": ["soßenflasche", "senftube"], "why": "Quetschflaschen aus Kunststoff sind Verpackungen — Gelber Sack, restentleert genügt.", "caution": "Ketchupflaschen aus Glas gehören in den Altglascontainer." }
+  },
+  {
+    "id": "jar_lid",
+    "bin": "gelber_sack",
+    "emoji": "🫙",
+    "en": { "name": "Jar / bottle lid", "aliases": ["metal lid", "screw cap", "crown cap"], "why": "Metal and plastic lids are packaging — Yellow Bag, separate from the glass.", "caution": null },
+    "de": { "name": "Schraubdeckel", "aliases": ["deckel", "kronkorken"], "why": "Metall- und Plastikdeckel sind Verpackungen — Gelber Sack, getrennt vom Glas.", "caution": null }
+  },
+  {
+    "id": "blister_pack",
+    "bin": "gelber_sack",
+    "emoji": "💊",
+    "en": { "name": "Pill blister pack (empty)", "aliases": ["medication blister", "tablet packaging"], "why": "Empty plastic-aluminium blisters are packaging — Yellow Bag.", "caution": "Leftover pills themselves: residual waste, never the toilet." },
+    "de": { "name": "Tablettenblister (leer)", "aliases": ["medikamentenverpackung"], "why": "Leere Kunststoff-Alu-Blister sind Verpackungen — Gelber Sack.", "caution": "Übrige Tabletten selbst: Restabfall, nie in die Toilette." }
+  },
+  {
+    "id": "cardboard_box",
+    "bin": "papier",
+    "emoji": "📦",
+    "en": { "name": "Cardboard box", "aliases": ["amazon box", "shipping box", "carton"], "why": "Clean cardboard is a valuable recyclable — flatten it to save shared bin space.", "caution": "Remove plastic tape and large labels if easy; moving-day amounts go to the Wertstoffhof." },
+    "de": { "name": "Karton", "aliases": ["versandkarton", "pappe", "umzugskarton"], "why": "Sauberer Karton ist wertvoller Rohstoff — flach falten spart den geteilten Tonnenplatz.", "caution": "Klebeband möglichst entfernen; Umzugsmengen zum Wertstoffhof." }
+  },
+  {
+    "id": "newspaper",
+    "bin": "papier",
+    "emoji": "📰",
+    "en": { "name": "Newspaper", "aliases": ["magazine", "flyer", "brochure"], "why": "Printed paper is directly recyclable — paper bin.", "caution": null },
+    "de": { "name": "Zeitung", "aliases": ["zeitschrift", "prospekt", "flyer"], "why": "Bedrucktes Papier ist direkt recycelbar — Papiertonne.", "caution": null }
+  },
+  {
+    "id": "printer_paper",
+    "bin": "papier",
+    "emoji": "🖨️",
+    "en": { "name": "Printer paper", "aliases": ["lecture notes", "documents", "writing paper"], "why": "Office paper is prime recycling material — paper bin.", "caution": "Shredded confidential paper is fine too — bag it loosely so it doesn't fly away." },
+    "de": { "name": "Druckerpapier", "aliases": ["vorlesungsskript", "dokumente", "schreibpapier"], "why": "Büropapier ist bestes Recyclingmaterial — Papiertonne.", "caution": "Geschreddertes Papier ist auch okay — locker eintüten, damit nichts wegfliegt." }
+  },
+  {
+    "id": "notebook",
+    "bin": "papier",
+    "emoji": "📓",
+    "en": { "name": "Notebook", "aliases": ["exercise book", "notepad"], "why": "Paper bin — small metal spirals may stay, they get sorted out magnetically.", "caution": "Plastic covers: tear off and put in the Yellow Bag." },
+    "de": { "name": "Heft", "aliases": ["notizbuch", "collegeblock"], "why": "Papiertonne — kleine Metallspiralen dürfen bleiben, sie werden magnetisch aussortiert.", "caution": "Plastikeinbände abtrennen und in den Gelben Sack." }
+  },
+  {
+    "id": "envelope",
+    "bin": "papier",
+    "emoji": "✉️",
+    "en": { "name": "Envelope", "aliases": ["letter", "window envelope"], "why": "Envelopes go in the paper bin — the little plastic window is allowed.", "caution": "Padded envelopes with bubble wrap: Yellow Bag." },
+    "de": { "name": "Briefumschlag", "aliases": ["kuvert", "fensterumschlag"], "why": "Umschläge gehören ins Papier — das kleine Sichtfenster ist erlaubt.", "caution": "Gepolsterte Umschläge mit Luftpolsterfolie: Gelber Sack." }
+  },
+  {
+    "id": "egg_carton",
+    "bin": "papier",
+    "emoji": "🥚",
+    "en": { "name": "Egg carton", "aliases": ["egg box"], "why": "Moulded fibre packaging goes in the paper bin.", "caution": null },
+    "de": { "name": "Eierkarton", "aliases": ["eierschachtel"], "why": "Faserguss-Verpackung gehört in die Papiertonne.", "caution": null }
+  },
+  {
+    "id": "paper_bag",
+    "bin": "papier",
+    "emoji": "🛍️",
+    "en": { "name": "Paper bag", "aliases": ["bakery bag", "bread bag paper"], "why": "Clean paper bags go in the paper bin.", "caution": "Greasy bakery bags go to residual waste." },
+    "de": { "name": "Papiertüte", "aliases": ["bäckertüte", "brötchentüte"], "why": "Saubere Papiertüten gehören in die Papiertonne.", "caution": "Fettige Bäckertüten in den Restabfall." }
+  },
+  {
+    "id": "book",
+    "bin": "papier",
+    "emoji": "📚",
+    "en": { "name": "Book", "aliases": ["old books", "textbook"], "why": "Books can go in the paper bin — but a readable book deserves a second reader first.", "caution": "Give away, donate or use public bookshelves before recycling. Plastic-coated covers: tear off." },
+    "de": { "name": "Buch", "aliases": ["bücher", "lehrbuch"], "why": "Bücher dürfen in die Papiertonne — aber ein lesbares Buch verdient erst einen zweiten Leser.", "caution": "Erst verschenken, spenden oder in den offenen Bücherschrank. Kunststoffeinbände abtrennen." }
+  },
+  {
+    "id": "toilet_roll_core",
+    "bin": "papier",
+    "emoji": "🧻",
+    "en": { "name": "Toilet roll core", "aliases": ["kitchen roll core", "cardboard tube"], "why": "Clean cardboard tube — paper bin.", "caution": null },
+    "de": { "name": "Klopapierrolle (Pappe)", "aliases": ["küchenrollenkern", "papprolle"], "why": "Saubere Papprolle — Papiertonne.", "caution": null }
+  },
+  {
+    "id": "gift_wrap",
+    "bin": "papier",
+    "emoji": "🎁",
+    "en": { "name": "Gift wrapping paper", "aliases": ["wrapping paper"], "why": "Plain wrapping paper goes in the paper bin.", "caution": "Metallic, glitter or plastic-coated wrap goes to residual waste." },
+    "de": { "name": "Geschenkpapier", "aliases": [], "why": "Normales Geschenkpapier gehört in die Papiertonne.", "caution": "Metallic-, Glitzer- oder beschichtetes Papier in den Restabfall." }
+  },
+  {
+    "id": "cereal_box",
+    "bin": "papier",
+    "emoji": "🥣",
+    "en": { "name": "Cereal box", "aliases": ["muesli box", "food carton"], "why": "The outer cardboard goes in the paper bin.", "caution": "The inner plastic bag goes in the Yellow Bag." },
+    "de": { "name": "Müslikarton", "aliases": ["cornflakes-schachtel"], "why": "Der äußere Karton gehört in die Papiertonne.", "caution": "Der Innenbeutel aus Plastik in den Gelben Sack." }
+  },
+  {
+    "id": "banana_peel",
+    "bin": "bio",
+    "emoji": "🍌",
+    "en": { "name": "Banana peel", "aliases": ["fruit peel"], "why": "Organic kitchen waste becomes compost and biogas — organic bin.", "caution": null },
+    "de": { "name": "Bananenschale", "aliases": ["obstschale"], "why": "Organischer Küchenabfall wird zu Kompost und Biogas — Biotonne.", "caution": null }
+  },
+  {
+    "id": "apple_core",
+    "bin": "bio",
+    "emoji": "🍎",
+    "en": { "name": "Apple core", "aliases": ["fruit scraps"], "why": "Fruit waste belongs in the organic bin.", "caution": null },
+    "de": { "name": "Apfelrest", "aliases": ["obstreste", "kerngehäuse"], "why": "Obstabfälle gehören in die Biotonne.", "caution": null }
+  },
+  {
+    "id": "vegetable_scraps",
+    "bin": "bio",
+    "emoji": "🥕",
+    "en": { "name": "Vegetable scraps", "aliases": ["potato peels", "onion skins", "salad leaves"], "why": "Raw vegetable waste is ideal organic-bin material.", "caution": "Wrap wet scraps in newspaper — never in plastic bags." },
+    "de": { "name": "Gemüsereste", "aliases": ["kartoffelschalen", "zwiebelschalen", "salatblätter"], "why": "Rohe Gemüseabfälle sind ideales Biotonnen-Material.", "caution": "Feuchte Reste in Zeitungspapier wickeln — nie in Plastiktüten." }
+  },
+  {
+    "id": "citrus_peel",
+    "bin": "bio",
+    "emoji": "🍊",
+    "en": { "name": "Citrus / orange peel", "aliases": ["lemon peel", "mandarin peel"], "why": "Citrus peels are allowed in the organic bin — also from treated fruit.", "caution": null },
+    "de": { "name": "Zitrusschale", "aliases": ["orangenschale", "zitronenschale", "mandarinenschale"], "why": "Zitrusschalen dürfen in die Biotonne — auch von behandelten Früchten.", "caution": null }
+  },
+  {
+    "id": "coffee_grounds",
+    "bin": "bio",
+    "emoji": "☕",
+    "en": { "name": "Coffee grounds", "aliases": ["coffee filter", "coffee pad paper"], "why": "Coffee grounds with the paper filter are perfect compost material.", "caution": null },
+    "de": { "name": "Kaffeesatz", "aliases": ["kaffeefilter", "kaffeepad"], "why": "Kaffeesatz mit Papierfilter ist perfektes Kompostmaterial.", "caution": null }
+  },
+  {
+    "id": "tea_bag",
+    "bin": "bio",
+    "emoji": "🍵",
+    "en": { "name": "Tea bag", "aliases": ["loose tea"], "why": "Tea and paper tea bags go in the organic bin.", "caution": "Remove metal staples and any plastic-mesh 'pyramid' bags (those go to residual waste)." },
+    "de": { "name": "Teebeutel", "aliases": ["teereste"], "why": "Tee und Papier-Teebeutel gehören in die Biotonne.", "caution": "Metallklammern entfernen; Pyramidenbeutel aus Kunststoffnetz in den Restabfall." }
+  },
+  {
+    "id": "eggshells",
+    "bin": "bio",
+    "emoji": "🥚",
+    "en": { "name": "Eggshells", "aliases": [], "why": "Eggshells belong in the organic bin.", "caution": null },
+    "de": { "name": "Eierschalen", "aliases": [], "why": "Eierschalen gehören in die Biotonne.", "caution": null }
+  },
+  {
+    "id": "bread",
+    "bin": "bio",
+    "emoji": "🍞",
+    "en": { "name": "Old bread", "aliases": ["baked goods", "stale bread"], "why": "Bread and baked goods belong in the organic bin.", "caution": null },
+    "de": { "name": "Altes Brot", "aliases": ["backwaren", "brötchen"], "why": "Brot und Backwaren gehören in die Biotonne.", "caution": null }
+  },
+  {
+    "id": "cooked_leftovers",
+    "bin": "bio",
+    "emoji": "🍲",
+    "en": { "name": "Cooked leftovers", "aliases": ["food leftovers", "meal remains"], "why": "Cooked food is generally accepted in the organic bin — drain liquids first.", "caution": "Rules on meat and bones differ locally — check the AWB Abfallratgeber; when unsure use residual waste." },
+    "de": { "name": "Gekochte Essensreste", "aliases": ["speisereste"], "why": "Gekochte Speisen dürfen in der Regel in die Biotonne — Flüssigkeit vorher abgießen.", "caution": "Regeln für Fleisch und Knochen sind lokal unterschiedlich — AWB-Abfallratgeber prüfen; im Zweifel Restabfall." }
+  },
+  {
+    "id": "flowers",
+    "bin": "bio",
+    "emoji": "💐",
+    "en": { "name": "Wilted flowers", "aliases": ["bouquet", "dead plants"], "why": "Plant material belongs in the organic bin.", "caution": "Remove rubber bands, ribbons and plastic wrap first." },
+    "de": { "name": "Verwelkte Blumen", "aliases": ["blumenstrauß", "vertrocknete pflanzen"], "why": "Pflanzenmaterial gehört in die Biotonne.", "caution": "Gummibänder, Schleifen und Folie vorher entfernen." }
+  },
+  {
+    "id": "house_plant",
+    "bin": "bio",
+    "emoji": "🪴",
+    "en": { "name": "House plant (dead)", "aliases": ["potted plant", "plant with soil"], "why": "Plant and root ball with soil go in the organic bin.", "caution": "The plastic pot goes in the Yellow Bag only if it was sales packaging; otherwise residual waste. Clay pots: residual waste." },
+    "de": { "name": "Zimmerpflanze (vertrocknet)", "aliases": ["topfpflanze", "pflanze mit erde"], "why": "Pflanze und Wurzelballen mit Erde gehören in die Biotonne.", "caution": "Der Plastiktopf nur als Verkaufsverpackung in den Gelben Sack, sonst Restabfall. Tontöpfe: Restabfall." }
+  },
+  {
+    "id": "nutshells",
+    "bin": "bio",
+    "emoji": "🥜",
+    "en": { "name": "Nutshells", "aliases": ["peanut shells", "walnut shells"], "why": "Nutshells are organic waste.", "caution": null },
+    "de": { "name": "Nussschalen", "aliases": ["erdnussschalen", "walnussschalen"], "why": "Nussschalen sind Bioabfall.", "caution": null }
+  },
+  {
+    "id": "tissues",
+    "bin": "restmuell",
+    "emoji": "🤧",
+    "en": { "name": "Used tissues", "aliases": ["paper tissue", "handkerchief"], "why": "Hygiene paper cannot be recycled — residual waste, not paper.", "caution": null },
+    "de": { "name": "Benutzte Taschentücher", "aliases": ["tempo"], "why": "Hygienepapier ist nicht recycelbar — Restabfall, nicht Papier.", "caution": null }
+  },
+  {
+    "id": "paper_towel",
+    "bin": "restmuell",
+    "emoji": "🧻",
+    "en": { "name": "Used paper towel", "aliases": ["kitchen roll used", "napkin used"], "why": "Soiled hygiene paper goes to residual waste.", "caution": "Only lightly used with food? Small amounts may go in the organic bin." },
+    "de": { "name": "Benutztes Küchenpapier", "aliases": ["serviette benutzt", "küchenrolle"], "why": "Verschmutztes Hygienepapier gehört in den Restabfall.", "caution": "Nur mit Essensresten leicht benutzt? Kleine Mengen dürfen in die Biotonne." }
+  },
+  {
+    "id": "wet_wipes",
+    "bin": "restmuell",
+    "emoji": "🧽",
+    "en": { "name": "Wet wipes", "aliases": ["baby wipes", "cleaning wipes"], "why": "Wipes contain plastic fibres — residual waste, and NEVER the toilet (they block pipes).", "caution": null },
+    "de": { "name": "Feuchttücher", "aliases": ["babytücher", "reinigungstücher"], "why": "Feuchttücher enthalten Kunststofffasern — Restabfall, und NIE in die Toilette (verstopfen Rohre).", "caution": null }
+  },
+  {
+    "id": "cotton_pads",
+    "bin": "restmuell",
+    "emoji": "💄",
+    "en": { "name": "Cotton pads / swabs", "aliases": ["q-tips", "makeup pads", "cotton buds"], "why": "Hygiene products go to residual waste — not organic, even if they look like cotton.", "caution": null },
+    "de": { "name": "Wattepads / Wattestäbchen", "aliases": ["q-tips", "abschminkpads"], "why": "Hygieneartikel gehören in den Restabfall — nicht Bio, auch wenn sie nach Watte aussehen.", "caution": null }
+  },
+  {
+    "id": "toothbrush",
+    "bin": "restmuell",
+    "emoji": "🪥",
+    "en": { "name": "Toothbrush", "aliases": ["manual toothbrush"], "why": "A toothbrush is a product, not packaging — residual waste, not Yellow Bag.", "caution": "Electric toothbrush handles are e-waste!" },
+    "de": { "name": "Zahnbürste", "aliases": ["handzahnbürste"], "why": "Eine Zahnbürste ist ein Produkt, keine Verpackung — Restabfall, nicht Gelber Sack.", "caution": "Elektrische Zahnbürsten sind Elektroschrott!" }
+  },
+  {
+    "id": "razor",
+    "bin": "restmuell",
+    "emoji": "🪒",
+    "en": { "name": "Disposable razor", "aliases": ["razor blades"], "why": "Mixed-material product — residual waste. Wrap blades in paper for safety.", "caution": "Electric shavers are e-waste." },
+    "de": { "name": "Einwegrasierer", "aliases": ["rasierklingen"], "why": "Produkt aus Materialmix — Restabfall. Klingen zur Sicherheit in Papier wickeln.", "caution": "Elektrorasierer sind Elektroschrott." }
+  },
+  {
+    "id": "diapers",
+    "bin": "restmuell",
+    "emoji": "👶",
+    "en": { "name": "Diapers", "aliases": ["nappies", "sanitary products", "tampons", "pads"], "why": "All hygiene products go to residual waste.", "caution": null },
+    "de": { "name": "Windeln", "aliases": ["hygieneartikel", "tampons", "binden"], "why": "Alle Hygieneprodukte gehören in den Restabfall.", "caution": null }
+  },
+  {
+    "id": "cigarette_butts",
+    "bin": "restmuell",
+    "emoji": "🚬",
+    "en": { "name": "Cigarette butts", "aliases": ["ashtray contents"], "why": "Filters contain plastic and toxins — residual waste, never the ground or organic bin.", "caution": "Make sure ashes are completely cold." },
+    "de": { "name": "Zigarettenkippen", "aliases": ["aschenbecher"], "why": "Filter enthalten Kunststoff und Giftstoffe — Restabfall, nie auf den Boden oder in die Biotonne.", "caution": "Asche muss vollständig kalt sein." }
+  },
+  {
+    "id": "vacuum_bag",
+    "bin": "restmuell",
+    "emoji": "🌀",
+    "en": { "name": "Vacuum cleaner bag", "aliases": ["dust bag"], "why": "Dust and mixed debris — residual waste.", "caution": null },
+    "de": { "name": "Staubsaugerbeutel", "aliases": ["staubbeutel"], "why": "Staub und Mischabfall — Restabfall.", "caution": null }
+  },
+  {
+    "id": "cat_litter",
+    "bin": "restmuell",
+    "emoji": "🐱",
+    "en": { "name": "Cat litter", "aliases": ["pet litter", "animal bedding"], "why": "Mineral litter and pet waste go to residual waste — not organic.", "caution": null },
+    "de": { "name": "Katzenstreu", "aliases": ["kleintierstreu"], "why": "Mineralisches Streu und Tierkot gehören in den Restabfall — nicht Bio.", "caution": null }
+  },
+  {
+    "id": "drinking_glass",
+    "bin": "restmuell",
+    "emoji": "🥃",
+    "en": { "name": "Broken drinking glass", "aliases": ["water glass", "glass cup"], "why": "Drinking glasses melt at a different temperature than bottle glass — residual waste, NOT the glass container.", "caution": "Wrap shards in newspaper for the bin collectors' safety." },
+    "de": { "name": "Zerbrochenes Trinkglas", "aliases": ["wasserglas", "glas kaputt"], "why": "Trinkgläser schmelzen anders als Flaschenglas — Restabfall, NICHT der Altglascontainer.", "caution": "Scherben in Zeitungspapier wickeln — Sicherheit für die Müllabfuhr." }
+  },
+  {
+    "id": "ceramic_mug",
+    "bin": "restmuell",
+    "emoji": "☕",
+    "en": { "name": "Ceramic mug / plate", "aliases": ["porcelain", "dishes broken", "crockery"], "why": "Ceramics and porcelain ruin glass recycling — residual waste.", "caution": "Larger amounts (a whole dinner set): Wertstoffhof as rubble." },
+    "de": { "name": "Keramiktasse / Teller", "aliases": ["porzellan", "geschirr kaputt"], "why": "Keramik und Porzellan ruinieren das Glasrecycling — Restabfall.", "caution": "Größere Mengen (ganzes Service): Wertstoffhof als Bauschutt." }
+  },
+  {
+    "id": "mirror",
+    "bin": "restmuell",
+    "emoji": "🪞",
+    "en": { "name": "Small mirror", "aliases": ["pocket mirror", "makeup mirror"], "why": "Mirror glass is coated — residual waste, never the glass container.", "caution": "Large mirrors and furniture mirrors: bulky waste or Wertstoffhof." },
+    "de": { "name": "Kleiner Spiegel", "aliases": ["taschenspiegel", "schminkspiegel"], "why": "Spiegelglas ist beschichtet — Restabfall, nie der Altglascontainer.", "caution": "Große Spiegel und Möbelspiegel: Sperrmüll oder Wertstoffhof." }
+  },
+  {
+    "id": "receipt",
+    "bin": "restmuell",
+    "emoji": "🧾",
+    "en": { "name": "Receipt", "aliases": ["cash receipt", "thermal paper"], "why": "Receipts are thermal paper with chemical coating — residual waste, not paper.", "caution": null },
+    "de": { "name": "Kassenbon", "aliases": ["quittung", "thermopapier"], "why": "Bons sind Thermopapier mit chemischer Beschichtung — Restabfall, nicht Papier.", "caution": null }
+  },
+  {
+    "id": "baking_paper",
+    "bin": "restmuell",
+    "emoji": "🍪",
+    "en": { "name": "Baking paper", "aliases": ["parchment paper"], "why": "Silicone-coated paper cannot be recycled — residual waste.", "caution": null },
+    "de": { "name": "Backpapier", "aliases": [], "why": "Silikonbeschichtetes Papier ist nicht recycelbar — Restabfall.", "caution": null }
+  },
+  {
+    "id": "pen",
+    "bin": "restmuell",
+    "emoji": "🖊️",
+    "en": { "name": "Pen / ballpoint", "aliases": ["biro", "marker", "highlighter"], "why": "Mixed-material products (not packaging) go to residual waste.", "caution": null },
+    "de": { "name": "Kugelschreiber", "aliases": ["stift", "marker", "textmarker"], "why": "Produkte aus Materialmix (keine Verpackung) gehören in den Restabfall.", "caution": null }
+  },
+  {
+    "id": "rubber_gloves",
+    "bin": "restmuell",
+    "emoji": "🧤",
+    "en": { "name": "Rubber gloves", "aliases": ["latex gloves", "cleaning gloves"], "why": "Rubber products go to residual waste.", "caution": null },
+    "de": { "name": "Gummihandschuhe", "aliases": ["latexhandschuhe", "putzhandschuhe"], "why": "Gummiprodukte gehören in den Restabfall.", "caution": null }
+  },
+  {
+    "id": "sponge",
+    "bin": "restmuell",
+    "emoji": "🧽",
+    "en": { "name": "Kitchen sponge", "aliases": ["scouring pad", "dish sponge"], "why": "Synthetic sponges go to residual waste.", "caution": null },
+    "de": { "name": "Küchenschwamm", "aliases": ["spülschwamm", "topfreiniger"], "why": "Synthetische Schwämme gehören in den Restabfall.", "caution": null }
+  },
+  {
+    "id": "dental_floss",
+    "bin": "restmuell",
+    "emoji": "🦷",
+    "en": { "name": "Dental floss", "aliases": ["floss picks"], "why": "Plastic-fibre hygiene product — residual waste.", "caution": null },
+    "de": { "name": "Zahnseide", "aliases": [], "why": "Hygieneprodukt aus Kunststofffasern — Restabfall.", "caution": null }
+  },
+  {
+    "id": "band_aid",
+    "bin": "restmuell",
+    "emoji": "🩹",
+    "en": { "name": "Band-aid / plaster", "aliases": ["bandage", "dressing"], "why": "Used medical items go to residual waste.", "caution": null },
+    "de": { "name": "Pflaster", "aliases": ["verband"], "why": "Benutzte Medizinartikel gehören in den Restabfall.", "caution": null }
+  },
+  {
+    "id": "chewing_gum",
+    "bin": "restmuell",
+    "emoji": "🫧",
+    "en": { "name": "Chewing gum", "aliases": ["gum"], "why": "Gum is synthetic — residual waste, never the ground.", "caution": null },
+    "de": { "name": "Kaugummi", "aliases": [], "why": "Kaugummi ist synthetisch — Restabfall, nie auf den Boden.", "caution": null }
+  },
+  {
+    "id": "candle",
+    "bin": "restmuell",
+    "emoji": "🕯️",
+    "en": { "name": "Candle remains", "aliases": ["tea light", "wax"], "why": "Wax goes to residual waste.", "caution": "The aluminium tea-light cup goes in the Yellow Bag." },
+    "de": { "name": "Kerzenreste", "aliases": ["teelicht", "wachs"], "why": "Wachs gehört in den Restabfall.", "caution": "Die Alu-Schale des Teelichts in den Gelben Sack." }
+  },
+  {
+    "id": "lighter",
+    "bin": "restmuell",
+    "emoji": "🔥",
+    "en": { "name": "Lighter (empty)", "aliases": ["disposable lighter"], "why": "Completely empty lighters go to residual waste.", "caution": "With gas left: hazardous waste (Schadstoffmobil)." },
+    "de": { "name": "Feuerzeug (leer)", "aliases": ["einwegfeuerzeug"], "why": "Restlos leere Feuerzeuge gehören in den Restabfall.", "caution": "Mit Restgas: Schadstoffsammlung (Schadstoffmobil)." }
+  },
+  {
+    "id": "photos",
+    "bin": "restmuell",
+    "emoji": "📷",
+    "en": { "name": "Printed photos", "aliases": ["photo paper"], "why": "Coated photo paper cannot be recycled — residual waste.", "caution": null },
+    "de": { "name": "Fotos (Abzüge)", "aliases": ["fotopapier"], "why": "Beschichtetes Fotopapier ist nicht recycelbar — Restabfall.", "caution": null }
+  },
+  {
+    "id": "face_mask",
+    "bin": "restmuell",
+    "emoji": "😷",
+    "en": { "name": "Face mask", "aliases": ["ffp2", "surgical mask"], "why": "Masks contain plastic fleece — residual waste.", "caution": null },
+    "de": { "name": "Maske", "aliases": ["ffp2", "op-maske"], "why": "Masken enthalten Kunststoffvlies — Restabfall.", "caution": null }
+  },
+  {
+    "id": "togo_cup",
+    "bin": "restmuell",
+    "emoji": "🥤",
+    "en": { "name": "Coffee to-go cup", "aliases": ["paper cup", "takeaway cup"], "why": "Plastic-coated composite — the cup itself goes to residual waste.", "caution": "The plastic lid goes in the Yellow Bag. Better: bring a reusable cup — the Mensa fills it." },
+    "de": { "name": "Coffee-to-go-Becher", "aliases": ["pappbecher", "einwegbecher"], "why": "Kunststoffbeschichteter Verbund — der Becher selbst gehört in den Restabfall.", "caution": "Der Plastikdeckel in den Gelben Sack. Besser: Mehrwegbecher mitbringen — die Mensa füllt ihn." }
+  },
+  {
+    "id": "ice_cream_stick",
+    "bin": "restmuell",
+    "emoji": "🍦",
+    "en": { "name": "Ice cream stick", "aliases": ["wooden stick", "popsicle stick"], "why": "Small treated wood goes to residual waste.", "caution": null },
+    "de": { "name": "Eisstiel", "aliases": ["holzstiel"], "why": "Kleines behandeltes Holz gehört in den Restabfall.", "caution": null }
+  },
+  {
+    "id": "cork",
+    "bin": "restmuell",
+    "emoji": "🍾",
+    "en": { "name": "Cork (natural)", "aliases": ["wine cork"], "why": "Natural cork may go to residual waste — collection points recycle it better if available.", "caution": "Plastic 'corks' go in the Yellow Bag." },
+    "de": { "name": "Korken (Naturkork)", "aliases": ["weinkorken"], "why": "Naturkork darf in den Restabfall — Sammelstellen recyceln ihn besser, falls vorhanden.", "caution": "Kunststoffkorken gehören in den Gelben Sack." }
+  },
+  {
+    "id": "plastic_toy",
+    "bin": "restmuell",
+    "emoji": "🧸",
+    "en": { "name": "Plastic toy (broken)", "aliases": ["toys"], "why": "Toys are products, not packaging — residual waste, not the Yellow Bag.", "caution": "Electronic toys are e-waste. Working toys: donate or give away." },
+    "de": { "name": "Plastikspielzeug (kaputt)", "aliases": ["spielzeug"], "why": "Spielzeug ist Produkt, keine Verpackung — Restabfall, nicht Gelber Sack.", "caution": "Elektronisches Spielzeug ist E-Schrott. Funktionierendes: verschenken." }
+  },
+  {
+    "id": "bucket",
+    "bin": "restmuell",
+    "emoji": "🪣",
+    "en": { "name": "Plastic bucket / bowl", "aliases": ["household plastic", "storage box"], "why": "Non-packaging plastic goes to residual waste — the Yellow Bag is only for packaging.", "caution": "Large items: Wertstoffhof takes rigid plastics." },
+    "de": { "name": "Plastikeimer / Schüssel", "aliases": ["haushaltsplastik", "aufbewahrungsbox"], "why": "Nicht-Verpackungs-Kunststoff gehört in den Restabfall — der Gelbe Sack ist nur für Verpackungen.", "caution": "Große Teile: der Wertstoffhof nimmt Hartkunststoffe." }
+  },
+  {
+    "id": "clothes_hanger",
+    "bin": "restmuell",
+    "emoji": "🪝",
+    "en": { "name": "Clothes hanger (plastic)", "aliases": ["coat hanger"], "why": "A product, not packaging — residual waste.", "caution": "Metal hangers: Wertstoffhof scrap metal. Or give them away — someone always needs hangers." },
+    "de": { "name": "Kleiderbügel (Plastik)", "aliases": [], "why": "Produkt, keine Verpackung — Restabfall.", "caution": "Metallbügel: Wertstoffhof Altmetall. Oder verschenken — Bügel braucht immer jemand." }
+  },
+  {
+    "id": "umbrella",
+    "bin": "restmuell",
+    "emoji": "☂️",
+    "en": { "name": "Broken umbrella", "aliases": [], "why": "Mixed materials, small enough for the bin — residual waste.", "caution": null },
+    "de": { "name": "Kaputter Regenschirm", "aliases": ["schirm"], "why": "Materialmix, klein genug für die Tonne — Restabfall.", "caution": null }
+  },
+  {
+    "id": "cooking_oil",
+    "bin": "restmuell",
+    "emoji": "🫗",
+    "en": { "name": "Cooking oil / frying fat", "aliases": ["used oil", "frying oil"], "why": "Small amounts: seal in a bottle, then residual waste. NEVER down the drain — it clogs pipes.", "caution": "The empty plastic oil bottle afterwards: Yellow Bag; glass bottle: glass container." },
+    "de": { "name": "Speiseöl / Frittierfett", "aliases": ["altes öl", "bratfett"], "why": "Kleine Mengen: in einer Flasche verschlossen in den Restabfall. NIE in den Abfluss — verstopft Rohre.", "caution": "Die leere Plastikflasche danach: Gelber Sack; Glasflasche: Altglas." }
+  },
+  {
+    "id": "medicine",
+    "bin": "restmuell",
+    "emoji": "💊",
+    "en": { "name": "Old medicine", "aliases": ["pills", "expired medication"], "why": "In Rhineland-Palatinate old medicines may go to residual waste — never the toilet or sink.", "caution": "Some pharmacies take them back voluntarily — ask. Empty blisters: Yellow Bag." },
+    "de": { "name": "Alte Medikamente", "aliases": ["tabletten", "abgelaufene medikamente"], "why": "In Rheinland-Pfalz dürfen Altmedikamente in den Restabfall — nie in Toilette oder Abfluss.", "caution": "Manche Apotheken nehmen sie freiwillig zurück — nachfragen. Leere Blister: Gelber Sack." }
+  },
+  {
+    "id": "condom",
+    "bin": "restmuell",
+    "emoji": "🩺",
+    "en": { "name": "Condom", "aliases": [], "why": "Hygiene product — residual waste, never the toilet.", "caution": null },
+    "de": { "name": "Kondom", "aliases": [], "why": "Hygieneprodukt — Restabfall, nie in die Toilette.", "caution": null }
+  },
+  {
+    "id": "contact_lenses",
+    "bin": "restmuell",
+    "emoji": "👁️",
+    "en": { "name": "Contact lenses", "aliases": ["lens case"], "why": "Lenses go to residual waste — never the sink (microplastic).", "caution": "The blister packaging: Yellow Bag." },
+    "de": { "name": "Kontaktlinsen", "aliases": ["linsenbehälter"], "why": "Linsen gehören in den Restabfall — nie ins Waschbecken (Mikroplastik).", "caution": "Die Blisterverpackung: Gelber Sack." }
+  },
+  {
+    "id": "incandescent_bulb",
+    "bin": "restmuell",
+    "emoji": "💡",
+    "en": { "name": "Incandescent / halogen bulb", "aliases": ["old light bulb", "halogen lamp"], "why": "Classic filament bulbs are the ONE lamp type allowed in residual waste.", "caution": "LED and energy-saving lamps are e-waste — drop-off boxes at drugstores or the Wertstoffhof." },
+    "de": { "name": "Glühbirne / Halogenlampe", "aliases": ["glühlampe"], "why": "Klassische Glühbirnen sind die EINZIGE Lampenart für den Restabfall.", "caution": "LED- und Energiesparlampen sind E-Schrott — Sammelboxen in Drogerien oder Wertstoffhof." }
+  },
+  {
+    "id": "wine_bottle",
+    "bin": "glas",
+    "emoji": "🍷",
+    "en": { "name": "Wine bottle", "aliases": ["spirits bottle", "prosecco bottle"], "why": "No deposit on wine bottles — glass container, sorted by colour.", "caution": "Cork out (residual), lid/foil in the Yellow Bag. No throwing on Sundays or at night!" },
+    "de": { "name": "Weinflasche", "aliases": ["sektflasche", "schnapsflasche"], "why": "Auf Weinflaschen ist kein Pfand — Altglascontainer, nach Farbe sortiert.", "caution": "Korken raus (Restabfall), Deckel/Folie in den Gelben Sack. Kein Einwurf sonntags oder nachts!" }
+  },
+  {
+    "id": "jam_jar",
+    "bin": "glas",
+    "emoji": "🫙",
+    "en": { "name": "Jam jar", "aliases": ["honey jar", "nutella jar", "glass jar"], "why": "Container glass goes to the glass container — spoon-clean is enough.", "caution": "Lid off — it goes in the Yellow Bag." },
+    "de": { "name": "Marmeladenglas", "aliases": ["honigglas", "nutellaglas", "schraubglas"], "why": "Behälterglas gehört in den Altglascontainer — löffelrein genügt.", "caution": "Deckel ab — der gehört in den Gelben Sack." }
+  },
+  {
+    "id": "sauce_jar",
+    "bin": "glas",
+    "emoji": "🍝",
+    "en": { "name": "Sauce / pickle jar", "aliases": ["pesto jar", "gherkin jar", "pasta sauce jar"], "why": "Food jars go to the glass container, sorted by colour.", "caution": null },
+    "de": { "name": "Soßen- / Gurkenglas", "aliases": ["pestoglas", "nudelsoßenglas"], "why": "Konservengläser gehören in den Altglascontainer, nach Farbe sortiert.", "caution": null }
+  },
+  {
+    "id": "olive_oil_bottle",
+    "bin": "glas",
+    "emoji": "🫒",
+    "en": { "name": "Oil / vinegar bottle (glass)", "aliases": ["olive oil bottle", "vinegar bottle"], "why": "No deposit — glass container. A little oil residue is okay.", "caution": null },
+    "de": { "name": "Öl- / Essigflasche (Glas)", "aliases": ["olivenölflasche"], "why": "Kein Pfand — Altglascontainer. Ein kleiner Ölrest ist okay.", "caution": null }
+  },
+  {
+    "id": "perfume_bottle",
+    "bin": "glas",
+    "emoji": "🌸",
+    "en": { "name": "Perfume bottle", "aliases": ["cosmetics glass", "cream glass jar"], "why": "Cosmetic glass goes to the glass container.", "caution": "Pump and cap: Yellow Bag." },
+    "de": { "name": "Parfümflasche", "aliases": ["kosmetikglas", "cremetiegel glas"], "why": "Kosmetikglas gehört in den Altglascontainer.", "caution": "Pumpe und Deckel: Gelber Sack." }
+  },
+  {
+    "id": "baby_food_jar",
+    "bin": "glas",
+    "emoji": "🍼",
+    "en": { "name": "Baby food jar", "aliases": ["small glass jar"], "why": "Container glass — glass container, by colour.", "caution": null },
+    "de": { "name": "Babygläschen", "aliases": ["kleines glas"], "why": "Behälterglas — Altglascontainer, nach Farbe.", "caution": null }
+  },
+  {
+    "id": "blue_glass",
+    "bin": "glas",
+    "emoji": "🔵",
+    "en": { "name": "Blue / coloured glass bottle", "aliases": ["blue bottle"], "why": "All odd colours (blue, red…) go into the GREEN glass slot — green glass tolerates colour mixing best.", "caution": null },
+    "de": { "name": "Blaue / bunte Glasflasche", "aliases": ["blaue flasche"], "why": "Alle Sonderfarben (blau, rot…) gehören ins GRÜNE Altglas — Grünglas verträgt Farbmischung am besten.", "caution": null }
+  },
+  {
+    "id": "plastic_bottle_pfand",
+    "bin": "pfand",
+    "emoji": "💧",
+    "en": { "name": "Plastic bottle (water/soda)", "aliases": ["pet bottle", "water bottle", "cola bottle"], "why": "Single-use bottles with the Pfand logo = €0.25 back at any supermarket machine.", "caution": "Don't crush it — the machine must read the label. No logo (rare)? Then Yellow Bag." },
+    "de": { "name": "Plastikflasche (Wasser/Limo)", "aliases": ["pet-flasche", "wasserflasche", "colaflasche"], "why": "Einwegflaschen mit Pfandlogo = 0,25 € zurück am Automaten in jedem Supermarkt.", "caution": "Nicht zerdrücken — der Automat muss das Etikett lesen. Ohne Logo (selten)? Dann Gelber Sack." }
+  },
+  {
+    "id": "beer_bottle",
+    "bin": "pfand",
+    "emoji": "🍺",
+    "en": { "name": "Beer bottle", "aliases": ["beer crate"], "why": "Reusable bottle — €0.08 deposit back where beer is sold.", "caution": "Swing-top bottles (Flensburger style): €0.15. The crate has its own deposit too." },
+    "de": { "name": "Bierflasche", "aliases": ["bierkasten"], "why": "Mehrwegflasche — 0,08 € Pfand zurück, wo Bier verkauft wird.", "caution": "Bügelflaschen: 0,15 €. Der Kasten hat eigenes Pfand." }
+  },
+  {
+    "id": "beer_can",
+    "bin": "pfand",
+    "emoji": "🥫",
+    "en": { "name": "Beer / soda can", "aliases": ["energy drink can", "red bull can", "coke can"], "why": "Drink cans carry €0.25 deposit — return them, don't bin them.", "caution": "Don't crush the can — the machine needs to scan it." },
+    "de": { "name": "Bier- / Getränkedose", "aliases": ["energydose", "red bull dose", "coladose"], "why": "Getränkedosen haben 0,25 € Pfand — zurückbringen, nicht wegwerfen.", "caution": "Dose nicht zerdrücken — der Automat muss sie scannen." }
+  },
+  {
+    "id": "glass_bottle_pfand",
+    "bin": "pfand",
+    "emoji": "🍾",
+    "en": { "name": "Reusable glass bottle (water/juice)", "aliases": ["mehrweg bottle", "returnable bottle"], "why": "Mehrweg glass bottles carry €0.15 deposit — look for 'Mehrweg' on the label.", "caution": "Mehrweg goes back to stores selling that brand; wine bottles have no deposit → glass container." },
+    "de": { "name": "Mehrweg-Glasflasche (Wasser/Saft)", "aliases": ["mehrwegflasche", "pfandflasche glas"], "why": "Mehrweg-Glasflaschen haben 0,15 € Pfand — auf 'Mehrweg' auf dem Etikett achten.", "caution": "Mehrweg nimmt der Handel mit dieser Marke zurück; Weinflaschen sind pfandfrei → Altglas." }
+  },
+  {
+    "id": "smoothie_bottle",
+    "bin": "pfand",
+    "emoji": "🥤",
+    "en": { "name": "Juice / smoothie bottle (single-use)", "aliases": ["juice bottle plastic", "milk drink bottle"], "why": "Since 2022/2024 juice and milk-drink single-use bottles also carry €0.25 deposit.", "caution": "Check the label — older stock and some exceptions exist. No logo? Yellow Bag." },
+    "de": { "name": "Saft- / Smoothieflasche (Einweg)", "aliases": ["saftflasche plastik", "milchgetränk flasche"], "why": "Seit 2022/2024 haben auch Einweg-Saft- und Milchgetränkeflaschen 0,25 € Pfand.", "caution": "Etikett prüfen — es gibt Ausnahmen und Altbestände. Kein Logo? Gelber Sack." }
+  },
+  {
+    "id": "batteries",
+    "bin": "sondermuell",
+    "emoji": "🔋",
+    "en": { "name": "Batteries", "aliases": ["aa battery", "button cell", "rechargeable battery"], "why": "Toxic and a fire risk — every shop selling batteries has a free collection box at the entrance.", "caution": "Tape the poles of lithium batteries. NEVER in any household bin." },
+    "de": { "name": "Batterien", "aliases": ["akku", "knopfzelle", "aa batterie"], "why": "Giftig und Brandrisiko — jeder Laden, der Batterien verkauft, hat eine kostenlose Sammelbox am Eingang.", "caution": "Pole von Lithium-Akkus abkleben. NIE in eine Haustonne." }
+  },
+  {
+    "id": "power_bank",
+    "bin": "sondermuell",
+    "emoji": "🔌",
+    "en": { "name": "Power bank", "aliases": ["portable charger"], "why": "Lithium battery inside — fire hazard. Battery collection box or Wertstoffhof.", "caution": null },
+    "de": { "name": "Powerbank", "aliases": [], "why": "Lithium-Akku — Brandgefahr. Batteriesammelbox oder Wertstoffhof.", "caution": null }
+  },
+  {
+    "id": "phone",
+    "bin": "sondermuell",
+    "emoji": "📱",
+    "en": { "name": "Old phone", "aliases": ["smartphone", "mobile phone"], "why": "E-waste with valuable metals — Wertstoffhof or electronics-retailer take-back, free.", "caution": "Wipe your data first. Working phones: sell or donate." },
+    "de": { "name": "Altes Handy", "aliases": ["smartphone"], "why": "Elektroschrott mit wertvollen Metallen — Wertstoffhof oder Händler-Rücknahme, kostenlos.", "caution": "Vorher Daten löschen. Funktionierende Handys: verkaufen oder spenden." }
+  },
+  {
+    "id": "laptop",
+    "bin": "sondermuell",
+    "emoji": "💻",
+    "en": { "name": "Laptop / tablet", "aliases": ["computer", "notebook computer"], "why": "E-waste — Wertstoffhof or large electronics retailers take it back for free.", "caution": "Wipe the disk first." },
+    "de": { "name": "Laptop / Tablet", "aliases": ["computer", "rechner"], "why": "Elektroschrott — Wertstoffhof oder große Elektromärkte nehmen ihn kostenlos zurück.", "caution": "Festplatte vorher löschen." }
+  },
+  {
+    "id": "cable",
+    "bin": "sondermuell",
+    "emoji": "⚡",
+    "en": { "name": "Cables / chargers", "aliases": ["usb cable", "charger", "adapter"], "why": "E-waste — collection box at electronics stores or Wertstoffhof.", "caution": null },
+    "de": { "name": "Kabel / Ladegeräte", "aliases": ["usb-kabel", "netzteil", "adapter"], "why": "Elektroschrott — Sammelbox im Elektromarkt oder Wertstoffhof.", "caution": null }
+  },
+  {
+    "id": "headphones",
+    "bin": "sondermuell",
+    "emoji": "🎧",
+    "en": { "name": "Headphones / earbuds", "aliases": ["airpods", "earphones"], "why": "E-waste, often with built-in batteries — e-waste collection, never residual waste.", "caution": null },
+    "de": { "name": "Kopfhörer / Earbuds", "aliases": ["airpods"], "why": "Elektroschrott, oft mit eingebautem Akku — E-Schrott-Sammlung, nie Restabfall.", "caution": null }
+  },
+  {
+    "id": "led_bulb",
+    "bin": "sondermuell",
+    "emoji": "💡",
+    "en": { "name": "LED / energy-saving lamp", "aliases": ["led lamp", "cfl", "fluorescent tube"], "why": "Contains electronics (and CFLs contain mercury) — drop-off boxes at drugstores/DIY stores or Wertstoffhof.", "caution": "Only classic incandescent bulbs may go to residual waste." },
+    "de": { "name": "LED- / Energiesparlampe", "aliases": ["leuchtstoffröhre"], "why": "Enthält Elektronik (Energiesparlampen sogar Quecksilber) — Sammelboxen in Drogerie/Baumarkt oder Wertstoffhof.", "caution": "Nur klassische Glühbirnen dürfen in den Restabfall." }
+  },
+  {
+    "id": "kettle",
+    "bin": "sondermuell",
+    "emoji": "🫖",
+    "en": { "name": "Kettle / toaster", "aliases": ["small appliance", "microwave", "hair dryer"], "why": "Small electric appliances are e-waste — Wertstoffhof or retailer take-back, free.", "caution": null },
+    "de": { "name": "Wasserkocher / Toaster", "aliases": ["kleingerät", "mikrowelle", "föhn"], "why": "Elektro-Kleingeräte sind E-Schrott — Wertstoffhof oder Händler-Rücknahme, kostenlos.", "caution": null }
+  },
+  {
+    "id": "vape",
+    "bin": "sondermuell",
+    "emoji": "💨",
+    "en": { "name": "E-cigarette / vape", "aliases": ["disposable vape", "e-shisha"], "why": "Battery + electronics — e-waste collection, NEVER residual waste (fire risk). Even 'disposable' ones!", "caution": null },
+    "de": { "name": "E-Zigarette / Vape", "aliases": ["einweg-vape", "e-shisha"], "why": "Akku + Elektronik — E-Schrott-Sammlung, NIE Restabfall (Brandgefahr). Auch 'Einweg'-Vapes!", "caution": null }
+  },
+  {
+    "id": "printer_cartridge",
+    "bin": "sondermuell",
+    "emoji": "🖨️",
+    "en": { "name": "Printer cartridge", "aliases": ["toner", "ink cartridge"], "why": "Take back to electronics stores or the Wertstoffhof — many manufacturers refill them.", "caution": null },
+    "de": { "name": "Druckerpatrone", "aliases": ["toner", "tintenpatrone"], "why": "Zurück zum Elektromarkt oder Wertstoffhof — viele Hersteller befüllen sie neu.", "caution": null }
+  },
+  {
+    "id": "paint",
+    "bin": "sondermuell",
+    "emoji": "🎨",
+    "en": { "name": "Paint / varnish", "aliases": ["wall paint", "lacquer"], "why": "Liquid paint is hazardous waste — Schadstoffmobil (see AWB dates).", "caution": "Completely dried-out water-based paint may go to residual waste; empty metal cans to the Yellow Bag." },
+    "de": { "name": "Farbe / Lack", "aliases": ["wandfarbe"], "why": "Flüssige Farbe ist Schadstoff — Schadstoffmobil (AWB-Termine).", "caution": "Komplett eingetrocknete Dispersionsfarbe darf in den Restabfall; leere Metalleimer in den Gelben Sack." }
+  },
+  {
+    "id": "nail_polish",
+    "bin": "sondermuell",
+    "emoji": "💅",
+    "en": { "name": "Nail polish", "aliases": ["nail polish remover"], "why": "Solvent-based — hazardous waste (Schadstoffmobil), not the glass container.", "caution": null },
+    "de": { "name": "Nagellack", "aliases": ["nagellackentferner"], "why": "Lösungsmittelhaltig — Schadstoffsammlung (Schadstoffmobil), nicht der Altglascontainer.", "caution": null }
+  },
+  {
+    "id": "thermometer",
+    "bin": "sondermuell",
+    "emoji": "🌡️",
+    "en": { "name": "Thermometer (mercury)", "aliases": ["fever thermometer"], "why": "Mercury is highly toxic — Schadstoffmobil only.", "caution": "Digital thermometers are e-waste." },
+    "de": { "name": "Thermometer (Quecksilber)", "aliases": ["fieberthermometer"], "why": "Quecksilber ist hochgiftig — nur Schadstoffmobil.", "caution": "Digitale Thermometer sind E-Schrott." }
+  },
+  {
+    "id": "smoke_detector",
+    "bin": "sondermuell",
+    "emoji": "🚨",
+    "en": { "name": "Smoke detector", "aliases": [], "why": "Electronics with battery — e-waste collection or Wertstoffhof.", "caution": null },
+    "de": { "name": "Rauchmelder", "aliases": [], "why": "Elektronik mit Batterie — E-Schrott-Sammlung oder Wertstoffhof.", "caution": null }
+  },
+  {
+    "id": "mattress",
+    "bin": "sperrmuell",
+    "emoji": "🛏️",
+    "en": { "name": "Mattress", "aliases": ["bed", "bed frame"], "why": "Too big for any bin — register a bulky-waste pickup with AWB (website or AWB app).", "caution": "Never just leave it on the street — that's illegal dumping. Still okay? Offer it second-hand first." },
+    "de": { "name": "Matratze", "aliases": ["bett", "bettgestell"], "why": "Zu groß für jede Tonne — Sperrmüll-Abholung bei der AWB anmelden (Website oder AWB-App).", "caution": "Nie einfach an die Straße stellen — illegale Ablagerung. Noch gut? Erst gebraucht anbieten." }
+  },
+  {
+    "id": "sofa",
+    "bin": "sperrmuell",
+    "emoji": "🛋️",
+    "en": { "name": "Sofa / armchair", "aliases": ["couch", "furniture"], "why": "Bulky waste — pickup on request from AWB Birkenfeld.", "caution": "Usable furniture: offer it to other students first — someone's furnishing a WG room right now." },
+    "de": { "name": "Sofa / Sessel", "aliases": ["couch", "möbel"], "why": "Sperrmüll — Abholung auf Abruf bei der AWB Birkenfeld.", "caution": "Brauchbare Möbel: erst anderen Studierenden anbieten — gerade richtet jemand ein WG-Zimmer ein." }
+  },
+  {
+    "id": "desk",
+    "bin": "sperrmuell",
+    "emoji": "🪑",
+    "en": { "name": "Desk / shelf / chair", "aliases": ["table", "bookshelf", "office chair"], "why": "Furniture is bulky waste — register the pickup with AWB.", "caution": "Small dismantled parts fit the residual bin; usable pieces: give away first." },
+    "de": { "name": "Schreibtisch / Regal / Stuhl", "aliases": ["tisch", "bücherregal", "bürostuhl"], "why": "Möbel sind Sperrmüll — Abholung bei der AWB anmelden.", "caution": "Kleine zerlegte Teile passen in den Restabfall; Brauchbares erst verschenken." }
+  },
+  {
+    "id": "carpet",
+    "bin": "sperrmuell",
+    "emoji": "🧶",
+    "en": { "name": "Carpet / rug", "aliases": ["floor rug"], "why": "Rolled carpets are bulky waste — AWB pickup on request.", "caution": "Small doormats fit in residual waste." },
+    "de": { "name": "Teppich", "aliases": ["läufer"], "why": "Gerollte Teppiche sind Sperrmüll — AWB-Abholung auf Abruf.", "caution": "Kleine Fußmatten passen in den Restabfall." }
+  },
+  {
+    "id": "suitcase",
+    "bin": "sperrmuell",
+    "emoji": "🧳",
+    "en": { "name": "Suitcase (broken)", "aliases": ["luggage", "travel bag"], "why": "Large broken luggage is bulky waste.", "caution": "Still rolls? A departing student always needs one more suitcase — give it away." },
+    "de": { "name": "Koffer (kaputt)", "aliases": ["reisetasche"], "why": "Großes kaputtes Gepäck ist Sperrmüll.", "caution": "Rollt noch? Ein abreisender Studi braucht immer noch einen Koffer — verschenken." }
+  },
+  {
+    "id": "bicycle",
+    "bin": "sperrmuell",
+    "emoji": "🚲",
+    "en": { "name": "Bicycle (broken)", "aliases": ["bike"], "why": "Bulky waste / scrap metal at the Wertstoffhof.", "caution": "Repairable bikes are gold on a rural campus — offer it around first. E-bike batteries: battery collection!" },
+    "de": { "name": "Fahrrad (kaputt)", "aliases": ["rad"], "why": "Sperrmüll / Altmetall am Wertstoffhof.", "caution": "Reparierbare Räder sind Gold auf dem Land-Campus — erst anbieten. E-Bike-Akkus: Batteriesammlung!" }
+  },
+  {
+    "id": "drying_rack",
+    "bin": "sperrmuell",
+    "emoji": "🧺",
+    "en": { "name": "Drying rack / ironing board", "aliases": ["clothes airer"], "why": "Large metal household items — bulky waste or Wertstoffhof scrap metal.", "caution": null },
+    "de": { "name": "Wäscheständer / Bügelbrett", "aliases": [], "why": "Große Metall-Haushaltsgegenstände — Sperrmüll oder Wertstoffhof Altmetall.", "caution": null }
+  },
+  {
+    "id": "old_clothes",
+    "bin": "altkleider",
+    "emoji": "👕",
+    "en": { "name": "Old clothes", "aliases": ["t-shirt", "jeans", "jacket", "sweater"], "why": "Wearable clothes get a second life — clothing container, bagged.", "caution": "Torn, wet or mouldy textiles: residual waste. Better than the container: swap with friends or donate locally." },
+    "de": { "name": "Alte Kleidung", "aliases": ["t-shirt", "jeans", "jacke", "pullover"], "why": "Tragbare Kleidung bekommt ein zweites Leben — Altkleidercontainer, im Beutel.", "caution": "Zerrissene, nasse oder schimmelige Textilien: Restabfall. Besser als der Container: tauschen oder lokal spenden." }
+  },
+  {
+    "id": "shoes",
+    "bin": "altkleider",
+    "emoji": "👟",
+    "en": { "name": "Shoes", "aliases": ["sneakers", "boots"], "why": "Wearable pairs go in the clothing container — tie them together so they stay paired.", "caution": "Single or broken shoes: residual waste." },
+    "de": { "name": "Schuhe", "aliases": ["sneaker", "stiefel"], "why": "Tragbare Paare gehören in den Altkleidercontainer — zusammenbinden, damit sie ein Paar bleiben.", "caution": "Einzelne oder kaputte Schuhe: Restabfall." }
+  },
+  {
+    "id": "bed_linen",
+    "bin": "altkleider",
+    "emoji": "🛌",
+    "en": { "name": "Bed linen / towels", "aliases": ["sheets", "towel", "curtains"], "why": "Clean household textiles go in the clothing container.", "caution": "Pillows and duvets: residual waste or Wertstoffhof — not the container." },
+    "de": { "name": "Bettwäsche / Handtücher", "aliases": ["laken", "handtuch", "vorhänge"], "why": "Saubere Haushaltstextilien gehören in den Altkleidercontainer.", "caution": "Kissen und Bettdecken: Restabfall oder Wertstoffhof — nicht der Container." }
+  },
+  {
+    "id": "handbag",
+    "bin": "altkleider",
+    "emoji": "👜",
+    "en": { "name": "Bag / backpack (usable)", "aliases": ["backpack", "belt"], "why": "Usable bags and belts go in the clothing container.", "caution": "Broken ones: residual waste." },
+    "de": { "name": "Tasche / Rucksack (brauchbar)", "aliases": ["rucksack", "gürtel"], "why": "Brauchbare Taschen und Gürtel gehören in den Altkleidercontainer.", "caution": "Kaputte: Restabfall." }
+  }
+]

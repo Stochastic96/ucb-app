@@ -539,4 +539,22 @@ export default {
   analytics_consent_enable: 'Enable Analytics',
   analytics_consent_disable: 'Disable Analytics',
   analytics_consent_learn_more: 'Learn More',
+
+  // --- Waste Guide ---
+  screen_waste_guide: 'Waste Guide',
+  tool_waste: 'Waste Guide',
+  tool_waste_desc: 'Which bin does it go in? Instant answers',
+  waste_hero_title: 'Where does it go?',
+  waste_hero_sub: 'German waste sorting for the district of Birkenfeld — in plain English',
+  waste_search_placeholder: 'Type what you want to throw away…',
+  waste_bins_title: 'The destinations',
+  waste_no_results: 'No match for “{{query}}”',
+  waste_no_results_hint: 'Try another word — or the German name. Product, not packaging? Then it usually goes to residual waste.',
+  waste_goes_to: 'Goes to',
+  waste_bin_details: 'About this bin',
+  waste_belongs: 'What belongs here',
+  waste_never: 'Never in here',
+  waste_howto: 'Good to know',
+  waste_close: 'Close',
+  waste_disclaimer: 'Based on the rules of Landkreis Birkenfeld (AWB). No guarantee — when unsure, check awb-bir.de.',
 };

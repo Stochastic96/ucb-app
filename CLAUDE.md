@@ -180,6 +180,15 @@ A daily sustainability-trivia feature (fits the Umwelt-Campus identity).
 - `screens/facts/FactScreen.js` (RootNavigator route `FactOfTheDay`) — single card that cycles all facts in place: built-in `Animated` entrance per fact, `expo-haptics` on reveal/lock, category-coloured gradient (`FACT_CATEGORY_COLORS` in `constants/colors.js`), source out-links via `expo-web-browser`, reveals-left dots, and a locked countdown once the daily allowance is spent.
 - `HomeScreen.js` shows the day's hook in a "Did you know?" teaser that opens the screen. Category chip labels are `fact_cat_*` translation keys.
 
+### Waste Guide
+
+A "where does it go?" waste-sorting lookup for Landkreis Birkenfeld (deliberately **not** gamified — no streaks/quiz/progress, per product decision).
+- `data/waste_bins.json` — 9 disposal destinations (gelber_sack, papier, bio, restmuell, glas, pfand, sondermuell, sperrmuell, altkleider) with real-world bin `color`/`onColor`, Ionicon, and bilingual copy (`en`/`de`: name, tagline, belongs[], never[], howto). `howto` texts reference district practice (AWB pickup, Schadstoffmobil, Wertstoffhof) — review against the current AWB Abfallratgeber yearly.
+- `data/waste_items.json` — ~122 items shaped `{ id, bin, emoji, en/de: { name, aliases[], why, caution }, variants? }`. `variants` model split destinations (pizza box: clean → papier, greasy → restmuell). Bundled-only dataset (not contentService/Supabase).
+- `services/waste.js` — pure offline module (pattern of `services/buildings.js`): `normalizeWasteToken` folds umlauts/ß; search matches **both languages regardless of active app language**; scored ranking (exact > prefix > word-start > substring). Accessors: `getAllBins`, `getBinById`, `getItemsForBin`, `searchWasteItems(query, limit)`, per-language copy helpers with EN fallback.
+- `screens/waste/WasteGuideScreen.js` (ToolsStack route `WasteGuide`) — search-first: empty query shows the 9 bin tiles (tap → bin detail bottom sheet), typing shows live results, tapping a result opens a full-screen answer Modal flooded with the bin's colour (haptic on open, spring entrance gated by `useReducedMotion`). Answer card links into the bin sheet.
+- Tests: `__tests__/services/waste.test.js` (data integrity + search behaviour, incl. an every-alias-findable sweep) and `__tests__/screens/WasteGuideScreen.test.js` (render smoke tests; mocks `services/analytics` because it pulls in the Supabase client, which can't construct under Jest).
+
 ### Internationalization (EN/DE)
 
 `services/i18n.js` — lightweight string-table i18n, **English-first** (German is being completed):

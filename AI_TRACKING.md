@@ -2,6 +2,19 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-07-18 — Waste Guide screen (search UI + answer card + bin sheets)
+- screens/waste/WasteGuideScreen.js: Claude (Fable 5) — Search-first screen: bin-tile grid (empty query) → live results while typing → full-colour answer Modal (bin colour flood, variants row for split cases, caution box, haptic + reduced-motion-gated spring entrance) → bin detail bottom sheet (belongs/never/howto). Themed via useThemedStyles; data copy per store language.
+- navigation/ToolsStack.js: Claude (Fable 5) — Registered `WasteGuide` route.
+- screens/tools/ToolsScreen.js: Claude (Fable 5) — Added Waste Guide tool tile (trash-outline, teal).
+- constants/translations/en.js, de.js: Claude (Fable 5) — 18 `waste_*`/`tool_waste*`/`screen_waste_guide` keys per language (parity kept: 476/476).
+- __tests__/screens/WasteGuideScreen.test.js: Claude (Fable 5) — 4 render smoke tests (tiles, live search → answer card with variants, empty state, bin sheet); mocks services/analytics (Supabase client can't construct under Jest) and expo-haptics.
+
+## 2026-07-18 — Waste Guide foundation (data + search service)
+- data/waste_bins.json: Claude (Fable 5) — 9 disposal destinations (Gelber Sack, Papier, Bio, Restabfall, Altglas, Pfand, Schadstoffe/E-Schrott, Sperrmüll, Altkleider) with real-world bin colors, Ionicons, and full EN/DE copy (belongs/never/howto) referencing Landkreis Birkenfeld practice (AWB pickup, Schadstoffmobil, Wertstoffhof). Content pending review against the AWB Abfallratgeber — items with local variance carry explicit cautions.
+- data/waste_items.json: Claude (Fable 5) — 122 bilingual student-life items with aliases, one-line "why", optional caution, and split-destination `variants` (e.g. pizza box clean/greasy). Sustainability nudges (reuse before disposal) built into relevant items.
+- services/waste.js: Claude (Fable 5) — Pure offline lookup module (pattern of services/buildings.js): umlaut-folding normalizer, precomputed bilingual search terms, scored search (exact > prefix > word > substring), bin/item accessors, per-language copy helpers with EN fallback.
+- __tests__/services/waste.test.js: Claude (Fable 5) — 21 tests: data integrity (unique ids, every bin reference valid, bilingual copy complete), umlaut-insensitive search, ranking, every-alias-findable sweep, language fallback.
+
 ## 2026-06-16 — Dark mode completed app-wide (screen-by-screen theming)
 - theme/ThemeProvider.js: Claude (Opus 4.8) — Flipped `DARK_MODE_ENABLED` to `true`; `resolveThemeMode` now resolves light/dark/system normally. Re-enabled Dark/System options in SettingsScreen and restored `settings_theme_note` (en/de).
 - navigation/MainTabs.js, RootNavigator.js, ToolsStack.js, GuideStack.js: Claude (Opus 4.8) — Themed the tab bar (`tabBarStyle`/active/inactive) and all stack headers (`headerStyle`/`headerTintColor`) + MenuButtons via `useTheme`.
