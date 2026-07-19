@@ -43,7 +43,7 @@ export default function ToolsScreen({ navigation, route }) {
 
   const navigateTo = (tool) => {
     if (tool.externalUrl) {
-      Linking.openURL(tool.externalUrl);
+      Linking.openURL(tool.externalUrl).catch(() => {});
       return;
     }
     if (tool.rootScreen) {

@@ -2,6 +2,13 @@
 
 Document which AI (Copilot, Claude, Codex, etc.) contributed to which part of the codebase. Add a new entry each time an AI helps with a feature or file.
 
+## 2026-07-19 — Platform-compatibility fixes + waste scanner detection robustness
+- app.json: Claude Opus 4.8 — Added the missing `react-native-vision-camera` config plugin (`cameraPermissionText`, `enableCodeScanner: true`, `enableMicrophonePermission: false`). The barcode code-scanner + frame processors need the plugin enabled at prebuild/EAS time; camera permission strings now flow from the plugin
+- screens/guide/GuideDetailScreen.js, screens/tools/ToolsScreen.js, screens/courses/CourseDetailScreen.js: Claude Opus 4.8 — Added `.catch(() => {})` to unguarded `Linking.openURL` (`tel:`/`mailto:`/external URL). On Wi-Fi iPads (`supportsTablet: true`) with no phone/mail app these reject and surface as an unhandled promise rejection; other screens (CampusResources, Profile) were already guarded
+- screens/map/MapScreen.js: Claude Opus 4.8 — Apple Maps deep link `maps://maps.apple.com/…` → standard `https://maps.apple.com/…` universal form; `.catch()` on all four `openURL` calls
+- package.json: Claude Opus 4.8 — Removed unused `react-native-reanimated@4.1.1` (nothing imports it, its Babel plugin isn't configured, and it risks the Expo Go worklets version-mismatch documented in the Fact-screen note). Run `npm install` to reconcile the lockfile
+- screens/waste/WasteScannerScreen.js: Claude Opus 4.8 — **AI decision layer only** — the worklet/normalization/model-loading is deliberately left to the concurrent model-prediction debugging effort (shared `AI_CONFIDENCE_FLOOR` unchanged). Replaced the strict "2 consecutive identical frames" gate with a rolling majority-vote window (`AI_VOTE_MAJORITY` 3 of `AI_VOTE_WINDOW` 5) plus a per-frame cross-bin margin (`AI_MIN_MARGIN` 12 pts; top bin must beat the best rival bin, else the frame casts a null/ambiguous vote). Majority-of-window survives a flickered/blurred frame → better detection; the margin suppresses near-tied frames → fewer wrong answers. Existing `waste_ai_detected` analytics + result sheet unchanged; `WasteScannerScreen.test.js` still passes
+
 ## 2026-07-18 — Waste Guide screen (search UI + answer card + bin sheets)
 - screens/waste/WasteGuideScreen.js: Claude (Fable 5) — Search-first screen: bin-tile grid (empty query) → live results while typing → full-colour answer Modal (bin colour flood, variants row for split cases, caution box, haptic + reduced-motion-gated spring entrance) → bin detail bottom sheet (belongs/never/howto). Themed via useThemedStyles; data copy per store language.
 - navigation/ToolsStack.js: Claude (Fable 5) — Registered `WasteGuide` route.

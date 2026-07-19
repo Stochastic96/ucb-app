@@ -121,13 +121,13 @@ export default function GuideDetailScreen({ route }) {
             <Text style={styles.emergencyName}>{item.name}</Text>
             <Text style={styles.emergencyDesc}>{item.description}</Text>
             {item.phone && (
-              <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`)} style={styles.linkRow}>
+              <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`).catch(() => {})} style={styles.linkRow}>
                 <Ionicons name="call-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                 <Text style={styles.emergencyPhone}>{item.phone}</Text>
               </TouchableOpacity>
             )}
             {item.email && (
-              <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`)} style={styles.linkRow}>
+              <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`).catch(() => {})} style={styles.linkRow}>
                 <Ionicons name="mail-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                 <Text style={styles.emergencyEmail}>{item.email}</Text>
               </TouchableOpacity>
@@ -157,13 +157,13 @@ export default function GuideDetailScreen({ route }) {
               <Text style={styles.contactOrg}>{item.organization}</Text>
               {item.office && <Text style={styles.contactOffice}>🏢 {item.office}</Text>}
               {item.phone && (
-                <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`)} style={styles.linkRow}>
+                <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`).catch(() => {})} style={styles.linkRow}>
                   <Ionicons name="call-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                   <Text style={styles.contactEmail}>{item.phone}</Text>
                 </TouchableOpacity>
               )}
               {item.email && (
-                <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`)} style={styles.linkRow}>
+                <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`).catch(() => {})} style={styles.linkRow}>
                   <Ionicons name="mail-outline" size={16} color={c.primary} style={{ marginRight: 4 }} />
                   <Text style={styles.contactEmail}>{item.email}</Text>
                 </TouchableOpacity>
@@ -268,13 +268,13 @@ export default function GuideDetailScreen({ route }) {
               <View style={styles.officeExpanded}>
                 <Text style={styles.officeHours}>🕐 {item.hours}</Text>
                 {item.phone && (
-                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`)} style={styles.linkRow}>
+                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`).catch(() => {})} style={styles.linkRow}>
                     <Ionicons name="call-outline" size={14} color={c.primary} style={{ marginRight: 4 }} />
                     <Text style={styles.officeLinkText}>{item.phone}</Text>
                   </TouchableOpacity>
                 )}
                 {item.email && (
-                  <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`)} style={styles.linkRow}>
+                  <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`).catch(() => {})} style={styles.linkRow}>
                     <Ionicons name="mail-outline" size={14} color={c.primary} style={{ marginRight: 4 }} />
                     <Text style={styles.officeLinkText}>{item.email}</Text>
                   </TouchableOpacity>

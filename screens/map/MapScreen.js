@@ -60,9 +60,9 @@ export default function MapScreen() {
     trackEvent('feature_use', 'navigate_to_building', { building_id: b.id });
     const label = buildNativeMapsLabel(b);
     if (Platform.OS === 'ios') {
-      Linking.openURL(`maps://maps.apple.com/?ll=${b.lat},${b.lng}&q=${encodeURIComponent(label)}`);
+      Linking.openURL(`https://maps.apple.com/?ll=${b.lat},${b.lng}&q=${encodeURIComponent(label)}`).catch(() => {});
     } else {
-      Linking.openURL(`geo:${b.lat},${b.lng}?q=${encodeURIComponent(label)}`);
+      Linking.openURL(`geo:${b.lat},${b.lng}?q=${encodeURIComponent(label)}`).catch(() => {});
     }
     setSelected(null);
   };
@@ -70,9 +70,9 @@ export default function MapScreen() {
   const handleOpenCampus = () => {
     const label = CAMPUS_CENTER.label;
     if (Platform.OS === 'ios') {
-      Linking.openURL(`maps://maps.apple.com/?ll=${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}&q=${encodeURIComponent(label)}`);
+      Linking.openURL(`https://maps.apple.com/?ll=${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}&q=${encodeURIComponent(label)}`).catch(() => {});
     } else {
-      Linking.openURL(`geo:${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}?q=${encodeURIComponent(label)}`);
+      Linking.openURL(`geo:${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}?q=${encodeURIComponent(label)}`).catch(() => {});
     }
   };
 
