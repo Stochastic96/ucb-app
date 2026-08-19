@@ -38,6 +38,7 @@ function RightRow({ text }) {
 }
 
 export default function DatenschutzScreen() {
+  const c = useTheme();
   const styles = useThemedStyles(makeStyles);
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -68,14 +69,20 @@ export default function DatenschutzScreen() {
         <View style={styles.divider} />
         <DataRow
           icon="bar-chart-outline"
-          title="Anonyme Nutzungsstatistiken"
-          detail={'Speicherort: Supabase (EU – Frankfurt), max. 90 Tage\nZweck: Verbesserung der App – Forschungsprojekt\nDaten: Aufgerufene Screens, genutzte Funktionen, Fehler, Plattform (iOS/Android), App-Version\nSession-ID: Zufällige UUID pro App-Start, kein Bezug zu Login, Gerät oder Identität\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)'}
+          title="Nutzungsstatistiken / Tracking"
+          detail={'Es gibt keine. Die App enthält keinerlei Analyse-, Tracking- oder Werbe-Code. Es wird nicht erfasst, welche Funktionen du nutzt — weder anonym noch pseudonym.'}
         />
         <View style={styles.divider} />
         <DataRow
           icon="checkmark-circle-outline"
           title="Fristen, Prüfungspläne & persönliche Einstellungen"
           detail={'Speicherort: Lokaler App-Speicher (nicht verschlüsselt)\nZweck: Nutzererstellte Daten & Einstellungen\nAufbewahrung: Bis zur Deinstallation oder manuellen Löschung (Einstellungen → Alle Daten löschen)'}
+        />
+        <View style={styles.divider} />
+        <DataRow
+          icon="bluetooth-outline"
+          title="Campus-Radar (Bluetooth-Socializing)"
+          detail={'Speicherort: Selbst erstelltes Profil (Spitzname, Status, Interessen, DE/INT, optional Studiengang/Semester/Sprachen, optional echter Name) lokal auf dem Gerät\nSpitzname: Frei wählbar, kein Klarname — wird nie aus Stud.IP übernommen\nStudiengang/Semester/Sprachen: Freiwillige Selbstangaben (nicht aus Stud.IP übernommen oder geprüft); werden als Teil deiner Präsenzkarte per Bluetooth an Geräte in der Nähe gesendet\nEchter Name: Wird NIE per Rundruf gesendet — nur auf ausdrückliches Antippen („Meinen Namen teilen“) verschlüsselt in einen einzelnen Chat übertragen\nSichtbarkeit: Start im Ghost-Modus (verborgen); Sichtbarkeit jederzeit selbst steuerbar\nÜbertragung: Ausschließlich direkt per Bluetooth an Geräte in der Nähe — kein Server, kein Konto, keine Cloud\nIdentität: Anonymes, auf dem Gerät erzeugtes Ed25519-Schlüsselpaar — nicht mit Stud.IP verknüpft\nSicherheit: Nachrichten signiert; Direktnachrichten Ende-zu-Ende verschlüsselt (Noise-Protokoll); Interessen nur als paarweise verschlüsselte Tokens gesendet (kein Klartext auf dem Funkkanal)\nModeration: Keine zentrale Moderation — Blockieren/Melden wirkt lokal auf deinem Gerät; bei Belästigung an Campus-Sicherheit/Polizei wenden\nNachrichten: Nur während der Sitzung, nicht dauerhaft gespeichert\nStandortberechtigung (Android): Für Bluetooth-Scans technisch vorgeschrieben — die GPS-Position wird nicht ausgelesen, nicht gespeichert und nicht übertragen\nRechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung, jederzeit widerrufbar durch Ausschalten)'}
         />
       </Section>
 
@@ -87,16 +94,25 @@ export default function DatenschutzScreen() {
         />
         <View style={styles.divider} />
         <DataRow
-          icon="trending-up-outline"
-          title="Supabase – Anonyme Nutzungsstatistiken"
-          detail={'Zweck: Speicherung anonymer Engagement-Ereignisse zur App-Verbesserung\nDaten: Keine personenbezogenen Daten — Session-ID ist nicht mit einem Nutzerkonto verknüpft\nStandort: EU (Frankfurt) · Aufbewahrung: 90 Tage\nDatenschutz: supabase.com/privacy'}
-        />
-        <View style={styles.divider} />
-        <DataRow
           icon="phone-portrait-outline"
           title="Expo Application Services (expo.dev)"
           detail={'Zweck: App-Updates (OTA) und Build-Infrastruktur\nDaten: Technische Gerätedaten für Update-Prüfung (keine Nutzerdaten)\nStandort: USA\nDatenschutz: expo.dev/privacy'}
         />
+      </Section>
+
+      <Section title="Verantwortlicher (Art. 13 Abs. 1 lit. a DSGVO)">
+        <Text style={styles.body}>
+          Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO) für die Datenverarbeitung innerhalb dieser App ist:
+        </Text>
+        <Text style={[styles.body, { fontFamily: c.fonts.bodyBold, marginTop: 6 }]}>
+          Prashant Sharma (Studentische Projektleitung, UCB App)
+        </Text>
+        <Text style={styles.body}>c/o Umwelt-Campus Birkenfeld</Text>
+        <Text style={styles.body}>Campusallee 9–11, Geb. 9924</Text>
+        <Text style={styles.body}>55768 Birkenfeld, Deutschland</Text>
+        <Text style={[styles.body, { marginTop: 6 }]}>
+          Kontakt / Datenschutzanfragen: ucb-app-dev@umwelt-campus.de
+        </Text>
       </Section>
 
       <Section title="Rechtsgrundlage">
@@ -106,11 +122,12 @@ export default function DatenschutzScreen() {
       </Section>
 
       <Section title="Deine Rechte (Art. 15–22 DSGVO)">
-        <RightRow text="Auskunft über deine gespeicherten Daten" />
-        <RightRow text="Berichtigung unrichtiger Daten" />
-        <RightRow text="Löschung: Einstellungen → Daten → 'Alle Daten löschen', dann App deinstallieren" />
-        <RightRow text="Einschränkung der Verarbeitung" />
-        <RightRow text="Widerspruch gegen die Verarbeitung" />
+        <RightRow text="Auskunft über deine gespeicherten Daten (Art. 15 DSGVO)" />
+        <RightRow text="Berichtigung unrichtiger Daten (Art. 16 DSGVO)" />
+        <RightRow text="Löschung: Einstellungen → Daten → 'Alle Daten löschen', dann App deinstallieren (Art. 17 DSGVO)" />
+        <RightRow text="Einschränkung der Verarbeitung (Art. 18 DSGVO)" />
+        <RightRow text="Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)" />
+        <RightRow text="Zur Ausübung dieser Rechte wende dich an ucb-app-dev@umwelt-campus.de" />
         <RightRow text="Beschwerde bei einer Aufsichtsbehörde (z. B. LfDI Rheinland-Pfalz)" />
       </Section>
 
@@ -122,14 +139,14 @@ export default function DatenschutzScreen() {
 
       <Section title="Datenschutzbeauftragter der Hochschule">
         <Text style={styles.body}>
-          Da diese App die Infrastruktur der Hochschule Trier nutzt, ist für Anfragen bzgl. der Stud.IP-Datenhaltung der Datenschutzbeauftragte der Hochschule Trier zuständig.
+          Da diese App die Stud.IP-Infrastruktur der Hochschule Trier nutzt, können Anfragen bezüglich der dortigen institutionellen Datenhaltung zusätzlich an den Datenschutzbeauftragten der Hochschule Trier gerichtet werden.
         </Text>
         <Text style={[styles.body, { marginTop: 8 }]}>
           Web: www.hochschule-trier.de/datenschutz
         </Text>
       </Section>
 
-      <Text style={styles.footer}>Stand: Mai 2026 · UCB App v1.0.0 · Studentenprojekt</Text>
+      <Text style={styles.footer}>Stand: Juli 2026 · UCB App v1.0.0 · Studentenprojekt</Text>
     </ScrollView>
   );
 }
@@ -139,16 +156,15 @@ const makeStyles = (c) => StyleSheet.create({
   introBanner: {
     margin: 16,
     backgroundColor: c.accent,
-    borderColor: c.mode === 'dark' ? c.border : '#B8DDA0',
+    borderColor: c.mode === 'dark' ? c.border : '#B8DDA0', // light green tint pairs with accent surface
     borderWidth: 1,
     borderRadius: 10,
     padding: 14,
   },
-  introText: { fontSize: 13, color: c.brandIcon, lineHeight: 20, fontWeight: '500' },
+  introText: { ...c.type.bodySm, fontFamily: c.fonts.bodyMedium, color: c.brandIcon },
   section: { marginHorizontal: 16, marginTop: 20 },
   sectionTitle: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -156,22 +172,18 @@ const makeStyles = (c) => StyleSheet.create({
   },
   card: {
     backgroundColor: c.surface,
-    borderRadius: 10,
+    borderRadius: c.radius.md,
     padding: 14,
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
   },
   dataRow: { flexDirection: 'row', gap: 12, paddingVertical: 4 },
   dataIcon: { fontSize: 20, marginTop: 1 },
-  dataTitle: { fontSize: 14, fontWeight: '600', color: c.text, marginBottom: 4 },
-  dataDetail: { fontSize: 13, color: c.textSecondary, lineHeight: 19 },
+  dataTitle: { ...c.type.bodyStrong, fontSize: 14, color: c.text, marginBottom: 4 },
+  dataDetail: { ...c.type.bodySm, color: c.textSecondary },
   divider: { height: 1, backgroundColor: c.border, marginVertical: 12 },
-  body: { fontSize: 14, color: c.textSecondary, lineHeight: 21 },
+  body: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, lineHeight: 21 },
   rightRow: { flexDirection: 'row', gap: 8, paddingVertical: 5 },
-  bullet: { fontSize: 16, color: c.brandIcon, fontWeight: '700', marginTop: -1 },
-  rightText: { fontSize: 14, color: c.textSecondary, flex: 1, lineHeight: 20 },
-  footer: { textAlign: 'center', color: c.textMuted, fontSize: 12, marginTop: 28, marginBottom: 8 },
+  bullet: { ...c.type.heading, fontFamily: c.fonts.bodyBold, color: c.brandIcon, marginTop: -1 },
+  rightText: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, flex: 1 },
+  footer: { ...c.type.caption, textAlign: 'center', color: c.textMuted, marginTop: 28, marginBottom: 8 },
 });

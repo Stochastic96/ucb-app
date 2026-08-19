@@ -38,6 +38,7 @@ function RightRow({ text }) {
 }
 
 export default function PrivacyPolicyScreen() {
+  const c = useTheme();
   const styles = useThemedStyles(makeStyles);
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -68,14 +69,20 @@ export default function PrivacyPolicyScreen() {
         <View style={styles.divider} />
         <DataRow
           icon="bar-chart-outline"
-          title="Anonymous Usage Statistics"
-          detail={'Storage: Supabase (EU — Frankfurt), max. 90 days\nPurpose: App improvement — research project\nData: Screens viewed, features used, errors, platform (iOS/Android), app version\nSession ID: Random UUID per app start — not linked to login, device, or identity\nLegal basis: Art. 6(1)(f) GDPR (legitimate interest)'}
+          title="Usage Statistics / Tracking"
+          detail={'There are none. The app contains no analytics, tracking or advertising code of any kind. What features you use is not recorded — neither anonymously nor pseudonymously.'}
         />
         <View style={styles.divider} />
         <DataRow
           icon="checkmark-circle-outline"
           title="Deadlines, Exam Plans & Personal Settings"
           detail={'Storage: Local app storage (not encrypted)\nPurpose: User-created data & settings\nRetention: Until app uninstall or manual deletion (Settings → Delete All Data)'}
+        />
+        <View style={styles.divider} />
+        <DataRow
+          icon="bluetooth-outline"
+          title="Campus Radar (Bluetooth Socializing)"
+          detail={'Storage: Self-created profile (nickname, status, interests, DE/INT, optional degree program/semester/languages, optional real name) locally on your device\nNickname: Freely selectable, no real name — never imported from Stud.IP\nDegree Program/Semester/Languages: Voluntary self-disclosures (not imported or verified from Stud.IP); broadcast as part of your presence card via Bluetooth to nearby devices\nReal Name: NEVER broadcast — only sent encrypted to an individual chat upon explicit tap ("Share my name")\nVisibility: Starts in Ghost mode (hidden); visibility controllable by you at any time\nTransmission: Exclusively direct via Bluetooth to nearby devices — no server, no account, no cloud\nIdentity: Anonymous, device-generated Ed25519 keypair — not linked to Stud.IP\nSecurity: Messages signed; direct messages end-to-end encrypted (Noise protocol); interests sent only as pairwise encrypted tokens (no plaintext over the radio channel)\nModeration: No central moderation — block/report operates locally on your device; for harassment contact campus security/police\nMessages: Session only, not stored permanently\nLocation Permission (Android): Technically required for Bluetooth scans — GPS position is not read, stored, or transmitted\nLegal basis: Art. 6(1)(a) GDPR (consent, revocable at any time by toggling off)'}
         />
         <View style={styles.divider} />
         <DataRow
@@ -99,30 +106,40 @@ export default function PrivacyPolicyScreen() {
         />
         <View style={styles.divider} />
         <DataRow
-          icon="trending-up-outline"
-          title="Supabase — Anonymous Usage Statistics"
-          detail={'Purpose: Storage of anonymous engagement events for app improvement\nData: No personal data — Session ID is not linked to any user account\nLocation: EU (Frankfurt) · Retention: 90 days\nPrivacy: supabase.com/privacy'}
-        />
-        <View style={styles.divider} />
-        <DataRow
           icon="phone-portrait-outline"
           title="Expo Application Services (expo.dev)"
           detail={'Purpose: App updates (OTA) and build infrastructure\nData: Technical device data for update checks (no user data)\nLocation: USA\nPrivacy: expo.dev/privacy'}
         />
       </Section>
 
+      <Section title="Data Controller (Art. 13(1)(a) GDPR)">
+        <Text style={styles.body}>
+          The controller responsible for data processing within this app is:
+        </Text>
+        <Text style={[styles.body, { fontFamily: c.fonts.bodyBold, marginTop: 6 }]}>
+          Prashant Sharma (Student Project Lead, UCB App)
+        </Text>
+        <Text style={styles.body}>c/o Umwelt-Campus Birkenfeld</Text>
+        <Text style={styles.body}>Campusallee 9–11, Geb. 9924</Text>
+        <Text style={styles.body}>55768 Birkenfeld, Germany</Text>
+        <Text style={[styles.body, { marginTop: 6 }]}>
+          Contact / GDPR Rights: ucb-app-dev@umwelt-campus.de
+        </Text>
+      </Section>
+
       <Section title="Legal Basis">
         <Text style={styles.body}>
-          Processing is carried out on the basis of Art. 6(1)(b) GDPR (performance of a contract / pre-contractual measures) and Art. 6(1)(f) GDPR (legitimate interest in the secure and functional provision of the app).{'\n\n'}Anonymous analytics are processed on the basis of Art. 6(1)(f) GDPR. You can disable analytics at any time in Settings → Privacy & Data.
+          Processing is carried out on the basis of Art. 6(1)(b) GDPR (performance of a contract / pre-contractual measures) and Art. 6(1)(f) GDPR (legitimate interest in the secure and functional provision of the app).{'\n\n'}This app contains no analytics, tracking or advertising code of any kind. Your usage of the app is not recorded — neither anonymously nor pseudonymously.
         </Text>
       </Section>
 
       <Section title="Your Rights (Art. 15–22 GDPR)">
-        <RightRow text="Access to your stored data" />
-        <RightRow text="Correction of inaccurate data" />
-        <RightRow text="Deletion: Settings → Data → 'Delete all my data', then uninstall the app" />
-        <RightRow text="Restriction of processing" />
-        <RightRow text="Objection to processing" />
+        <RightRow text="Access to your stored data (Art. 15 GDPR)" />
+        <RightRow text="Correction of inaccurate data (Art. 16 GDPR)" />
+        <RightRow text="Deletion: Settings → Data → 'Delete all my data', then uninstall the app (Art. 17 GDPR)" />
+        <RightRow text="Restriction of processing (Art. 18 GDPR)" />
+        <RightRow text="Objection to processing (Art. 21 GDPR)" />
+        <RightRow text="To exercise any of these rights, contact ucb-app-dev@umwelt-campus.de" />
         <RightRow text="Complaint to a supervisory authority (e.g. LfDI Rhineland-Palatinate)" />
       </Section>
 
@@ -132,16 +149,16 @@ export default function PrivacyPolicyScreen() {
         </Text>
       </Section>
 
-      <Section title="Data Protection Officer">
+      <Section title="Data Protection Officer of the University">
         <Text style={styles.body}>
-          Since this app uses Hochschule Trier's infrastructure, enquiries regarding Stud.IP data storage should be directed to the Data Protection Officer of Hochschule Trier.
+          Since this app accesses Hochschule Trier's Stud.IP infrastructure, enquiries regarding institutional Stud.IP data storage may also be directed to the Data Protection Officer of Hochschule Trier.
         </Text>
         <Text style={[styles.body, { marginTop: 8 }]}>
           Web: www.hochschule-trier.de/datenschutz
         </Text>
       </Section>
 
-      <Text style={styles.footer}>As of May 2026 · UCB App v1.0.0 · Student Project</Text>
+      <Text style={styles.footer}>As of July 2026 · UCB App v1.0.0 · Student Project</Text>
     </ScrollView>
   );
 }
@@ -151,16 +168,15 @@ const makeStyles = (c) => StyleSheet.create({
   introBanner: {
     margin: 16,
     backgroundColor: c.accent,
-    borderColor: c.mode === 'dark' ? c.border : '#B8DDA0',
+    borderColor: c.mode === 'dark' ? c.border : '#B8DDA0', // light green tint pairs with accent surface
     borderWidth: 1,
     borderRadius: 10,
     padding: 14,
   },
-  introText: { fontSize: 13, color: c.brandIcon, lineHeight: 20, fontWeight: '500' },
+  introText: { ...c.type.bodySm, fontFamily: c.fonts.bodyMedium, color: c.brandIcon },
   section: { marginHorizontal: 16, marginTop: 20 },
   sectionTitle: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -168,22 +184,18 @@ const makeStyles = (c) => StyleSheet.create({
   },
   card: {
     backgroundColor: c.surface,
-    borderRadius: 10,
+    borderRadius: c.radius.md,
     padding: 14,
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
   },
   dataRow: { flexDirection: 'row', gap: 12, paddingVertical: 4 },
   dataIcon: { fontSize: 20, marginTop: 1 },
-  dataTitle: { fontSize: 14, fontWeight: '600', color: c.text, marginBottom: 4 },
-  dataDetail: { fontSize: 13, color: c.textSecondary, lineHeight: 19 },
+  dataTitle: { ...c.type.bodyStrong, fontSize: 14, color: c.text, marginBottom: 4 },
+  dataDetail: { ...c.type.bodySm, color: c.textSecondary },
   divider: { height: 1, backgroundColor: c.border, marginVertical: 12 },
-  body: { fontSize: 14, color: c.textSecondary, lineHeight: 21 },
+  body: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, lineHeight: 21 },
   rightRow: { flexDirection: 'row', gap: 8, paddingVertical: 5 },
-  bullet: { fontSize: 16, color: c.brandIcon, fontWeight: '700', marginTop: -1 },
-  rightText: { fontSize: 14, color: c.textSecondary, flex: 1, lineHeight: 20 },
-  footer: { textAlign: 'center', color: c.textMuted, fontSize: 12, marginTop: 28, marginBottom: 8 },
+  bullet: { ...c.type.heading, fontFamily: c.fonts.bodyBold, color: c.brandIcon, marginTop: -1 },
+  rightText: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, flex: 1 },
+  footer: { ...c.type.caption, textAlign: 'center', color: c.textMuted, marginTop: 28, marginBottom: 8 },
 });

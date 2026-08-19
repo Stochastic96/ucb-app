@@ -39,15 +39,25 @@ export default function LegalScreen() {
         <Row label="Platform" value="iOS / Android (React Native)" />
       </Section>
 
+      <Section title="Service Provider / App Operator (§ 5 DDG)">
+        <Row label="Service Provider" value="Student Development Team &quot;UCB App&quot;" />
+        <Row label="Represented by" value="Prashant Sharma (Student Project Lead)" />
+        <Row label="Postal Address" value="c/o Umwelt-Campus Birkenfeld&#10;Campusallee 9–11, Geb. 9924&#10;55768 Birkenfeld, Germany" />
+        <Row label="Email" value="ucb-app-dev@umwelt-campus.de" />
+        <Row label="Legal Form" value="Unofficial student research project (no corporate entity)" />
+      </Section>
+
       <Section title="About This Project">
         <Text style={styles.body}>
-          This app was developed by students of Hochschule Trier to make campus life easier for international students. It is an unofficial, student-led initiative — without institutional support or liability from Hochschule Trier.{'\n\n'}The app also serves as a proof of concept and research project investigating the use of mobile companion apps in a university context. Anonymous usage statistics are collected (see Privacy Policy).
+          This app was developed by students of Hochschule Trier to make campus life easier for international students. It is an unofficial, student-led initiative — without institutional support or liability from Hochschule Trier.{'\n\n'}The app also serves as a proof of concept for a sustainable, privacy-friendly campus app: It contains no analytics, tracking or advertising code of any kind and works offline as far as possible (see Privacy Policy).
         </Text>
       </Section>
 
-      <Section title="Official Institution">
-        <Text style={styles.body}>Hochschule Trier</Text>
-        <Text style={styles.body}>Umwelt-Campus Birkenfeld</Text>
+      <Section title="University / Infrastructure Host">
+        <Text style={styles.body}>
+          This app is an independent student project. Hochschule Trier is not the operator of the app, but provides the Stud.IP infrastructure for data access.
+        </Text>
+        <Text style={[styles.body, { marginTop: 8 }]}>Hochschule Trier — Umwelt-Campus Birkenfeld</Text>
         <Text style={styles.body}>Campusallee 9–11</Text>
         <Text style={styles.body}>55768 Birkenfeld</Text>
         <Text style={styles.body}>Germany</Text>
@@ -88,11 +98,10 @@ const makeStyles = (c) => StyleSheet.create({
     borderRadius: 10,
     padding: 14,
   },
-  disclaimerText: { fontSize: 13, color: c.onWarning, lineHeight: 19 },
+  disclaimerText: { ...c.type.bodySm, color: c.onWarning },
   section: { marginHorizontal: 16, marginTop: 20 },
   sectionTitle: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -100,13 +109,9 @@ const makeStyles = (c) => StyleSheet.create({
   },
   card: {
     backgroundColor: c.surface,
-    borderRadius: 10,
+    borderRadius: c.radius.md,
     padding: 14,
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
   },
   row: {
     flexDirection: 'row',
@@ -115,7 +120,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.border,
   },
-  label: { fontSize: 14, color: c.textMuted },
-  value: { fontSize: 14, fontWeight: '500', color: c.text, textAlign: 'right', flex: 1, marginLeft: 12 },
-  body: { fontSize: 14, color: c.textSecondary, lineHeight: 21 },
+  label: { ...c.type.bodySm, fontSize: 14, color: c.textMuted },
+  value: { ...c.type.bodySm, fontSize: 14, fontFamily: c.fonts.bodyMedium, color: c.text, textAlign: 'right', flex: 1, marginLeft: 12 },
+  body: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, lineHeight: 21 },
 });

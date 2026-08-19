@@ -39,15 +39,25 @@ export default function ImpressumScreen() {
         <Row label="Plattform" value="iOS / Android (React Native)" />
       </Section>
 
+      <Section title="Diensteanbieter / App-Betreiber (§ 5 DDG)">
+        <Row label="Diensteanbieter" value="Studentisches Entwicklerteam „UCB App“" />
+        <Row label="Vertreten durch" value="Prashant Sharma (Studentische Projektleitung)" />
+        <Row label="Postanschrift" value="c/o Umwelt-Campus Birkenfeld&#10;Campusallee 9–11, Geb. 9924&#10;55768 Birkenfeld, Deutschland" />
+        <Row label="E-Mail" value="ucb-app-dev@umwelt-campus.de" />
+        <Row label="Rechtsform" value="Inoffizielles, studentisches Forschungsprojekt (keine juristische Person)" />
+      </Section>
+
       <Section title="Über dieses Projekt">
         <Text style={styles.body}>
-          Diese App wurde von Studierenden der Hochschule Trier entwickelt, um den Campus-Alltag für internationale Studierende zu erleichtern. Es handelt sich um ein inoffizielles, studentengeführtes Vorhaben — ohne institutionelle Unterstützung oder Haftung der Hochschule Trier.{'\n\n'}Die App dient gleichzeitig als Proof of Concept und Forschungsprojekt zur Untersuchung der Nutzung mobiler Begleit-Apps im Hochschulkontext. Anonyme Nutzungsstatistiken werden erhoben (siehe Datenschutz).
+          Diese App wurde von Studierenden der Hochschule Trier entwickelt, um den Campus-Alltag für internationale Studierende zu erleichtern. Es handelt sich um ein inoffizielles, studentengeführtes Vorhaben — ohne institutionelle Unterstützung oder Haftung der Hochschule Trier.{'\n\n'}Die App dient gleichzeitig als Proof of Concept für eine nachhaltige, datensparsame Campus-App: Sie enthält keinerlei Analyse-, Tracking- oder Werbe-Code und funktioniert so weit wie möglich offline (siehe Datenschutz).
         </Text>
       </Section>
 
-      <Section title="Offizielle Institution">
-        <Text style={styles.body}>Hochschule Trier</Text>
-        <Text style={styles.body}>Umwelt-Campus Birkenfeld</Text>
+      <Section title="Hochschule / Infrastruktur-Anbieter">
+        <Text style={styles.body}>
+          Diese App ist ein unabhängiges studentisches Projekt. Die Hochschule Trier ist nicht Betreiber der App, stellt jedoch die Stud.IP-Infrastruktur für den Datenabruf bereit.
+        </Text>
+        <Text style={[styles.body, { marginTop: 8 }]}>Hochschule Trier — Umwelt-Campus Birkenfeld</Text>
         <Text style={styles.body}>Campusallee 9–11</Text>
         <Text style={styles.body}>55768 Birkenfeld</Text>
         <Text style={styles.body}>Deutschland</Text>
@@ -88,11 +98,10 @@ const makeStyles = (c) => StyleSheet.create({
     borderRadius: 10,
     padding: 14,
   },
-  disclaimerText: { fontSize: 13, color: c.onWarning, lineHeight: 19 },
+  disclaimerText: { ...c.type.bodySm, color: c.onWarning },
   section: { marginHorizontal: 16, marginTop: 20 },
   sectionTitle: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -100,13 +109,9 @@ const makeStyles = (c) => StyleSheet.create({
   },
   card: {
     backgroundColor: c.surface,
-    borderRadius: 10,
+    borderRadius: c.radius.md,
     padding: 14,
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
   },
   row: {
     flexDirection: 'row',
@@ -115,7 +120,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.border,
   },
-  label: { fontSize: 14, color: c.textMuted },
-  value: { fontSize: 14, fontWeight: '500', color: c.text, textAlign: 'right', flex: 1, marginLeft: 12 },
-  body: { fontSize: 14, color: c.textSecondary, lineHeight: 21 },
+  label: { ...c.type.bodySm, fontSize: 14, color: c.textMuted },
+  value: { ...c.type.bodySm, fontSize: 14, fontFamily: c.fonts.bodyMedium, color: c.text, textAlign: 'right', flex: 1, marginLeft: 12 },
+  body: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, lineHeight: 21 },
 });
