@@ -2,7 +2,7 @@
   "expo": {
     "name": "UCB",
     "slug": "ucb-navigator",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "scheme": "ucb",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -48,8 +48,7 @@
         "android.permission.BLUETOOTH_ADVERTISE",
         "android.permission.BLUETOOTH_CONNECT",
         "android.permission.ACCESS_FINE_LOCATION"
-      ],
-      "usesCleartextTraffic": false
+      ]
     },
     "plugins": [
       "expo-secure-store",

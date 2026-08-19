@@ -4,12 +4,16 @@
 
 ```
 App Name: UCB Navigator
-Version: 1.0.0
-Package: app.ucbnavigator
-Bundle ID: com.anonymous.ucb
-Target: Android (APK for direct distribution)
-Build Profile: production
+Version: 2.0.0
+Package: app.ucbnavigator          (Android)
+Bundle ID: app.ucbnavigator.ios    (iOS)
+Target: Android
 Architecture: New React Native Architecture enabled
+
+Build profiles (eas.json):
+  preview     -> APK,  internal distribution  <-- use this for direct/manual install
+  production  -> AAB,  store distribution     <-- Play Store upload only, NOT installable
+  development -> Dev Client, internal distribution
 ```
 
 ---
