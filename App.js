@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { AppState, useColorScheme } from 'react-native';
+import { AppState, useColorScheme, Text, TextInput } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer as NavContainer } from '@react-navigation/native';
-import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
+import { PaperProvider, MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, resolveThemeMode } from './theme/ThemeProvider';
 import { MotionProvider } from './theme/MotionProvider';
@@ -14,16 +14,14 @@ import * as Notifications from 'expo-notifications';
 import RootNavigator from './navigation/RootNavigator';
 import Sidebar from './components/Sidebar';
 import BiometricLockScreen from './components/BiometricLockScreen';
-import AnalyticsConsentModal from './components/AnalyticsConsentModal';
 import ErrorOverlay from './components/ErrorOverlay';
 import { navigationRef } from './navigation/navigationRef';
 import useStore from './store/useStore';
-import { PRIMARY, DARK } from './constants/colors';
+import { PRIMARY, DARK, FONTS } from './constants/colors';
 import { STORAGE_KEYS } from './constants/storageKeys';
 import { SECURE_KEYS } from './constants/secureKeys';
 import { bootstrapSessionData, hydrateStoreFromCache } from './services/bootstrap';
 import { clearCachedCredentials } from './services/api';
-import { startSession, endSession, resumeSession } from './services/analytics';
 import { initLanguage, getLanguage } from './services/i18n';
 import { initOfflineQueue } from './services/offlineQueue';
 import * as logger from './services/logger';
@@ -43,8 +41,55 @@ function navigateFromNotification(identifier) {
 
 const LOCK_GRACE_MS = 30 * 1000; // 30 seconds in background before locking
 
+// Cap OS text scaling app-wide so accessibility "largest text" doesn't break
+// dense layouts; dense rows (timetable grid, badges) apply a tighter cap
+// per-component. Under React 19 (RN 0.81) defaultProps is IGNORED for
+// function/forwardRef components, so setting Text.defaultProps alone is a no-op.
+// Patch the forwardRef render to inject the cap when a component hasn't set its
+// own maxFontSizeMultiplier. Guarded so any future RN internals change falls
+// back to the legacy defaultProps path instead of crashing at startup.
+const FONT_SCALE_CAP = 1.4;
+function capFontScaling(Component, cap) {
+  const original = Component && Component.render;
+  if (typeof original !== 'function' || Component.__fontCapPatched) return false;
+  Component.render = function (props, ref) {
+    const el = original.call(this, props, ref);
+    if (el && el.props && el.props.maxFontSizeMultiplier == null) {
+      return React.cloneElement(el, { maxFontSizeMultiplier: cap });
+    }
+    return el;
+  };
+  Component.__fontCapPatched = true;
+  return true;
+}
+try {
+  const patchedText = capFontScaling(Text, FONT_SCALE_CAP);
+  const patchedInput = capFontScaling(TextInput, FONT_SCALE_CAP);
+  if (!patchedText) Text.defaultProps = { ...Text.defaultProps, maxFontSizeMultiplier: FONT_SCALE_CAP };
+  if (!patchedInput) TextInput.defaultProps = { ...TextInput.defaultProps, maxFontSizeMultiplier: FONT_SCALE_CAP };
+} catch (e) {
+  Text.defaultProps = { ...Text.defaultProps, maxFontSizeMultiplier: FONT_SCALE_CAP };
+  TextInput.defaultProps = { ...TextInput.defaultProps, maxFontSizeMultiplier: FONT_SCALE_CAP };
+}
+
+// Paper (MD3) renders its own text variants, so the app fonts must also be
+// registered here. Every override sets fontWeight 'normal': the weight lives
+// in the family name, and Android falls back to the system font when a custom
+// fontFamily is combined with a non-normal fontWeight.
+const paperFonts = configureFonts({
+  config: {
+    fontFamily: FONTS.body,
+    titleLarge: { fontFamily: FONTS.displaySemiBold, fontWeight: 'normal' },
+    titleMedium: { fontFamily: FONTS.displaySemiBold, fontWeight: 'normal' },
+    bodyMedium: { fontFamily: FONTS.body, fontWeight: 'normal' },
+    bodySmall: { fontFamily: FONTS.body, fontWeight: 'normal' },
+    labelLarge: { fontFamily: FONTS.bodySemiBold, fontWeight: 'normal' },
+  },
+});
+
 const ucbTheme = {
   ...MD3LightTheme,
+  fonts: paperFonts,
   colors: {
     ...MD3LightTheme.colors,
     primary: PRIMARY,
@@ -54,6 +99,7 @@ const ucbTheme = {
 
 const ucbDarkTheme = {
   ...MD3DarkTheme,
+  fonts: paperFonts,
   colors: {
     ...MD3DarkTheme.colors,
     primary: '#7FBF4D',
@@ -71,6 +117,7 @@ export default function App() {
   const resolvedMode = resolveThemeMode(themePreference, systemScheme);
   const paperTheme = resolvedMode === 'dark' ? ucbDarkTheme : ucbTheme;
   const [languageReady, setLanguageReady] = useState(false);
+  const [onboardReady, setOnboardReady] = useState(false);
   const fontsReady = useAppFonts();
   const [isLocked, setIsLocked] = useState(false);
   const [initError, setInitError] = useState(null);
@@ -85,11 +132,7 @@ export default function App() {
     if (nextState === 'background' || nextState === 'inactive') {
       backgroundedAt.current = Date.now();
       clearCachedCredentials();
-      // session_end (with engagement duration) on true background; idempotent so
-      // repeated inactive/background churn won't emit duplicates.
-      endSession();
     } else if (nextState === 'active') {
-      resumeSession();
       const { settings, isLoggedIn } = useStore.getState();
       if (
         settings.biometricLockEnabled &&
@@ -114,7 +157,12 @@ export default function App() {
       setLanguageReady(true);
       logger.info('App', 'Language initialized', { language: getLanguage() });
     });
-    startSession();
+    // First-run flag decides whether RootNavigator opens with onboarding or
+    // login — resolved before the navigator renders so nothing flashes.
+    AsyncStorage.getItem(STORAGE_KEYS.ONBOARDED)
+      .then((v) => useStore.getState().setOnboarded(!!v))
+      .catch(() => {})
+      .finally(() => setOnboardReady(true));
     initOfflineQueue();
     initializeApp();
   }, []);
@@ -232,7 +280,7 @@ export default function App() {
     }
   };
 
-  if (!languageReady || !fontsReady) return null;
+  if (!languageReady || !fontsReady || !onboardReady) return null;
 
   const displayError = initError || bootstrapError;
 
@@ -247,12 +295,6 @@ export default function App() {
           <RootNavigator />
           {/* Sidebar and modals inside NavigationContainer to access useNavigation() */}
           <Sidebar key={`sidebar-${language}`} />
-          {isLoggedIn && (
-            <AnalyticsConsentModal
-              key={`consent-${language}`}
-              onLearnMore={() => navigationRef.current?.navigate('PrivacyPolicy')}
-            />
-          )}
           {isLocked && (
             <BiometricLockScreen onUnlock={handleUnlock} />
           )}

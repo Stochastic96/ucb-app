@@ -13,6 +13,10 @@ import ExamTrackerScreen from '../screens/exams/ExamTrackerScreen';
 import ExamPlannerScreen from '../screens/exams/ExamPlannerScreen';
 import CampusPlatformsScreen from '../screens/collaboration/CampusPlatformsScreen';
 import WasteGuideScreen from '../screens/waste/WasteGuideScreen';
+import RadarScreen from '../screens/campus/RadarScreen';
+import ProfileEditScreen from '../screens/campus/ProfileEditScreen';
+import ChatThreadScreen from '../screens/campus/ChatThreadScreen';
+import CampusOnboardingScreen from '../screens/campus/CampusOnboardingScreen';
 import useStore from '../store/useStore';
 import { useTheme } from '../theme/ThemeProvider';
 import { t } from '../services/i18n';
@@ -37,6 +41,7 @@ export default function ToolsStack() {
         headerTintColor: c.primary,
         headerStyle: { backgroundColor: c.surface },
         headerBackTitle: '',
+        headerTitleStyle: { fontFamily: c.fonts.displaySemiBold, fontSize: 17 },
       }}
     >
       <Stack.Screen
@@ -99,6 +104,26 @@ export default function ToolsStack() {
         name="WasteGuide"
         component={WasteGuideScreen}
         options={{ title: t('screen_waste_guide'), headerRight: () => <MenuButton /> }}
+      />
+      <Stack.Screen
+        name="CampusRadar"
+        component={RadarScreen}
+        options={{ title: t('screen_campus_radar'), headerRight: () => <MenuButton /> }}
+      />
+      <Stack.Screen
+        name="CampusProfileEdit"
+        component={ProfileEditScreen}
+        options={{ title: t('screen_campus_profile') }}
+      />
+      <Stack.Screen
+        name="CampusOnboarding"
+        component={CampusOnboardingScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CampusChat"
+        component={ChatThreadScreen}
+        options={({ route }) => ({ title: route.params?.title ?? t('screen_campus_chat') })}
       />
     </Stack.Navigator>
   );

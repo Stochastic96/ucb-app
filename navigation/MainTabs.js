@@ -52,10 +52,12 @@ export default function MainTabs() {
           tabBarActiveTintColor: c.primary,
           tabBarInactiveTintColor: c.textMuted,
           tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border },
+          tabBarLabelStyle: { fontFamily: c.fonts.bodySemiBold, fontSize: 11 },
           headerShown: route.name !== 'Home',
           headerRight: () => <MenuButton />,
           headerTintColor: c.primary,
           headerStyle: { backgroundColor: c.surface },
+          headerTitleStyle: { fontFamily: c.fonts.displaySemiBold, fontSize: 17 },
           headerShadowVisible: true,
         })}
       >

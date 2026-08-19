@@ -28,6 +28,7 @@ export default function GuideStack() {
         headerTintColor: c.primary,
         headerStyle: { backgroundColor: c.surface },
         headerBackTitle: '',
+        headerTitleStyle: { fontFamily: c.fonts.displaySemiBold, fontSize: 17 },
       }}
     >
       <Stack.Screen

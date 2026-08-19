@@ -16,6 +16,7 @@ import DatenschutzScreen from '../screens/legal/DatenschutzScreen';
 import PrivacyPolicyScreen from '../screens/legal/PrivacyPolicyScreen';
 import LegalScreen from '../screens/legal/LegalScreen';
 import FactScreen from '../screens/facts/FactScreen';
+import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import { useTheme } from '../theme/ThemeProvider';
 import { t } from '../services/i18n';
 
@@ -34,6 +35,7 @@ function MenuButton() {
 export default function RootNavigator() {
   const c = useTheme();
   const isLoggedIn = useStore((s) => s.isLoggedIn);
+  const onboarded = useStore((s) => s.onboarded);
 
   return (
     <Stack.Navigator
@@ -41,6 +43,7 @@ export default function RootNavigator() {
         headerShown: false,
         headerStyle: { backgroundColor: c.surface },
         headerTintColor: c.primary,
+        headerTitleStyle: { fontFamily: c.fonts.displaySemiBold, fontSize: 17 },
       }}
     >
       {isLoggedIn ? (
@@ -112,30 +115,38 @@ export default function RootNavigator() {
               headerRight: () => <MenuButton />,
             }}
           />
-          <Stack.Screen
-            name="Impressum"
-            component={ImpressumScreen}
-            options={{ headerShown: true, title: t('screen_impressum'), headerTintColor: c.primary }}
-          />
-          <Stack.Screen
-            name="Datenschutz"
-            component={DatenschutzScreen}
-            options={{ headerShown: true, title: t('screen_datenschutz'), headerTintColor: c.primary }}
-          />
-          <Stack.Screen
-            name="PrivacyPolicy"
-            component={PrivacyPolicyScreen}
-            options={{ headerShown: true, title: t('settings_privacy_policy'), headerTintColor: c.primary }}
-          />
-          <Stack.Screen
-            name="LegalNotice"
-            component={LegalScreen}
-            options={{ headerShown: true, title: t('settings_legal_notice'), headerTintColor: c.primary }}
-          />
         </>
-      ) : (
+      ) : onboarded ? (
         <Stack.Screen name="Login" component={LoginScreen} />
+      ) : (
+        // First install: welcome flow first; finishing it flips `onboarded`
+        // and this branch swaps to the login screen.
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       )}
+
+      {/* Legal screens live OUTSIDE the auth gate on purpose: the privacy
+          policy and Impressum must be readable BEFORE a student logs in
+          (DSGVO transparency) — the onboarding trust slide links here. */}
+      <Stack.Screen
+        name="Impressum"
+        component={ImpressumScreen}
+        options={{ headerShown: true, title: t('screen_impressum'), headerTintColor: c.primary }}
+      />
+      <Stack.Screen
+        name="Datenschutz"
+        component={DatenschutzScreen}
+        options={{ headerShown: true, title: t('screen_datenschutz'), headerTintColor: c.primary }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{ headerShown: true, title: t('settings_privacy_policy'), headerTintColor: c.primary }}
+      />
+      <Stack.Screen
+        name="LegalNotice"
+        component={LegalScreen}
+        options={{ headerShown: true, title: t('settings_legal_notice'), headerTintColor: c.primary }}
+      />
     </Stack.Navigator>
   );
 }
