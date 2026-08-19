@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { Linking } from 'react-native';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { GUIDE_CATEGORY_COLORS, withAlpha } from '../../constants/colors';
 
 export default function InfoSectionView({ data }) {
   const [expanded, setExpanded] = useState({});
@@ -16,7 +17,7 @@ export default function InfoSectionView({ data }) {
 
       {/* Summary card */}
       <View style={styles.summaryCard}>
-        <Ionicons name="information-circle-outline" size={20} color={c.mode === 'dark' ? '#90CAF9' : '#1565C0'} style={{ marginRight: 8, marginTop: 1 }} />
+        <Ionicons name="information-circle-outline" size={20} color={c.info} style={{ marginRight: 8, marginTop: 1 }} />
         <Text style={styles.summaryText}>{data.summary}</Text>
       </View>
 
@@ -52,7 +53,7 @@ export default function InfoSectionView({ data }) {
         <>
           <Text style={styles.sectionHeader}>OFFICIAL SOURCES</Text>
           <View style={styles.linksNote}>
-            <Ionicons name="shield-checkmark-outline" size={14} color={c.mode === 'dark' ? '#81C784' : '#2E7D32'} style={{ marginRight: 6 }} />
+            <Ionicons name="shield-checkmark-outline" size={14} color={GUIDE_CATEGORY_COLORS.checklist[c.mode]} style={{ marginRight: 6 }} />
             <Text style={styles.linksNoteText}>
               These links open official sources. The app explains — official sources confirm.
             </Text>
@@ -61,7 +62,7 @@ export default function InfoSectionView({ data }) {
             <TouchableOpacity
               key={link.id}
               style={styles.linkCard}
-              onPress={() => { if (/^(https?|tel|mailto):/i.test(link.url)) Linking.openURL(link.url); }}
+              onPress={() => { if (/^(https?|tel|mailto):/i.test(link.url)) Linking.openURL(link.url).catch(() => {}); }}
               activeOpacity={0.8}
             >
               <View style={styles.linkLeft}>
@@ -82,18 +83,17 @@ const makeStyles = (c) => StyleSheet.create({
   contentContainer: { padding: 16, paddingBottom: 32 },
   summaryCard: {
     flexDirection: 'row',
-    backgroundColor: c.mode === 'dark' ? '#2196F315' : '#E3F2FD',
+    backgroundColor: c.infoSurface,
     borderRadius: 12,
     padding: 14,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: c.mode === 'dark' ? '#2196F330' : '#BBDEFB',
+    borderColor: withAlpha(c.info, '4D'),
     alignItems: 'flex-start',
   },
-  summaryText: { flex: 1, fontSize: 14, color: c.mode === 'dark' ? '#90CAF9' : '#0D47A1', lineHeight: 22 },
+  summaryText: { ...c.type.bodySm, fontSize: 14, flex: 1, color: c.info },
   sectionHeader: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     letterSpacing: 0.8,
     marginBottom: 10,
@@ -111,11 +111,10 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'space-between',
     padding: 14,
   },
-  conceptTitle: { fontSize: 14, fontWeight: '700', color: c.text, flex: 1, marginRight: 8 },
+  conceptTitle: { ...c.type.bodyStrong, fontSize: 14, color: c.text, flex: 1, marginRight: 8 },
   conceptBody: {
-    fontSize: 13,
+    ...c.type.bodySm,
     color: c.textSecondary,
-    lineHeight: 21,
     paddingHorizontal: 14,
     paddingBottom: 14,
     borderTopWidth: 1,
@@ -125,12 +124,12 @@ const makeStyles = (c) => StyleSheet.create({
   linksNote: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: c.mode === 'dark' ? '#2E7D3220' : '#E8F5E9',
+    backgroundColor: withAlpha(GUIDE_CATEGORY_COLORS.checklist[c.mode], '26'),
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
   },
-  linksNoteText: { flex: 1, fontSize: 12, color: c.mode === 'dark' ? '#81C784' : '#2E7D32', lineHeight: 18 },
+  linksNoteText: { ...c.type.caption, flex: 1, color: GUIDE_CATEGORY_COLORS.checklist[c.mode] },
   linkCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -142,6 +141,6 @@ const makeStyles = (c) => StyleSheet.create({
     borderLeftColor: c.primary,
   },
   linkLeft: { flex: 1, marginRight: 8 },
-  linkTitle: { fontSize: 14, fontWeight: '600', color: c.primary },
-  linkDesc: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  linkTitle: { ...c.type.bodyStrong, fontSize: 14, color: c.primary },
+  linkDesc: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
 });

@@ -1,3 +1,5 @@
+// NOTE: unrouted dev-only screen — deliberately NOT migrated to the design
+// tokens (type/shadows/palette). Exclude screens/debug/ from token sweeps.
 import React, { useState, useEffect } from 'react';
 import {
   View,

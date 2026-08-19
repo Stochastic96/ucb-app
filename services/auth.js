@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { getApiClient, classifyError, setCachedCredentials, clearCachedCredentials } from './api';
 import { clearAllCache } from './cache';
 import { normalizeProfile } from './profile';
+import { resetIdentity } from './campusIdentity';
 import { SESSION_MAX_AGE } from '../constants/config';
 import { SECURE_KEYS } from '../constants/secureKeys';
 import useStore from '../store/useStore';
@@ -68,5 +69,6 @@ export async function logout() {
   clearCachedCredentials();
   await _deleteCredentials();
   await clearAllCache();
+  await resetIdentity();
   useStore.getState().clearUser();
 }

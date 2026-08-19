@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import useStore from '../store/useStore';
 import { useTranslation } from '../services/i18n';
+import { useThemedStyles } from '../theme/ThemeProvider';
 
 export default function OfflineBanner() {
   const t = useTranslation();
+  const styles = useThemedStyles(makeStyles);
   const isOffline = useStore((s) => s.isOffline);
   const offlineQueueSize = useStore((s) => s.offlineQueueSize);
   if (!isOffline) return null;
@@ -20,20 +22,21 @@ export default function OfflineBanner() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   banner: {
-    backgroundColor: '#F57C00',
+    backgroundColor: c.warning,
     paddingVertical: 6,
     alignItems: 'center',
   },
   text: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    ...c.type.caption,
+    // onWarningSolid is per-mode contrast text on the saturated warning fill
+    color: c.onWarningSolid,
   },
   pending: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 11,
+    ...c.type.micro,
+    color: c.onWarningSolid,
+    opacity: 0.8,
     marginTop: 1,
   },
 });

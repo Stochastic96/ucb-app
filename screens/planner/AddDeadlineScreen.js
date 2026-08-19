@@ -12,7 +12,6 @@ import { SimpleDatePicker, SimpleTimePicker } from '../../components/SimpleDateP
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import useStore from '../../store/useStore';
-import { trackEvent } from '../../services/analytics';
 import { enqueueOfflineOp } from '../../services/offlineQueue';
 import {
   scheduleDeadlineReminders,
@@ -20,6 +19,7 @@ import {
   saveDeadlines,
 } from '../../services/reminders';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { PLANNER_CATEGORY_COLORS } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
 
 function uid() {
@@ -62,9 +62,9 @@ export default function AddDeadlineScreen({ navigation, route }) {
   const [saving, setSaving] = useState(false);
 
   const CATEGORIES = [
-    { key: 'academic',     labelKey: 'deadline_cat_academic',     color: c.primary, icon: 'school-outline' },
-    { key: 'bureaucratic', labelKey: 'deadline_cat_bureaucratic', color: '#E65100', icon: 'document-text-outline' },
-    { key: 'personal',     labelKey: 'deadline_cat_personal',     color: '#7B1FA2', icon: 'person-outline' },
+    { key: 'academic',     labelKey: 'deadline_cat_academic',     color: PLANNER_CATEGORY_COLORS.academic[c.mode],     icon: 'school-outline' },
+    { key: 'bureaucratic', labelKey: 'deadline_cat_bureaucratic', color: PLANNER_CATEGORY_COLORS.bureaucratic[c.mode], icon: 'document-text-outline' },
+    { key: 'personal',     labelKey: 'deadline_cat_personal',     color: PLANNER_CATEGORY_COLORS.personal[c.mode],     icon: 'person-outline' },
   ];
 
   const semesterCourses = useMemo(() => getCurrentSemesterCourses(courses), [courses]);
@@ -153,7 +153,6 @@ export default function AddDeadlineScreen({ navigation, route }) {
       } else {
         await saveDeadlines([deadline, ...deadlines]);
         addDeadline(deadline);
-        trackEvent('feature_use', 'deadline_added');
       }
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -249,7 +248,7 @@ export default function AddDeadlineScreen({ navigation, route }) {
                   accessibilityState={{ selected }}
                 >
                   <View style={[styles.courseDot, { backgroundColor: course.color ?? c.primary }]} />
-                  <Text style={[styles.courseRowText, selected && { color: c.primary, fontWeight: '700' }]} numberOfLines={2}>
+                  <Text style={[styles.courseRowText, selected && { color: c.primary, fontFamily: c.fonts.bodyBold }]} numberOfLines={2}>
                     {course.title}
                   </Text>
                   {selected && <Ionicons name="checkmark-circle" size={16} color={c.primary} />}
@@ -381,18 +380,17 @@ const makeStyles = (c) => StyleSheet.create({
   content: { padding: 16, paddingBottom: 40 },
   section: { marginBottom: 20 },
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 6,
     marginLeft: 4,
   },
-  sectionCard: { backgroundColor: c.surface, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: c.border },
-  input: { paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: c.text },
+  sectionCard: { backgroundColor: c.surface, borderRadius: c.radius.md, overflow: 'hidden', borderWidth: 1, borderColor: c.border },
+  input: { paddingHorizontal: 14, paddingVertical: 13, fontFamily: c.fonts.body, fontSize: 15, color: c.text },
   noteInput: { minHeight: 80, textAlignVertical: 'top' },
-  charCount: { fontSize: 11, color: c.textMuted, textAlign: 'right', paddingRight: 14, paddingBottom: 8 },
+  charCount: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted, textAlign: 'right', paddingRight: 14, paddingBottom: 8 },
   linkedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -405,7 +403,7 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: c.accent,
   },
   linkedDot: { width: 10, height: 10, borderRadius: 5 },
-  linkedText: { flex: 1, fontSize: 13, fontWeight: '600', color: c.brandIcon },
+  linkedText: { ...c.type.label, flex: 1, color: c.brandIcon },
   suggestions: { borderTopWidth: 1, borderTopColor: c.border },
   pickerHeader: {
     flexDirection: 'row',
@@ -415,7 +413,7 @@ const makeStyles = (c) => StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: c.accent,
   },
-  pickerHeaderText: { fontSize: 11, fontWeight: '700', color: c.brandIcon, textTransform: 'uppercase', letterSpacing: 0.5 },
+  pickerHeaderText: { ...c.type.micro, color: c.brandIcon, textTransform: 'uppercase', letterSpacing: 0.5 },
   courseRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -427,9 +425,9 @@ const makeStyles = (c) => StyleSheet.create({
   },
   courseRowSelected: { backgroundColor: c.accent },
   courseDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
-  courseRowText: { flex: 1, fontSize: 14, color: c.text },
+  courseRowText: { ...c.type.bodySm, fontSize: 14, flex: 1, color: c.text },
   noMatch: { padding: 14 },
-  noMatchText: { fontSize: 13, color: c.textMuted },
+  noMatchText: { ...c.type.bodySm, color: c.textMuted },
   suggestionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -439,7 +437,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.border,
   },
-  suggestionText: { fontSize: 14, color: c.text, flex: 1 },
+  suggestionText: { ...c.type.bodySm, fontSize: 14, color: c.text, flex: 1 },
   categoryRow: { flexDirection: 'row', padding: 12, gap: 8 },
   categoryChip: {
     flex: 1,
@@ -453,11 +451,11 @@ const makeStyles = (c) => StyleSheet.create({
     borderColor: c.border,
     backgroundColor: c.surface,
   },
-  categoryChipText: { fontSize: 12, fontWeight: '600', color: c.textMuted },
+  categoryChipText: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.textMuted },
   dateRow: { flexDirection: 'row' },
   toggleRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
   toggleRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
-  toggleLabel: { flex: 1, fontSize: 15, color: c.text },
+  toggleLabel: { ...c.type.body, flex: 1, color: c.text },
   toggle: { width: 44, height: 26, borderRadius: 13, backgroundColor: c.border, padding: 2 },
   toggleOn: { backgroundColor: c.primary },
   toggleThumb: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' },
@@ -473,5 +471,5 @@ const makeStyles = (c) => StyleSheet.create({
     marginTop: 4,
   },
   saveBtnDisabled: { opacity: 0.6 },
-  saveBtnText: { fontSize: 16, fontWeight: '700', color: c.onPrimary },
+  saveBtnText: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.onPrimary },
 });

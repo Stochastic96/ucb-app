@@ -10,18 +10,28 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import calendarData from '../../data/semester_calendar.json';
-import { trackScreen } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { CALENDAR_CATEGORY_COLORS, GUIDE_CATEGORY_COLORS, withAlpha } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
 
 const QIS_URL = 'https://qis.hochschule-trier.de/';
 
-const CATEGORY_CONFIG = {
-  academic: { color: '#1976D2', bg: '#E3F2FD', labelKey: 'calendar_filter_academic' },
-  exams:    { color: '#E65100', bg: '#FBE9E7', labelKey: 'calendar_filter_exams' },
-  admin:    { color: '#6A1B9A', bg: '#F3E5F5', labelKey: 'calendar_filter_admin' },
-  holiday:  { color: '#2E7D32', bg: '#E8F5E9', labelKey: 'calendar_filter_holiday' },
+// Colors live in CALENDAR_CATEGORY_COLORS (constants/colors.js); labelKeys stay
+// here because they resolve through t().
+const CATEGORY_LABEL_KEYS = {
+  academic: 'calendar_filter_academic',
+  exams:    'calendar_filter_exams',
+  admin:    'calendar_filter_admin',
+  holiday:  'calendar_filter_holiday',
+};
+const categoryConfig = (category, mode) => {
+  const key = CALENDAR_CATEGORY_COLORS[category] ? category : 'academic';
+  return {
+    color: CALENDAR_CATEGORY_COLORS[key].color[mode],
+    bg: CALENDAR_CATEGORY_COLORS[key].bg[mode],
+    labelKey: CATEGORY_LABEL_KEYS[key],
+  };
 };
 
 const TAB_KEYS = ['calendar_overview', 'calendar_key_dates', 'calendar_my_courses'];
@@ -60,7 +70,6 @@ export default function SemesterCalendarScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState(TAB_KEYS[0]);
 
   useFocusEffect(useCallback(() => {
-    trackScreen('SemesterCalendarScreen');
   }, []));
 
   const progress = useMemo(() => semesterProgress(semester), [semester]);
@@ -141,7 +150,7 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
   const examRegDays = examRegDeadline ? daysUntil(examRegDeadline.date) : null;
-  const infoBlue = c.mode === 'dark' ? '#90CAF9' : '#1565C0';
+  const infoBlue = c.info;
 
   return (
     <>
@@ -172,14 +181,14 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
           icon="school-outline"
           label={t('calendar_lectures')}
           dates={`${formatDate(semester.lectureStart)} →\n${formatDate(semester.lectureEnd)}`}
-          color="#1976D2"
+          color={CALENDAR_CATEGORY_COLORS.academic.color[c.mode]}
         />
         {examRegEvent && (
           <MilestoneCard
             icon="create-outline"
             label={t('calendar_exam_reg')}
             dates={`${formatDate(examRegEvent.date)} →\n${formatDate(examRegDeadline?.date ?? examRegEvent.date)}`}
-            color="#E65100"
+            color={CALENDAR_CATEGORY_COLORS.exams.color[c.mode]}
             urgent={examRegDays !== null && examRegDays >= 0 && examRegDays <= 14}
             t={t}
           />
@@ -189,7 +198,7 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
             icon="document-text-outline"
             label={t('calendar_exam_period')}
             dates={`${formatDate(examPeriod.date)} →\n${formatDate(examPeriod.endDate ?? examPeriod.date)}`}
-            color="#6A1B9A"
+            color={CALENDAR_CATEGORY_COLORS.admin.color[c.mode]}
           />
         )}
         {reenrollment && (
@@ -197,7 +206,7 @@ function OverviewTab({ semester, upcoming, examRegEvent, examRegDeadline, examPe
             icon="card-outline"
             label={t('calendar_reenrollment')}
             dates={`Deadline:\n${formatDate(reenrollment.date)}`}
-            color="#00796B"
+            color={GUIDE_CATEGORY_COLORS.contacts[c.mode]}
           />
         )}
       </ScrollView>
@@ -263,8 +272,8 @@ function MilestoneCard({ icon, label, dates, color, urgent, t }) {
 function CompactEventRow({ event, t }) {
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
-  const cfg = CATEGORY_CONFIG[event.category] ?? CATEGORY_CONFIG.academic;
-  const chipBg = c.mode === 'dark' ? cfg.color + '26' : cfg.bg;
+  const cfg = categoryConfig(event.category, c.mode);
+  const chipBg = cfg.bg;
   const days = daysUntil(event.date);
   return (
     <View style={styles.compactRow}>
@@ -283,6 +292,7 @@ function CompactEventRow({ event, t }) {
 }
 
 function KeyDatesTab({ events, t }) {
+  const c = useTheme();
   const styles = useThemedStyles(makeStyles);
   const [filter, setFilter] = useState('all');
   const sorted = useMemo(() =>
@@ -301,7 +311,7 @@ function KeyDatesTab({ events, t }) {
     <>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
         {filterKeys.map((cat) => {
-          const cfg = CATEGORY_CONFIG[cat];
+          const cfg = cat === 'all' ? null : categoryConfig(cat, c.mode);
           const active = filter === cat;
           return (
             <TouchableOpacity
@@ -337,8 +347,8 @@ function FullEventRow({ event, past, t }) {
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
   const [expanded, setExpanded] = useState(false);
-  const cfg = CATEGORY_CONFIG[event.category] ?? CATEGORY_CONFIG.academic;
-  const cfgBg = c.mode === 'dark' ? cfg.color + '26' : cfg.bg;
+  const cfg = categoryConfig(event.category, c.mode);
+  const cfgBg = cfg.bg;
   const days = daysUntil(event.date);
   return (
     <TouchableOpacity
@@ -435,12 +445,12 @@ const makeStyles = (c) => StyleSheet.create({
   },
   semHeaderTop: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   semBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-  semBadgeText: { fontSize: 12, fontWeight: '800', color: '#fff' },
-  semName: { fontSize: 15, fontWeight: '700', color: c.text },
+  semBadgeText: { ...c.type.caption, fontFamily: c.fonts.bodyBold, color: c.onPrimary },
+  semName: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text },
   progressRow: { gap: 5 },
   progressTrack: { height: 5, backgroundColor: c.surfaceSunken, borderRadius: 3, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: c.primary, borderRadius: 3 },
-  progressLabel: { fontSize: 11, color: c.textMuted },
+  progressLabel: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: c.surface,
@@ -449,90 +459,90 @@ const makeStyles = (c) => StyleSheet.create({
   },
   tab: { flex: 1, paddingVertical: 12, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
   tabActive: { borderBottomColor: c.primary },
-  tabText: { fontSize: 13, fontWeight: '600', color: c.textMuted },
+  tabText: { ...c.type.label, color: c.textMuted },
   tabTextActive: { color: c.primary },
   groupLabel: {
-    fontSize: 11, fontWeight: '700', color: c.brandIcon,
+    ...c.type.micro, color: c.brandIcon,
     textTransform: 'uppercase', letterSpacing: 0.8,
     marginHorizontal: 16, marginTop: 16, marginBottom: 8,
   },
   groupLabelMuted: { color: c.textMuted },
   alertBox: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    margin: 12, padding: 14, backgroundColor: c.mode === 'dark' ? 'rgba(33,150,243,0.15)' : '#E3F2FD',
-    borderRadius: 12, borderLeftWidth: 4, borderLeftColor: c.mode === 'dark' ? '#90CAF9' : '#1565C0',
+    margin: 12, padding: 14, backgroundColor: c.infoSurface,
+    borderRadius: c.radius.md, borderLeftWidth: 4, borderLeftColor: c.info,
   },
-  alertBoxUrgent: { backgroundColor: c.mode === 'dark' ? 'rgba(239,83,80,0.15)' : '#FFEBEE', borderLeftColor: c.error },
-  alertTitle: { fontSize: 14, fontWeight: '700', color: c.mode === 'dark' ? '#90CAF9' : '#1565C0' },
-  alertSub: { fontSize: 12, color: c.textSecondary, marginTop: 2 },
+  alertBoxUrgent: { backgroundColor: withAlpha(c.error, '26'), borderLeftColor: c.error },
+  alertTitle: { ...c.type.bodyStrong, fontSize: 14, fontFamily: c.fonts.bodyBold, color: c.info },
+  alertSub: { ...c.type.caption, color: c.textSecondary, marginTop: 2 },
   alertBtn: { backgroundColor: c.primary, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8 },
-  alertBtnText: { fontSize: 12, fontWeight: '700', color: c.onPrimary },
+  alertBtnText: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.onPrimary },
   milestonesRow: { paddingHorizontal: 12, gap: 10, paddingBottom: 4 },
   milestoneCard: {
     width: 150, backgroundColor: c.surface, borderRadius: 14, padding: 14,
-    shadowColor: c.shadow, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    ...c.shadows.card,
   },
-  milestoneCardUrgent: { borderWidth: 1.5, borderColor: '#E65100' },
+  milestoneCardUrgent: { borderWidth: 1.5, borderColor: c.warning },
   milestoneIcon: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  milestoneLabel: { fontSize: 12, fontWeight: '700', color: c.text, marginBottom: 6 },
-  milestoneDates: { fontSize: 11, color: c.textMuted, lineHeight: 16 },
-  urgentBadge: { marginTop: 8, alignSelf: 'flex-start', backgroundColor: c.mode === 'dark' ? 'rgba(230,81,0,0.2)' : '#FBE9E7', borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 },
-  urgentBadgeText: { fontSize: 10, fontWeight: '700', color: c.mode === 'dark' ? '#FFB74D' : '#E65100' },
+  milestoneLabel: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.text, marginBottom: 6 },
+  milestoneDates: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted, lineHeight: 16 },
+  urgentBadge: { marginTop: 8, alignSelf: 'flex-start', backgroundColor: c.warningSurface, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2 },
+  urgentBadgeText: { ...c.type.micro, color: c.onWarning },
   compactRow: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 6,
     borderRadius: 10, overflow: 'hidden', paddingRight: 12,
-    shadowColor: c.shadow, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1,
+    ...c.shadows.card,
   },
   fullRow: {
     flexDirection: 'row', alignItems: 'flex-start',
     backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 6,
     borderRadius: 10, overflow: 'hidden', paddingRight: 12, paddingVertical: 2,
-    shadowColor: c.shadow, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1,
+    ...c.shadows.card,
   },
   compactStripe: { width: 4, alignSelf: 'stretch' },
   compactBody: { flex: 1, paddingVertical: 10, paddingHorizontal: 10, gap: 3 },
-  compactTitle: { fontSize: 14, fontWeight: '600', color: c.text },
-  compactDate: { fontSize: 12, color: c.textMuted },
-  expandedDesc: { fontSize: 13, color: c.textSecondary, lineHeight: 18, marginTop: 6 },
+  compactTitle: { ...c.type.bodyStrong, fontSize: 14, color: c.text },
+  compactDate: { ...c.type.caption, color: c.textMuted },
+  expandedDesc: { ...c.type.bodySm, color: c.textSecondary, marginTop: 6 },
   catChip: { alignSelf: 'flex-start', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 5, marginTop: 6 },
-  catChipText: { fontSize: 10, fontWeight: '700' },
+  catChipText: { ...c.type.micro },
   chip: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignItems: 'center', alignSelf: 'center' },
-  chipText: { fontSize: 12, fontWeight: '700' },
+  chipText: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold },
   filterRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
   filterChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border },
   filterChipActive: { backgroundColor: c.primary, borderColor: c.primary },
-  filterChipText: { fontSize: 13, color: c.textMuted, fontWeight: '500' },
+  filterChipText: { ...c.type.bodySm, fontFamily: c.fonts.bodyMedium, color: c.textMuted },
   quickAction: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 8,
     padding: 14, borderRadius: 12,
-    shadowColor: c.shadow, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    ...c.shadows.card,
   },
   qaIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' },
-  qaLabel: { fontSize: 14, fontWeight: '600', color: c.text },
-  qaSub: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  qaLabel: { ...c.type.bodyStrong, fontSize: 14, color: c.text },
+  qaSub: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
   empty: { alignItems: 'center', padding: 48, gap: 10 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textMuted },
-  emptySub: { fontSize: 13, color: c.textMuted, textAlign: 'center', lineHeight: 19 },
+  emptyTitle: { ...c.type.title, fontSize: 17, color: c.textMuted },
+  emptySub: { ...c.type.bodySm, color: c.textMuted, textAlign: 'center' },
   coursesHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 14, marginBottom: 8 },
-  coursesCount: { fontSize: 13, color: c.textMuted, fontWeight: '600' },
-  coursesLink: { fontSize: 13, color: c.brandIcon, fontWeight: '600' },
+  coursesCount: { ...c.type.label, color: c.textMuted },
+  coursesLink: { ...c.type.label, color: c.brandIcon },
   courseCard: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: c.surface, marginHorizontal: 12, marginBottom: 8,
     borderRadius: 12, overflow: 'hidden', paddingRight: 12,
-    shadowColor: c.shadow, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    ...c.shadows.card,
   },
   courseStripe: { width: 5, alignSelf: 'stretch' },
   courseBody: { flex: 1, padding: 12 },
-  courseTitle: { fontSize: 15, fontWeight: '700', color: c.text },
-  courseMeta: { fontSize: 13, color: c.textMuted, marginTop: 3 },
-  courseSem: { fontSize: 11, color: c.textMuted, marginTop: 4, fontStyle: 'italic' },
+  courseTitle: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text },
+  courseMeta: { ...c.type.bodySm, color: c.textMuted, marginTop: 3 },
+  courseSem: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted, marginTop: 4, fontStyle: 'italic' },
   examReminderBox: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,
     margin: 12, marginTop: 16, padding: 14,
     backgroundColor: c.accent, borderRadius: 12,
   },
-  examReminderText: { flex: 1, fontSize: 13, color: c.brandIcon, lineHeight: 19 },
+  examReminderText: { ...c.type.bodySm, flex: 1, color: c.brandIcon },
 });

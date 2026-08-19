@@ -12,15 +12,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
-import { trackScreen, trackEvent } from '../../services/analytics';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
 import { getNewsIdentity } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
 import EventRow from '../../components/EventRow';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import ErrorState from '../../components/ErrorState';
+import ListRow from '../../components/ListRow';
+import GettingStartedCard from '../../components/GettingStartedCard';
 import useStore from '../../store/useStore';
-import { DARK, CATEGORY_COLORS, FACT_CATEGORY_COLORS } from '../../constants/colors';
+import { CATEGORY_COLORS, FACT_CATEGORY_COLORS } from '../../constants/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { getDailyFact, getFactCopy } from '../../services/facts';
 import { isSameCalendarDay, toMillis, getGreeting, getTimeUntil, formatShortDate } from '../../utils/datetime';
@@ -66,40 +67,6 @@ const QUICK_LINKS = [
   { labelKey: 'home_quick_map', icon: 'map-outline', tab: 'Map' },
   { labelKey: 'home_quick_guide', icon: 'book-outline', tab: 'Guide' },
 ];
-
-function QuickLinkButton({ link, label, onPress }) {
-  const c = useTheme();
-  const styles = useThemedStyles(makeStyles);
-  const reducedMotion = useReducedMotion();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  const onPressIn = () => {
-    if (reducedMotion) return;
-    Animated.spring(scaleAnim, { toValue: 0.93, useNativeDriver: true, speed: 50, bounciness: 0 }).start();
-  };
-
-  const onPressOut = () => {
-    if (reducedMotion) return;
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 5 }).start();
-  };
-
-  return (
-    <Animated.View style={[styles.quickLinkWrap, { transform: [{ scale: scaleAnim }] }]}>
-      <TouchableOpacity
-        style={styles.quickLink}
-        onPress={onPress}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        activeOpacity={1}
-        accessibilityRole="button"
-        accessibilityLabel={label}
-      >
-        <Ionicons name={link.icon} size={28} color={c.brandIcon} />
-        <Text style={styles.quickLabel}>{label}</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-}
 
 export default function HomeScreen({ navigation }) {
   const t = useTranslation();
@@ -186,7 +153,6 @@ export default function HomeScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      trackScreen('HomeScreen');
       let active = true;
 
       const refreshDashboardContent = async () => {
@@ -254,7 +220,7 @@ export default function HomeScreen({ navigation }) {
   if (loading || (isHydrating && !dataReady && courses.length === 0 && news.length === 0)) {
     return (
       <View style={styles.container}>
-        <LinearGradient colors={['#3D6B22', '#6FAE3E']} style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}>
+        <LinearGradient colors={[c.primaryDark, c.primary]} style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}>
           <View style={styles.headerPlaceholder} />
         </LinearGradient>
         <View style={styles.loadingWrap}>
@@ -275,7 +241,7 @@ export default function HomeScreen({ navigation }) {
       refreshControl={<RefreshControl onRefresh={onRefresh} tintColor={c.primary} refreshing={refreshing} />}
     >
       {/* Gradient header */}
-      <LinearGradient colors={['#3D6B22', '#6FAE3E']} style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <LinearGradient colors={[c.primaryDark, c.primary]} style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View>
           <Text style={styles.greeting}>{getGreeting()},</Text>
           <Text style={styles.name}>{user?.firstName ?? 'Student'}</Text>
@@ -288,7 +254,7 @@ export default function HomeScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel={t('home_news_a11y')}
           >
-            <Ionicons name="notifications-outline" size={22} color="#fff" />
+            <Ionicons name="notifications-outline" size={22} color={c.onPrimary} />
             {unreadNewsCount > 0 ? (
               <View style={styles.newsBadge}>
                 <Text style={styles.newsBadgeText}>{unreadNewsCount > 9 ? '9+' : unreadNewsCount}</Text>
@@ -302,7 +268,7 @@ export default function HomeScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel={t('nav_open_menu')}
           >
-            <Ionicons name="menu" size={22} color="#fff" />
+            <Ionicons name="menu" size={22} color={c.onPrimary} />
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -314,10 +280,21 @@ export default function HomeScreen({ navigation }) {
         </View>
       )}
 
+      {/* First-week checklist — hides itself once done or dismissed */}
+      <GettingStartedCard
+        onStep={(id) => {
+          if (id === 'timetable') navigation.navigate('Tools', { screen: 'ToolsHome', params: { openTimetable: true } });
+          else if (id === 'mensa') navigation.navigate('Tools', { screen: 'Mensa' });
+          else if (id === 'planner') navigation.navigate('Tools', { screen: 'PlannerList' });
+          else if (id === 'guide') openTab('Guide');
+          else if (id === 'map') openTab('Map');
+        }}
+      />
+
       {/* Did you know? — fact of the day teaser */}
       <TouchableOpacity
         style={[styles.factCard, { borderLeftColor: dailyFactColor }]}
-        onPress={() => { trackEvent('feature_use', 'fact_opened', { fact_id: dailyFact.id }); openRootScreen('FactOfTheDay'); }}
+        onPress={() => openRootScreen('FactOfTheDay')}
         activeOpacity={0.85}
         accessibilityRole="button"
         accessibilityLabel={`${t('fact_home_title')}: ${dailyFactCopy.hook}`}
@@ -436,7 +413,7 @@ export default function HomeScreen({ navigation }) {
                       onPress={() => openRootScreen('EventsList')}
                       activeOpacity={0.7}
                     >
-                      <View style={[styles.eventStripe, { backgroundColor: '#388E3C' }]} />
+                      <View style={[styles.eventStripe, { backgroundColor: CATEGORY_COLORS.sports }]} />
                       <Text style={styles.eventRowDate}>{sport.startTime}</Text>
                       <View style={styles.eventRowCopy}>
                         <Text style={styles.eventRowTitle} numberOfLines={1}>{sport.sport}</Text>
@@ -456,15 +433,16 @@ export default function HomeScreen({ navigation }) {
         </View>
       )}
 
-      {/* Quick links */}
+      {/* Quick links — calm compact rows in one card (global ListRow contract) */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('home_quick_links')}</Text>
-        <View style={styles.quickGrid}>
+        <View style={styles.quickCard}>
           {QUICK_LINKS.map((link) => (
-            <QuickLinkButton
+            <ListRow
               key={link.labelKey}
-              link={link}
-              label={t(link.labelKey)}
+              compact
+              icon={link.icon}
+              title={t(link.labelKey)}
               onPress={() => {
                 if (link.nestedScreen) navigation.navigate(link.tab, { screen: link.nestedScreen, params: link.nestedParams });
                 else if (link.tab) openTab(link.tab);
@@ -491,8 +469,8 @@ const makeStyles = (c) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  greeting: { fontSize: 15, color: 'rgba(255,255,255,0.85)', fontWeight: '500' },
-  name: { fontSize: 26, fontWeight: '800', color: '#fff', marginTop: 2 },
+  greeting: { ...c.type.body, fontFamily: c.fonts.bodyMedium, color: 'rgba(255,255,255,0.85)' },
+  name: { ...c.type.display, color: c.onPrimary, marginTop: 2 },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -513,36 +491,32 @@ const makeStyles = (c) => StyleSheet.create({
     minWidth: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: c.onPrimary,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  newsBadgeText: { color: DARK, fontSize: 10, fontWeight: '700' },
+  newsBadgeText: { ...c.type.micro, color: c.primaryDark },
   inlineWarning: {
-    marginHorizontal: 16,
+    marginHorizontal: c.spacing.md,
     marginTop: 14,
     backgroundColor: c.warningSurface,
     borderColor: c.warningBorder,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: c.radius.md,
     padding: 12,
     flexDirection: 'row',
     gap: 8,
     alignItems: 'flex-start',
   },
-  inlineWarningText: { flex: 1, color: c.onWarning, fontSize: 13, lineHeight: 18 },
+  inlineWarningText: { ...c.type.bodySm, flex: 1, color: c.onWarning },
   card: {
     backgroundColor: c.surface,
     marginHorizontal: 16,
     marginTop: 14,
-    borderRadius: 12,
-    padding: 16,
-    elevation: 2,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    borderRadius: c.radius.md,
+    padding: c.spacing.md,
+    ...c.shadows.card,
   },
   factCard: {
     backgroundColor: c.surface,
@@ -554,11 +528,7 @@ const makeStyles = (c) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    elevation: 2,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    ...c.shadows.card,
   },
   factIcon: {
     width: 48,
@@ -570,43 +540,36 @@ const makeStyles = (c) => StyleSheet.create({
   factEmoji: { fontSize: 26 },
   factCopy: { flex: 1 },
   factLabel: {
-    fontSize: 11,
-    fontWeight: '800',
+    ...c.type.micro,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
   },
-  factHook: { fontSize: 15, fontWeight: '700', color: c.text, lineHeight: 20, marginTop: 3 },
-  factCta: { fontSize: 12.5, fontWeight: '700', color: c.textMuted, marginTop: 6 },
+  factHook: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text, marginTop: 3 },
+  factCta: { ...c.type.label, color: c.textMuted, marginTop: 6 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
-  cardTitle: { fontSize: 13, fontWeight: '700', color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
+  cardTitle: { ...c.type.label, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
   nextClassBar: { height: 3, borderRadius: 2, marginBottom: 8, width: 36 },
-  nextClassTime: { fontSize: 20, fontWeight: '800', color: c.brandIcon },
-  nextClassCourse: { fontSize: 16, fontWeight: '600', color: c.text, marginTop: 4 },
-  nextClassRoom: { fontSize: 13, color: c.textMuted, marginTop: 3 },
+  nextClassTime: { ...c.type.titleLg, color: c.brandIcon },
+  nextClassCourse: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.text, marginTop: 4 },
+  nextClassRoom: { ...c.type.bodySm, color: c.textMuted, marginTop: 3 },
   section: { marginTop: 20 },
   sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 8 },
-  sectionTitle: { fontSize: 17, fontWeight: '700', color: c.text },
-  seeAll: { fontSize: 13, color: c.brandIcon, fontWeight: '600' },
-  quickGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8 },
-  quickLinkWrap: { width: '50%', padding: 4 },
-  quickLink: {
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    backgroundColor: c.accent,
-    borderRadius: 12,
+  sectionTitle: { ...c.type.title, color: c.text },
+  seeAll: { ...c.type.label, color: c.brandIcon },
+  quickCard: {
+    backgroundColor: c.surface,
+    marginHorizontal: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: c.radius.lg,
+    ...c.shadows.card,
   },
-  quickLabel: { marginTop: 6, fontSize: 13, fontWeight: '600', color: c.brandIcon },
   eventsCard: {
     marginHorizontal: 16,
     backgroundColor: c.surface,
-    borderRadius: 12,
+    borderRadius: c.radius.md,
     overflow: 'hidden',
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
   },
   eventRow: {
     flexDirection: 'row',
@@ -618,14 +581,13 @@ const makeStyles = (c) => StyleSheet.create({
     gap: 10,
   },
   eventStripe: { width: 4, height: 18, borderRadius: 2 },
-  eventRowDate: { fontSize: 12, fontWeight: '700', color: c.textMuted, minWidth: 38 },
+  eventRowDate: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.textMuted, minWidth: 38 },
   eventRowCopy: { flex: 1 },
-  eventRowTitle: { flex: 1, fontSize: 14, fontWeight: '600', color: c.text },
-  eventRowMeta: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  eventRowTitle: { ...c.type.bodyStrong, flex: 1, color: c.text },
+  eventRowMeta: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
   sportsTodayBlock: { backgroundColor: c.accent },
   sportsTodayTitle: {
-    fontSize: 13,
-    fontWeight: '700',
+    ...c.type.label,
     color: c.brandIcon,
     paddingHorizontal: 14,
     paddingTop: 12,

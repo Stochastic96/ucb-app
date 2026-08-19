@@ -13,9 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadDeadlines, saveDeadlines, cancelDeadlineReminders } from '../../services/reminders';
-import { trackEvent } from '../../services/analytics';
 import { enqueueOfflineOp } from '../../services/offlineQueue';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { PLANNER_CATEGORY_COLORS, withAlpha } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
 
 function daysUntil(dateStr) {
@@ -33,30 +33,29 @@ function formatDueDate(dateStr) {
 function UrgencyBadge({ days, done, t }) {
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
-  const dark = c.mode === 'dark';
   if (done) return (
     <View style={[styles.badge, { backgroundColor: c.surfaceSunken }]}>
       <Text style={[styles.badgeText, { color: c.textMuted }]}>{t('planner_badge_done')}</Text>
     </View>
   );
   if (days < 0) return (
-    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(239,83,80,0.18)' : '#FFEBEE' }]}>
+    <View style={[styles.badge, { backgroundColor: withAlpha(c.error, '2E') }]}>
       <Text style={[styles.badgeText, { color: c.error }]}>{t('planner_badge_overdue')}</Text>
     </View>
   );
   if (days === 0) return (
-    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(255,152,0,0.18)' : '#FFF3E0' }]}>
-      <Text style={[styles.badgeText, { color: dark ? '#FFB74D' : '#E65100', fontWeight: '800' }]}>{t('planner_badge_today')}</Text>
+    <View style={[styles.badge, { backgroundColor: c.warningSurface }]}>
+      <Text style={[styles.badgeText, { color: c.onWarning, fontFamily: c.fonts.bodyBold }]}>{t('planner_badge_today')}</Text>
     </View>
   );
   if (days <= 2) return (
-    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(255,87,34,0.18)' : '#FBE9E7' }]}>
-      <Text style={[styles.badgeText, { color: dark ? '#FF8A65' : '#BF360C', fontWeight: '700' }]}>{days}d</Text>
+    <View style={[styles.badge, { backgroundColor: c.warningSurface }]}>
+      <Text style={[styles.badgeText, { color: c.onWarning, fontFamily: c.fonts.bodyBold }]}>{days}d</Text>
     </View>
   );
   if (days <= 7) return (
-    <View style={[styles.badge, { backgroundColor: dark ? 'rgba(245,127,23,0.18)' : '#FFF8E1' }]}>
-      <Text style={[styles.badgeText, { color: dark ? '#FFD54F' : '#F57F17' }]}>{days}d</Text>
+    <View style={[styles.badge, { backgroundColor: c.warningSurface }]}>
+      <Text style={[styles.badgeText, { color: c.onWarning }]}>{days}d</Text>
     </View>
   );
   return (
@@ -80,15 +79,14 @@ export default function PlannerScreen({ navigation }) {
 
   const handleFilterChange = (newFilter) => {
     if (newFilter !== filter) {
-      trackEvent('feature_use', 'deadline_filter_applied', { filter: newFilter });
       setFilter(newFilter);
     }
   };
 
   const CATEGORY_META = {
-    academic:     { labelKey: 'deadline_cat_academic',     color: c.primary,  icon: 'school-outline' },
-    bureaucratic: { labelKey: 'deadline_cat_bureaucratic', color: '#E65100',  icon: 'document-text-outline' },
-    personal:     { labelKey: 'deadline_cat_personal',     color: '#7B1FA2',  icon: 'person-outline' },
+    academic:     { labelKey: 'deadline_cat_academic',     color: PLANNER_CATEGORY_COLORS.academic[c.mode],     icon: 'school-outline' },
+    bureaucratic: { labelKey: 'deadline_cat_bureaucratic', color: PLANNER_CATEGORY_COLORS.bureaucratic[c.mode], icon: 'document-text-outline' },
+    personal:     { labelKey: 'deadline_cat_personal',     color: PLANNER_CATEGORY_COLORS.personal[c.mode],     icon: 'person-outline' },
   };
 
   const FILTERS = [
@@ -137,7 +135,6 @@ export default function PlannerScreen({ navigation }) {
         style: 'destructive',
         onPress: async () => {
           const { isOffline } = useStore.getState();
-          trackEvent('feature_use', 'deadline_deleted', { deadline_id: id });
           if (isOffline) {
             enqueueOfflineOp('CANCEL_DEADLINE_REMINDERS', { deadlineId: id });
           } else {
@@ -234,6 +231,7 @@ export default function PlannerScreen({ navigation }) {
                 onPress={() => navigation.navigate('AddDeadline', { deadline: d })}
                 activeOpacity={0.7}
                 accessibilityRole="button"
+                accessibilityLabel={`${d.title}, ${formatDueDate(d.dueDate)}${d.completed ? `, ${t('planner_badge_done')}` : ''}`}
               >
                 <View style={styles.cardTop}>
                   <Text style={[styles.cardTitle, d.completed && styles.strikethrough]} numberOfLines={2}>
@@ -269,6 +267,7 @@ export default function PlannerScreen({ navigation }) {
                 onPress={() => confirmDelete(d.id, d.title)}
                 hitSlop={8}
                 accessibilityRole="button"
+                accessibilityLabel={t('planner_delete_title')}
               >
                 <Ionicons name="trash-outline" size={18} color={c.textMuted} />
               </TouchableOpacity>
@@ -315,34 +314,30 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: c.surface,
   },
   filterDot: { width: 7, height: 7, borderRadius: 4 },
-  filterChipText: { fontSize: 13, fontWeight: '600', color: c.textMuted },
+  filterChipText: { ...c.type.label, color: c.textMuted },
   list: { padding: 12, paddingBottom: 100 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg, padding: 32, gap: 12 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: c.text },
-  emptySub: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
+  emptyTitle: { ...c.type.titleLg, fontSize: 20, color: c.text },
+  emptySub: { ...c.type.bodySm, fontSize: 14, color: c.textMuted, textAlign: 'center' },
   addBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24, marginTop: 8 },
-  addBtnText: { fontSize: 15, fontWeight: '700', color: c.onPrimary },
+  addBtnText: { ...c.type.bodyStrong, color: c.onPrimary },
   emptyFilter: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60 },
-  emptyFilterText: { fontSize: 15, color: c.textMuted },
+  emptyFilterText: { ...c.type.body, color: c.textMuted },
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: c.surface,
-    borderRadius: 14,
+    borderRadius: c.radius.lg,
     padding: 12,
     marginBottom: 10,
     gap: 10,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    ...c.shadows.card,
   },
   cardDone: { opacity: 0.55 },
   checkBtn: { paddingTop: 2 },
   cardBody: { flex: 1 },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 4 },
-  cardTitle: { flex: 1, fontSize: 16, fontWeight: '700', color: c.text, lineHeight: 22 },
+  cardTitle: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, flex: 1, color: c.text },
   strikethrough: { textDecorationLine: 'line-through', color: c.textMuted },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' },
   categoryPill: {
@@ -355,18 +350,18 @@ const makeStyles = (c) => StyleSheet.create({
     borderWidth: 1,
   },
   categoryDot: { width: 6, height: 6, borderRadius: 3 },
-  categoryPillText: { fontSize: 11, fontWeight: '700' },
+  categoryPillText: { ...c.type.micro },
   subjectRow: { flexDirection: 'row', alignItems: 'center', gap: 5, flexShrink: 1 },
   subjectDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  subject: { fontSize: 13, color: c.brandIcon, fontWeight: '600', flexShrink: 1 },
-  dueDate: { fontSize: 12, color: c.textMuted, marginBottom: 4 },
-  note: { fontSize: 13, color: c.textSecondary, lineHeight: 18, marginBottom: 6 },
+  subject: { ...c.type.label, color: c.brandIcon, flexShrink: 1 },
+  dueDate: { ...c.type.caption, color: c.textMuted, marginBottom: 4 },
+  note: { ...c.type.bodySm, color: c.textSecondary, marginBottom: 6 },
   reminders: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   reminderPill: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: c.accent, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6 },
-  reminderPillText: { fontSize: 11, color: c.brandIcon, fontWeight: '500' },
+  reminderPillText: { ...c.type.micro, fontFamily: c.fonts.bodyMedium, color: c.brandIcon },
   deleteBtn: { paddingTop: 4 },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, minWidth: 44, alignItems: 'center' },
-  badgeText: { fontSize: 12, fontWeight: '600', color: c.textMuted },
+  badgeText: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.textMuted },
   fab: {
     position: 'absolute',
     bottom: 24,
@@ -377,10 +372,6 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: c.shadow,
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 6,
+    ...c.shadows.raised,
   },
 });

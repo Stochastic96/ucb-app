@@ -9,9 +9,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
-import { trackEvent } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { platformIconColor } from '../../constants/colors';
 import { useTranslation } from '../../services/i18n';
 
 const PLATFORMS = [
@@ -21,8 +21,6 @@ const PLATFORMS = [
     tagline: 'Group chat & team channels',
     url: 'https://mattermost.gitlab.rlp.net',
     iconName: 'chatbubbles-outline',
-    iconColor: '#0058CC',
-    iconBg: '#E8F0FB',
     tip: 'Log in with your Hochschulkennung → Create a team named after your course or project → Share the invite link with your group.',
   },
   {
@@ -31,8 +29,6 @@ const PLATFORMS = [
     tagline: 'Join video meetings from lecturers',
     url: 'https://bbb.rlp.net',
     iconName: 'videocam-outline',
-    iconColor: '#C0392B',
-    iconBg: '#FDECEA',
     tip: 'Log in with your Hochschulkennung. Your lecturer shares a room link — open it here to join. Note: only staff can create new rooms.',
   },
   {
@@ -41,8 +37,6 @@ const PLATFORMS = [
     tagline: 'Campus Microsoft 365 suite',
     url: 'https://www.office.com/',
     iconName: 'grid-outline',
-    iconColor: '#6264A7',
-    iconBg: '#EDECF8',
     tip: 'Log in with username@hochschule-trier.de or username@umwelt-campus.de. You can create teams and channels for your project group.',
   },
 ];
@@ -57,7 +51,6 @@ export default function CampusPlatformsScreen() {
   const [copiedId, setCopiedId] = useState(null);
 
   const openPlatform = async (platformId, url) => {
-    trackEvent('feature_use', 'external_platform_opened', { platform: platformId });
     await WebBrowser.openBrowserAsync(url, {
       toolbarColor: c.primary,
       dismissButtonStyle: 'close',
@@ -78,8 +71,8 @@ export default function CampusPlatformsScreen() {
       {PLATFORMS.map((p) => (
         <View key={p.id} style={styles.card}>
           <View style={styles.cardRow}>
-            <View style={[styles.iconBox, { backgroundColor: c.mode === 'dark' ? p.iconColor + '26' : p.iconBg }]}>
-              <Ionicons name={p.iconName} size={24} color={p.iconColor} />
+            <View style={[styles.iconBox, { backgroundColor: platformIconColor(p.id, c.mode).bg }]}>
+              <Ionicons name={p.iconName} size={24} color={platformIconColor(p.id, c.mode).icon} />
             </View>
             <View style={styles.cardText}>
               <Text style={styles.cardName}>{p.name}</Text>
@@ -161,7 +154,7 @@ export default function CampusPlatformsScreen() {
           {PLATFORMS.map((p) => (
             <View key={p.id} style={styles.tipBlock}>
               <View style={styles.tipHeader}>
-                <View style={[styles.tipDot, { backgroundColor: p.iconColor }]} />
+                <View style={[styles.tipDot, { backgroundColor: platformIconColor(p.id, c.mode).icon }]} />
                 <Text style={styles.tipTitle}>{p.name}</Text>
               </View>
               <Text style={styles.tipText}>{p.tip}</Text>
@@ -179,8 +172,7 @@ const makeStyles = (c) => StyleSheet.create({
   container: { flex: 1, backgroundColor: c.bg },
   content: { paddingBottom: 40 },
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -189,13 +181,9 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: c.surface,
     marginHorizontal: 12,
     marginBottom: 8,
-    borderRadius: 14,
+    borderRadius: c.radius.lg,
     padding: 14,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    ...c.shadows.card,
   },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   iconBox: {
@@ -206,15 +194,15 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
   },
   cardText: { flex: 1 },
-  cardName: { fontSize: 16, fontWeight: '700', color: c.text },
-  cardTagline: { fontSize: 13, color: c.textMuted, marginTop: 2 },
+  cardName: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.text },
+  cardTagline: { ...c.type.bodySm, color: c.textMuted, marginTop: 2 },
   openBtn: {
     backgroundColor: c.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  openBtnText: { fontSize: 14, fontWeight: '700', color: c.onPrimary },
+  openBtnText: { ...c.type.label, fontSize: 14, color: c.onPrimary },
   accordionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -232,7 +220,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderWidth: 1,
     borderColor: c.border,
   },
-  accordionHint: { fontSize: 13, color: c.textMuted, marginBottom: 10 },
+  accordionHint: { ...c.type.bodySm, color: c.textMuted, marginBottom: 10 },
   courseRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -241,10 +229,10 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.border,
   },
-  courseName: { flex: 1, fontSize: 14, color: c.text, marginRight: 12 },
+  courseName: { ...c.type.bodySm, fontSize: 14, flex: 1, color: c.text, marginRight: 12 },
   tipBlock: { marginBottom: 14 },
   tipHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   tipDot: { width: 8, height: 8, borderRadius: 4 },
-  tipTitle: { fontSize: 14, fontWeight: '700', color: c.text },
-  tipText: { fontSize: 13, color: c.textSecondary, lineHeight: 19, paddingLeft: 16 },
+  tipTitle: { ...c.type.bodyStrong, fontSize: 14, color: c.text },
+  tipText: { ...c.type.bodySm, color: c.textSecondary, paddingLeft: 16 },
 });

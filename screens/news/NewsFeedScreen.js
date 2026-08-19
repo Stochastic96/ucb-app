@@ -3,7 +3,6 @@ import { FlatList, View, Text, StyleSheet, RefreshControl, Modal, ScrollView, To
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
-import { trackScreen, trackEvent } from '../../services/analytics';
 import { fetchNews } from '../../services/news';
 import NewsCard from '../../components/NewsCard';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -110,7 +109,6 @@ export default function NewsFeedScreen({ navigation, route }) {
 
   useFocusEffect(
     useCallback(() => {
-      trackScreen('NewsFeedScreen');
       const seenAt = Date.now();
       markNewsSeen(seenAt).then(() => setLastReadTs(seenAt)).catch(() => {});
     }, [])
@@ -176,7 +174,7 @@ export default function NewsFeedScreen({ navigation, route }) {
         data={filteredNews}
         keyExtractor={(i) => getNewsIdentity(i)}
         renderItem={({ item }) => (
-          <NewsCard item={item} unread={isUnread(item)} onPress={() => { trackEvent('feature_use', 'news_item_opened'); setSelected(item); }} />
+          <NewsCard item={item} unread={isUnread(item)} onPress={() => setSelected(item)} />
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
         contentContainerStyle={{ paddingVertical: 8, paddingBottom: 24 }}
@@ -250,10 +248,10 @@ const makeStyles = (c) => StyleSheet.create({
     maxWidth: 180,
   },
   chipActive: { backgroundColor: c.primary, borderColor: c.primary },
-  chipText: { fontSize: 13, color: c.textMuted, fontWeight: '500' },
+  chipText: { ...c.type.bodySm, fontFamily: c.fonts.bodyMedium, color: c.textMuted },
   chipTextActive: { color: c.onPrimary },
   empty: { alignItems: 'center', paddingTop: 60 },
-  emptyText: { color: c.textMuted, fontSize: 15 },
+  emptyText: { ...c.type.body, color: c.textMuted },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: c.surface,
@@ -272,8 +270,8 @@ const makeStyles = (c) => StyleSheet.create({
   },
   sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: c.textMuted + '40' },
   sheetCloseBtn: { position: 'absolute', right: 0 },
-  sheetSource: { fontSize: 12, color: c.brandIcon, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
-  sheetDate: { fontSize: 12, color: c.textMuted, marginTop: 2, marginBottom: 12 },
-  sheetTitle: { fontSize: 20, fontWeight: '700', color: c.text, marginBottom: 14 },
-  sheetBody: { fontSize: 15, color: c.textSecondary, lineHeight: 24 },
+  sheetSource: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.brandIcon, textTransform: 'uppercase', letterSpacing: 0.6 },
+  sheetDate: { ...c.type.caption, color: c.textMuted, marginTop: 2, marginBottom: 12 },
+  sheetTitle: { ...c.type.titleLg, fontSize: 20, color: c.text, marginBottom: 14 },
+  sheetBody: { ...c.type.body, color: c.textSecondary, lineHeight: 24 },
 });

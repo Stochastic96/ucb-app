@@ -4,9 +4,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { ThemeProvider } from '../../theme/ThemeProvider';
 import WasteGuideScreen from '../../screens/waste/WasteGuideScreen';
 
-// analytics imports the Supabase client, which cannot construct under Jest
 // (no EXPO_PUBLIC_* env). It is a no-op in __DEV__ anyway.
-jest.mock('../../services/analytics', () => ({ trackScreen: jest.fn() }));
 
 jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn(() => Promise.resolve()),

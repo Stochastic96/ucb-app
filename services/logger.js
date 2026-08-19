@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Centralized Logging Service
@@ -7,8 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // All errors and important events go through this service for:
 // 1. Console logging with context (timestamp, level, source)
 // 2. Persistent log storage (last 50 logs in AsyncStorage)
-// 3. Analytics tracking for errors
-// 4. Debug screen display
+// 3. Debug screen display
 //
 // Usage:
 //   logger.info('UserScreen', 'User loaded', { userId: '123' })
@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //   logger.error('Bootstrap', 'Failed to load courses', err)
 // ─────────────────────────────────────────────────────────────────────────
 
-const LOG_STORAGE_KEY = 'ucb_logs';
+const LOG_STORAGE_KEY = STORAGE_KEYS.LOGS;
 const MAX_STORED_LOGS = 50;
 let _logs = [];
 let _isInitialized = false;
@@ -74,14 +74,6 @@ async function restoreLogs() {
   }
 }
 
-function getTrackEvent() {
-  try {
-    return require('./analytics').trackEvent;
-  } catch {
-    return null;
-  }
-}
-
 function log(level, source, message, data = null, error = null) {
   const entry = createLogEntry(level, source, message, data, error);
   
@@ -119,19 +111,6 @@ function log(level, source, message, data = null, error = null) {
     logFn(msg, data);
   } else {
     logFn(msg);
-  }
-
-  // Track errors to analytics (lazy load to avoid circular dependency)
-  if (level === LogLevel.ERROR && !__DEV__) {
-    const trackEvent = getTrackEvent();
-    if (trackEvent) {
-      trackEvent('error', `${source}_error`, {
-        message,
-        errorType: entry.errorType,
-        errorMessage: entry.errorMessage,
-        ...data,
-      });
-    }
   }
 }
 

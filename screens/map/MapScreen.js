@@ -6,8 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
-  Linking,
-  Platform,
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +20,7 @@ import {
   searchBuildings,
 } from '../../services/buildings';
 import { useFocusEffect } from '@react-navigation/native';
-import { trackScreen, trackEvent } from '../../services/analytics';
+import { openInMaps } from '../../services/linking';
 import { useTranslation } from '../../services/i18n';
 
 export default function MapScreen() {
@@ -36,7 +34,6 @@ export default function MapScreen() {
   const handleSearchChange = (text) => {
     if (text.length === 1 && !searchTrackedRef.current) {
       searchTrackedRef.current = true;
-      trackEvent('feature_use', 'building_search_used');
     }
     if (text.length === 0) searchTrackedRef.current = false;
     setSearch(text);
@@ -46,7 +43,6 @@ export default function MapScreen() {
 
   const visibleBuildings = searchBuildings(search).filter(isMainCampusBuilding);
 
-  useFocusEffect(useCallback(() => { trackScreen('MapScreen'); }, []));
 
   useEffect(() => {
     if (pendingBuilding) {
@@ -57,23 +53,12 @@ export default function MapScreen() {
   }, [pendingBuilding, clearPending]);
 
   const handleNavigate = (b) => {
-    trackEvent('feature_use', 'navigate_to_building', { building_id: b.id });
-    const label = buildNativeMapsLabel(b);
-    if (Platform.OS === 'ios') {
-      Linking.openURL(`https://maps.apple.com/?ll=${b.lat},${b.lng}&q=${encodeURIComponent(label)}`).catch(() => {});
-    } else {
-      Linking.openURL(`geo:${b.lat},${b.lng}?q=${encodeURIComponent(label)}`).catch(() => {});
-    }
+    openInMaps(b.lat, b.lng, buildNativeMapsLabel(b));
     setSelected(null);
   };
 
   const handleOpenCampus = () => {
-    const label = CAMPUS_CENTER.label;
-    if (Platform.OS === 'ios') {
-      Linking.openURL(`https://maps.apple.com/?ll=${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}&q=${encodeURIComponent(label)}`).catch(() => {});
-    } else {
-      Linking.openURL(`geo:${CAMPUS_CENTER.lat},${CAMPUS_CENTER.lng}?q=${encodeURIComponent(label)}`).catch(() => {});
-    }
+    openInMaps(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng, CAMPUS_CENTER.label);
   };
 
   return (
@@ -85,7 +70,7 @@ export default function MapScreen() {
           </View>
           <Text style={styles.heroTitle}>{t('map_title')}</Text>
           <Text style={styles.heroText}>{t('map_subtitle')}</Text>
-          <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.campusButton} onPress={handleOpenCampus} activeOpacity={0.85} accessibilityRole="button" accessibilityLabel={t('map_open_campus')}>
             <Ionicons name="navigate-outline" size={18} color={c.onPrimary} />
             <Text style={styles.campusButtonText}>{t('map_open_campus')}</Text>
           </TouchableOpacity>
@@ -116,8 +101,10 @@ export default function MapScreen() {
             <TouchableOpacity
               key={b.id}
               style={styles.buildingCard}
-              onPress={() => { trackEvent('feature_use', 'building_selected', { building_id: b.id }); setSelected(b); }}
+              onPress={() => setSelected(b)}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={`${b.number}, ${b.name}`}
             >
               <View style={styles.buildingBadge}>
                 <Text style={styles.buildingBadgeText}>{b.number}</Text>
@@ -170,6 +157,8 @@ export default function MapScreen() {
                 <TouchableOpacity
                   style={styles.navBtn}
                   onPress={() => handleNavigate(selected)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('map_navigate')}: ${selected.name}`}
                 >
                   <Ionicons name="navigate" size={18} color={c.onPrimary} />
                   <Text style={styles.navBtnText}>{t('map_navigate')}</Text>
@@ -187,24 +176,24 @@ const makeStyles = (c) => StyleSheet.create({
   container: { flex: 1, backgroundColor: c.bg },
   content: { padding: 12, paddingBottom: 32 },
   heroCard: {
-    backgroundColor: c.mode === 'dark' ? c.surfaceAlt : '#F4F7FB',
+    backgroundColor: c.surfaceAlt,
     borderRadius: 18,
     padding: 18,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: c.mode === 'dark' ? c.border : '#D9E3F0',
+    borderColor: c.border,
   },
   heroIcon: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: c.mode === 'dark' ? c.surfaceSunken : '#E2ECF8',
+    backgroundColor: c.infoSurface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
-  heroText: { fontSize: 14, color: c.textSecondary, marginTop: 6, lineHeight: 20 },
+  heroTitle: { ...c.type.titleLg, color: c.text },
+  heroText: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, marginTop: 6 },
   campusButton: {
     marginTop: 14,
     backgroundColor: c.primary,
@@ -216,10 +205,10 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  campusButtonText: { color: c.onPrimary, fontWeight: '700', fontSize: 15 },
+  campusButtonText: { ...c.type.bodyStrong, color: c.onPrimary },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: c.text, marginTop: 12 },
-  emptyText: { fontSize: 14, color: c.textMuted, marginTop: 6, textAlign: 'center' },
+  emptyTitle: { ...c.type.title, color: c.text, marginTop: 12 },
+  emptyText: { ...c.type.bodySm, fontSize: 14, color: c.textMuted, marginTop: 6, textAlign: 'center' },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -231,8 +220,8 @@ const makeStyles = (c) => StyleSheet.create({
     height: 40,
   },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: c.text },
-  countText: { marginTop: 12, marginBottom: 8, color: c.textMuted, fontSize: 13, fontWeight: '600' },
+  searchInput: { flex: 1, fontFamily: c.fonts.body, fontSize: 14, color: c.text },
+  countText: { ...c.type.label, marginTop: 12, marginBottom: 8, color: c.textMuted },
   buildingCard: {
     backgroundColor: c.surface,
     borderWidth: 1,
@@ -252,20 +241,20 @@ const makeStyles = (c) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buildingBadgeText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  buildingBadgeText: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.onPrimary },
   buildingInfo: { flex: 1 },
-  buildingName: { fontSize: 16, fontWeight: '700', color: c.text },
-  buildingMeta: { fontSize: 12, color: c.textMuted, marginTop: 3 },
-  buildingDesc: { fontSize: 13, color: c.textSecondary, marginTop: 6, lineHeight: 18 },
+  buildingName: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.text },
+  buildingMeta: { ...c.type.caption, color: c.textMuted, marginTop: 3 },
+  buildingDesc: { ...c.type.bodySm, color: c.textSecondary, marginTop: 6 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: c.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 40 },
   sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: c.border, alignSelf: 'center', marginBottom: 12 },
-  sheetNumber: { fontSize: 28, fontWeight: '800', color: c.brandIcon },
-  sheetName: { fontSize: 20, fontWeight: '700', color: c.text, marginTop: 2 },
-  sheetDesc: { fontSize: 14, color: c.textSecondary, marginTop: 10, lineHeight: 20 },
-  servicesLabel: { fontSize: 12, color: c.textMuted, fontWeight: '700', textTransform: 'uppercase', marginTop: 12, marginBottom: 6 },
-  service: { fontSize: 13, color: c.textSecondary, marginBottom: 4 },
-  fallbackNote: { fontSize: 13, color: c.textMuted, marginTop: 12, lineHeight: 18 },
+  sheetNumber: { ...c.type.display, color: c.brandIcon },
+  sheetName: { ...c.type.titleLg, fontSize: 20, color: c.text, marginTop: 2 },
+  sheetDesc: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, marginTop: 10 },
+  servicesLabel: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.textMuted, textTransform: 'uppercase', marginTop: 12, marginBottom: 6 },
+  service: { ...c.type.bodySm, color: c.textSecondary, marginBottom: 4 },
+  fallbackNote: { ...c.type.bodySm, color: c.textMuted, marginTop: 12 },
   navBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -277,5 +266,5 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  navBtnText: { color: c.onPrimary, fontWeight: '700', fontSize: 16 },
+  navBtnText: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.onPrimary },
 });

@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { trackScreen } from '../../services/analytics';
 import {
   View,
   Text,
@@ -28,7 +27,6 @@ export default function CampusResourcesScreen() {
   const t = useTranslation();
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
-  useEffect(() => { trackScreen('CampusResourcesScreen'); }, []);
   const [activeCategory, setActiveCategory] = useState('all');
   const [expanded, setExpanded] = useState(null);
   const [query, setQuery] = useState('');
@@ -142,7 +140,7 @@ function ResourceCard({ resource, expanded, onToggle }) {
 
           {resource.tip && (
             <View style={styles.tipBox}>
-              <Ionicons name="bulb-outline" size={14} color={c.mode === 'dark' ? c.warning : '#F57F17'} />
+              <Ionicons name="bulb-outline" size={14} color={c.onWarning} />
               <Text style={styles.tipText}>{resource.tip}</Text>
             </View>
           )}
@@ -202,11 +200,11 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.border,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
-  heroSub: { fontSize: 13, color: c.textMuted, marginTop: 3 },
+  heroTitle: { ...c.type.titleLg, color: c.text },
+  heroSub: { ...c.type.bodySm, color: c.textMuted, marginTop: 3 },
   searchWrapper: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 },
   empty: { alignItems: 'center', paddingVertical: 48, gap: 10 },
-  emptyText: { fontSize: 14, color: c.textMuted },
+  emptyText: { ...c.type.bodySm, fontSize: 14, color: c.textMuted },
   filterRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
   filterChip: {
     flexDirection: 'row',
@@ -221,19 +219,15 @@ const makeStyles = (c) => StyleSheet.create({
   },
   filterChipIcon: { marginLeft: -2 },
   filterChipActive: { backgroundColor: c.primary, borderColor: c.primary },
-  filterChipText: { fontSize: 13, color: c.textMuted, fontWeight: '500' },
+  filterChipText: { ...c.type.bodySm, fontFamily: c.fonts.bodyMedium, color: c.textMuted },
   filterChipTextActive: { color: c.onPrimary },
   card: {
     backgroundColor: c.surface,
     marginHorizontal: 12,
     marginBottom: 8,
-    borderRadius: 14,
+    borderRadius: c.radius.lg,
     padding: 14,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 1,
+    ...c.shadows.card,
   },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   iconWrap: {
@@ -245,22 +239,22 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
   },
   cardText: { flex: 1 },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: c.text },
-  cardDesc: { fontSize: 13, color: c.textMuted, marginTop: 3, lineHeight: 18 },
+  cardTitle: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text },
+  cardDesc: { ...c.type.bodySm, color: c.textMuted, marginTop: 3 },
   expanded: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: c.border },
-  expandedDesc: { fontSize: 14, color: c.textSecondary, lineHeight: 20, marginBottom: 12 },
+  expandedDesc: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, marginBottom: 12 },
   tipBox: {
     flexDirection: 'row',
     gap: 6,
-    backgroundColor: c.mode === 'dark' ? c.warning + '15' : '#FFF8E1',
+    backgroundColor: c.warningSurface,
     padding: 10,
     borderRadius: 8,
     marginBottom: 12,
     alignItems: 'flex-start',
   },
-  tipText: { fontSize: 13, color: c.mode === 'dark' ? c.textSecondary : '#5D4037', flex: 1, lineHeight: 18 },
+  tipText: { ...c.type.bodySm, color: c.onWarning, flex: 1 },
   metaGrid: { gap: 8 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontSize: 13, color: c.textSecondary, flex: 1 },
+  metaText: { ...c.type.bodySm, color: c.textSecondary, flex: 1 },
   metaLink: { color: c.primary, textDecorationLine: 'underline' },
 });

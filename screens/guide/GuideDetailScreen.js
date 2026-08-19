@@ -21,6 +21,7 @@ import guideBureaucracy from '../../data/guide_bureaucracy.json';
 import guideLanguage from '../../data/guide_language.json';
 import guideRights from '../../data/guide_rights.json';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { GUIDE_CATEGORY_COLORS, withAlpha } from '../../constants/colors';
 import AsyncStorageInstance from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../../constants/storageKeys';
 
@@ -50,7 +51,7 @@ function EmptyState({ message }) {
   return (
     <View style={{ alignItems: 'center', marginTop: 60, opacity: 0.5 }}>
       <Ionicons name="search-outline" size={36} color={c.textMuted} />
-      <Text style={{ fontSize: 14, color: c.textMuted, marginTop: 8 }}>{message ?? t('guide_detail_no_results')}</Text>
+      <Text style={{ ...c.type.bodySm, fontSize: 14, color: c.textMuted, marginTop: 8 }}>{message ?? t('guide_detail_no_results')}</Text>
     </View>
   );
 }
@@ -186,7 +187,7 @@ export default function GuideDetailScreen({ route }) {
     const checkedCount = allTasks.filter(task => checked[task.id]).length;
     const progress = allTasks.length > 0 ? checkedCount / allTasks.length : 0;
     const done = allTasks.length > 0 && checkedCount === allTasks.length;
-    const activeDoneColor = c.mode === 'dark' ? '#81C784' : '#2E7D32';
+    const activeDoneColor = GUIDE_CATEGORY_COLORS.checklist[c.mode];
 
     return (
       <View style={styles.container}>
@@ -327,7 +328,7 @@ export default function GuideDetailScreen({ route }) {
       return acc;
     }, {});
 
-    const copiedBadgeColor = c.mode === 'dark' ? '#81C784' : '#2E7D32';
+    const copiedBadgeColor = GUIDE_CATEGORY_COLORS.checklist[c.mode];
 
     return (
       <ScrollView style={styles.container}>
@@ -450,60 +451,60 @@ const makeStyles = (c) => StyleSheet.create({
   searchWrapper: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 },
   linkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
   emergencyCard: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: c.error },
-  emergencyName: { fontSize: 16, fontWeight: '700', color: c.error },
-  emergencyDesc: { fontSize: 13, color: c.textSecondary, marginTop: 4 },
-  emergencyPhone: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
-  emergencyEmail: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
-  progressLabel: { fontWeight: '700', fontSize: 15, marginBottom: 8, color: c.text },
+  emergencyName: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.error },
+  emergencyDesc: { ...c.type.bodySm, color: c.textSecondary, marginTop: 4 },
+  emergencyPhone: { ...c.type.bodySm, color: c.primary, textDecorationLine: 'underline' },
+  emergencyEmail: { ...c.type.bodySm, color: c.primary, textDecorationLine: 'underline' },
+  progressLabel: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, marginBottom: 8, color: c.text },
   progressTrack: { height: 8, backgroundColor: c.border, borderRadius: 4, overflow: 'hidden' },
   progressFill: { height: 8, borderRadius: 4 },
-  checklistWeekHeader: { fontSize: 13, fontWeight: '700', color: c.primary, marginBottom: 8, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
-  checklistDeadline: { fontSize: 12, color: c.warning, marginTop: 4 },
+  checklistWeekHeader: { ...c.type.label, color: c.primary, marginBottom: 8, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  checklistDeadline: { ...c.type.caption, color: c.warning, marginTop: 4 },
   contactCard: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
-  contactName: { fontSize: 16, fontWeight: '700', color: c.primary },
-  contactRole: { fontSize: 14, color: c.text, marginTop: 2 },
-  contactOrg: { fontSize: 12, color: c.textMuted, marginTop: 2 },
-  contactOffice: { fontSize: 12, color: c.textMuted, marginTop: 4 },
-  contactEmail: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
+  contactName: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.primary },
+  contactRole: { ...c.type.bodySm, fontSize: 14, color: c.text, marginTop: 2 },
+  contactOrg: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
+  contactOffice: { ...c.type.caption, color: c.textMuted, marginTop: 4 },
+  contactEmail: { ...c.type.bodySm, color: c.primary, textDecorationLine: 'underline' },
   checklistItem: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
-  checklistTask: { fontSize: 15, fontWeight: '700', color: c.text, marginTop: 2 },
-  checklistDetails: { fontSize: 13, color: c.textSecondary, marginTop: 6, lineHeight: 20 },
-  checklistOffice: { fontSize: 12, color: c.textMuted, marginTop: 6 },
+  checklistTask: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text, marginTop: 2 },
+  checklistDetails: { ...c.type.bodySm, color: c.textSecondary, marginTop: 6 },
+  checklistOffice: { ...c.type.caption, color: c.textMuted, marginTop: 6 },
   checklistMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   officeCard: { backgroundColor: c.surface, borderRadius: 10, marginBottom: 10, overflow: 'hidden' },
   officeHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14 },
-  officeName: { fontSize: 15, fontWeight: '700', color: c.text },
-  officeSubtitle: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  officeName: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text },
+  officeSubtitle: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
   officeExpanded: { backgroundColor: c.surfaceAlt, borderTopWidth: 1, borderTopColor: c.border, padding: 14 },
-  officeHours: { fontSize: 12, color: c.textSecondary, marginBottom: 6 },
-  officeLinkText: { fontSize: 13, color: c.primary, textDecorationLine: 'underline' },
-  taskLabel: { fontSize: 11, fontWeight: '700', color: c.textMuted, marginTop: 10, marginBottom: 4, textTransform: 'uppercase' },
-  taskItem: { fontSize: 12, color: c.textSecondary, marginTop: 3 },
+  officeHours: { ...c.type.caption, color: c.textSecondary, marginBottom: 6 },
+  officeLinkText: { ...c.type.bodySm, color: c.primary, textDecorationLine: 'underline' },
+  taskLabel: { ...c.type.micro, color: c.textMuted, marginTop: 10, marginBottom: 4, textTransform: 'uppercase' },
+  taskItem: { ...c.type.caption, color: c.textSecondary, marginTop: 3 },
   glossaryItem: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
-  glossaryTerm: { fontSize: 16, fontWeight: '700', color: c.primary },
-  glossaryTranslation: { fontSize: 14, fontWeight: '600', color: c.text, marginTop: 4 },
-  glossaryDef: { fontSize: 13, color: c.textSecondary, marginTop: 6, lineHeight: 20 },
-  phraseCat: { fontSize: 12, fontWeight: '700', color: c.textMuted, marginBottom: 8, letterSpacing: 0.6 },
+  glossaryTerm: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.primary },
+  glossaryTranslation: { ...c.type.bodyStrong, fontSize: 14, color: c.text, marginTop: 4 },
+  glossaryDef: { ...c.type.bodySm, color: c.textSecondary, marginTop: 6 },
+  phraseCat: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.textMuted, marginBottom: 8, letterSpacing: 0.6 },
   phraseCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: c.surface, padding: 12, borderRadius: 10, marginBottom: 8 },
-  phraseCardCopied: { backgroundColor: c.mode === 'dark' ? '#1B5E2030' : '#E8F5E9', borderWidth: 1, borderColor: c.mode === 'dark' ? '#2E7D3260' : '#A5D6A7' },
+  phraseCardCopied: { backgroundColor: withAlpha(GUIDE_CATEGORY_COLORS.checklist[c.mode], '30'), borderWidth: 1, borderColor: withAlpha(GUIDE_CATEGORY_COLORS.checklist[c.mode], '60') },
   copyBadge: { alignItems: 'center', minWidth: 44 },
-  copiedText: { fontSize: 10, color: c.mode === 'dark' ? '#81C784' : '#2E7D32', marginTop: 2, fontWeight: '600' },
-  phraseGerman: { fontSize: 14, fontWeight: '700', color: c.primary },
-  phraseEnglish: { fontSize: 13, color: c.text, marginTop: 2 },
-  phrasePhonetic: { fontSize: 11, color: c.textMuted, marginTop: 2, fontStyle: 'italic' },
+  copiedText: { ...c.type.micro, color: GUIDE_CATEGORY_COLORS.checklist[c.mode], marginTop: 2 },
+  phraseGerman: { ...c.type.bodyStrong, fontSize: 14, color: c.primary },
+  phraseEnglish: { ...c.type.bodySm, color: c.text, marginTop: 2 },
+  phrasePhonetic: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted, marginTop: 2, fontStyle: 'italic' },
   faqTabRow: { paddingHorizontal: 12, marginBottom: 4, flexGrow: 0 },
   faqCatTab: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 16, backgroundColor: c.surfaceSunken, marginRight: 8, marginTop: 8 },
   faqCatTabActive: { backgroundColor: c.primary },
-  faqCatTabText: { color: c.textMuted, fontWeight: '600', fontSize: 13 },
+  faqCatTabText: { ...c.type.label, color: c.textMuted },
   faqCatTabTextActive: { color: c.onPrimary },
   faqCard: { backgroundColor: c.surface, borderRadius: 10, marginBottom: 10, overflow: 'hidden' },
   faqHeader: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 8 },
-  faqQuestion: { fontSize: 14, fontWeight: '700', color: c.text, flex: 1 },
-  faqAnswer: { backgroundColor: c.surfaceAlt, padding: 14, borderTopWidth: 1, borderTopColor: c.border, fontSize: 13, color: c.textSecondary, lineHeight: 20 },
+  faqQuestion: { ...c.type.bodyStrong, fontSize: 14, color: c.text, flex: 1 },
+  faqAnswer: { ...c.type.bodySm, backgroundColor: c.surfaceAlt, padding: 14, borderTopWidth: 1, borderTopColor: c.border, color: c.textSecondary },
   buildingCard: { backgroundColor: c.surface, padding: 14, borderRadius: 10, marginBottom: 10 },
-  buildingNum: { fontSize: 11, color: c.primary, fontWeight: '700', textTransform: 'uppercase' },
-  buildingName: { fontSize: 15, fontWeight: '700', color: c.text, marginTop: 4 },
-  buildingDesc: { fontSize: 13, color: c.textSecondary, marginTop: 4 },
-  servicesLabel: { fontSize: 11, fontWeight: '700', color: c.textMuted, marginTop: 8, textTransform: 'uppercase' },
-  service: { fontSize: 12, color: c.textSecondary, marginTop: 3 },
+  buildingNum: { ...c.type.micro, color: c.primary, textTransform: 'uppercase' },
+  buildingName: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text, marginTop: 4 },
+  buildingDesc: { ...c.type.bodySm, color: c.textSecondary, marginTop: 4 },
+  servicesLabel: { ...c.type.micro, color: c.textMuted, marginTop: 8, textTransform: 'uppercase' },
+  service: { ...c.type.caption, color: c.textSecondary, marginTop: 3 },
 });

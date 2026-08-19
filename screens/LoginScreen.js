@@ -11,14 +11,13 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import useStore from '../store/useStore';
 import { createApiClient, classifyError, setCachedCredentials } from '../services/api';
 import { saveCredentials } from '../services/auth';
 import { normalizeProfile } from '../services/profile';
 import { bootstrapSessionData } from '../services/bootstrap';
-import { trackEvent } from '../services/analytics';
 import * as Haptics from 'expo-haptics';
-import { PRIMARY, INACTIVE, BG, BORDER } from '../constants/colors';
 import { useTranslation, saveLanguage } from '../services/i18n';
 import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
 
@@ -32,6 +31,7 @@ export default function LoginScreen() {
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [failCount, setFailCount] = useState(0);
   const [lockoutEnd, setLockoutEnd] = useState(null);
@@ -105,7 +105,6 @@ export default function LoginScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       setUser(user); // Triggers main navigator transition
       didAuthenticate = true;
-      trackEvent('feature_use', 'login_success');
     } catch (error) {
       if (didAuthenticate) {
         Alert.alert(t('login_success_title'), t('login_success_msg'));
@@ -113,7 +112,6 @@ export default function LoginScreen() {
       }
 
       const type = error?.type ?? classifyError(error).type;
-      trackEvent('feature_use', 'login_failed', { error_type: type });
 
       // Increment fail counter on auth failures and impose lockout after MAX_ATTEMPTS
       if (type === 'AUTH_FAILED') {
@@ -179,6 +177,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
+        <Text style={styles.inputLabel} nativeID="usernameLabel">{t('login_username_label')}</Text>
         <TextInput
           style={styles.input}
           placeholder={t('login_username_placeholder')}
@@ -187,21 +186,41 @@ export default function LoginScreen() {
           onChangeText={setUsername}
           autoCapitalize="none"
           autoCorrect={false}
+          autoComplete="username"
+          textContentType="username"
           returnKeyType="next"
-          accessibilityLabel={t('login_username_placeholder')}
+          accessibilityLabel={t('login_username_label')}
+          accessibilityLabelledBy="usernameLabel"
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder={t('login_password_placeholder')}
-          placeholderTextColor={c.textMuted}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          returnKeyType="done"
-          onSubmitEditing={handleLogin}
-          accessibilityLabel={t('login_password_placeholder')}
-        />
+        <Text style={styles.inputLabel} nativeID="passwordLabel">{t('login_password_label')}</Text>
+        <View style={styles.passwordWrap}>
+          <TextInput
+            style={[styles.input, styles.passwordInput]}
+            placeholder={t('login_password_placeholder')}
+            placeholderTextColor={c.textMuted}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="current-password"
+            textContentType="password"
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
+            accessibilityLabel={t('login_password_label')}
+            accessibilityLabelledBy="passwordLabel"
+          />
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setShowPassword((v) => !v)}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? t('login_hide_password') : t('login_show_password')}
+          >
+            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color={c.textMuted} />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity
           style={[styles.button, (loading || isLockedOut) && styles.buttonDisabled]}
@@ -268,38 +287,60 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: c.primary + '15',
   },
   langBtnText: {
+    ...c.type.label,
     fontSize: 14,
-    fontWeight: '700',
     color: c.textMuted,
   },
   langBtnTextActive: {
     color: c.primary,
   },
   logoText: {
+    // one-off display numeral (escape hatch — no preset for hero sizes)
+    fontFamily: c.fonts.display,
     fontSize: 56,
-    fontWeight: '800',
     color: c.primary,
     letterSpacing: 4,
   },
   subtitle: {
-    fontSize: 15,
+    ...c.type.body,
     color: c.textMuted,
     marginTop: 4,
+  },
+  inputLabel: {
+    ...c.type.label,
+    color: c.textSecondary,
+    marginBottom: 6,
+    marginLeft: 2,
   },
   input: {
     borderWidth: 1,
     borderColor: c.border,
     backgroundColor: c.surfaceAlt,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: c.radius.md,
     marginBottom: 14,
+    fontFamily: c.fonts.body,
     fontSize: 16,
     color: c.text,
   },
+  passwordWrap: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  passwordInput: {
+    paddingRight: 48,
+  },
+  eyeBtn: {
+    position: 'absolute',
+    right: 14,
+    top: 0,
+    bottom: 14,
+    justifyContent: 'center',
+  },
   button: {
     backgroundColor: c.primary,
-    padding: 16,
-    borderRadius: 10,
+    padding: c.spacing.md,
+    borderRadius: c.radius.md,
     alignItems: 'center',
     marginTop: 4,
   },
@@ -307,22 +348,23 @@ const makeStyles = (c) => StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: c.onPrimary,
+    ...c.type.heading,
+    fontFamily: c.fonts.bodySemiBold,
     fontSize: 17,
-    fontWeight: '700',
+    color: c.onPrimary,
   },
   hint: {
+    ...c.type.bodySm,
     marginTop: 20,
     textAlign: 'center',
     color: c.textMuted,
-    fontSize: 13,
-    lineHeight: 18,
   },
   disclaimer: {
-    marginTop: 32,
+    ...c.type.micro,
+    fontFamily: c.fonts.body,
+    marginTop: c.spacing.xl,
     textAlign: 'center',
     color: c.textFaint,
-    fontSize: 11,
   },
   legalLinks: {
     flexDirection: 'row',
@@ -332,12 +374,13 @@ const makeStyles = (c) => StyleSheet.create({
     gap: 6,
   },
   legalLink: {
-    fontSize: 11,
+    ...c.type.micro,
+    fontFamily: c.fonts.body,
     color: c.primary,
     textDecorationLine: 'underline',
   },
   legalSep: {
-    fontSize: 11,
+    ...c.type.micro,
     color: c.border,
   },
 });

@@ -19,6 +19,7 @@ import useStore from '../store/useStore';
 import { logout } from '../services/auth';
 import { navigationRef } from '../navigation/navigationRef';
 import { useTheme, useThemedStyles } from '../theme/ThemeProvider';
+import { withAlpha } from '../constants/colors';
 import { t } from '../services/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -255,11 +256,8 @@ const makeStyles = (c) => StyleSheet.create({
     bottom: 0,
     width: SIDEBAR_WIDTH,
     backgroundColor: c.bg,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.18,
-    shadowRadius: 20,
+    ...c.shadows.overlay,
     shadowOffset: { width: -4, height: 0 },
-    elevation: 16,
   },
   userHeader: {
     flexDirection: 'row',
@@ -279,15 +277,14 @@ const makeStyles = (c) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  initials: { fontSize: 17, fontWeight: '700', color: c.onPrimary },
+  initials: { ...c.type.title, fontSize: 17, color: c.onPrimary },
   userInfo: { flex: 1 },
-  userName: { fontSize: 15, fontWeight: '700', color: c.text },
-  userSub: { fontSize: 13, color: c.textMuted, marginTop: 1 },
+  userName: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text },
+  userSub: { ...c.type.bodySm, color: c.textMuted, marginTop: 1 },
   closeBtn: { padding: 4 },
   section: { marginTop: 20, paddingHorizontal: 14 },
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -296,7 +293,7 @@ const makeStyles = (c) => StyleSheet.create({
   },
   sectionCard: {
     backgroundColor: c.surface,
-    borderRadius: 12,
+    borderRadius: c.radius.md,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: c.border,
@@ -313,12 +310,12 @@ const makeStyles = (c) => StyleSheet.create({
   rowIconWrap: {
     width: 32,
     height: 32,
-    borderRadius: 8,
+    borderRadius: c.radius.sm,
     backgroundColor: c.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rowLabel: { fontSize: 15, color: c.text, fontWeight: '500' },
+  rowLabel: { ...c.type.body, fontFamily: c.fonts.bodyMedium, color: c.text },
   logoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -326,10 +323,10 @@ const makeStyles = (c) => StyleSheet.create({
     marginTop: 12,
     padding: 14,
     backgroundColor: c.surface,
-    borderRadius: 12,
+    borderRadius: c.radius.md,
     borderWidth: 1,
-    borderColor: c.mode === 'dark' ? 'rgba(239,83,80,0.4)' : '#FECACA',
+    borderColor: withAlpha(c.error, '66'),
     gap: 10,
   },
-  logoutText: { fontSize: 15, fontWeight: '600', color: c.error },
+  logoutText: { ...c.type.bodyStrong, color: c.error },
 });

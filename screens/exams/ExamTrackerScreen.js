@@ -11,8 +11,8 @@ import { Ionicons } from '@expo/vector-icons';
 import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { loadExamData, saveExamRegistrations } from '../../services/reminders';
-import { trackEvent } from '../../services/analytics';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { withAlpha } from '../../constants/colors';
 import calendarData from '../../data/semester_calendar.json';
 import { useTranslation } from '../../services/i18n';
 
@@ -35,7 +35,7 @@ export default function ExamTrackerScreen({ navigation }) {
   const t = useTranslation();
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
-  const infoBlue = c.mode === 'dark' ? '#90CAF9' : '#1976D2';
+  const infoBlue = c.info;
   const openSidebar = useStore((s) => s.openSidebar);
   const courses = useStore((s) => s.courses);
   const examRegistrations = useStore((s) => s.examRegistrations);
@@ -75,7 +75,6 @@ export default function ExamTrackerScreen({ navigation }) {
       registered: !current?.registered,
       registeredAt: !current?.registered ? new Date().toISOString() : null,
     };
-    trackEvent('feature_use', 'exam_registration_toggled', { course_id: course.id, registered: next.registered });
     setExamRegistration(course.id, next);
     const updated = { ...examRegistrations, [course.id]: next };
     await saveExamRegistrations(updated);
@@ -109,7 +108,7 @@ export default function ExamTrackerScreen({ navigation }) {
         <View style={styles.progressTop}>
           <Text style={styles.progressTitle}>{t('exam_tracker_progress')}</Text>
           <Text style={styles.progressCount}>
-            <Text style={{ color: c.primary, fontWeight: '800' }}>{registeredCount}</Text>
+            <Text style={{ color: c.primary, fontFamily: c.fonts.bodyBold }}>{registeredCount}</Text>
             /{semCourses.length} {t('common_courses')}
           </Text>
         </View>
@@ -152,11 +151,14 @@ export default function ExamTrackerScreen({ navigation }) {
                       style={[styles.regToggle, registered && styles.regToggleOn]}
                       onPress={() => toggleRegistered(course)}
                       activeOpacity={0.75}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: registered }}
+                      accessibilityLabel={`${course.title}: ${registered ? t('exam_tracker_registered') : t('exam_tracker_not_registered')}`}
                     >
                       <Ionicons
                         name={registered ? 'checkmark-circle' : 'ellipse-outline'}
                         size={18}
-                        color={registered ? '#fff' : c.textMuted}
+                        color={registered ? c.onPrimary : c.textMuted}
                       />
                       <Text style={[styles.regToggleText, registered && styles.regToggleTextOn]}>
                         {registered ? t('exam_tracker_registered') : t('exam_tracker_not_registered')}
@@ -193,37 +195,34 @@ const makeStyles = (c) => StyleSheet.create({
     gap: 10,
     margin: 12,
     padding: 14,
-    backgroundColor: c.mode === 'dark' ? 'rgba(33,150,243,0.15)' : '#E3F2FD',
+    backgroundColor: c.infoSurface,
     borderRadius: 12,
     borderLeftWidth: 4,
-    borderLeftColor: c.mode === 'dark' ? '#90CAF9' : '#1976D2',
+    borderLeftColor: c.info,
   },
-  bannerUrgent: { backgroundColor: c.mode === 'dark' ? 'rgba(239,83,80,0.15)' : '#FFEBEE', borderLeftColor: c.error },
-  bannerTitle: { fontSize: 14, fontWeight: '700', color: c.mode === 'dark' ? '#90CAF9' : '#1976D2' },
+  bannerUrgent: { backgroundColor: withAlpha(c.error, '26'), borderLeftColor: c.error },
+  bannerTitle: { ...c.type.bodyStrong, fontSize: 14, fontFamily: c.fonts.bodyBold, color: c.info },
   bannerTitleUrgent: { color: c.error },
-  bannerSub: { fontSize: 13, color: c.textSecondary, marginTop: 2 },
+  bannerSub: { ...c.type.bodySm, color: c.textSecondary, marginTop: 2 },
   progressCard: {
     margin: 12,
     padding: 16,
     backgroundColor: c.surface,
-    borderRadius: 14,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    borderRadius: c.radius.lg,
+    ...c.shadows.card,
   },
   progressTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  progressTitle: { fontSize: 15, fontWeight: '700', color: c.text },
-  progressCount: { fontSize: 14, color: c.textMuted },
+  progressTitle: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text },
+  progressCount: { ...c.type.bodySm, fontSize: 14, color: c.textMuted },
   progressTrack: { height: 6, backgroundColor: c.surfaceSunken, borderRadius: 3, overflow: 'hidden', marginBottom: 12 },
   progressFill: { height: '100%', backgroundColor: c.primary, borderRadius: 3 },
   qisBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, backgroundColor: c.accent, borderRadius: 10 },
-  qisBtnText: { flex: 1, fontSize: 14, fontWeight: '600', color: c.brandIcon },
+  qisBtnText: { ...c.type.label, fontSize: 14, flex: 1, color: c.brandIcon },
   empty: { alignItems: 'center', padding: 40, gap: 8 },
-  emptyText: { fontSize: 15, fontWeight: '600', color: c.textMuted, textAlign: 'center' },
-  emptySub: { fontSize: 13, color: c.textMuted, textAlign: 'center' },
+  emptyText: { ...c.type.bodyStrong, color: c.textMuted, textAlign: 'center' },
+  emptySub: { ...c.type.bodySm, color: c.textMuted, textAlign: 'center' },
   sectionLabel: {
-    fontSize: 11, fontWeight: '700', color: c.textMuted,
+    ...c.type.micro, color: c.textMuted,
     textTransform: 'uppercase', letterSpacing: 0.8,
     marginHorizontal: 16, marginBottom: 8,
   },
@@ -234,12 +233,12 @@ const makeStyles = (c) => StyleSheet.create({
     marginBottom: 8,
     borderRadius: 14,
     overflow: 'hidden',
-    shadowColor: c.shadow, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    ...c.shadows.card,
   },
   courseStripe: { width: 5 },
   courseBody: { flex: 1, padding: 14 },
-  courseTitle: { fontSize: 15, fontWeight: '700', color: c.text, marginBottom: 4 },
-  courseMeta: { fontSize: 13, color: c.textMuted, marginBottom: 10 },
+  courseTitle: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text, marginBottom: 4 },
+  courseMeta: { ...c.type.bodySm, color: c.textMuted, marginBottom: 10 },
   courseActions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
   regToggle: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
@@ -247,12 +246,12 @@ const makeStyles = (c) => StyleSheet.create({
     borderRadius: 20, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border,
   },
   regToggleOn: { backgroundColor: c.primary, borderColor: c.primary },
-  regToggleText: { fontSize: 13, color: c.textMuted, fontWeight: '600' },
+  regToggleText: { ...c.type.label, color: c.textMuted },
   regToggleTextOn: { color: '#fff' },
   plannerBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: 12, paddingVertical: 7,
     borderRadius: 20, backgroundColor: c.accent,
   },
-  plannerBtnText: { fontSize: 13, color: c.brandIcon, fontWeight: '600' },
+  plannerBtnText: { ...c.type.label, color: c.brandIcon },
 });

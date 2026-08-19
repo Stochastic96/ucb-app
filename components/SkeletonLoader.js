@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
-import { useTheme } from '../theme/ThemeProvider';
+import { useThemedStyles } from '../theme/ThemeProvider';
 import useReducedMotion from '../hooks/useReducedMotion';
 
 export default function SkeletonLoader({ lines = 3, avatar = false }) {
-  const c = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const reducedMotion = useReducedMotion();
   const opacity = useRef(new Animated.Value(0.4)).current;
 
@@ -26,29 +26,26 @@ export default function SkeletonLoader({ lines = 3, avatar = false }) {
 
   return (
     <Animated.View style={{ opacity }}>
-      {avatar && <View style={[styles.avatar, { backgroundColor: c.border }]} />}
+      {avatar && <View style={styles.avatar} />}
       {Array.from({ length: lines }).map((_, i) => (
-        <View
-          key={i}
-          style={[styles.line, { backgroundColor: c.border }, i === lines - 1 && { width: '60%' }]}
-        />
+        <View key={i} style={[styles.line, i === lines - 1 && { width: '60%' }]} />
       ))}
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c) => StyleSheet.create({
   avatar: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: c.border,
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: c.spacing.md,
   },
   line: {
     height: 14,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: c.border,
     borderRadius: 7,
     marginBottom: 10,
     width: '100%',

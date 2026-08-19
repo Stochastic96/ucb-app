@@ -13,7 +13,6 @@ import { Ionicons } from '@expo/vector-icons';
 import Tooltip from '../../components/Tooltip';
 import useStore from '../../store/useStore';
 import { searchBuildings } from '../../services/buildings';
-import { trackEvent } from '../../services/analytics';
 import { enqueueOfflineOp } from '../../services/offlineQueue';
 import {
   scheduleExamReminders,
@@ -133,7 +132,6 @@ export default function ExamPlannerScreen({ navigation, route }) {
       const { plans } = await loadExamData();
       await saveExamPlans({ ...plans, [courseId]: plan });
       setExamPlan(courseId, plan);
-      trackEvent('feature_use', 'exam_plan_saved', { course_id: courseId, reminders_enabled: remindersEnabled });
       navigation.goBack();
     } catch {
       Alert.alert(t('common_error'), t('exam_planner_error_msg'));
@@ -153,7 +151,7 @@ export default function ExamPlannerScreen({ navigation, route }) {
       {/* Incomplete warning */}
       {!isComplete && (
         <View style={styles.warningBox}>
-          <Ionicons name="alert-circle-outline" size={18} color={c.mode === 'dark' ? '#FFB74D' : '#E65100'} />
+          <Ionicons name="alert-circle-outline" size={18} color={c.onWarning} />
           <Text style={styles.warningText}>
             {t('exam_planner_missing', { fields: missingFields.join(', ') })}
           </Text>
@@ -283,31 +281,31 @@ const makeStyles = (c) => StyleSheet.create({
     padding: 14,
     borderLeftWidth: 5,
     marginBottom: 14,
-    shadowColor: c.shadow, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    ...c.shadows.card,
   },
-  courseLabel: { fontSize: 11, fontWeight: '700', color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 },
-  courseTitle: { fontSize: 17, fontWeight: '700', color: c.text },
+  courseLabel: { ...c.type.micro, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 },
+  courseTitle: { ...c.type.title, fontSize: 17, color: c.text },
   warningBox: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 8,
-    backgroundColor: c.mode === 'dark' ? 'rgba(255,152,0,0.15)' : '#FFF3E0', padding: 12, borderRadius: 10, marginBottom: 14,
-    borderLeftWidth: 3, borderLeftColor: c.mode === 'dark' ? '#FFB74D' : '#E65100',
+    backgroundColor: c.warningSurface, padding: 12, borderRadius: c.radius.md, marginBottom: 14,
+    borderLeftWidth: 3, borderLeftColor: c.warning,
   },
-  warningText: { flex: 1, fontSize: 13, color: c.mode === 'dark' ? '#E0C9A6' : '#5D4037', lineHeight: 18 },
+  warningText: { ...c.type.bodySm, flex: 1, color: c.onWarning },
   section: { marginBottom: 18 },
-  sectionLabel: { fontSize: 11, fontWeight: '700', color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6, marginLeft: 4 },
+  sectionLabel: { ...c.type.micro, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6, marginLeft: 4 },
   sectionCard: { backgroundColor: c.surface, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: c.border },
-  input: { paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: c.text },
+  input: { paddingHorizontal: 14, paddingVertical: 13, fontFamily: c.fonts.body, fontSize: 15, color: c.text },
   notesInput: { minHeight: 80, textAlignVertical: 'top' },
   suggestions: { borderTopWidth: 1, borderTopColor: c.border },
   suggestionRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: c.border },
-  suggestionText: { fontSize: 14, color: c.text },
+  suggestionText: { ...c.type.bodySm, fontSize: 14, color: c.text },
   toggleRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
-  toggleLabel: { fontSize: 15, color: c.text, fontWeight: '500' },
-  toggleSub: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  toggleLabel: { ...c.type.body, fontFamily: c.fonts.bodyMedium, color: c.text },
+  toggleSub: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
   toggle: { width: 44, height: 26, borderRadius: 13, backgroundColor: c.border, padding: 2 },
   toggleOn: { backgroundColor: c.primary },
   toggleThumb: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' },
   toggleThumbOn: { transform: [{ translateX: 18 }] },
   saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: c.primary, padding: 16, borderRadius: 14, marginTop: 4 },
-  saveBtnText: { fontSize: 16, fontWeight: '700', color: c.onPrimary },
+  saveBtnText: { ...c.type.heading, fontFamily: c.fonts.bodySemiBold, color: c.onPrimary },
 });

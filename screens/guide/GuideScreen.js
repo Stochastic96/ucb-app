@@ -2,9 +2,10 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../../components/SearchBar';
-import { trackScreen, trackEvent } from '../../services/analytics';
+import ListRow from '../../components/ListRow';
 import { useTranslation } from '../../services/i18n';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
+import { guideCategoryColor, withAlpha } from '../../constants/colors';
 import buildings from '../../data/buildings.json';
 import checklist from '../../data/guide_checklist.json';
 import offices from '../../data/guide_offices.json';
@@ -14,30 +15,12 @@ import faq from '../../data/guide_faq.json';
 import contacts from '../../data/guide_contacts.json';
 import emergency from '../../data/guide_emergency.json';
 
-const CATEGORY_COLORS = {
-  emergency: '#D32F2F',
-  buildings: '#1565C0',
-  checklist: '#2E7D32',
-  offices: '#6A1B9A',
-  contacts: '#00695C',
-  glossary: '#E65100',
-  phrases: '#AD1457',
-  faq: '#4527A0',
-  work: '#1976D2',
-  health: '#00838F',
-  accommodation: '#5D4037',
-  bureaucracy: '#37474F',
-  language: '#7B1FA2',
-  rights: '#EF6C00',
-};
-
 export default function GuideScreen({ navigation }) {
   const t = useTranslation();
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
   const [query, setQuery] = useState('');
 
-  useEffect(() => { trackScreen('GuideScreen'); }, []);
 
   const categories = [
     { id: 'emergency', icon: 'alert-circle-outline', label: t('guide_cat_emergency'), count: emergency.length, desc: t('guide_cat_emergency_desc') },
@@ -93,30 +76,18 @@ export default function GuideScreen({ navigation }) {
           </View>
         }
         renderItem={({ item }) => {
-          const color = CATEGORY_COLORS[item.id] ?? c.primary;
+          const color = guideCategoryColor(item.id, c.mode);
           return (
-            <TouchableOpacity
-              style={styles.card}
+            <ListRow
+              icon={item.icon}
+              iconColor={{ bg: withAlpha(color, c.mode === 'dark' ? '25' : '15'), icon: color }}
+              title={item.label}
+              subtitle={item.desc}
+              count={item.count}
               onPress={() => {
-                trackEvent('feature_use', 'guide_category_opened', { category: item.id });
                 navigation.push('GuideDetail', { category: item.id, title: item.label, titleKey: `guide_cat_${item.id}` });
               }}
-              activeOpacity={0.75}
-              accessibilityLabel={`${item.label}: ${item.desc}`}
-              accessibilityRole="button"
-            >
-              <View style={[styles.iconBox, { backgroundColor: c.mode === 'dark' ? color + '25' : color + '15' }]}>
-                <Ionicons name={item.icon} size={24} color={c.mode === 'dark' ? color + 'DF' : color} />
-              </View>
-              <View style={styles.cardContent}>
-                <Text style={styles.label}>{item.label}</Text>
-                <Text style={styles.desc}>{item.desc}</Text>
-              </View>
-              <View style={styles.countBadge}>
-                <Text style={styles.countText}>{item.count}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
-            </TouchableOpacity>
+            />
           );
         }}
       />
@@ -129,7 +100,7 @@ function DisclaimerBanner({ t }) {
   const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.disclaimer}>
-      <Ionicons name="information-circle-outline" size={18} color={c.mode === 'dark' ? c.warning : '#795548'} style={{ marginRight: 6, marginTop: 1 }} />
+      <Ionicons name="information-circle-outline" size={18} color={c.onWarning} style={{ marginRight: 6, marginTop: 1 }} />
       <View style={{ flex: 1 }}>
         <Text style={styles.disclaimerTitle}>{t('guide_disclaimer_title')}</Text>
         <Text style={styles.disclaimerText}>{t('guide_disclaimer_text')}</Text>
@@ -150,12 +121,11 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomColor: c.border,
     marginBottom: 14,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
-  heroSub: { fontSize: 13, color: c.textMuted, marginTop: 3 },
+  heroTitle: { ...c.type.titleLg, color: c.text },
+  heroSub: { ...c.type.bodySm, color: c.textMuted, marginTop: 3 },
   searchWrapper: { marginHorizontal: 12, marginBottom: 14 },
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -163,38 +133,17 @@ const makeStyles = (c) => StyleSheet.create({
     marginBottom: 8,
   },
   empty: { alignItems: 'center', paddingTop: 40 },
-  emptyText: { color: c.textMuted, fontSize: 14 },
+  emptyText: { ...c.type.bodySm, fontSize: 14, color: c.textMuted },
   disclaimer: {
     flexDirection: 'row',
-    backgroundColor: c.mode === 'dark' ? c.warning + '15' : '#FFF8E1',
+    backgroundColor: c.warningSurface,
     borderRadius: 10,
     padding: 12,
     marginHorizontal: 12,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: c.mode === 'dark' ? c.warning + '30' : '#FFE082',
+    borderColor: c.warningBorder,
   },
-  disclaimerTitle: { fontSize: 12, fontWeight: '700', color: c.mode === 'dark' ? c.warning : '#795548', marginBottom: 3 },
-  disclaimerText: { fontSize: 11, color: c.mode === 'dark' ? c.textSecondary : '#795548', lineHeight: 16 },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: c.surface,
-    marginHorizontal: 12,
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 8,
-    gap: 14,
-    elevation: 2,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  iconBox: { width: 48, height: 48, borderRadius: 13, justifyContent: 'center', alignItems: 'center' },
-  cardContent: { flex: 1 },
-  label: { fontSize: 16, fontWeight: '700', color: c.text },
-  desc: { fontSize: 13, color: c.textMuted, marginTop: 2 },
-  countBadge: { backgroundColor: c.surfaceSunken, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
-  countText: { fontSize: 12, fontWeight: '600', color: c.textMuted },
+  disclaimerTitle: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.onWarning, marginBottom: 3 },
+  disclaimerText: { ...c.type.micro, fontFamily: c.fonts.body, color: c.onWarning },
 });

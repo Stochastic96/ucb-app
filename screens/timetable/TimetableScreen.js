@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { bootstrapSessionData } from '../../services/bootstrap';
-import { trackScreen } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { formatTime24, getWeekMonday, isSameCalendarDay, toDate } from '../../utils/datetime';
@@ -63,7 +62,6 @@ export default function TimetableScreen({ navigation }) {
   const isCurrentWeek = getWeekMonday(new Date()).getTime() === weekStart.getTime();
 
   useEffect(() => {
-    trackScreen('TimetableScreen');
     if (!userId) return;
     if (!dataReady && !isHydrating) {
       bootstrapSessionData().catch(() => {});
@@ -195,9 +193,11 @@ export default function TimetableScreen({ navigation }) {
                       key={event.id}
                       style={[styles.eventBlock, { top, height, backgroundColor: event.courseColor }]}
                       onPress={() => setSelected(event)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${event.courseTitle}, ${formatTime24(event.start)}${event.end ? ` – ${formatTime24(event.end)}` : ''}${event.room ? `, ${event.room}` : ''}`}
                     >
-                      <Text style={styles.eventTitle} numberOfLines={2}>{event.courseTitle}</Text>
-                      {!!event.room && <Text style={styles.eventRoom} numberOfLines={1}>{event.room}</Text>}
+                      <Text style={styles.eventTitle} numberOfLines={2} maxFontSizeMultiplier={1.2}>{event.courseTitle}</Text>
+                      {!!event.room && <Text style={styles.eventRoom} numberOfLines={1} maxFontSizeMultiplier={1.2}>{event.room}</Text>}
                     </TouchableOpacity>
                   );
                 })}
@@ -276,7 +276,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomColor: c.border,
   },
   navBtn: { padding: 8 },
-  weekLabel: { fontSize: 14, fontWeight: '600', color: c.text, flex: 1, textAlign: 'center' },
+  weekLabel: { ...c.type.bodyStrong, fontSize: 14, color: c.text, flex: 1, textAlign: 'center' },
   todayBtn: {
     backgroundColor: c.primary,
     borderRadius: 6,
@@ -284,15 +284,15 @@ const makeStyles = (c) => StyleSheet.create({
     paddingVertical: 4,
     marginRight: 2,
   },
-  todayBtnText: { fontSize: 12, fontWeight: '700', color: c.onPrimary },
+  todayBtnText: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.onPrimary },
   dayHeaders: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: c.border },
   timeGutter: { width: 44 },
   dayHeaderCell: { paddingVertical: 8, alignItems: 'center' },
-  dayHeaderText: { fontSize: 11, color: c.textMuted },
-  dayHeaderToday: { color: c.primary, fontWeight: '700' },
+  dayHeaderText: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted },
+  dayHeaderToday: { color: c.primary, fontFamily: c.fonts.bodySemiBold },
   grid: { flexDirection: 'row' },
   hourLabel: { justifyContent: 'flex-start', paddingTop: 2, paddingRight: 4, alignItems: 'flex-end' },
-  hourText: { fontSize: 10, color: c.textMuted },
+  hourText: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted },
   dayColumn: { borderLeftWidth: 1, borderLeftColor: c.border, position: 'relative' },
   hourCell: { borderBottomWidth: 1, borderBottomColor: c.surfaceSunken },
   eventBlock: {
@@ -304,8 +304,10 @@ const makeStyles = (c) => StyleSheet.create({
     overflow: 'hidden',
     opacity: 0.9,
   },
-  eventTitle: { fontSize: 9, fontWeight: '700', color: '#fff' },
-  eventRoom: { fontSize: 8, color: 'rgba(255,255,255,0.85)' },
+  // Tighter line-height than the micro preset (14) so short-duration blocks
+  // (a 30-min class is only 30px tall) don't clip the room line under overflow:hidden.
+  eventTitle: { ...c.type.micro, lineHeight: 12, color: c.onPrimary },
+  eventRoom: { ...c.type.micro, fontFamily: c.fonts.body, lineHeight: 12, color: 'rgba(255,255,255,0.85)' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: c.surface,
@@ -315,9 +317,9 @@ const makeStyles = (c) => StyleSheet.create({
     paddingBottom: 40,
   },
   sheetAccent: { height: 4, borderRadius: 2, marginBottom: 16, width: 48, alignSelf: 'center' },
-  sheetCourse: { fontSize: 18, fontWeight: '700', color: c.text, marginBottom: 6 },
-  sheetTime: { fontSize: 15, color: c.brandIcon, fontWeight: '600', marginBottom: 12 },
-  sheetDetail: { fontSize: 14, color: c.textSecondary, marginBottom: 8, lineHeight: 22 },
+  sheetCourse: { ...c.type.title, color: c.text, marginBottom: 6 },
+  sheetTime: { ...c.type.bodyStrong, color: c.brandIcon, marginBottom: 12 },
+  sheetDetail: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, marginBottom: 8 },
   navigateBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -329,7 +331,7 @@ const makeStyles = (c) => StyleSheet.create({
     gap: 8,
     justifyContent: 'center',
   },
-  navigateBtnText: { color: c.onPrimary, fontWeight: '700', fontSize: 15 },
+  navigateBtnText: { ...c.type.bodyStrong, color: c.onPrimary },
   secondaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -342,7 +344,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderWidth: 1,
     borderColor: c.primary,
   },
-  secondaryBtnText: { color: c.brandIcon, fontWeight: '700', fontSize: 15 },
+  secondaryBtnText: { ...c.type.bodyStrong, color: c.brandIcon },
   emptyWrap: {
     position: 'absolute',
     inset: 0,
@@ -350,5 +352,5 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
     pointerEvents: 'none',
   },
-  emptyText: { fontSize: 15, color: c.textMuted, backgroundColor: c.surface, padding: 12, borderRadius: 10 },
+  emptyText: { ...c.type.body, color: c.textMuted, backgroundColor: c.surface, padding: 12, borderRadius: c.radius.md },
 });

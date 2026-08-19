@@ -1,7 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storageKeys';
-import { trackEvent } from './analytics';
 import useStore from '../store/useStore';
 import * as logger from './logger';
 import { Platform } from 'react-native';
@@ -127,7 +126,6 @@ export async function scheduleEventReminder(ev) {
         channelId: 'default',
       },
     });
-    trackEvent('feature_use', 'notification_scheduled', { type: 'event' });
     return true;
   } catch (err) {
     logger.error('Reminders', `Failed to schedule event reminder ${ev.id}`, err);
@@ -164,7 +162,6 @@ export async function scheduleSportReminder(sport) {
         channelId: 'default',
       },
     });
-    trackEvent('feature_use', 'notification_scheduled', { type: 'sport' });
     return true;
   } catch (err) {
     logger.error('Reminders', `Failed to schedule sport reminder ${sport.id}`, err);
@@ -233,7 +230,6 @@ export async function scheduleDeadlineReminders(deadline) {
     }
 
     if (Object.keys(ids).length > 0) {
-      trackEvent('feature_use', 'notification_scheduled', { type: 'deadline' });
     }
     return ids;
   } catch (err) {
@@ -299,7 +295,6 @@ export async function scheduleExamReminders(exam) {
     }
 
     if (Object.keys(ids).length > 0) {
-      trackEvent('feature_use', 'notification_scheduled', { type: 'exam' });
     }
     return ids;
   } catch (err) {

@@ -5,7 +5,7 @@ const PREFIX = 'ucb_';
 
 // Keys that must never be wiped by clearAllCache — user-owned personal data and preferences.
 // Clearing these without explicit consent would violate DSGVO Art. 5(1)(f) (integrity principle).
-const NON_CACHE_KEYS = new Set([
+export const NON_CACHE_KEYS = new Set([
   STORAGE_KEYS.SETTINGS,           // app preferences (notifications, biometric lock)
   STORAGE_KEYS.NEWS_LAST_SEEN,     // reading position — user preference, not Stud.IP cache
   STORAGE_KEYS.DEADLINES,          // user-created deadline data
@@ -13,10 +13,14 @@ const NON_CACHE_KEYS = new Set([
   STORAGE_KEYS.EXAM_PLANS,         // user-created exam detail plans
   STORAGE_KEYS.GOING_STATE,        // user RSVP state for events and sports
   STORAGE_KEYS.FACT_STATE,         // daily fact-of-the-day reveal counter + seen list
-  STORAGE_KEYS.ANALYTICS_CONSENT,  // user's analytics consent decision — must survive cache clear
   STORAGE_KEYS.OFFLINE_QUEUE,      // pending notification side-effects — user-intent data
   STORAGE_KEYS.GUIDE_CHECKLIST,    // user's ticked guide-checklist items — must survive cache clear
-  'ucb_logs',                      // centralized diagnostic logs — must survive cache clear to enable log tracking
+  STORAGE_KEYS.CAMPUS_PROFILE,     // self-authored Campus Radar social profile — user-owned, must survive
+  STORAGE_KEYS.CAMPUS_BLOCKED,     // user's Campus Radar block list — safety data, must survive cache clear
+  STORAGE_KEYS.CAMPUS_CONSENT,     // one-time Campus Radar consent acknowledgement — must survive cache clear
+  STORAGE_KEYS.ONBOARDED,          // first-run onboarding completion — must survive cache clear
+  STORAGE_KEYS.FIRST_STEPS,        // "Getting started" checklist progress — user-owned
+  STORAGE_KEYS.LOGS,               // centralized diagnostic logs — must survive cache clear to enable log tracking
 ]);
 
 export async function setCache(key, data) {

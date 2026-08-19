@@ -62,6 +62,11 @@ describe('normalizeWasteToken', () => {
     expect(normalizeWasteToken('  pizza   box  ')).toBe('pizza box');
   });
 
+  it('turns punctuation and hyphens into word breaks', () => {
+    expect(normalizeWasteToken('t-shirt')).toBe('t shirt');
+    expect(normalizeWasteToken('Coca-Cola!')).toBe('coca cola');
+  });
+
   it('handles null/undefined', () => {
     expect(normalizeWasteToken(null)).toBe('');
     expect(normalizeWasteToken(undefined)).toBe('');
@@ -102,6 +107,23 @@ describe('searchWasteItems', () => {
   it('matches partial prefixes while typing', () => {
     const results = searchWasteItems('pizz');
     expect(results.map((item) => item.id)).toContain('pizza_box');
+  });
+
+  it('tolerates word order (each query word checked independently)', () => {
+    // "box pizza" must still find the "pizza box" item.
+    const results = searchWasteItems('box pizza');
+    expect(results.map((item) => item.id)).toContain('pizza_box');
+  });
+
+  it('ignores punctuation/hyphens when matching', () => {
+    expect(searchWasteItems('pizza-box').map((item) => item.id)).toContain('pizza_box');
+  });
+
+  it('requires every query word to match (AND semantics)', () => {
+    // A real word plus a nonsense word must NOT surface the item — this keeps
+    // multi-word searches precise instead of matching on any single word.
+    const results = searchWasteItems('pizza zzzzq');
+    expect(results.map((item) => item.id)).not.toContain('pizza_box');
   });
 
   it('respects the limit', () => {

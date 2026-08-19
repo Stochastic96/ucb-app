@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { trackScreen } from '../../services/analytics';
 import {
   View,
   Text,
@@ -49,7 +48,6 @@ export default function ProfileScreen({ navigation }) {
   const t = useTranslation();
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
-  useEffect(() => { trackScreen('ProfileScreen'); }, []);
   const profile = useStore((s) => s.user);
   const courseCount = useStore((s) => s.courses.length);
   const dataReady = useStore((s) => s.dataReady);
@@ -198,13 +196,12 @@ const makeStyles = (c) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: c.bg },
   header: { alignItems: 'center', paddingVertical: 32, backgroundColor: c.surface },
   avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: c.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  initials: { fontSize: 28, fontWeight: '700', color: c.onPrimary },
-  name: { fontSize: 22, fontWeight: '700', color: c.text },
-  username: { fontSize: 14, color: c.textMuted, marginTop: 2 },
-  cacheNote: { fontSize: 11, color: c.textMuted, marginTop: 6 },
+  initials: { ...c.type.display, color: c.onPrimary },
+  name: { ...c.type.titleLg, color: c.text },
+  username: { ...c.type.bodySm, fontSize: 14, color: c.textMuted, marginTop: 2 },
+  cacheNote: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted, marginTop: 6 },
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
+    ...c.type.micro,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -216,11 +213,11 @@ const makeStyles = (c) => StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', padding: 16 },
   infoRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
   rowIcon: { marginRight: 14 },
-  rowLabel: { fontSize: 11, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  rowValue: { fontSize: 15, color: c.text, marginTop: 2 },
+  rowLabel: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
+  rowValue: { ...c.type.body, color: c.text, marginTop: 2 },
   linkRow: { flexDirection: 'row', alignItems: 'center', padding: 16 },
   linkRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
-  linkLabel: { fontSize: 15, color: c.text },
+  linkLabel: { ...c.type.body, color: c.text },
   portalRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -237,6 +234,6 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
   },
   portalText: { flex: 1 },
-  portalLabel: { fontSize: 14, fontWeight: '600', color: c.text },
-  portalDesc: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  portalLabel: { ...c.type.bodyStrong, fontSize: 14, color: c.text },
+  portalDesc: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
 });

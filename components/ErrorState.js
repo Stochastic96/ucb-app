@@ -35,9 +35,9 @@ export default function ErrorState({ type = 'UNKNOWN', onRetry }) {
 }
 
 const makeStyles = (c) => StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  title: { fontSize: 18, fontWeight: '700', marginTop: 16, color: c.text },
-  sub: { fontSize: 14, color: c.textMuted, textAlign: 'center', marginTop: 6, lineHeight: 20 },
-  button: { marginTop: 24, backgroundColor: c.primary, paddingHorizontal: 28, paddingVertical: 12, borderRadius: 8 },
-  buttonText: { color: c.onPrimary, fontWeight: '700', fontSize: 15 },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: c.spacing.xl },
+  title: { ...c.type.title, marginTop: c.spacing.md, color: c.text },
+  sub: { ...c.type.bodySm, color: c.textMuted, textAlign: 'center', marginTop: 6 },
+  button: { marginTop: c.spacing.lg, backgroundColor: c.primary, paddingHorizontal: 28, paddingVertical: 12, borderRadius: c.radius.sm },
+  buttonText: { ...c.type.bodyStrong, color: c.onPrimary },
 });

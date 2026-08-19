@@ -2,7 +2,6 @@ import React, { useRef, useState, useLayoutEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ActivityIndicator, Text, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../../store/useStore';
-import { trackScreen } from '../../services/analytics';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import { useTranslation } from '../../services/i18n';
 
@@ -22,7 +21,6 @@ export default function MensaScreen({ navigation }) {
   const openSidebar = useStore((s) => s.openSidebar);
   const [loading, setLoading] = useState(true);
 
-  useLayoutEffect(() => { trackScreen('MensaScreen'); }, []);
   const [loadError, setLoadError] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -162,6 +160,7 @@ const makeStyles = (c) => StyleSheet.create({
     gap: 14,
   },
   loadingText: {
+    ...c.type.bodySm,
     fontSize: 14,
     color: c.textMuted,
   },
@@ -184,16 +183,15 @@ const makeStyles = (c) => StyleSheet.create({
     paddingHorizontal: 32,
   },
   errorTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    ...c.type.title,
     color: c.text,
     marginTop: 8,
   },
   errorSub: {
+    ...c.type.bodySm,
     fontSize: 14,
     color: c.textMuted,
     textAlign: 'center',
-    lineHeight: 20,
   },
   retryBtn: {
     flexDirection: 'row',
@@ -206,17 +204,16 @@ const makeStyles = (c) => StyleSheet.create({
     borderRadius: 24,
   },
   retryText: {
+    ...c.type.bodyStrong,
     color: c.onPrimary,
-    fontWeight: '700',
-    fontSize: 15,
   },
   openExternalBtn: {
     marginTop: 8,
     paddingVertical: 8,
   },
   openExternalText: {
+    ...c.type.label,
     fontSize: 14,
     color: c.brandIcon,
-    fontWeight: '600',
   },
 });

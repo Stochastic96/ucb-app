@@ -116,14 +116,18 @@ describe('getTimeUntil', () => {
 });
 
 describe('daysUntil', () => {
+  // Build YYYY-MM-DD from LOCAL date parts — toISOString() is UTC and yields
+  // yesterday's date when run between local midnight and UTC midnight.
+  const localIso = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
   it('returns 0 for today and positive for the future', () => {
     const today = new Date();
-    const iso = today.toISOString().slice(0, 10);
-    expect(daysUntil(iso)).toBe(0);
+    expect(daysUntil(localIso(today))).toBe(0);
 
     const future = new Date(today);
     future.setDate(future.getDate() + 5);
-    expect(daysUntil(future.toISOString().slice(0, 10))).toBe(5);
+    expect(daysUntil(localIso(future))).toBe(5);
   });
 });
 

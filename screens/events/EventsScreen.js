@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { trackScreen } from '../../services/analytics';
 import {
   View,
   Text,
@@ -16,7 +15,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import SearchBar from '../../components/SearchBar';
-import { CATEGORY_COLORS } from '../../constants/colors';
+import { CATEGORY_COLORS, GUIDE_CATEGORY_COLORS, withAlpha } from '../../constants/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import useStore from '../../store/useStore';
 import { getCampusEvents, getSportsSchedule } from '../../services/contentService';
@@ -82,7 +81,7 @@ function EventCard({ ev, isGoing, onToggle, t }) {
           </View>
         )}
         {!past && !today && days !== null && days <= 7 && (
-          <View style={[styles.badge, { backgroundColor: '#FF9800' }]}>
+          <View style={[styles.badge, { backgroundColor: c.warning }]}>
             <Text style={styles.badgeText}>
               {days === 1 ? t('common_tomorrow') : `${days}d`}
             </Text>
@@ -267,7 +266,7 @@ function SportsTab({ sportsData, goingSportIds, onToggleSport, onRefresh, refres
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
     >
       <View style={styles.infoBanner}>
-        <Ionicons name="information-circle-outline" size={16} color={c.mode === 'dark' ? '#90CAF9' : '#1565C0'} />
+        <Ionicons name="information-circle-outline" size={16} color={c.info} />
         <Text style={styles.infoText}>{t('events_sports_info')}</Text>
       </View>
 
@@ -319,7 +318,6 @@ export default function EventsScreen() {
   const t = useTranslation();
   const c = useTheme();
   const styles = useThemedStyles(makeStyles);
-  useEffect(() => { trackScreen('EventsScreen'); }, []);
   const navigation = useNavigation();
   const canGoBack = navigation.canGoBack();
 
@@ -557,7 +555,7 @@ const makeStyles = (c) => StyleSheet.create({
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   backBtn: { padding: 2 },
-  screenTitle: { fontSize: 22, fontWeight: '800', color: c.text },
+  screenTitle: { ...c.type.titleLg, color: c.text },
   goingPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -567,7 +565,7 @@ const makeStyles = (c) => StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
-  goingPillText: { color: c.onPrimary, fontSize: 12, fontWeight: '700' },
+  goingPillText: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.onPrimary },
 
   tabBar: {
     flexDirection: 'row',
@@ -589,7 +587,7 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: c.surfaceSunken,
   },
   tabBtnActive: { backgroundColor: c.primary + '18' },
-  tabBtnText: { fontSize: 14, fontWeight: '600', color: c.textMuted },
+  tabBtnText: { ...c.type.label, fontSize: 14, color: c.textMuted },
   tabBtnTextActive: { color: c.primary },
   tabCountDot: {
     backgroundColor: c.primary,
@@ -600,12 +598,11 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  tabCountDotText: { color: c.onPrimary, fontSize: 10, fontWeight: '700' },
+  tabCountDotText: { ...c.type.micro, color: c.onPrimary },
 
   // Event cards
   monthHeader: {
-    fontSize: 18,
-    fontWeight: '800',
+    ...c.type.title,
     color: c.text,
     marginTop: 20,
     marginBottom: 8,
@@ -616,13 +613,13 @@ const makeStyles = (c) => StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
-  loadingText: { fontSize: 14, color: c.textMuted, fontWeight: '500' },
+  loadingText: { ...c.type.bodySm, fontSize: 14, fontFamily: c.fonts.bodyMedium, color: c.textMuted },
   errorState: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', gap: 10, paddingHorizontal: 32, paddingTop: 80 },
-  errorTitle: { fontSize: 17, fontWeight: '700', color: c.text },
-  errorSub: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
+  errorTitle: { ...c.type.title, fontSize: 17, color: c.text },
+  errorSub: { ...c.type.bodySm, fontSize: 14, color: c.textMuted, textAlign: 'center' },
   retryBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.primary, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, marginTop: 8 },
-  retryBtnText: { color: c.onPrimary, fontWeight: '700', fontSize: 14 },
-  emptyText: { color: c.textMuted, fontSize: 14, marginTop: 24, marginBottom: 8 },
+  retryBtnText: { ...c.type.label, fontSize: 14, color: c.onPrimary },
+  emptyText: { ...c.type.bodySm, fontSize: 14, color: c.textMuted, marginTop: 24, marginBottom: 8 },
   eventCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -630,19 +627,15 @@ const makeStyles = (c) => StyleSheet.create({
     borderRadius: 10,
     marginBottom: 8,
     overflow: 'hidden',
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
   },
   eventCardPast: { opacity: 0.45 },
   eventBorder: { width: 4, alignSelf: 'stretch' },
   eventDateBox: { paddingHorizontal: 12, paddingVertical: 14, minWidth: 64 },
-  eventDate: { fontSize: 13, fontWeight: '700', color: c.text },
+  eventDate: { ...c.type.label, fontFamily: c.fonts.bodyBold, color: c.text },
   eventBody: { flex: 1, paddingVertical: 12, paddingRight: 4 },
-  eventTitle: { fontSize: 14, fontWeight: '600', color: c.text },
-  eventOrganizer: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  eventTitle: { ...c.type.bodyStrong, fontSize: 14, color: c.text },
+  eventOrganizer: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
   dimText: { color: c.textFaint },
   eventRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 10 },
   badge: {
@@ -650,7 +643,7 @@ const makeStyles = (c) => StyleSheet.create({
     paddingHorizontal: 7,
     paddingVertical: 3,
   },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+  badgeText: { ...c.type.micro, color: c.onPrimary },
   bellBtn: {
     width: 34,
     height: 34,
@@ -675,21 +668,21 @@ const makeStyles = (c) => StyleSheet.create({
     borderColor: c.primary + '30',
   },
   recurringEmoji: { fontSize: 20 },
-  recurringTitle: { fontSize: 13, fontWeight: '700', color: c.text },
-  recurringDesc: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  recurringTitle: { ...c.type.label, fontFamily: c.fonts.bodyBold, color: c.text },
+  recurringDesc: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
 
   // Sports
   infoBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: c.mode === 'dark' ? 'rgba(33,150,243,0.15)' : '#E3F2FD',
+    backgroundColor: c.infoSurface,
     borderRadius: 10,
     padding: 12,
     marginTop: 14,
     marginBottom: 4,
   },
-  infoText: { flex: 1, fontSize: 13, color: c.mode === 'dark' ? '#90CAF9' : '#1565C0' },
+  infoText: { ...c.type.bodySm, flex: 1, color: c.info },
   chipRow: { marginTop: 12, marginBottom: 4 },
   chip: {
     paddingHorizontal: 16,
@@ -701,11 +694,10 @@ const makeStyles = (c) => StyleSheet.create({
     borderColor: c.border,
   },
   chipActive: { backgroundColor: c.primary, borderColor: c.primary },
-  chipText: { fontSize: 13, fontWeight: '600', color: c.textMuted },
+  chipText: { ...c.type.label, color: c.textMuted },
   chipTextActive: { color: c.onPrimary },
   dayHeader: {
-    fontSize: 15,
-    fontWeight: '700',
+    ...c.type.bodyStrong,
     color: c.text,
     marginTop: 16,
     marginBottom: 8,
@@ -717,11 +709,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     marginBottom: 8,
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
     gap: 10,
   },
   sportCardGoing: {
@@ -731,9 +719,9 @@ const makeStyles = (c) => StyleSheet.create({
   },
   sportEmoji: { fontSize: 28 },
   sportBody: { flex: 1 },
-  sportName: { fontSize: 15, fontWeight: '600', color: c.text },
-  sportInstructor: { fontSize: 12, color: c.textMuted, marginTop: 2 },
-  sportNote: { fontSize: 11, color: c.warning, marginTop: 2 },
+  sportName: { ...c.type.bodyStrong, color: c.text },
+  sportInstructor: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
+  sportNote: { ...c.type.micro, fontFamily: c.fonts.body, color: c.warning, marginTop: 2 },
   sportRight: { alignItems: 'flex-end', gap: 6 },
   timePill: {
     backgroundColor: c.surfaceSunken,
@@ -741,20 +729,20 @@ const makeStyles = (c) => StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  timeText: { fontSize: 11, fontWeight: '700', color: c.text },
+  timeText: { ...c.type.micro, color: c.text },
   locationBadge: {
-    backgroundColor: c.mode === 'dark' ? 'rgba(76,175,80,0.18)' : '#E8F5E9',
+    backgroundColor: withAlpha(GUIDE_CATEGORY_COLORS.checklist[c.mode], '2E'),
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  pitchBadge: { backgroundColor: c.mode === 'dark' ? 'rgba(255,152,0,0.18)' : '#FFF3E0' },
-  locationText: { fontSize: 11, fontWeight: '600', color: c.mode === 'dark' ? '#A5D6A7' : '#2E7D32' },
-  pitchText: { color: c.mode === 'dark' ? '#FFB74D' : '#E65100' },
+  pitchBadge: { backgroundColor: c.warningSurface },
+  locationText: { ...c.type.micro, color: GUIDE_CATEGORY_COLORS.checklist[c.mode] },
+  pitchText: { color: c.onWarning },
 
   footerNote: {
     textAlign: 'center',
-    fontSize: 12,
+    ...c.type.caption,
     color: c.textMuted,
     marginTop: 20,
     fontStyle: 'italic',

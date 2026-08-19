@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useFocusEffect } from '@react-navigation/native';
 import { SectionList, FlatList, View, Text, StyleSheet, RefreshControl, Animated } from 'react-native';
 import { bootstrapSessionData } from '../../services/bootstrap';
-import { trackScreen, trackEvent } from '../../services/analytics';
 import CourseCard from '../../components/CourseCard';
 import SearchBar from '../../components/SearchBar';
 import SkeletonLoader from '../../components/SkeletonLoader';
@@ -66,7 +65,6 @@ export default function CoursesScreen({ navigation }) {
   }, [loading]);
 
   useFocusEffect(useCallback(() => {
-    trackScreen('CoursesList');
   }, []));
 
   const onRefresh = useCallback(async () => {
@@ -97,7 +95,6 @@ export default function CoursesScreen({ navigation }) {
     <CourseCard
       course={item}
       onPress={() => {
-        trackEvent('feature_use', 'course_detail_opened', { course_id: item.id });
         navigation.push('CourseDetail', {
           courseId: item.id,
           title: item.title,
@@ -171,7 +168,7 @@ const makeStyles = (c) => StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 6,
   },
-  sectionTitle: { fontSize: 13, fontWeight: '700', color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
+  sectionTitle: { ...c.type.label, color: c.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
   empty: { flex: 1, alignItems: 'center', paddingTop: 60 },
-  emptyText: { color: c.textMuted, fontSize: 15 },
+  emptyText: { ...c.type.body, color: c.textMuted },
 });

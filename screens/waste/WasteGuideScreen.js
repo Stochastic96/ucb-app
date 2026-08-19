@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,6 @@ import { useTranslation } from '../../services/i18n';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import useStore from '../../store/useStore';
 import useReducedMotion from '../../hooks/useReducedMotion';
-import { trackScreen } from '../../services/analytics';
 import SearchBar from '../../components/SearchBar';
 import {
   getAllBins,
@@ -28,8 +27,9 @@ import {
 
 // ─────────────────────────────────────────────────────────────────────────
 // Waste Guide — "where does it go?" for Landkreis Birkenfeld.
-// Search-first: typing shows live results; tapping one floods the screen
-// with the bin's real-world colour. No query → browsable bin tiles.
+// Search-first over a curated, fully-offline list: typing shows live results;
+// tapping one floods the screen with the bin's real-world colour. No query →
+// browsable bin tiles. No camera/scanner — just authoritative text search.
 // ─────────────────────────────────────────────────────────────────────────
 
 export default function WasteGuideScreen() {
@@ -44,8 +44,6 @@ export default function WasteGuideScreen() {
   const [selectedBin, setSelectedBin] = useState(null);
 
   const answerAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => { trackScreen('WasteGuideScreen'); }, []);
 
   const results = useMemo(() => searchWasteItems(query), [query]);
 
@@ -104,7 +102,6 @@ export default function WasteGuideScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder={t('waste_search_placeholder')}
-          style={styles.search}
         />
       </View>
 
@@ -313,15 +310,13 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.border,
   },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: c.text },
-  heroSub: { fontSize: 13, color: c.textMuted, marginTop: 3, marginBottom: 12 },
-  search: {},
+  heroTitle: { ...c.type.titleLg, color: c.text },
+  heroSub: { ...c.type.bodySm, color: c.textMuted, marginTop: 3, marginBottom: 12 },
 
   // Bin tiles (empty query)
   tilesContent: { padding: 16, paddingBottom: 40 },
   sectionLabel: {
-    fontSize: 13,
-    fontWeight: '700',
+    ...c.type.label,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -336,9 +331,9 @@ const makeStyles = (c) => StyleSheet.create({
     minHeight: 104,
     justifyContent: 'flex-start',
   },
-  binTileName: { fontSize: 15, fontWeight: '800', marginTop: 8 },
-  binTileTagline: { fontSize: 11.5, marginTop: 2, opacity: 0.85 },
-  disclaimer: { fontSize: 11.5, color: c.textFaint, marginTop: 18, lineHeight: 16 },
+  binTileName: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, marginTop: 8 },
+  binTileTagline: { ...c.type.micro, fontFamily: c.fonts.body, marginTop: 2, opacity: 0.85 },
+  disclaimer: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textFaint, marginTop: 18, lineHeight: 16 },
 
   // Results
   resultsContent: { padding: 12, paddingBottom: 40 },
@@ -346,27 +341,23 @@ const makeStyles = (c) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: c.surface,
-    borderRadius: 14,
+    borderRadius: c.radius.lg,
     padding: 12,
     marginBottom: 8,
     gap: 12,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    ...c.shadows.card,
   },
   resultEmoji: { fontSize: 26 },
   resultText: { flex: 1 },
-  resultName: { fontSize: 15.5, fontWeight: '700', color: c.text },
-  resultBinLabel: { fontSize: 12.5, marginTop: 2, color: c.textMuted, fontWeight: '600' },
+  resultName: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.text },
+  resultBinLabel: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, marginTop: 2, color: c.textMuted },
   resultDot: { width: 14, height: 14, borderRadius: 7 },
 
   // Empty state
   emptyWrap: { flex: 1, alignItems: 'center', paddingTop: 60, paddingHorizontal: 32 },
   emptyEmoji: { fontSize: 40, marginBottom: 12 },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: c.text, textAlign: 'center' },
-  emptyHint: { fontSize: 13, color: c.textMuted, textAlign: 'center', marginTop: 6, lineHeight: 19 },
+  emptyTitle: { ...c.type.heading, color: c.text, textAlign: 'center' },
+  emptyHint: { ...c.type.bodySm, color: c.textMuted, textAlign: 'center', marginTop: 6 },
 
   // Answer card
   answerBackdrop: { flex: 1 },
@@ -379,17 +370,16 @@ const makeStyles = (c) => StyleSheet.create({
     paddingVertical: 60,
   },
   answerEmoji: { fontSize: 56, marginBottom: 10 },
-  answerItemName: { fontSize: 20, fontWeight: '700', textAlign: 'center', opacity: 0.9 },
+  answerItemName: { ...c.type.titleLg, fontSize: 20, textAlign: 'center', opacity: 0.9 },
   answerGoesTo: {
-    fontSize: 13,
-    fontWeight: '700',
+    ...c.type.label,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 26,
     opacity: 0.8,
   },
-  answerBinName: { fontSize: 34, fontWeight: '900', textAlign: 'center', marginTop: 4 },
-  answerNativeName: { fontSize: 15, fontWeight: '600', marginTop: 2, opacity: 0.85 },
+  answerBinName: { fontFamily: c.fonts.display, fontSize: 34, textAlign: 'center', marginTop: 4 },
+  answerNativeName: { ...c.type.bodyStrong, marginTop: 2, opacity: 0.85 },
   variantsRow: { flexDirection: 'row', gap: 10, marginTop: 18, alignSelf: 'stretch' },
   variantCard: {
     flex: 1,
@@ -398,9 +388,9 @@ const makeStyles = (c) => StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.35)',
   },
-  variantLabel: { fontSize: 12.5, fontWeight: '800' },
-  variantBin: { fontSize: 12, marginTop: 3, opacity: 0.9 },
-  answerWhy: { fontSize: 15.5, textAlign: 'center', lineHeight: 23, marginTop: 22, opacity: 0.95 },
+  variantLabel: { ...c.type.caption, fontFamily: c.fonts.bodyBold },
+  variantBin: { ...c.type.caption, marginTop: 3, opacity: 0.9 },
+  answerWhy: { ...c.type.body, textAlign: 'center', marginTop: 22, opacity: 0.95 },
   cautionBox: {
     flexDirection: 'row',
     gap: 8,
@@ -411,7 +401,7 @@ const makeStyles = (c) => StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'flex-start',
   },
-  cautionText: { flex: 1, fontSize: 13.5, lineHeight: 19 },
+  cautionText: { ...c.type.bodySm, flex: 1 },
   binDetailsBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -423,7 +413,7 @@ const makeStyles = (c) => StyleSheet.create({
     paddingVertical: 9,
     marginTop: 26,
   },
-  binDetailsBtnText: { fontSize: 13.5, fontWeight: '700' },
+  binDetailsBtnText: { ...c.type.label, fontSize: 14 },
   answerClose: { position: 'absolute', top: 54, right: 22 },
 
   // Bin sheet
@@ -444,13 +434,12 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.55)',
     marginBottom: 12,
   },
-  sheetTitle: { fontSize: 20, fontWeight: '800', marginTop: 6 },
-  sheetTagline: { fontSize: 13, marginTop: 2, opacity: 0.9, textAlign: 'center' },
+  sheetTitle: { ...c.type.titleLg, fontSize: 20, marginTop: 6 },
+  sheetTagline: { ...c.type.bodySm, marginTop: 2, opacity: 0.9, textAlign: 'center' },
   sheetClose: { position: 'absolute', top: 14, right: 16 },
   sheetContent: { padding: 18, paddingBottom: 40 },
   sheetSection: {
-    fontSize: 13,
-    fontWeight: '800',
+    ...c.type.label,
     color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -458,6 +447,6 @@ const makeStyles = (c) => StyleSheet.create({
     marginBottom: 8,
   },
   sheetLine: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', marginBottom: 7 },
-  sheetLineText: { flex: 1, fontSize: 14, color: c.text, lineHeight: 20 },
-  sheetHowto: { fontSize: 14, color: c.text, lineHeight: 21 },
+  sheetLineText: { ...c.type.bodySm, fontSize: 14, flex: 1, color: c.text },
+  sheetHowto: { ...c.type.bodySm, fontSize: 14, color: c.text, lineHeight: 21 },
 });

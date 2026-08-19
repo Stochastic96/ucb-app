@@ -23,10 +23,10 @@ export default function EventRow({ event }) {
 }
 
 const makeStyles = (c) => StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'stretch', marginBottom: 8 },
+  row: { flexDirection: 'row', alignItems: 'stretch', marginBottom: c.spacing.sm },
   colorBar: { width: 4, borderRadius: 2, marginRight: 10 },
   info: { flex: 1 },
-  time: { fontSize: 11, color: c.textMuted, fontWeight: '600', marginBottom: 1 },
-  title: { fontSize: 14, fontWeight: '600', color: c.text },
-  room: { fontSize: 12, color: c.textMuted, marginTop: 1 },
+  time: { ...c.type.micro, color: c.textMuted, marginBottom: 1 },
+  title: { ...c.type.bodyStrong, color: c.text },
+  room: { ...c.type.caption, color: c.textMuted, marginTop: 1 },
 });

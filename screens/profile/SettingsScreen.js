@@ -7,24 +7,21 @@ import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { clearAllCache } from '../../services/cache';
 import { logout } from '../../services/auth';
-import { trackEvent } from '../../services/analytics';
 import useStore from '../../store/useStore';
 import { useNavigation } from '@react-navigation/native';
 import { getLanguage, saveLanguage, useTranslation } from '../../services/i18n';
 import { SECURE_KEYS } from '../../constants/secureKeys';
+import { STORAGE_KEYS } from '../../constants/storageKeys';
+import { resetIdentity } from '../../services/campusIdentity';
+import { clearLogs } from '../../services/logger';
 import { useTheme, useThemedStyles, DARK_MODE_ENABLED } from '../../theme/ThemeProvider';
 import { requestNotificationPermission } from '../../services/reminders';
 
-// All user-created data keys that clearAllCache() intentionally preserves
-const USER_DATA_KEYS = [
-  'ucb_settings',
-  'ucb_news_last_seen_at',
-  'ucb_deadlines',
-  'ucb_exam_reg',
-  'ucb_exam_plans',
-  'ucb_going_state',
-  'ucb_offline_q',
-];
+// Every key "Delete all data" must erase (Art. 17 DSGVO), derived from the
+// STORAGE_KEYS single source of truth so a newly added key can't be forgotten here.
+// Invariant (asserted in __tests__/screens/LegalScreens.test.js): everything
+// clearAllCache() deliberately preserves must appear in this list.
+export const USER_DATA_KEYS = Object.values(STORAGE_KEYS);
 
 export default function SettingsScreen() {
   const t = useTranslation();
@@ -56,7 +53,6 @@ export default function SettingsScreen() {
   };
 
   const handleToggleNotifications = async (val) => {
-    trackEvent('feature_use', 'setting_changed', { setting: 'notificationsEnabled', value: val });
     if (val) {
       const granted = await requestNotificationPermission();
       if (!granted) {
@@ -74,12 +70,10 @@ export default function SettingsScreen() {
   const currentTheme = settings.themePreference ?? 'light';
   const handleSetTheme = (pref) => {
     if (pref === currentTheme) return;
-    trackEvent('feature_use', 'setting_changed', { setting: 'themePreference', value: pref });
     persistSettings({ themePreference: pref });
   };
 
   const handleToggleBiometric = async (val) => {
-    trackEvent('feature_use', 'setting_changed', { setting: 'biometricLockEnabled', value: val });
     if (val) {
       try {
         const result = await LocalAuthentication.authenticateAsync({
@@ -104,7 +98,6 @@ export default function SettingsScreen() {
 
   const handleLangConfirm = async () => {
     setShowLangConfirm(false);
-    trackEvent('feature_use', 'setting_changed', { setting: 'language', value: pendingLang });
     await saveLanguage(pendingLang);
     // Soft remount: updating the store language re-keys the app tree in App.js
     // so every screen re-reads translations immediately — no app restart.
@@ -117,7 +110,6 @@ export default function SettingsScreen() {
       await clearAllCache();
       setSnackbarMsg(t('settings_cache_cleared'));
       setSnackbarVisible(true);
-      trackEvent('feature_use', 'cache_cleared');
     } catch {
       setSnackbarMsg(t('settings_cache_failed'));
       setSnackbarVisible(true);
@@ -128,6 +120,10 @@ export default function SettingsScreen() {
     setShowDeleteAllConfirm(false);
     try {
       await AsyncStorage.multiRemove(USER_DATA_KEYS);
+      // Drops the logger's in-memory buffer too — without this the next log write
+      // would re-persist ucb_logs straight after the multiRemove above.
+      clearLogs();
+      await resetIdentity();
       await logout();
     } catch {
       setSnackbarMsg(t('settings_delete_failed'));
@@ -253,12 +249,12 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>{t('settings_section_data')}</Text>
         <View style={styles.card}>
           <TouchableOpacity style={styles.dangerCardRow} onPress={() => setShowClearConfirm(true)}>
-            <Ionicons name="refresh-outline" size={20} color="#E65100" />
+            <Ionicons name="refresh-outline" size={20} color={c.onWarning} />
             <View style={{ flex: 1 }}>
-              <Text style={[styles.dangerLabel, { color: '#E65100' }]}>{t('settings_clear_cache')}</Text>
+              <Text style={[styles.dangerLabel, { color: c.onWarning }]}>{t('settings_clear_cache')}</Text>
               <Text style={styles.dangerSub}>{t('settings_clear_cache_sub')}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#E65100" />
+            <Ionicons name="chevron-forward" size={16} color={c.onWarning} />
           </TouchableOpacity>
           <View style={styles.cardDivider} />
           <TouchableOpacity style={styles.dangerCardRow} onPress={() => setShowDeleteAllConfirm(true)}>
@@ -330,7 +326,7 @@ export default function SettingsScreen() {
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={() => setShowClearConfirm(false)}>{t('common_cancel')}</Button>
-          <Button onPress={handleClearCache} textColor="#E65100">{t('settings_clear_confirm')}</Button>
+          <Button onPress={handleClearCache} textColor={c.onWarning}>{t('settings_clear_confirm')}</Button>
         </Dialog.Actions>
       </Dialog>
 
@@ -357,18 +353,14 @@ export default function SettingsScreen() {
 const makeStyles = (c) => StyleSheet.create({
   container: { flex: 1, backgroundColor: c.bg },
   section: { marginTop: 20, paddingHorizontal: 16 },
-  sectionTitle: { fontSize: 12, fontWeight: '700', color: c.textMuted, textTransform: 'uppercase', marginBottom: 10, letterSpacing: 0.5 },
+  sectionTitle: { ...c.type.caption, fontFamily: c.fonts.bodySemiBold, color: c.textMuted, textTransform: 'uppercase', marginBottom: 10, letterSpacing: 0.5 },
 
   // Card container used for all setting groups
   card: {
     backgroundColor: c.surface,
-    borderRadius: 12,
+    borderRadius: c.radius.md,
     overflow: 'hidden',
-    elevation: 1,
-    shadowColor: c.shadow,
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    ...c.shadows.card,
   },
   cardRow: {
     flexDirection: 'row',
@@ -385,24 +377,24 @@ const makeStyles = (c) => StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
   },
-  helpText: { flex: 1, fontSize: 12, color: c.textMuted, lineHeight: 17 },
+  helpText: { ...c.type.caption, flex: 1, color: c.textMuted },
 
   settingRow: { backgroundColor: c.surface, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: c.border },
-  settingLabel: { fontSize: 15, fontWeight: '500', color: c.text },
-  settingDesc: { fontSize: 12, color: c.textMuted, marginTop: 3, lineHeight: 16, paddingRight: 8 },
-  settingValue: { fontSize: 13, color: c.textMuted },
+  settingLabel: { ...c.type.body, fontFamily: c.fonts.bodyMedium, color: c.text },
+  settingDesc: { ...c.type.caption, color: c.textMuted, marginTop: 3, paddingRight: 8 },
+  settingValue: { ...c.type.bodySm, color: c.textMuted },
 
   dangerCardRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 14 },
-  dangerLabel: { fontSize: 15, fontWeight: '500', color: c.error },
-  dangerSub: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  dangerLabel: { ...c.type.body, fontFamily: c.fonts.bodyMedium, color: c.error },
+  dangerSub: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
 
   linkRow: { backgroundColor: c.surface, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 12 },
   langRow: { flexDirection: 'row', gap: 10 },
   langBtn: { flex: 1, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1.5, borderColor: c.border, backgroundColor: c.surface, alignItems: 'center' },
   langBtnActive: { borderColor: c.primary, backgroundColor: c.primary + '15' },
   langBtnDisabled: { opacity: 0.45 },
-  langBtnText: { fontSize: 15, fontWeight: '700', color: c.textSecondary },
-  langBtnSub: { fontSize: 11, color: c.textMuted, marginTop: 2 },
+  langBtnText: { ...c.type.bodyStrong, fontFamily: c.fonts.bodyBold, color: c.textSecondary },
+  langBtnSub: { ...c.type.micro, fontFamily: c.fonts.body, color: c.textMuted, marginTop: 2 },
   langBtnTextActive: { color: c.primary },
-  langNote: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  langNote: { ...c.type.caption, color: c.textMuted, marginTop: 2 },
 });

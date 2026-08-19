@@ -10,7 +10,6 @@ import { FACT_CATEGORY_COLORS } from '../../constants/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeProvider';
 import useReducedMotion from '../../hooks/useReducedMotion';
 import { useTranslation } from '../../services/i18n';
-import { trackScreen, trackEvent } from '../../services/analytics';
 import {
   MAX_REVEALS,
   getDailyFact,
@@ -48,7 +47,6 @@ export default function FactScreen() {
   // Card entrance animation (opacity + lift + scale), re-run on every new fact.
   const anim = useRef(new Animated.Value(1)).current;
 
-  useFocusEffect(useCallback(() => { trackScreen('FactScreen'); }, []));
 
   // Load today's allowance and anchor on the deterministic fact of the day.
   useEffect(() => {
@@ -112,11 +110,9 @@ export default function FactScreen() {
     setCurrentFact(fact);
     setFactState(state);
     saveFactState(state);
-    trackEvent('feature_use', 'fact_revealed', { reveal_count: state.revealCount });
   }, [factState]);
 
   const openSource = useCallback(() => {
-    trackEvent('feature_use', 'fact_source_opened', { fact_id: currentFact.id });
     WebBrowser.openBrowserAsync(currentFact.source, { toolbarColor: accent }).catch(() => {});
   }, [currentFact, accent]);
 
@@ -141,7 +137,7 @@ export default function FactScreen() {
             <Text style={styles.hook}>{copy.hook}</Text>
             <Text style={styles.factText}>{copy.fact}</Text>
 
-            <TouchableOpacity style={styles.sourceRow} onPress={openSource} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.sourceRow} onPress={openSource} activeOpacity={0.7} accessibilityRole="link" accessibilityLabel={`${t('fact_source')}: ${currentFact.sourceName}`}>
               <Ionicons name="link-outline" size={15} color={accent} />
               <Text style={[styles.sourceText, { color: accent }]} numberOfLines={1}>
                 {t('fact_source')}: {currentFact.sourceName}
@@ -176,8 +172,10 @@ export default function FactScreen() {
               style={[styles.nextBtn, { backgroundColor: accent }]}
               onPress={handleNext}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={t('fact_next')}
             >
-              <Ionicons name="shuffle" size={18} color="#fff" />
+              <Ionicons name="shuffle" size={18} color={c.onPrimary} />
               <Text style={styles.nextBtnText}>{t('fact_next')}</Text>
             </TouchableOpacity>
           </>
@@ -201,11 +199,7 @@ const makeStyles = (c) => StyleSheet.create({
     backgroundColor: c.surface,
     borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: c.shadow,
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
+    ...c.shadows.raised,
   },
   cardHeader: {
     paddingVertical: 28,
@@ -221,14 +215,14 @@ const makeStyles = (c) => StyleSheet.create({
   },
   categoryChipText: {
     color: '#fff',
-    fontWeight: '800',
-    fontSize: 12,
+    ...c.type.caption,
+    fontFamily: c.fonts.bodyBold,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   },
   cardBody: { padding: 20 },
-  hook: { fontSize: 22, fontWeight: '800', color: c.text, lineHeight: 29 },
-  factText: { fontSize: 15.5, color: c.textSecondary, lineHeight: 23, marginTop: 12 },
+  hook: { ...c.type.titleLg, color: c.text },
+  factText: { ...c.type.body, color: c.textSecondary, marginTop: 12 },
   sourceRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -238,7 +232,7 @@ const makeStyles = (c) => StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: c.border,
   },
-  sourceText: { fontSize: 13, fontWeight: '700', flexShrink: 1 },
+  sourceText: { ...c.type.label, flexShrink: 1 },
   footer: {
     paddingHorizontal: 16,
     paddingTop: 12,
@@ -249,7 +243,7 @@ const makeStyles = (c) => StyleSheet.create({
   },
   dotsRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 12 },
   dot: { width: 9, height: 9, borderRadius: 5 },
-  dotsLabel: { marginLeft: 6, fontSize: 13, color: c.textMuted, fontWeight: '600' },
+  dotsLabel: { ...c.type.label, marginLeft: 6, color: c.textMuted },
   nextBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -258,14 +252,14 @@ const makeStyles = (c) => StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 14,
   },
-  nextBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  nextBtnText: { ...c.type.heading, fontFamily: c.fonts.bodyBold, color: c.onPrimary },
   lockedCard: {
-    backgroundColor: c.mode === 'dark' ? c.surfaceAlt : '#F4F7FB',
+    backgroundColor: c.surfaceAlt,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: c.mode === 'dark' ? c.border : '#D9E3F0',
+    borderColor: c.border,
   },
-  lockedTitle: { fontSize: 16, fontWeight: '800', color: c.text },
-  lockedMsg: { fontSize: 14, color: c.textSecondary, marginTop: 5, lineHeight: 20 },
+  lockedTitle: { ...c.type.heading, color: c.text },
+  lockedMsg: { ...c.type.bodySm, fontSize: 14, color: c.textSecondary, marginTop: 5 },
 });

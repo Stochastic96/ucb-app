@@ -162,7 +162,7 @@ export function SimpleTimePicker({ value, onChange, label }) {
 
 const makeStyles = (c) => StyleSheet.create({
   trigger: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
-  triggerText: { fontSize: 15, color: c.text, fontWeight: '500' },
+  triggerText: { ...c.type.body, fontFamily: c.fonts.bodyMedium, color: c.text },
   placeholder: { color: c.textMuted },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
@@ -180,8 +180,8 @@ const makeStyles = (c) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.border,
   },
-  sheetTitle: { fontSize: 16, fontWeight: '700', color: c.text },
-  cancel: { fontSize: 15, color: c.textMuted },
-  done: { fontSize: 15, fontWeight: '700', color: c.primary },
+  sheetTitle: { ...c.type.heading, color: c.text },
+  cancel: { ...c.type.body, color: c.textMuted },
+  done: { ...c.type.bodyStrong, color: c.primary },
   picker: { marginHorizontal: 16 },
 });

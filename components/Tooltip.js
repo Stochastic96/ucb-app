@@ -41,18 +41,19 @@ const makeStyles = (c) => StyleSheet.create({
   },
   box: {
     backgroundColor: c.surface,
-    borderRadius: 18,
+    borderRadius: c.radius.lg,
     padding: 22,
     alignItems: 'center',
     maxWidth: 300,
     width: '100%',
+    ...c.shadows.overlay,
   },
-  text: { fontSize: 14, color: c.textSecondary, lineHeight: 22, textAlign: 'center', marginBottom: 18 },
+  text: { ...c.type.bodySm, color: c.textSecondary, textAlign: 'center', marginBottom: 18 },
   btn: {
     backgroundColor: c.primary,
-    borderRadius: 10,
+    borderRadius: c.radius.md,
     paddingHorizontal: 28,
     paddingVertical: 11,
   },
-  btnText: { color: c.onPrimary, fontWeight: '700', fontSize: 14 },
+  btnText: { ...c.type.label, color: c.onPrimary },
 });

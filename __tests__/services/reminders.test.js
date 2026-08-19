@@ -1,4 +1,3 @@
-// Mock the native notification surface and the store/analytics dependencies so
 // scheduling logic can be asserted without touching the device or Supabase.
 jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
@@ -15,7 +14,6 @@ jest.mock('../../store/useStore', () => ({
   default: { getState: () => mockStoreState },
 }));
 
-jest.mock('../../services/analytics', () => ({ trackEvent: jest.fn() }));
 
 import * as Notifications from 'expo-notifications';
 import {
