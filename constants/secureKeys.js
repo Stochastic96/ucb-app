@@ -5,4 +5,8 @@ export const SECURE_KEYS = {
   PASSWORD: 'password',
   SESSION_CREATED: 'ucb_session_created',
   BIOMETRIC_ENABLED: 'ucb_secure_biometric_enabled',
+  // Campus Radar: persistent Ed25519 identity keypair (base64). Self-generated,
+  // never linked to Stud.IP — device-only signing identity for P2P socializing.
+  CAMPUS_ID_SK: 'ucb_secure_campus_id_sk',
+  CAMPUS_ID_PK: 'ucb_secure_campus_id_pk',
 };

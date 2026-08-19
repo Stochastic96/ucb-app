@@ -2,6 +2,11 @@ const DIRECT_STUDIP_BASE_URL = 'https://studip.hochschule-trier.de/jsonapi.php/v
 
 export const BASE_URL = process.env.EXPO_PUBLIC_STUDIP_BASE_URL || DIRECT_STUDIP_BASE_URL;
 export const STUDIP_WEB_URL = 'https://studip.hochschule-trier.de/index.php';
+
+// Publicly hosted privacy policy — required as store-listing metadata by both
+// Google Play and the App Store (the in-app screens alone do not satisfy this).
+// Must be reachable without login before submission.
+export const PRIVACY_POLICY_URL = 'https://app.ucbnavigator.pages.dev/privacy';
 export const STUDIP_LOCAL_LOGIN_URL = 'https://studip.hochschule-trier.de/index.php?again=yes';
 
 export const CACHE_TTL = {

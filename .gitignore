@@ -47,3 +47,10 @@ yarn-error.*
 # Firebase config files
 google-services.json
 GoogleService-Info.plist
+
+# EAS submit credentials — Google Play service account key referenced by
+# eas.json (submit.production.android.serviceAccountKeyPath). Never commit:
+# it grants publish access to the Play listing. Supply it locally or via
+# EAS secrets in CI.
+pc-api-key.json
+*-api-key.json

@@ -1,5 +1,8 @@
 import 'react-native-gesture-handler';
 import 'react-native-url-polyfill/auto';
+// Polyfills crypto.getRandomValues so tweetnacl can generate keys/nonces on-device
+// (Campus Radar Ed25519/X25519 identity). No-op-safe under Jest (node crypto is used there).
+import 'react-native-get-random-values';
 import { registerRootComponent } from 'expo';
 
 import App from './App';
